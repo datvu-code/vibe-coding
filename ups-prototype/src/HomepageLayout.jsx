@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   Layout, Menu, Card, Statistic, Progress, Tabs, Timeline, Tag, 
   Drawer, Modal, Popover, Tooltip, Button, List, Collapse, DatePicker, 
@@ -25,6 +25,7 @@ import logoSvg from './assets/logo-dark.svg';
 import { DndContext, closestCenter } from '@dnd-kit/core';
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+import { createSnapModifier } from '@dnd-kit/modifiers';
 
 const { Header, Sider, Content } = Layout;
 const { RangePicker } = DatePicker;
@@ -453,6 +454,9 @@ const previewPieData = [
   { name: 'Website', value: 25 }
 ];
 
+const PREVIEW_SLOT_GAP = 12;
+const PREVIEW_SLOT_HEIGHT = 56;
+const PREVIEW_SLOT_WIDTH = 140;
 const previewSpanSteps = [1, 2, 3, 4, 6];
 
 const getDefaultVisualization = (metric) => {
@@ -842,6 +846,11 @@ const HomepageLayout = () => {
     : groupedMetrics;
   
   // Save to localStorage whenever templates or selection changes
+  const previewGridSnapModifier = useMemo(() => createSnapModifier({
+    x: PREVIEW_SLOT_WIDTH + PREVIEW_SLOT_GAP,
+    y: PREVIEW_SLOT_HEIGHT + PREVIEW_SLOT_GAP
+  }), []);
+
   useEffect(() => {
     localStorage.setItem('ups-metric-templates', JSON.stringify(templates));
   }, [templates]);
@@ -2224,8 +2233,8 @@ useEffect(() => {
                     inset: 16,
                     display: 'grid',
                     gridTemplateColumns: 'repeat(6, minmax(0, 1fr))',
-                    gridAutoRows: '56px',
-                    gap: 12,
+                    gridAutoRows: `${PREVIEW_SLOT_HEIGHT}px`,
+                    gap: PREVIEW_SLOT_GAP,
                     pointerEvents: 'none',
                     zIndex: 1
                   }}
@@ -2246,6 +2255,7 @@ useEffect(() => {
                     <DndContext
                       collisionDetection={closestCenter}
                       onDragEnd={handlePreviewDragEnd}
+                      modifiers={[previewGridSnapModifier]}
                     >
                       <SortableContext 
                         items={previewBlocks.map(block => block.id)} 
@@ -2254,7 +2264,7 @@ useEffect(() => {
                         <div style={{ 
                           display: 'grid', 
                           gridTemplateColumns: 'repeat(6, minmax(0, 1fr))',
-                          gap: 12 
+                          gap: PREVIEW_SLOT_GAP 
                         }}>
                           {previewBlocks.map(block => {
                             const metric = allMetricsPool.find(m => m.id === block.metricId);
