@@ -528,7 +528,7 @@ const SortablePreviewBlock = ({
     transition,
     opacity: isDragging ? 0.75 : 1,
     gridColumn: `span ${Math.min(block.span, 6)}`,
-    minHeight: block.viewType === 'card' ? 150 : 200,
+    minHeight: block.viewType === 'card' ? 120 : 170,
     background: '#fff',
     borderRadius: 12,
     border: isDragging ? '1px solid #2684FF' : '1px dashed #D0D5DD',
@@ -625,19 +625,6 @@ const SortablePreviewBlock = ({
           </div>
         );
     }
-  };
-
-  const viewMenu = {
-    onClick: ({ key }) => onChangeView(block.id, key),
-    items: visualizationOptions.map((opt) => ({
-      key: opt.key,
-      label: (
-        <Space size={8} align="center">
-          {opt.icon}
-          <span>{opt.label}</span>
-        </Space>
-      )
-    }))
   };
 
   const resizeMenu = {
@@ -825,6 +812,7 @@ const HomepageLayout = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [previewBlocks, setPreviewBlocks] = useState([]);
   const [hoveredPreviewBlock, setHoveredPreviewBlock] = useState(null);
+  const [hoveredMetricId, setHoveredMetricId] = useState(null);
   
   // Get current template
   const selectedTemplate = templates.find(t => t.id === selectedTemplateId) || templates[0];
@@ -862,24 +850,26 @@ const HomepageLayout = () => {
     localStorage.setItem('ups-selected-template', selectedTemplateId);
   }, [selectedTemplateId]);
   
-useEffect(() => {
-  if (!createTemplateModalVisible) return;
-  setPreviewBlocks((prevBlocks) => {
-    const map = new Map(prevBlocks.map(block => [block.metricId, block]));
-    return selectedMetrics.map(metricId => {
-      if (map.has(metricId)) {
-        return map.get(metricId);
-      }
-      const metric = allMetricsPool.find(m => m.id === metricId);
-      return {
-        id: `preview-${metricId}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-        metricId,
-        span: 3,
-        viewType: getDefaultVisualization(metric)
-      };
+  useEffect(() => {
+    if (!createTemplateModalVisible) return;
+    setPreviewBlocks((prevBlocks) => {
+      const map = new Map(prevBlocks.map(block => [block.metricId, block]));
+      const nextBlocks = selectedMetrics.map(metricId => {
+        if (map.has(metricId)) {
+          return map.get(metricId);
+        }
+        const metric = allMetricsPool.find(m => m.id === metricId);
+        if (!metric) return null;
+        return {
+          id: `preview-${metricId}-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          metricId,
+          span: 3,
+          viewType: getDefaultVisualization(metric)
+        };
+      }).filter(Boolean);
+      return nextBlocks;
     });
-  });
-}, [selectedMetrics, createTemplateModalVisible]);
+  }, [selectedMetrics, createTemplateModalVisible]);
 
 useEffect(() => {
   if (!createTemplateModalVisible) {
@@ -987,6 +977,7 @@ useEffect(() => {
     setSearchQuery('');
     setPreviewBlocks([]);
     setHoveredPreviewBlock(null);
+    setHoveredMetricId(null);
     setCustomizeModalVisible(false);
     setCreateTemplateModalVisible(true);
   };
@@ -1007,6 +998,7 @@ useEffect(() => {
       setEditTemplateModalVisible(false);
     }
     setHoveredPreviewBlock(null);
+    setHoveredMetricId(null);
     setCustomizeModalVisible(true);
   };
 
@@ -1041,6 +1033,7 @@ useEffect(() => {
       setPreviewBlocks(fallbackBlocks);
     }
     setHoveredPreviewBlock(null);
+    setHoveredMetricId(null);
     setCustomizeModalVisible(false);
     setCreateTemplateModalVisible(true);
   };
@@ -1096,23 +1089,24 @@ useEffect(() => {
     );
   };
 
-const handleRemovePreviewBlock = (metricId) => {
-  setPreviewBlocks((blocks) => blocks.filter(block => block.metricId !== metricId));
-  setSelectedMetrics((metrics) => metrics.filter(id => id !== metricId));
-  setHoveredPreviewBlock((current) => {
-    if (!current) return current;
-    const removedBlock = previewBlocks.find(block => block.metricId === metricId);
-    return removedBlock && removedBlock.id === current ? null : current;
-  });
-};
+  const handleRemovePreviewBlock = (metricId) => {
+    setPreviewBlocks((blocks) => {
+      const removedBlock = blocks.find(block => block.metricId === metricId);
+      if (removedBlock) {
+        setHoveredPreviewBlock((current) => current === removedBlock.id ? null : current);
+      }
+      return blocks.filter(block => block.metricId !== metricId);
+    });
+    setSelectedMetrics((metrics) => metrics.filter(id => id !== metricId));
+  };
 
-const handleToggleMetricSelection = (metricId) => {
-  setSelectedMetrics((metrics) => 
-    metrics.includes(metricId)
-      ? metrics.filter(id => id !== metricId)
-      : [...metrics, metricId]
-  );
-};
+  const handleToggleMetricSelection = (metricId) => {
+    setSelectedMetrics((metrics) => 
+      metrics.includes(metricId)
+        ? metrics.filter(id => id !== metricId)
+        : [...metrics, metricId]
+    );
+  };
   
   const handleStartReorder = () => {
     setTempMetricOrder(selectedTemplate.metrics);
@@ -2172,20 +2166,24 @@ const handleToggleMetricSelection = (metricId) => {
                       <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                         {metrics.map(metric => {
                           const isSelected = selectedMetrics.includes(metric.id);
+                          const isHovered = hoveredMetricId === metric.id;
                           return (
                             <div
                               key={metric.id}
                               onClick={() => handleToggleMetricSelection(metric.id)}
+                              onMouseEnter={() => setHoveredMetricId(metric.id)}
+                              onMouseLeave={() => setHoveredMetricId((current) => current === metric.id ? null : current)}
                               style={{
                                 padding: '10px 12px',
                                 borderRadius: 12,
                                 border: isSelected ? '1px solid #1677FF' : '1px solid #E4E6EB',
-                                background: isSelected ? 'rgba(22, 119, 255, 0.08)' : '#fff',
+                                background: isSelected ? 'rgba(22, 119, 255, 0.08)' : (isHovered ? '#F5F7FB' : '#fff'),
                                 cursor: 'pointer',
                                 display: 'flex',
                                 justifyContent: 'space-between',
                                 alignItems: 'center',
-                                transition: 'all 0.2s'
+                                transition: 'all 0.2s',
+                                boxShadow: isHovered ? '0 2px 6px rgba(15,23,42,0.08)' : 'none'
                               }}
                             >
                               <div>
@@ -2226,7 +2224,7 @@ const handleToggleMetricSelection = (metricId) => {
                     inset: 16,
                     display: 'grid',
                     gridTemplateColumns: 'repeat(6, minmax(0, 1fr))',
-                    gridAutoRows: '70px',
+                    gridAutoRows: '56px',
                     gap: 12,
                     pointerEvents: 'none',
                     zIndex: 1
@@ -2237,8 +2235,8 @@ const handleToggleMetricSelection = (metricId) => {
                       key={`slot-${idx}`} 
                       style={{ 
                         border: '1px dashed #CBD5F5', 
-                        borderRadius: 16, 
-                        background: 'rgba(241, 245, 249, 0.5)' 
+                        borderRadius: 24, 
+                        background: 'rgba(241, 245, 249, 0.6)' 
                       }} 
                     />
                   ))}
