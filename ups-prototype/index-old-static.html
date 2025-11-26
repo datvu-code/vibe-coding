@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Danh sách đơn hàng - UpS Dashboard</title>
+    <!-- Ant Design CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@5.11.5/dist/reset.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/antd@5.11.5/dist/antd.min.css">
+    <!-- Ant Design Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 135 50'%3E%3C!-- 'up' text --%3E%3Ctext x='0' y='38' font-family='system-ui, -apple-system, sans-serif' font-size='38' font-weight='700' fill='%231a1a1a'%3Eup%3C/text%3E%3C!-- Orange square with rounded corners --%3E%3Crect x='72' y='5' width='58' height='42' rx='8' fill='%23E8744F'/%3E%3C!-- White 'S' letter --%3E%3Cpath d='M 85 15 Q 90 13 95 15 Q 98 17 98 20 Q 98 23 95 25 L 90 28 Q 87 30 87 33 Q 87 35 89 36 Q 91 37 93 37 L 110 37 L 110 42 L 93 42 Q 87 42 84 39 Q 82 37 82 33 Q 82 29 85 27 L 90 24 Q 93 22 93 19 Q 93 17 91 16 Q 89 15 87 15 L 80 15 L 80 10 L 87 10 Q 92 10 95 12' fill='%23FFFFFF'/%3E%3C/svg%3E" alt="upS Logo" class="logo-image">
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-angles-left"></i>
+            </button>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="homepage.html" class="nav-item">
+                <i class="fas fa-home"></i>
+                <span class="nav-text">Homepage</span>
+            </a>
+            <a href="analytics.html" class="nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span class="nav-text">Analytics</span>
+            </a>
+            <div class="nav-item active">
+                <i class="fas fa-box"></i>
+                <span class="nav-text">Đơn hàng</span>
+                <i class="fas fa-chevron-down submenu-icon"></i>
+            </div>
+            <div class="submenu">
+                <div class="submenu-item">
+                    <span class="nav-text">Xử lý loạt</span>
+                </div>
+                <div class="submenu-item active">
+                    <span class="nav-text">Danh sách</span>
+                </div>
+                <div class="submenu-item">
+                    <span class="nav-text">Quà tặng</span>
+                </div>
+                <div class="submenu-item">
+                    <span class="nav-text">Dữ liệu</span>
+                </div>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-truck"></i>
+                <span class="nav-text">Vận chuyển</span>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="breadcrumb">
+                <span>Quản lý đơn hàng</span>
+                <i class="fas fa-chevron-right"></i>
+                <span class="active">Danh sách đơn hàng</span>
+            </div>
+            
+            <div class="header-actions">
+                <button class="icon-btn">
+                    <i class="far fa-question-circle"></i>
+                </button>
+                <button class="icon-btn">
+                    <i class="far fa-bell"></i>
+                </button>
+                <button class="icon-btn">
+                    <i class="fas fa-store"></i>
+                </button>
+                <div class="user-profile">
+                    <div class="avatar">D</div>
+                    <span>Dat vu</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <div class="page-content">
+            <h1 class="page-title">Danh sách đơn hàng</h1>
+
+            <!-- Alert and Controls -->
+            <div class="controls-section">
+                <div class="alert">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Các đơn hàng cũ nhận hơn 40 ngày sẽ được tự động xóa bỏ hoàn toàn và không thể xử lý được nữa</span>
+                </div>
+
+                <div class="tabs-row">
+                    <div class="tabs">
+                        <button class="tab active">Đơn tự động</button>
+                        <button class="tab">Đơn thủ công</button>
+                    </div>
+                </div>
+
+                <div class="action-buttons">
+                    <button class="btn btn-outline" id="filterDrawerBtn">
+                        <i class="fas fa-filter"></i>
+                        Bộ lọc
+                    </button>
+                    <div class="right-actions">
+                        <button class="btn btn-outline">
+                            <i class="fas fa-download"></i>
+                            Xuất danh sách
+                        </button>
+                        <button class="btn btn-primary">
+                            <i class="fas fa-plus"></i>
+                            Tạo đơn hàng
+                        </button>
+                        <button class="icon-btn">
+                            <i class="fas fa-history"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Table Section -->
+            <div class="table-section">
+                <div class="table-header-row">
+                    <div class="update-info">
+                        <span class="status-dot"></span>
+                        <span>Lần cập nhật gần nhất: 14:02 24/12/2025</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </div>
+                    <button class="btn btn-outline">Sắp xếp theo</button>
+                </div>
+
+                <!-- Filter Tabs -->
+                <div class="filter-tabs">
+                    <button class="filter-tab active">Tất cả</button>
+                    <button class="filter-tab">Chờ xử lý (12)</button>
+                    <button class="filter-tab">Đang gửi (12)</button>
+                    <button class="filter-tab">Xử lý (12)</button>
+                    <button class="filter-tab">Đang giao hàng (12)</button>
+                    <button class="filter-tab">Hoàn thành (12)</button>
+                    <button class="filter-tab">Hủy (12)</button>
+                    <button class="filter-tab">Chưa có đơn hàng (12)</button>
+                    <button class="filter-tab">Thông tin vận đơn (21)</button>
+                </div>
+
+                <!-- Table -->
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th class="col-expand"></th>
+                                <th class="col-checkbox">
+                                    <input type="checkbox" id="selectAll">
+                                </th>
+                                <th class="col-product">Thông tin sản phẩm</th>
+                                <th class="col-price">Tổng tiền</th>
+                                <th class="col-warehouse">Kho</th>
+                                <th class="col-status">Trạng thái</th>
+                                <th class="col-actions"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Order 1 -->
+                            <tr class="order-header">
+                                <td colspan="7">
+                                    <div class="order-info">
+                                        <div class="shop-info">
+                                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='%23ff6b00'%3E%3Cpath d='M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z'/%3E%3C/svg%3E" alt="shop" class="shop-icon">
+                                            <span class="shop-name">Puka's Shop</span>
+                                            <span class="order-code">Mã đơn hàng: 251007F3DE2EC1</span>
+                                            <i class="far fa-copy copy-icon"></i>
+                                        </div>
+                                        <div class="order-meta">
+                                            <span>Đặt lúc: 07/10/2025 13:51</span>
+                                            <span class="badge badge-success">Đang xử lý</span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="order-row" data-order-id="1">
+                                <td class="col-expand">
+                                    <button class="expand-btn" aria-label="Expand row">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </td>
+                                <td class="col-checkbox">
+                                    <input type="checkbox">
+                                </td>
+                                <td class="col-product">
+                                    <div class="product-info-compact">
+                                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Crect fill='%23f5f5f5' width='60' height='60'/%3E%3Cpath fill='%23bfbfbf' d='M20 18h20v4H20zm0 8h20v4H20zm0 8h14v4H20z'/%3E%3Ccircle fill='%23d9d9d9' cx='30' cy='22' r='8'/%3E%3C/svg%3E" alt="product" class="product-image">
+                                        <div class="product-details-compact">
+                                            <div class="product-name-truncated">Gói Bột Gia Vị Bột Phomai Raw Hữu Cơ 200G Nguyên Chất</div>
+                                            <div class="product-sku-compact">
+                                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='12' viewBox='0 0 16 12'%3E%3Crect fill='%23da251d' width='16' height='12'/%3E%3Cpath fill='%23ffff00' d='M5 4l1.5 1.5L5 7l1.5-1.5L8 7 6.5 5.5 8 4 6.5 5.5z'/%3E%3C/svg%3E" alt="flag" class="flag-icon">
+                                                <span>SKU: 000327SKLTHMSP</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="col-price">
+                                    <div class="price">2,416,500đ</div>
+                                    <div class="payment-badge">COD</div>
+                                </td>
+                                <td class="col-warehouse">
+                                    <span class="warehouse-name">KHO THỜI TRANG</span>
+                                </td>
+                                <td class="col-status">
+                                    <span class="badge badge-warning">Quá hạn</span>
+                                </td>
+                                <td class="col-actions">
+                                    <button class="btn btn-sm">Tùy chọn <i class="fas fa-chevron-down"></i></button>
+                                </td>
+                            </tr>
+                            <tr class="order-detail-row" data-order-id="1">
+                                <td colspan="7">
+                                    <div class="order-details-expanded">
+                                        <div class="detail-grid">
+                                            <div class="detail-section">
+                                                <div class="detail-label">Thông tin sản phẩm đầy đủ</div>
+                                                <div class="detail-content">
+                                                    <div class="full-product-name">Gói Bột Gia Vị Bột Phomai Raw Hữu Cơ 200G Nguyên Chất</div>
+                                                    <div class="full-sku">SKU: 000327SKLTHMSP-1748318375</div>
+                                                    <div class="payment-full">Phương thức: Cash on Delivery</div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="detail-section">
+                                                <div class="detail-label">Xử lý đơn hàng</div>
+                                                <div class="detail-content">
+                                                    <div class="deadline-compact">
+                                                        <i class="fas fa-clock"></i>
+                                                        <span>Giao trước: <strong>08/10/2025 23:59</strong></span>
+                                                    </div>
+                                                    <div class="deadline-compact">
+                                                        <i class="fas fa-box"></i>
+                                                        <span>Chuẩn bị hàng trước: <strong>08/10/2025 23:59</strong></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="detail-section">
+                                                <div class="detail-label">Vận chuyển</div>
+                                                <div class="detail-content">
+                                                    <div class="shipping-compact">
+                                                        <strong>SPX Express</strong>
+                                                    </div>
+                                                    <div class="tracking-compact">
+                                                        <span>Mã vận đơn: <strong>SPXVN05926370071A</strong></span>
+                                                        <i class="far fa-copy copy-icon-small"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <!-- Order 2 -->
+                            <tr class="order-header">
+                                <td colspan="7">
+                                    <div class="order-info">
+                                        <div class="shop-info">
+                                            <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='%23ff6b00'%3E%3Cpath d='M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z'/%3E%3C/svg%3E" alt="shop" class="shop-icon">
+                                            <span class="shop-name">Puka's Shop</span>
+                                            <span class="order-code">Mã đơn hàng: 251007F3DE2EC2</span>
+                                            <i class="far fa-copy copy-icon"></i>
+                                        </div>
+                                        <div class="order-meta">
+                                            <span>Đặt lúc: 07/10/2025 14:20</span>
+                                            <span class="badge badge-success">Đang xử lý</span>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="order-row" data-order-id="2">
+                                <td class="col-expand">
+                                    <button class="expand-btn" aria-label="Expand row">
+                                        <i class="fas fa-chevron-right"></i>
+                                    </button>
+                                </td>
+                                <td class="col-checkbox">
+                                    <input type="checkbox">
+                                </td>
+                                <td class="col-product">
+                                    <div class="product-info-compact">
+                                        <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Crect fill='%23f5f5f5' width='60' height='60'/%3E%3Cpath fill='%23bfbfbf' d='M20 18h20v4H20zm0 8h20v4H20zm0 8h14v4H20z'/%3E%3Ccircle fill='%23d9d9d9' cx='30' cy='22' r='8'/%3E%3C/svg%3E" alt="product" class="product-image">
+                                        <div class="product-details-compact">
+                                            <div class="product-name-truncated">Gói Bột Gia Vị Bột Phomai Raw Hữu Cơ 200G Nguyên Chất</div>
+                                            <div class="product-sku-compact">
+                                                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='12' viewBox='0 0 16 12'%3E%3Crect fill='%23da251d' width='16' height='12'/%3E%3Cpath fill='%23ffff00' d='M5 4l1.5 1.5L5 7l1.5-1.5L8 7 6.5 5.5 8 4 6.5 5.5z'/%3E%3C/svg%3E" alt="flag" class="flag-icon">
+                                                <span>SKU: 000327SKLTHMSP</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="col-price">
+                                    <div class="price">2,416,500đ</div>
+                                    <div class="payment-badge">COD</div>
+                                </td>
+                                <td class="col-warehouse">
+                                    <span class="warehouse-name">KHO THỜI TRANG</span>
+                                </td>
+                                <td class="col-status">
+                                    <span class="badge badge-warning">Quá hạn</span>
+                                </td>
+                                <td class="col-actions">
+                                    <button class="btn btn-sm">Tùy chọn <i class="fas fa-chevron-down"></i></button>
+                                </td>
+                            </tr>
+                            <tr class="order-detail-row" data-order-id="2">
+                                <td colspan="7">
+                                    <div class="order-details-expanded">
+                                        <div class="detail-grid">
+                                            <div class="detail-section">
+                                                <div class="detail-label">Thông tin sản phẩm đầy đủ</div>
+                                                <div class="detail-content">
+                                                    <div class="full-product-name">Gói Bột Gia Vị Bột Phomai Raw Hữu Cơ 200G Nguyên Chất</div>
+                                                    <div class="full-sku">SKU: 000327SKLTHMSP-1748318375</div>
+                                                    <div class="payment-full">Phương thức: Cash on Delivery</div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="detail-section">
+                                                <div class="detail-label">Xử lý đơn hàng</div>
+                                                <div class="detail-content">
+                                                    <div class="deadline-compact">
+                                                        <i class="fas fa-clock"></i>
+                                                        <span>Giao trước: <strong>08/10/2025 23:59</strong></span>
+                                                    </div>
+                                                    <div class="deadline-compact">
+                                                        <i class="fas fa-box"></i>
+                                                        <span>Chuẩn bị hàng trước: <strong>08/10/2025 23:59</strong></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            
+                                            <div class="detail-section">
+                                                <div class="detail-label">Vận chuyển</div>
+                                                <div class="detail-content">
+                                                    <div class="shipping-compact">
+                                                        <strong>SPX Express</strong>
+                                                    </div>
+                                                    <div class="tracking-compact">
+                                                        <span>Mã vận đơn: <strong>SPXVN05926370071A</strong></span>
+                                                        <i class="far fa-copy copy-icon-small"></i>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pagination -->
+                <div class="pagination">
+                    <div class="page-size">
+                        <select>
+                            <option>Hiển thị 20</option>
+                            <option>Hiển thị 50</option>
+                            <option>Hiển thị 100</option>
+                        </select>
+                    </div>
+                    <div class="page-controls">
+                        <span>Tổng: 50</span>
+                        <div class="page-buttons">
+                            <button class="page-btn"><i class="fas fa-chevron-left"></i></button>
+                            <button class="page-btn active">1</button>
+                            <button class="page-btn">2</button>
+                            <button class="page-btn">3</button>
+                            <button class="page-btn"><i class="fas fa-chevron-right"></i></button>
+                            <button class="page-btn"><i class="fas fa-chevron-double-right"></i></button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Filter Drawer -->
+    <div class="filter-drawer" id="filterDrawer">
+        <div class="filter-drawer-overlay"></div>
+        <div class="filter-drawer-content">
+            <div class="filter-drawer-header">
+                <h3>Bộ lọc</h3>
+                <button class="filter-drawer-close" id="filterDrawerClose">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <div class="filter-drawer-body">
+                <!-- Date Range Filter -->
+                <div class="filter-group">
+                    <label class="filter-label">Thời gian tạo đơn hàng</label>
+                    <div class="date-range-inputs">
+                        <input type="text" class="filter-input" placeholder="00:00 04/11/2025 - 23:59 10/11/2025" readonly>
+                        <button class="date-range-btn">
+                            <i class="fas fa-calendar-alt"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Order Code Search -->
+                <div class="filter-group">
+                    <label class="filter-label">Mã đơn hàng</label>
+                    <div class="search-input-wrapper">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text" class="filter-input" placeholder="Tìm đơn hàng">
+                    </div>
+                </div>
+
+                <!-- Product Filter -->
+                <div class="filter-group">
+                    <label class="filter-label">Chọn sản phẩm</label>
+                    <select class="filter-select">
+                        <option>Tất cả</option>
+                    </select>
+                </div>
+
+                <!-- Store Filter -->
+                <div class="filter-group">
+                    <label class="filter-label">Chọn gian hàng</label>
+                    <select class="filter-select">
+                        <option>Tất cả</option>
+                    </select>
+                </div>
+
+                <!-- Warehouse Filter -->
+                <div class="filter-group">
+                    <label class="filter-label">Chọn kho</label>
+                    <select class="filter-select">
+                        <option>Tất cả</option>
+                    </select>
+                </div>
+
+                <!-- Advanced Filter -->
+                <div class="filter-group">
+                    <label class="filter-label">Lọc đơn hàng nâng cao</label>
+                    <select class="filter-select">
+                        <option>Tất cả</option>
+                    </select>
+                </div>
+
+                <!-- Order Type -->
+                <div class="filter-group">
+                    <label class="filter-label">Loại đơn</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox">
+                            <span>Sản phẩm đơn lẻ (Số lượng 1)</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox">
+                            <span>Sản phẩm đơn lẻ (Số lượng nhiều)</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox">
+                            <span>Có sản phẩm quà tặng</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox">
+                            <span>Không có sản phẩm quà tặng</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Shipping Unit -->
+                <div class="filter-group">
+                    <label class="filter-label">Đơn vị vận chuyển</label>
+                    <select class="filter-select">
+                        <option>Tất cả</option>
+                    </select>
+                </div>
+
+                <!-- Payment Status -->
+                <div class="filter-group">
+                    <label class="filter-label">Trạng thái thanh toán</label>
+                    <select class="filter-select">
+                        <option>Tất cả</option>
+                    </select>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="filter-group">
+                    <label class="filter-label">Hình thức thanh toán</label>
+                    <select class="filter-select">
+                        <option>Tất cả</option>
+                    </select>
+                </div>
+
+                <!-- Package Type -->
+                <div class="filter-group">
+                    <label class="filter-label">Loại kiện hàng</label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox">
+                            <span>Có ghi chú người bán</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox">
+                            <span>Có ghi chú người mua</span>
+                        </label>
+                        <label class="checkbox-label">
+                            <input type="checkbox">
+                            <span>Nhiều sản phẩm</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Tag Filter -->
+                <div class="filter-group">
+                    <label class="filter-label">Tag</label>
+                    <select class="filter-select">
+                        <option>Tất cả</option>
+                    </select>
+                </div>
+
+                <!-- Print Status -->
+                <div class="filter-group">
+                    <label class="filter-label">Trạng thái in</label>
+                    <select class="filter-select">
+                        <option>Tất cả</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="filter-drawer-footer">
+                <button class="btn btn-outline" id="filterResetBtn">Đặt lại</button>
+                <button class="btn btn-primary" id="filterApplyBtn">Áp dụng</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- React and Ant Design JS -->
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/dayjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/antd@5.11.5/dist/antd.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
+

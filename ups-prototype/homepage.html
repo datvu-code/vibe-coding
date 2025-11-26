@@ -1,0 +1,947 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trang chủ Dashboard - UpS</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for sparklines -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .sparkline-container {
+            height: 40px;
+            width: 100%;
+            position: relative;
+        }
+        .sparkline-container canvas {
+            max-height: 40px !important;
+        }
+        .metric-card {
+            transition: all 0.2s ease;
+        }
+        .metric-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .alert-group {
+            transition: all 0.2s ease;
+        }
+        .alert-group:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        .quick-action-btn {
+            transition: all 0.2s ease;
+        }
+        .quick-action-btn:hover {
+            transform: translateY(-1px);
+        }
+        .role-switcher-btn {
+            color: #6b7280;
+            background: transparent;
+        }
+        .role-switcher-btn:hover {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        .role-switcher-btn.active {
+            background: #3b82f6;
+            color: white;
+        }
+        .role-view {
+            display: block;
+        }
+        .role-view.hidden {
+            display: none;
+        }
+        .border-l-3 {
+            border-left-width: 3px;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 135 50'%3E%3C!-- 'up' text --%3E%3Ctext x='0' y='38' font-family='system-ui, -apple-system, sans-serif' font-size='38' font-weight='700' fill='%231a1a1a'%3Eup%3C/text%3E%3C!-- Orange square with rounded corners --%3E%3Crect x='72' y='5' width='58' height='42' rx='8' fill='%23E8744F'/%3E%3C!-- White 'S' letter --%3E%3Cpath d='M 85 15 Q 90 13 95 15 Q 98 17 98 20 Q 98 23 95 25 L 90 28 Q 87 30 87 33 Q 87 35 89 36 Q 91 37 93 37 L 110 37 L 110 42 L 93 42 Q 87 42 84 39 Q 82 37 82 33 Q 82 29 85 27 L 90 24 Q 93 22 93 19 Q 93 17 91 16 Q 89 15 87 15 L 80 15 L 80 10 L 87 10 Q 92 10 95 12' fill='%23FFFFFF'/%3E%3C/svg%3E" alt="upS Logo" class="logo-image">
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-angles-left"></i>
+            </button>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <a href="homepage.html" class="nav-item active">
+                <i class="fas fa-home"></i>
+                <span class="nav-text">Trang chủ</span>
+            </a>
+            <a href="analytics.html" class="nav-item">
+                <i class="fas fa-chart-line"></i>
+                <span class="nav-text">Phân tích</span>
+            </a>
+            <a href="index.html" class="nav-item">
+                <i class="fas fa-box"></i>
+                <span class="nav-text">Đơn hàng</span>
+            </a>
+            <div class="nav-item">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="nav-text">Kho hàng</span>
+            </div>
+            <div class="nav-item">
+                <i class="fas fa-truck"></i>
+                <span class="nav-text">Vận chuyển</span>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Header -->
+        <header class="header">
+            <div class="breadcrumb">
+                <span>Bảng điều khiển</span>
+                <i class="fas fa-chevron-right"></i>
+                <span class="active">Trang chủ</span>
+            </div>
+            
+            <div class="header-actions">
+                <button class="icon-btn">
+                    <i class="far fa-question-circle"></i>
+                </button>
+                <button class="icon-btn">
+                    <i class="far fa-bell"></i>
+                </button>
+                <button class="icon-btn">
+                    <i class="fas fa-store"></i>
+                </button>
+                <div class="user-profile">
+                    <div class="avatar">D</div>
+                    <span>Dat vu</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Page Content -->
+        <div class="page-content">
+            <h1 class="page-title mb-6">Trang chủ</h1>
+
+            <!-- Section 1: Performance Overview (Role-based) -->
+            <section class="mb-8">
+                <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+                    <!-- Role View Switcher -->
+                    <div class="flex items-center justify-start mb-6">
+                        <div class="bg-gray-50 rounded-lg p-1 inline-flex gap-1">
+                            <button class="role-switcher-btn px-4 py-2 text-sm font-medium rounded-md transition-colors active" data-role="growth">
+                                <i class="fas fa-chart-line mr-2"></i>Growth
+                            </button>
+                            <button class="role-switcher-btn px-4 py-2 text-sm font-medium rounded-md transition-colors" data-role="account">
+                                <i class="fas fa-user-cog mr-2"></i>Account/Ops
+                            </button>
+                            <button class="role-switcher-btn px-4 py-2 text-sm font-medium rounded-md transition-colors" data-role="management">
+                                <i class="fas fa-users-cog mr-2"></i>Management
+                            </button>
+                        </div>
+                    </div>
+
+            <!-- Growth View -->
+            <div id="growthView" class="role-view">
+                <!-- Báo cáo kết quả -->
+                <section class="mb-8">
+                    <h2 class="text-lg font-semibold text-gray-700 mb-4">Báo cáo kết quả</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="metric-card bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-600">GMV ngày hôm qua</span>
+                                <i class="fas fa-arrow-up text-green-500"></i>
+                            </div>
+                            <div class="text-2xl font-bold text-gray-900 mb-2">₫2.4B</div>
+                            <div class="text-sm text-gray-500">vs hôm trước: <span class="text-green-600 font-medium">+12.5%</span></div>
+                        </div>
+                        <div class="metric-card bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-600">Số đơn ngày hôm qua</span>
+                                <i class="fas fa-arrow-up text-green-500"></i>
+                            </div>
+                            <div class="text-2xl font-bold text-gray-900 mb-2">1,247</div>
+                            <div class="text-sm text-gray-500">vs hôm trước: <span class="text-green-600 font-medium">+8.2%</span></div>
+                        </div>
+                        <div class="metric-card bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-600">GMV theo kênh</span>
+                                <i class="fas fa-store text-blue-500"></i>
+                            </div>
+                            <div class="text-sm text-gray-700 mb-1">Shopee: ₫1.2B</div>
+                            <div class="text-sm text-gray-700 mb-1">TikTok: ₫800M</div>
+                            <div class="text-sm text-gray-700">Website: ₫400M</div>
+                        </div>
+                        <div class="metric-card bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-600">AOV</span>
+                                <i class="fas fa-arrow-up text-green-500"></i>
+                            </div>
+                            <div class="text-2xl font-bold text-gray-900 mb-2">₫1,925</div>
+                            <div class="text-sm text-gray-500">vs hôm trước: <span class="text-green-600 font-medium">+3.8%</span></div>
+                        </div>
+                        <div class="metric-card bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-600">ROAS tổng ngày hôm qua</span>
+                                <i class="fas fa-arrow-down text-red-500"></i>
+                            </div>
+                            <div class="text-2xl font-bold text-gray-900 mb-2">4.2x</div>
+                            <div class="text-sm text-gray-500">vs hôm trước: <span class="text-red-600 font-medium">-5.1%</span></div>
+                        </div>
+                        <div class="metric-card bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-600">Chi phí Ads hôm qua</span>
+                                <i class="fas fa-arrow-up text-orange-500"></i>
+                            </div>
+                            <div class="text-2xl font-bold text-gray-900 mb-2">₫571M</div>
+                            <div class="text-sm text-gray-500">vs hôm trước: <span class="text-orange-600 font-medium">+15.3%</span></div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Báo cáo tiến độ -->
+                <section class="mb-8">
+                    <h2 class="text-lg font-semibold text-gray-700 mb-4">Báo cáo tiến độ</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="metric-card bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                            <div class="text-sm font-medium text-gray-600 mb-2">GMV tháng hiện tại vs mục tiêu</div>
+                            <div class="text-2xl font-bold text-gray-900 mb-2">₫45.2B / ₫50B</div>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                                <div class="bg-blue-600 h-2 rounded-full" style="width: 90.4%"></div>
+                            </div>
+                            <div class="text-sm text-gray-500">90.4% hoàn thành</div>
+                        </div>
+                        <div class="metric-card bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                            <div class="text-sm font-medium text-gray-600 mb-2">Số đơn tháng hiện tại vs mục tiêu</div>
+                            <div class="text-2xl font-bold text-gray-900 mb-2">23,450 / 25,000</div>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                                <div class="bg-green-600 h-2 rounded-full" style="width: 93.8%"></div>
+                            </div>
+                            <div class="text-sm text-gray-500">93.8% hoàn thành</div>
+                        </div>
+                        <div class="metric-card bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                            <div class="text-sm font-medium text-gray-600 mb-2">Ngân sách Ads đã dùng vs mục tiêu</div>
+                            <div class="text-2xl font-bold text-gray-900 mb-2">₫12.5B / ₫15B</div>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                                <div class="bg-purple-600 h-2 rounded-full" style="width: 83.3%"></div>
+                            </div>
+                            <div class="text-sm text-gray-500">83.3% đã dùng</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Alert & Risks -->
+                <section class="mb-8">
+                    <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-lg font-semibold text-gray-700">Alert & Risks</h2>
+                            <span class="text-xs text-gray-500">Cập nhật 15 phút trước</span>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
+                            <div class="text-center p-4 border border-slate-200 rounded-xl">
+                                <div class="text-xs uppercase text-slate-500 mb-1">Đơn hàng</div>
+                                <div class="text-3xl font-semibold text-blue-600">5</div>
+                                <p class="text-sm text-slate-600">SKU quan trọng sắp hết</p>
+                                <p class="text-xs text-slate-400 mt-1">Bổ sung ngay</p>
+                            </div>
+                            <div class="text-center p-4 border border-slate-200 rounded-xl">
+                                <div class="text-xs uppercase text-slate-500 mb-1">Đơn hàng</div>
+                                <div class="text-3xl font-semibold text-blue-600">8</div>
+                                <p class="text-sm text-slate-600">Đơn lỗi tăng</p>
+                                <p class="text-xs text-slate-400 mt-1">Shopee +5 · TTS +3</p>
+                            </div>
+                            <div class="text-center p-4 border border-slate-200 rounded-xl">
+                                <div class="text-xs uppercase text-slate-500 mb-1">Gian hàng</div>
+                                <div class="text-3xl font-semibold text-blue-600">12.5%</div>
+                                <p class="text-sm text-slate-600">Traffic giảm</p>
+                                <p class="text-xs text-slate-400 mt-1">vs hôm trước</p>
+                            </div>
+                            <div class="text-center p-4 border border-slate-200 rounded-xl">
+                                <div class="text-xs uppercase text-slate-500 mb-1">Gian hàng</div>
+                                <div class="text-3xl font-semibold text-blue-600">2.5%</div>
+                                <p class="text-sm text-slate-600">CR hiện tại</p>
+                                <p class="text-xs text-slate-400 mt-1">2.8% → 2.5%</p>
+                            </div>
+                            <div class="text-center p-4 border border-slate-200 rounded-xl">
+                                <div class="text-xs uppercase text-slate-500 mb-1">Ads</div>
+                                <div class="text-3xl font-semibold text-blue-600">15.3%</div>
+                                <p class="text-sm text-slate-600">Chi phí tăng</p>
+                                <p class="text-xs text-slate-400 mt-1">vs hôm trước</p>
+                            </div>
+                            <div class="text-center p-4 border border-slate-200 rounded-xl">
+                                <div class="text-xs uppercase text-slate-500 mb-1">Tồn kho</div>
+                                <div class="text-3xl font-semibold text-blue-600">3</div>
+                                <p class="text-sm text-slate-600">SKU vi phạm</p>
+                                <p class="text-xs text-slate-400 mt-1">Giá/ảnh</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Account View -->
+            <div id="accountView" class="role-view hidden">
+                <!-- Báo cáo kết quả -->
+                <section class="mb-8">
+                    <h2 class="text-lg font-semibold text-gray-700 mb-4">Báo cáo kết quả</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="metric-card bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-600">Tổng số đơn hôm qua</span>
+                                <i class="fas fa-arrow-up text-green-500"></i>
+                            </div>
+                            <div class="text-2xl font-bold text-gray-900 mb-2">1,247</div>
+                            <div class="text-sm text-gray-500">vs hôm trước: <span class="text-green-600 font-medium">+8.2%</span></div>
+                        </div>
+                        <div class="metric-card bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-600">% đơn lỗi hôm qua</span>
+                                <i class="fas fa-arrow-up text-red-500"></i>
+                            </div>
+                            <div class="text-2xl font-bold text-gray-900 mb-2">3.4%</div>
+                            <div class="text-sm text-gray-500">vs hôm trước: <span class="text-red-600 font-medium">+0.5%</span></div>
+                        </div>
+                        <div class="metric-card bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-600">% hủy hôm qua</span>
+                                <i class="fas fa-arrow-down text-green-500"></i>
+                            </div>
+                            <div class="text-2xl font-bold text-gray-900 mb-2">2.1%</div>
+                            <div class="text-sm text-gray-500">vs hôm trước: <span class="text-green-600 font-medium">-0.3%</span></div>
+                        </div>
+                        <div class="metric-card bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-600">% hoàn hôm qua</span>
+                                <i class="fas fa-arrow-up text-orange-500"></i>
+                            </div>
+                            <div class="text-2xl font-bold text-gray-900 mb-2">1.8%</div>
+                            <div class="text-sm text-gray-500">vs hôm trước: <span class="text-orange-600 font-medium">+0.2%</span></div>
+                        </div>
+                        <div class="metric-card bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-600">SLA hôm qua (tổng)</span>
+                                <i class="fas fa-arrow-down text-yellow-500"></i>
+                            </div>
+                            <div class="text-2xl font-bold text-gray-900 mb-2">94.2%</div>
+                            <div class="text-sm text-gray-500">vs hôm trước: <span class="text-yellow-600 font-medium">-2.1%</span></div>
+                        </div>
+                        <div class="metric-card bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-600">SLA theo warehouse</span>
+                                <i class="fas fa-warehouse text-blue-500"></i>
+                            </div>
+                            <div class="text-sm text-gray-700 mb-1">Kho Hà Nội: 96.5%</div>
+                            <div class="text-sm text-gray-700 mb-1">Kho HCM: 93.8%</div>
+                            <div class="text-sm text-gray-700">Kho Đà Nẵng: 92.1%</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Báo cáo tiến độ -->
+                <section class="mb-8">
+                    <h2 class="text-lg font-semibold text-gray-700 mb-4">Báo cáo tiến độ</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="metric-card bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                            <div class="text-sm font-medium text-gray-600 mb-2">SLA hiện tại vs mục tiêu SLA</div>
+                            <div class="text-2xl font-bold text-gray-900 mb-2">94.2% / 95%</div>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                                <div class="bg-yellow-600 h-2 rounded-full" style="width: 99.2%"></div>
+                            </div>
+                            <div class="text-sm text-gray-500">99.2% mục tiêu</div>
+                        </div>
+                        <div class="metric-card bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                            <div class="text-sm font-medium text-gray-600 mb-2">Tỷ lệ lỗi đơn vs ngưỡng cho phép</div>
+                            <div class="text-2xl font-bold text-gray-900 mb-2">3.4% / 5%</div>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                                <div class="bg-orange-600 h-2 rounded-full" style="width: 68%"></div>
+                            </div>
+                            <div class="text-sm text-gray-500">68% ngưỡng</div>
+                        </div>
+                        <div class="metric-card bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                            <div class="text-sm font-medium text-gray-600 mb-2">Tỷ lệ hủy/hoàn vs ngưỡng</div>
+                            <div class="text-2xl font-bold text-gray-900 mb-2">3.9% / 5%</div>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                                <div class="bg-green-600 h-2 rounded-full" style="width: 78%"></div>
+                            </div>
+                            <div class="text-sm text-gray-500">78% ngưỡng</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Alert & Risks -->
+                <section class="mb-8">
+                    <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-lg font-semibold text-gray-700">Alert & Risks</h2>
+                            <span class="text-xs text-gray-500">Cập nhật 30 phút trước</span>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                            <div class="text-center p-4 border border-slate-200 rounded-xl">
+                                <div class="text-xs uppercase text-slate-500 mb-1">Đơn hàng</div>
+                                <div class="text-3xl font-semibold text-blue-600">8</div>
+                                <p class="text-sm text-slate-600">Đơn lỗi tăng</p>
+                                <p class="text-xs text-slate-400 mt-1">Shopee +5 · TTS +3</p>
+                            </div>
+                            <div class="text-center p-4 border border-slate-200 rounded-xl">
+                                <div class="text-xs uppercase text-slate-500 mb-1">Đơn hàng</div>
+                                <div class="text-3xl font-semibold text-blue-600">42</div>
+                                <p class="text-sm text-slate-600">Đơn chậm xử lý</p>
+                                <p class="text-xs text-slate-400 mt-1">Quá 24h</p>
+                            </div>
+                            <div class="text-center p-4 border border-slate-200 rounded-xl">
+                                <div class="text-xs uppercase text-slate-500 mb-1">SLA</div>
+                                <div class="text-3xl font-semibold text-blue-600">5</div>
+                                <p class="text-sm text-slate-600">Warehouse/Carrier fail</p>
+                                <p class="text-xs text-slate-400 mt-1">Kho HCM 3 · GHN 2</p>
+                            </div>
+                            <div class="text-center p-4 border border-slate-200 rounded-xl">
+                                <div class="text-xs uppercase text-slate-500 mb-1">Tồn kho</div>
+                                <div class="text-3xl font-semibold text-blue-600">8</div>
+                                <p class="text-sm text-slate-600">Tồn lệch giữa kênh</p>
+                                <p class="text-xs text-slate-400 mt-1">SKU không khớp</p>
+                            </div>
+                            <div class="text-center p-4 border border-slate-200 rounded-xl">
+                                <div class="text-xs uppercase text-slate-500 mb-1">Tồn kho</div>
+                                <div class="text-3xl font-semibold text-blue-600">14</div>
+                                <p class="text-sm text-slate-600">SKU khả dụng thấp</p>
+                                <p class="text-xs text-slate-400 mt-1">&lt; 10 đơn vị</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Management View -->
+            <div id="managementView" class="role-view hidden">
+                <!-- Báo cáo kết quả -->
+                <section class="mb-8">
+                    <h2 class="text-lg font-semibold text-gray-700 mb-4">Báo cáo kết quả</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="metric-card bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-600">GMV tổng</span>
+                                <i class="fas fa-arrow-up text-green-500"></i>
+                            </div>
+                            <div class="text-2xl font-bold text-gray-900 mb-2">₫45.2B</div>
+                            <div class="text-sm text-gray-500">vs tuần trước: <span class="text-green-600 font-medium">+15.3%</span></div>
+                        </div>
+                        <div class="metric-card bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-600">Số đơn tổng</span>
+                                <i class="fas fa-arrow-up text-green-500"></i>
+                            </div>
+                            <div class="text-2xl font-bold text-gray-900 mb-2">23,450</div>
+                            <div class="text-sm text-gray-500">vs tuần trước: <span class="text-green-600 font-medium">+12.8%</span></div>
+                        </div>
+                        <div class="metric-card bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-600">AOV</span>
+                                <i class="fas fa-arrow-up text-green-500"></i>
+                            </div>
+                            <div class="text-2xl font-bold text-gray-900 mb-2">₫1,925</div>
+                            <div class="text-sm text-gray-500">vs tuần trước: <span class="text-green-600 font-medium">+2.1%</span></div>
+                        </div>
+                        <div class="metric-card bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-600">Tỷ lệ hoàn thành mục tiêu tháng</span>
+                                <i class="fas fa-check-circle text-blue-500"></i>
+                            </div>
+                            <div class="text-2xl font-bold text-gray-900 mb-2">90.4%</div>
+                            <div class="text-sm text-gray-500">Mục tiêu: ₫50B</div>
+                        </div>
+                        <div class="metric-card bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-sm font-medium text-gray-600">Hiệu suất tăng trưởng</span>
+                                <i class="fas fa-chart-line text-purple-500"></i>
+                            </div>
+                            <div class="text-2xl font-bold text-gray-900 mb-2">+14.2%</div>
+                            <div class="text-sm text-gray-500">vs hôm trước / tuần trước</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Báo cáo tiến độ -->
+                <section class="mb-8">
+                    <h2 class="text-lg font-semibold text-gray-700 mb-4">Báo cáo tiến độ</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="metric-card bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                            <div class="text-sm font-medium text-gray-600 mb-2">% hoàn thành KPI doanh thu tháng</div>
+                            <div class="text-2xl font-bold text-gray-900 mb-2">90.4%</div>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                                <div class="bg-blue-600 h-2 rounded-full" style="width: 90.4%"></div>
+                            </div>
+                            <div class="text-sm text-gray-500">₫45.2B / ₫50B</div>
+                        </div>
+                        <div class="metric-card bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                            <div class="text-sm font-medium text-gray-600 mb-2">% hoàn thành mục tiêu đơn hàng</div>
+                            <div class="text-2xl font-bold text-gray-900 mb-2">93.8%</div>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                                <div class="bg-green-600 h-2 rounded-full" style="width: 93.8%"></div>
+                            </div>
+                            <div class="text-sm text-gray-500">23,450 / 25,000 đơn</div>
+                        </div>
+                        <div class="metric-card bg-white rounded-lg p-6 border border-gray-200 shadow-sm">
+                            <div class="text-sm font-medium text-gray-600 mb-2">Health score tổng hợp</div>
+                            <div class="text-2xl font-bold text-gray-900 mb-2">87/100</div>
+                            <div class="w-full bg-gray-200 rounded-full h-2 mb-2">
+                                <div class="bg-green-600 h-2 rounded-full" style="width: 87%"></div>
+                            </div>
+                            <div class="text-sm text-gray-500">Tốt</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Alert & Risks -->
+                <section class="mb-8">
+                    <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+                        <div class="flex items-center justify-between mb-4">
+                            <h2 class="text-lg font-semibold text-gray-700">Alert & Risks</h2>
+                            <span class="text-xs text-gray-500">Cập nhật 1 giờ trước</span>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
+                            <div class="text-center p-4 border border-slate-200 rounded-xl">
+                                <div class="text-xs uppercase text-slate-500 mb-1">Hiệu suất</div>
+                                <div class="text-3xl font-semibold text-blue-600">5.2%</div>
+                                <p class="text-sm text-slate-600">GMV giảm</p>
+                                <p class="text-xs text-slate-400 mt-1">vs hôm qua</p>
+                            </div>
+                            <div class="text-center p-4 border border-slate-200 rounded-xl">
+                                <div class="text-xs uppercase text-slate-500 mb-1">Chi phí</div>
+                                <div class="text-3xl font-semibold text-blue-600">15.3%</div>
+                                <p class="text-sm text-slate-600">Ads tăng</p>
+                                <p class="text-xs text-slate-400 mt-1">vs hôm trước</p>
+                            </div>
+                            <div class="text-center p-4 border border-slate-200 rounded-xl">
+                                <div class="text-xs uppercase text-slate-500 mb-1">Đơn hàng</div>
+                                <div class="text-3xl font-semibold text-blue-600">3.4%</div>
+                                <p class="text-sm text-slate-600">Tỷ lệ lỗi</p>
+                                <p class="text-xs text-slate-400 mt-1">> ngưỡng</p>
+                            </div>
+                            <div class="text-center p-4 border border-slate-200 rounded-xl">
+                                <div class="text-xs uppercase text-slate-500 mb-1">Đơn hàng</div>
+                                <div class="text-3xl font-semibold text-blue-600">2.1%</div>
+                                <p class="text-sm text-slate-600">Tỷ lệ hủy</p>
+                                <p class="text-xs text-slate-400 mt-1">Cần kiểm soát</p>
+                            </div>
+                            <div class="text-center p-4 border border-slate-200 rounded-xl">
+                                <div class="text-xs uppercase text-slate-500 mb-1">Tồn kho</div>
+                                <div class="text-3xl font-semibold text-blue-600">5</div>
+                                <p class="text-sm text-slate-600">SKU nguy cấp</p>
+                                <p class="text-xs text-slate-400 mt-1">Sắp hết hàng</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </div>
+                </div>
+            </section>
+
+            <!-- Main Content Grid -->
+            <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
+                <div class="xl:col-span-2 space-y-8">
+
+            <!-- Section 2: Revenue Trends -->
+            <section class="mb-8">
+                <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-semibold text-gray-900">Xu hướng Doanh thu</h2>
+                        <div class="flex gap-2">
+                            <button class="px-3 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">7 ngày</button>
+                            <button class="px-3 py-1 text-xs font-medium text-blue-600 bg-blue-50 rounded-lg">30 ngày</button>
+                            <button class="px-3 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200">90 ngày</button>
+                        </div>
+                    </div>
+                    <div class="h-64 bg-gray-50 rounded-lg flex items-center justify-center">
+                        <div class="text-center text-gray-400">
+                            <i class="fas fa-chart-line text-4xl mb-2"></i>
+                            <p class="text-sm">Biểu đồ xu hướng doanh thu</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 3: Channel Performance -->
+            <section class="mb-8">
+                <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">Hiệu suất theo Kênh</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <div class="p-4 bg-white rounded-xl border border-slate-200">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs uppercase text-slate-500">Shopee</span>
+                                <span class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center"><i class="fas fa-store"></i></span>
+                            </div>
+                            <div class="text-xl font-semibold text-slate-900">₫1.2B</div>
+                            <div class="text-xs text-slate-500 mt-1">456 đơn</div>
+                        </div>
+                        <div class="p-4 bg-white rounded-xl border border-slate-200">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs uppercase text-slate-500">TikTok Shop</span>
+                                <span class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center"><i class="fas fa-video"></i></span>
+                            </div>
+                            <div class="text-xl font-semibold text-slate-900">₫800M</div>
+                            <div class="text-xs text-slate-500 mt-1">312 đơn</div>
+                        </div>
+                        <div class="p-4 bg-white rounded-xl border border-slate-200">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs uppercase text-slate-500">Lazada</span>
+                                <span class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center"><i class="fas fa-shopping-bag"></i></span>
+                            </div>
+                            <div class="text-xl font-semibold text-slate-900">₫389M</div>
+                            <div class="text-xs text-slate-500 mt-1">189 đơn</div>
+                        </div>
+                        <div class="p-4 bg-white rounded-xl border border-slate-200">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-xs uppercase text-slate-500">Website</span>
+                                <span class="w-8 h-8 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center"><i class="fas fa-globe"></i></span>
+                            </div>
+                            <div class="text-xl font-semibold text-slate-900">₫400M</div>
+                            <div class="text-xs text-slate-500 mt-1">156 đơn</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+                        <!-- Section 4: Order Status Summary -->
+            <section class="mb-8">
+                <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+                    <h2 class="text-lg font-semibold text-gray-900 mb-4">Tổng quan Trạng thái Đơn hàng</h2>
+                    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                        <div class="text-center p-4 bg-white rounded-xl border border-slate-200">
+                            <div class="text-xs text-slate-500">Đang xử lý</div>
+                            <div class="text-2xl font-semibold text-blue-600 mt-1">342</div>
+                        </div>
+                        <div class="text-center p-4 bg-white rounded-xl border border-slate-200">
+                            <div class="text-xs text-slate-500">Đã xác nhận</div>
+                            <div class="text-2xl font-semibold text-blue-600 mt-1">856</div>
+                        </div>
+                        <div class="text-center p-4 bg-white rounded-xl border border-slate-200">
+                            <div class="text-xs text-slate-500">Đang giao</div>
+                            <div class="text-2xl font-semibold text-blue-600 mt-1">423</div>
+                        </div>
+                        <div class="text-center p-4 bg-white rounded-xl border border-slate-200">
+                            <div class="text-xs text-slate-500">Lỗi</div>
+                            <div class="text-2xl font-semibold text-blue-600 mt-1">42</div>
+                        </div>
+                        <div class="text-center p-4 bg-white rounded-xl border border-slate-200">
+                            <div class="text-xs text-slate-500">Hủy</div>
+                            <div class="text-2xl font-semibold text-blue-600 mt-1">26</div>
+                        </div>
+                        <div class="text-center p-4 bg-white rounded-xl border border-slate-200">
+                            <div class="text-xs text-slate-500">Tổng</div>
+                            <div class="text-2xl font-semibold text-blue-600 mt-1">1,247</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: Inventory Alerts -->
+            <section class="mb-8">
+                <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-semibold text-gray-900">Cảnh báo Tồn kho</h2>
+                        <a href="analytics.html?tab=inventory" class="text-sm text-blue-600 hover:text-blue-700">Xem chi tiết →</a>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="p-4 bg-white rounded-xl border border-slate-200">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-semibold text-slate-900">SKU sắp hết hàng</span>
+                                <i class="fas fa-exclamation-triangle text-blue-600"></i>
+                            </div>
+                            <div class="text-2xl font-bold text-blue-600">14</div>
+z                            <div class="text-sm text-slate-500 mt-1">Cần bổ sung ngay</div>
+                        </div>
+                        <div class="p-4 bg-white rounded-xl border border-slate-200">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-semibold text-slate-900">Tồn lệch</span>
+                                <i class="fas fa-balance-scale text-blue-600"></i>
+                            </div>
+                            <div class="text-2xl font-bold text-blue-600">8</div>
+                            <div class="text-sm text-slate-500 mt-1">SKU không khớp</div>
+                        </div>
+                        <div class="p-4 bg-white rounded-xl border border-slate-200">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="font-semibold text-slate-900">Tồn thấp cho CTKM</span>
+                                <i class="fas fa-tag text-blue-600"></i>
+                            </div>
+                            <div class="text-2xl font-bold text-blue-600">5</div>
+                            <div class="text-sm text-slate-500 mt-1">SKU cần tăng tồn</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+<!-- Section 8: Recent Activities -->
+            <section class="mb-8">
+                <div class="bg-white rounded-lg border border-gray-200 shadow-sm p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-lg font-semibold text-gray-900">Hoạt động Gần đây</h2>
+                        <a href="#" class="text-sm text-blue-600 hover:text-blue-700">Xem tất cả →</a>
+                    </div>
+                    <div class="space-y-3">
+                        <div class="flex items-start gap-3 p-3 bg-white border border-slate-200 rounded-lg">
+                            <div class="w-8 h-8 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-check text-xs"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-sm font-medium text-gray-900">Đơn hàng #ORD-12345 đã được xác nhận</div>
+                                <div class="text-xs text-gray-500 mt-1">2 phút trước - Shopee</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 p-3 bg-white border border-slate-200 rounded-lg">
+                            <div class="w-8 h-8 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-truck text-xs"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-sm font-medium text-gray-900">Đơn hàng #ORD-12340 đã được giao</div>
+                                <div class="text-xs text-gray-500 mt-1">15 phút trước - TikTok Shop</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 p-3 bg-white border border-slate-200 rounded-lg">
+                            <div class="w-8 h-8 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-exclamation text-xs"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-sm font-medium text-gray-900">Cảnh báo: SKU-001 sắp hết hàng</div>
+                                <div class="text-xs text-gray-500 mt-1">1 giờ trước - Hệ thống</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start gap-3 p-3 bg-white border border-slate-200 rounded-lg">
+                            <div class="w-8 h-8 bg-blue-50 text-blue-600 rounded-full flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-chart-line text-xs"></i>
+                            </div>
+                            <div class="flex-1">
+                                <div class="text-sm font-medium text-gray-900">Báo cáo tháng đã được cập nhật</div>
+                                <div class="text-xs text-gray-500 mt-1">2 giờ trước - Hệ thống</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+                </div>
+
+                <aside class="space-y-6">
+                    <div class="rounded-2xl p-5 bg-white border border-slate-200 shadow-sm">
+                        <div class="text-xs uppercase tracking-wide text-slate-500 mb-2">Ưu đãi tín dụng vận hành</div>
+                        <h3 class="text-xl font-semibold text-gray-900">UpS Capital x VPBank</h3>
+                        <p class="text-sm text-gray-600 mt-2">Ứng trước doanh thu đa kênh, hạn mức tới ₫5B cho nhà bán đạt SLA tốt, duyệt hồ sơ trong 12h.</p>
+                        <button class="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-semibold hover:bg-blue-700 transition">Nhận tư vấn 15'</button>
+                    </div>
+
+                    <div class="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                        <div class="flex items-center justify-between mb-3">
+                            <div>
+                                <p class="text-xs uppercase text-slate-500 font-semibold">Ưu đãi nổi bật</p>
+                                <h3 class="text-lg font-semibold text-gray-900">Ưu tiên phí vận chuyển</h3>
+                            </div>
+                            <span class="inline-flex items-center px-2 py-1 text-xs font-semibold bg-blue-50 text-blue-600 rounded-full">Mới</span>
+                        </div>
+                        <p class="text-sm text-gray-600 mb-3">Giảm 40% phí lấy hàng cùng GHN cho các đơn từ chiến dịch 12.12 khi xử lý qua UpS Fulfillment.</p>
+                        <button class="w-full px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition">Kích hoạt ngay</button>
+                    </div>
+
+                    <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+                        <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                            <h3 class="font-semibold text-gray-900">UpS Update</h3>
+                            <a href="#" class="text-sm text-blue-600 hover:text-blue-700">Xem tất cả</a>
+                        </div>
+                        <div class="divide-y divide-gray-100">
+                            <div class="p-4 flex gap-3">
+                                <span class="px-2 py-1 text-xs font-semibold bg-blue-50 text-blue-600 rounded">Mới</span>
+                                <div>
+                                    <div class="font-medium text-gray-900">Ra mắt Automation Hub</div>
+                                    <div class="text-xs text-gray-500 mt-1">20/11/2025</div>
+                                </div>
+                            </div>
+                            <div class="p-4 flex gap-3">
+                                <span class="px-2 py-1 text-xs font-semibold bg-blue-50 text-blue-600 rounded">Mới</span>
+                                <div>
+                                    <div class="font-medium text-gray-900">Đồng bộ kho TikTok 2 chiều</div>
+                                    <div class="text-xs text-gray-500 mt-1">12/11/2025</div>
+                                </div>
+                            </div>
+                            <div class="p-4 flex gap-3">
+                                <span class="px-2 py-1 text-xs font-semibold bg-blue-50 text-blue-600 rounded">Tips</span>
+                                <div>
+                                    <div class="font-medium text-gray-900">Checklist kiểm kho cuối năm</div>
+                                    <div class="text-xs text-gray-500 mt-1">05/11/2025</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+                        <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                            <h3 class="font-semibold text-gray-900">Có thể bạn quan tâm</h3>
+                            <a href="#" class="text-sm text-blue-600 hover:text-blue-700">Tất cả</a>
+                        </div>
+                        <div class="divide-y divide-gray-100">
+                            <div class="p-4">
+                                <div class="font-medium text-gray-900">Case study: Tăng ROAS 32% với livestream</div>
+                                <div class="text-xs text-gray-500 mt-1">3 ngày trước</div>
+                            </div>
+                            <div class="p-4">
+                                <div class="font-medium text-gray-900">Checklist chuẩn bị Flash Sale 12.12</div>
+                                <div class="text-xs text-gray-500 mt-1">1 tuần trước</div>
+                            </div>
+                            <div class="p-4">
+                                <div class="font-medium text-gray-900">Ebook tối ưu phí lưu kho cho D2C</div>
+                                <div class="text-xs text-gray-500 mt-1">2 tuần trước</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+                        <div class="p-4 border-b border-gray-200 flex items-center justify-between">
+                            <h3 class="font-semibold text-gray-900">Nhật ký hoạt động</h3>
+                            <a href="#" class="text-sm text-blue-600 hover:text-blue-700">Xuất log</a>
+                        </div>
+                        <div class="p-4 space-y-4">
+                            <div class="flex gap-3">
+                                <div class="flex flex-col items-center">
+                                    <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                                    <span class="flex-1 w-px bg-gray-200 mt-1"></span>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">UpS Bot tự động đóng 12 ticket pending</div>
+                                    <div class="text-xs text-gray-500 mt-1">20/11/2025 10:21</div>
+                                </div>
+                            </div>
+                            <div class="flex gap-3">
+                                <div class="flex flex-col items-center">
+                                    <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                                    <span class="flex-1 w-px bg-gray-200 mt-1"></span>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">Admin cập nhật chính sách phí kho Q4</div>
+                                    <div class="text-xs text-gray-500 mt-1">20/11/2025 08:55</div>
+                                </div>
+                            </div>
+                            <div class="flex gap-3">
+                                <div class="flex flex-col items-center">
+                                    <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                                    <span class="flex-1 w-px bg-gray-200 mt-1"></span>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">Tạo mới dashboard "Flash Sale Pulse"</div>
+                                    <div class="text-xs text-gray-500 mt-1">19/11/2025 21:14</div>
+                                </div>
+                            </div>
+                            <div class="flex gap-3">
+                                <div class="flex flex-col items-center">
+                                    <span class="w-2 h-2 bg-blue-500 rounded-full"></span>
+                                    <span class="flex-1 w-px bg-gray-200 mt-1"></span>
+                                </div>
+                                <div>
+                                    <div class="text-sm font-medium text-gray-900">User Lan Nguyen cấp quyền Inventory Analyst</div>
+                                    <div class="text-xs text-gray-500 mt-1">19/11/2025 18:02</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+    <script>
+        // Generate sparkline charts
+        function createSparkline(canvasId, data, color) {
+            const ctx = document.getElementById(canvasId);
+            if (!ctx) return;
+            
+            // Destroy existing chart if any
+            if (ctx.chart) {
+                ctx.chart.destroy();
+            }
+            
+            ctx.chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Array(data.length).fill(''),
+                    datasets: [{
+                        data: data,
+                        borderColor: color,
+                        backgroundColor: 'transparent',
+                        borderWidth: 2,
+                        tension: 0.4,
+                        pointRadius: 0,
+                        pointHoverRadius: 0,
+                        fill: false
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    },
+                    scales: {
+                        x: { 
+                            display: false,
+                            grid: { display: false }
+                        },
+                        y: { 
+                            display: false,
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Role View Switcher
+        function switchRole(role) {
+            // Hide all views
+            document.querySelectorAll('.role-view').forEach(view => {
+                view.classList.add('hidden');
+            });
+            
+            // Show selected view
+            const viewMap = {
+                'growth': 'growthView',
+                'account': 'accountView',
+                'management': 'managementView'
+            };
+            const selectedView = document.getElementById(viewMap[role]);
+            if (selectedView) {
+                selectedView.classList.remove('hidden');
+            }
+            
+            // Update button states
+            document.querySelectorAll('.role-switcher-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            const activeBtn = document.querySelector(`[data-role="${role}"]`);
+            if (activeBtn) {
+                activeBtn.classList.add('active');
+            }
+        }
+
+        // Initialize role switcher
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default role to Growth
+            switchRole('growth');
+            
+            // Add click handlers to role switcher buttons
+            document.querySelectorAll('.role-switcher-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const role = this.dataset.role;
+                    switchRole(role);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
+
