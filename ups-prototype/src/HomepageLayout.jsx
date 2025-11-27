@@ -33,57 +33,408 @@ const { TextArea } = Input;
 const { Title, Text, Paragraph } = Typography;
 
 // ========== MOCK DATA ==========
-const kpiOverview = {
-  col1: [
-    { 
-      title: 'GMV ngày hôm qua', 
-      value: '₫2.4B', 
-      change: '+12.5%', 
-      trend: 'up',
-      subtext: 'vs hôm trước'
-    },
-    { 
-      title: 'AOV', 
-      value: '₫1,925', 
-      change: '+3.8%', 
-      trend: 'up',
-      subtext: 'vs hôm trước'
-    }
-  ],
-  col2: [
-    { 
-      title: 'Số đơn ngày hôm qua', 
-      value: '1,247', 
-      change: '+8.2%', 
-      trend: 'up',
-      subtext: 'vs hôm trước'
-    },
-    { 
-      title: 'ROAS tổng ngày hôm qua', 
-      value: '4.2x', 
-      change: '-5.1%', 
-      trend: 'down',
-      subtext: 'vs hôm trước'
-    }
-  ],
-  col3: [
-    {
-      title: 'GMV theo kênh',
-      breakdown: [
-        { label: 'Shopee', value: '₫1.2B' },
-        { label: 'TikTok', value: '₫800M' },
-        { label: 'Website', value: '₫400M' }
+// Mock data for different templates
+const templateData = {
+  'default': {
+    kpiOverview: {
+      col1: [
+        { 
+          title: 'GMV ngày hôm qua', 
+          value: '₫2.4B', 
+          change: '+12.5%', 
+          trend: 'up',
+          subtext: 'vs hôm trước'
+        },
+        { 
+          title: 'AOV', 
+          value: '₫1,925', 
+          change: '+3.8%', 
+          trend: 'up',
+          subtext: 'vs hôm trước'
+        }
+      ],
+      col2: [
+        { 
+          title: 'Số đơn ngày hôm qua', 
+          value: '1,247', 
+          change: '+8.2%', 
+          trend: 'up',
+          subtext: 'vs hôm trước'
+        },
+        { 
+          title: 'ROAS tổng ngày hôm qua', 
+          value: '4.2x', 
+          change: '-5.1%', 
+          trend: 'down',
+          subtext: 'vs hôm trước'
+        }
+      ],
+      col3: [
+        {
+          title: 'GMV theo kênh',
+          breakdown: [
+            { label: 'Shopee', value: '₫1.2B' },
+            { label: 'TikTok', value: '₫800M' },
+            { label: 'Website', value: '₫400M' }
+          ]
+        },
+        { 
+          title: 'Chi phí Ads hôm qua', 
+          value: '₫571M', 
+          change: '+15.3%', 
+          trend: 'up',
+          subtext: 'vs hôm trước'
+        }
       ]
     },
-    { 
-      title: 'Chi phí Ads hôm qua', 
-      value: '₫571M', 
-      change: '+15.3%', 
-      trend: 'up',
-      subtext: 'vs hôm trước'
-    }
-  ]
+    chartData: [
+      { name: 'T2', value: 120 },
+      { name: 'T3', value: 150 },
+      { name: 'T4', value: 180 },
+      { name: 'T5', value: 200 },
+      { name: 'T6', value: 170 },
+      { name: 'T7', value: 190 },
+      { name: 'CN', value: 210 }
+    ],
+    pieData: [
+      { name: 'Shopee', value: 50 },
+      { name: 'TikTok', value: 30 },
+      { name: 'Website', value: 20 }
+    ]
+  },
+  'template-ceo': {
+    kpiOverview: {
+      col1: [
+        { 
+          title: 'Tổng doanh thu tháng', 
+          value: '₫45.2B', 
+          change: '+18.5%', 
+          trend: 'up',
+          subtext: 'vs tháng trước'
+        },
+        { 
+          title: 'Lợi nhuận ròng', 
+          value: '₫8.5B', 
+          change: '+22.3%', 
+          trend: 'up',
+          subtext: 'vs tháng trước'
+        }
+      ],
+      col2: [
+        { 
+          title: 'Tổng số đơn tháng', 
+          value: '23,450', 
+          change: '+15.2%', 
+          trend: 'up',
+          subtext: 'vs tháng trước'
+        },
+        { 
+          title: 'Tỷ suất lợi nhuận', 
+          value: '18.8%', 
+          change: '+2.1%', 
+          trend: 'up',
+          subtext: 'vs tháng trước'
+        }
+      ],
+      col3: [
+        {
+          title: 'Doanh thu theo kênh',
+          breakdown: [
+            { label: 'Shopee', value: '₫22.6B' },
+            { label: 'TikTok', value: '₫15.1B' },
+            { label: 'Website', value: '₫7.5B' }
+          ]
+        },
+        { 
+          title: 'Chi phí vận hành', 
+          value: '₫12.8B', 
+          change: '+8.5%', 
+          trend: 'up',
+          subtext: 'vs tháng trước'
+        }
+      ]
+    },
+    chartData: [
+      { name: 'Tuần 1', value: 850 },
+      { name: 'Tuần 2', value: 920 },
+      { name: 'Tuần 3', value: 1100 },
+      { name: 'Tuần 4', value: 1250 }
+    ],
+    pieData: [
+      { name: 'Shopee', value: 50 },
+      { name: 'TikTok', value: 33 },
+      { name: 'Website', value: 17 }
+    ]
+  },
+  'template-ecommerce-manager': {
+    kpiOverview: {
+      col1: [
+        { 
+          title: 'GMV hôm nay', 
+          value: '₫2.8B', 
+          change: '+15.2%', 
+          trend: 'up',
+          subtext: 'vs hôm qua'
+        },
+        { 
+          title: 'Conversion Rate', 
+          value: '3.2%', 
+          change: '+0.5%', 
+          trend: 'up',
+          subtext: 'vs hôm qua'
+        }
+      ],
+      col2: [
+        { 
+          title: 'Số đơn hôm nay', 
+          value: '1,456', 
+          change: '+12.8%', 
+          trend: 'up',
+          subtext: 'vs hôm qua'
+        },
+        { 
+          title: 'Cart Abandonment', 
+          value: '68.5%', 
+          change: '-2.3%', 
+          trend: 'down',
+          subtext: 'vs hôm qua'
+        }
+      ],
+      col3: [
+        {
+          title: 'Traffic theo nguồn',
+          breakdown: [
+            { label: 'Organic', value: '45%' },
+            { label: 'Paid Ads', value: '35%' },
+            { label: 'Direct', value: '20%' }
+          ]
+        },
+        { 
+          title: 'Bounce Rate', 
+          value: '42.3%', 
+          change: '-1.8%', 
+          trend: 'down',
+          subtext: 'vs hôm qua'
+        }
+      ]
+    },
+    chartData: [
+      { name: 'T2', value: 280 },
+      { name: 'T3', value: 320 },
+      { name: 'T4', value: 290 },
+      { name: 'T5', value: 350 },
+      { name: 'T6', value: 380 },
+      { name: 'T7', value: 420 },
+      { name: 'CN', value: 450 }
+    ],
+    pieData: [
+      { name: 'Organic', value: 45 },
+      { name: 'Paid Ads', value: 35 },
+      { name: 'Direct', value: 20 }
+    ]
+  },
+  'template-media': {
+    kpiOverview: {
+      col1: [
+        { 
+          title: 'Chi tiêu Media hôm nay', 
+          value: '₫850M', 
+          change: '+22.5%', 
+          trend: 'up',
+          subtext: 'vs hôm qua'
+        },
+        { 
+          title: 'ROAS Media', 
+          value: '5.8x', 
+          change: '+0.8x', 
+          trend: 'up',
+          subtext: 'vs hôm qua'
+        }
+      ],
+      col2: [
+        { 
+          title: 'Impressions', 
+          value: '2.5M', 
+          change: '+18.2%', 
+          trend: 'up',
+          subtext: 'vs hôm qua'
+        },
+        { 
+          title: 'CTR', 
+          value: '2.8%', 
+          change: '+0.3%', 
+          trend: 'up',
+          subtext: 'vs hôm qua'
+        }
+      ],
+      col3: [
+        {
+          title: 'Chi tiêu theo platform',
+          breakdown: [
+            { label: 'Facebook', value: '₫350M' },
+            { label: 'Google', value: '₫280M' },
+            { label: 'TikTok', value: '₫220M' }
+          ]
+        },
+        { 
+          title: 'CPC trung bình', 
+          value: '₫3,450', 
+          change: '-5.2%', 
+          trend: 'down',
+          subtext: 'vs hôm qua'
+        }
+      ]
+    },
+    chartData: [
+      { name: 'T2', value: 750 },
+      { name: 'T3', value: 820 },
+      { name: 'T4', value: 780 },
+      { name: 'T5', value: 900 },
+      { name: 'T6', value: 950 },
+      { name: 'T7', value: 1000 },
+      { name: 'CN', value: 1050 }
+    ],
+    pieData: [
+      { name: 'Facebook', value: 41 },
+      { name: 'Google', value: 33 },
+      { name: 'TikTok', value: 26 }
+    ]
+  },
+  'template-marketing': {
+    kpiOverview: {
+      col1: [
+        { 
+          title: 'Marketing ROI', 
+          value: '4.5x', 
+          change: '+0.6x', 
+          trend: 'up',
+          subtext: 'vs tháng trước'
+        },
+        { 
+          title: 'CAC', 
+          value: '₫125K', 
+          change: '-8.2%', 
+          trend: 'down',
+          subtext: 'vs tháng trước'
+        }
+      ],
+      col2: [
+        { 
+          title: 'Lead Generated', 
+          value: '8,450', 
+          change: '+25.3%', 
+          trend: 'up',
+          subtext: 'vs tháng trước'
+        },
+        { 
+          title: 'Email Open Rate', 
+          value: '28.5%', 
+          change: '+3.2%', 
+          trend: 'up',
+          subtext: 'vs tháng trước'
+        }
+      ],
+      col3: [
+        {
+          title: 'Traffic theo campaign',
+          breakdown: [
+            { label: 'Brand Campaign', value: '35%' },
+            { label: 'Product Launch', value: '28%' },
+            { label: 'Seasonal', value: '37%' }
+          ]
+        },
+        { 
+          title: 'Social Engagement', 
+          value: '12.5K', 
+          change: '+18.5%', 
+          trend: 'up',
+          subtext: 'vs tháng trước'
+        }
+      ]
+    },
+    chartData: [
+      { name: 'Tuần 1', value: 420 },
+      { name: 'Tuần 2', value: 480 },
+      { name: 'Tuần 3', value: 520 },
+      { name: 'Tuần 4', value: 580 }
+    ],
+    pieData: [
+      { name: 'Brand Campaign', value: 35 },
+      { name: 'Product Launch', value: 28 },
+      { name: 'Seasonal', value: 37 }
+    ]
+  },
+  'template-accounting': {
+    kpiOverview: {
+      col1: [
+        { 
+          title: 'Doanh thu thuần', 
+          value: '₫42.8B', 
+          change: '+12.3%', 
+          trend: 'up',
+          subtext: 'vs tháng trước'
+        },
+        { 
+          title: 'Chi phí hàng bán', 
+          value: '₫28.5B', 
+          change: '+8.5%', 
+          trend: 'up',
+          subtext: 'vs tháng trước'
+        }
+      ],
+      col2: [
+        { 
+          title: 'Lợi nhuận gộp', 
+          value: '₫14.3B', 
+          change: '+20.1%', 
+          trend: 'up',
+          subtext: 'vs tháng trước'
+        },
+        { 
+          title: 'Biên lợi nhuận', 
+          value: '33.4%', 
+          change: '+2.1%', 
+          trend: 'up',
+          subtext: 'vs tháng trước'
+        }
+      ],
+      col3: [
+        {
+          title: 'Chi phí theo loại',
+          breakdown: [
+            { label: 'Hàng hóa', value: '₫28.5B' },
+            { label: 'Vận hành', value: '₫12.8B' },
+            { label: 'Marketing', value: '₫8.2B' }
+          ]
+        },
+        { 
+          title: 'Dòng tiền ròng', 
+          value: '₫9.8B', 
+          change: '+15.6%', 
+          trend: 'up',
+          subtext: 'vs tháng trước'
+        }
+      ]
+    },
+    chartData: [
+      { name: 'T1', value: 1200 },
+      { name: 'T2', value: 1350 },
+      { name: 'T3', value: 1280 },
+      { name: 'T4', value: 1420 },
+      { name: 'T5', value: 1500 },
+      { name: 'T6', value: 1450 },
+      { name: 'T7', value: 1600 }
+    ],
+    pieData: [
+      { name: 'Hàng hóa', value: 58 },
+      { name: 'Vận hành', value: 26 },
+      { name: 'Marketing', value: 16 }
+    ]
+  }
 };
+
+// Default kpiOverview for backward compatibility
+const kpiOverview = templateData['default'].kpiOverview;
 
 const progressGoals = [
   { title: 'GMV tháng hiện tại vs mục tiêu', current: '₫45.2B', target: '₫50B', percent: 90.4, status: 'Hoàn thành' },
@@ -818,6 +1169,207 @@ const HomepageLayout = () => {
   const [hoveredPreviewBlock, setHoveredPreviewBlock] = useState(null);
   const [hoveredMetricId, setHoveredMetricId] = useState(null);
   
+  // Template workspaces (predefined templates)
+  const templateWorkspaces = [
+    {
+      id: 'template-ceo',
+      name: 'CEO',
+      isTemplate: true,
+      templateId: 'template-ceo',
+      description: 'Dashboard tổng quan cho CEO',
+      selectedItems: [
+        { groupId: 'Dashboard', itemId: 'growth' },
+        { groupId: 'Lỗi & Cảnh báo' },
+        { groupId: 'Tin tức' }
+      ],
+      layout: {
+        showDashboard: true,
+        showAlerts: true,
+        showGuides: true
+      }
+    },
+    {
+      id: 'template-ecommerce-manager',
+      name: 'Ecommerce Manager',
+      isTemplate: true,
+      templateId: 'template-ecommerce-manager',
+      description: 'Dashboard cho Ecommerce Manager',
+      selectedItems: [
+        { groupId: 'Dashboard', itemId: 'growth' },
+        { groupId: 'Lỗi & Cảnh báo' }
+      ],
+      layout: {
+        showDashboard: true,
+        showAlerts: true,
+        showGuides: false
+      }
+    },
+    {
+      id: 'template-media',
+      name: 'Media',
+      isTemplate: true,
+      templateId: 'template-media',
+      description: 'Dashboard cho Media team',
+      selectedItems: [
+        { groupId: 'Dashboard', itemId: 'media' },
+        { groupId: 'Lỗi & Cảnh báo' }
+      ],
+      layout: {
+        showDashboard: true,
+        showAlerts: true,
+        showGuides: false
+      }
+    },
+    {
+      id: 'template-marketing',
+      name: 'Marketing',
+      isTemplate: true,
+      templateId: 'template-marketing',
+      description: 'Dashboard cho Marketing team',
+      selectedItems: [
+        { groupId: 'Dashboard', itemId: 'growth' },
+        { groupId: 'Tin tức' }
+      ],
+      layout: {
+        showDashboard: true,
+        showAlerts: false,
+        showGuides: true
+      }
+    },
+    {
+      id: 'template-accounting',
+      name: 'Kế toán',
+      isTemplate: true,
+      templateId: 'template-accounting',
+      description: 'Dashboard cho Kế toán',
+      selectedItems: [
+        { groupId: 'Dashboard', itemId: 'accounting' },
+        { groupId: 'Lỗi & Cảnh báo' }
+      ],
+      layout: {
+        showDashboard: true,
+        showAlerts: true,
+        showGuides: false
+      }
+    }
+  ];
+
+  // ========== WORKSPACE MANAGEMENT STATES ==========
+  const [workspaces, setWorkspaces] = useState(() => {
+    const saved = localStorage.getItem('ups-workspaces');
+    if (saved) {
+      return JSON.parse(saved);
+    }
+    // Default workspace - shows current content (all sections visible)
+    return [{
+      id: 'default-workspace',
+      name: 'Workspace mặc định',
+      isDefault: true,
+      isTemplate: false,
+      groups: ['Dashboard', 'Alert & Risks', 'Guides / Case studies'],
+      layout: {
+        showDashboard: true,
+        showAlerts: true,
+        showGuides: true
+      }
+    }];
+  });
+  const [selectedWorkspaceId, setSelectedWorkspaceId] = useState(() => {
+    return localStorage.getItem('ups-selected-workspace') || 'default-workspace';
+  });
+  const [workspaceConfigDrawerVisible, setWorkspaceConfigDrawerVisible] = useState(false);
+  const [workspaceEditModalVisible, setWorkspaceEditModalVisible] = useState(false);
+  const [newWorkspaceName, setNewWorkspaceName] = useState('');
+  const [selectedGroup, setSelectedGroup] = useState(null);
+  const [selectedItems, setSelectedItems] = useState([]); // Array of { groupId, itemId } or { groupId } for groups without items
+  const [workspaceSearchQuery, setWorkspaceSearchQuery] = useState('');
+  const [editingWorkspaceId, setEditingWorkspaceId] = useState(null);
+  const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
+  const [workspaceToDelete, setWorkspaceToDelete] = useState(null);
+  
+  // Workspace groups definition with sub-items
+  const workspaceGroups = [
+    { 
+      id: 'Dashboard', 
+      name: 'Dashboard', 
+      icon: <BarChartOutlined />, 
+      description: 'Chứa các dashboard chỉ số đã tạo sẵn',
+      items: [
+        { id: 'growth', name: 'Growth', description: 'Dashboard tăng trưởng' },
+        { id: 'media', name: 'Media', description: 'Dashboard media' },
+        { id: 'accounting', name: 'Kế toán', description: 'Dashboard kế toán' }
+      ]
+    },
+    { 
+      id: 'Lỗi & Cảnh báo', 
+      name: 'Lỗi & Cảnh báo', 
+      icon: <WarningOutlined />, 
+      description: 'Chứa các widget/còn số liên quan báo lỗi, cảnh báo cho đơn hàng/sản phẩm/tồn kho',
+      items: []
+    },
+    { 
+      id: 'Tin tức', 
+      name: 'Tin tức', 
+      icon: <BookOutlined />, 
+      description: 'Case study và blog',
+      items: []
+    }
+  ];
+  
+  // Available metrics for Alerts & Risks
+  const alertMetrics = {
+    errors: [
+      { id: 'sku-overweight', name: 'SKU quá trọng sắp hết', color: '#D72C0D', value: '5', unit: 'SKU' },
+      { id: 'order-error', name: 'Đơn bị lỗi', color: '#D72C0D', value: '8', unit: 'đơn' },
+      { id: 'cancel-rate', name: 'Tỷ lệ hủy tăng', color: '#D72C0D', value: '15', unit: '%' },
+      { id: 'cr-low', name: 'CR hiện tại', color: '#D72C0D', value: '2', unit: '%' },
+      { id: 'sku-out-of-range', name: 'SKU vượt phạm vi', color: '#D72C0D', value: '3', unit: 'SKU' }
+    ],
+    warnings: [
+      { id: 'sku-low-stock', name: 'SKU sắp hết hàng', color: '#FA8C16', value: '14', unit: 'SKU' },
+      { id: 'traffic-drop', name: 'Traffic giảm', color: '#FA8C16', value: '8', unit: '%' },
+      { id: 'cost-increase', name: 'Chi phí tăng', color: '#FA8C16', value: '15.3', unit: '%' }
+    ]
+  };
+  
+  const [selectedAlertMetrics, setSelectedAlertMetrics] = useState({
+    errors: [],
+    warnings: []
+  });
+  const [alertMetricsOverlayVisible, setAlertMetricsOverlayVisible] = useState(false);
+  
+  // Get current workspace
+  const selectedWorkspace = workspaces.find(w => w.id === selectedWorkspaceId) || (workspaces.length > 0 ? workspaces[0] : null);
+  
+  // Get template ID from workspace
+  const getTemplateIdFromWorkspace = (workspace) => {
+    if (!workspace) return 'default';
+    // Check if workspace has templateId
+    if (workspace.templateId) {
+      return workspace.templateId;
+    }
+    // Check dashboard type if available
+    const dashboardItem = workspace.selectedItems?.find(item => item.groupId === 'Dashboard' && item.itemId);
+    if (dashboardItem) {
+      const dashboardMap = {
+        'growth': 'default',
+        'media': 'template-media',
+        'accounting': 'template-accounting'
+      };
+      return dashboardMap[dashboardItem.itemId] || 'default';
+    }
+    return 'default';
+  };
+  
+  // Get current template data based on selected workspace
+  const currentTemplateId = getTemplateIdFromWorkspace(selectedWorkspace);
+  const currentTemplateData = templateData[currentTemplateId] || templateData['default'];
+  
+  // Use dynamic data
+  const currentKpiOverview = currentTemplateData.kpiOverview;
+  const currentChartData = currentTemplateData.chartData;
+  const currentPieData = currentTemplateData.pieData;
+  
   // Get current template
   const selectedTemplate = templates.find(t => t.id === selectedTemplateId) || templates[0];
   
@@ -858,6 +1410,15 @@ const HomepageLayout = () => {
   useEffect(() => {
     localStorage.setItem('ups-selected-template', selectedTemplateId);
   }, [selectedTemplateId]);
+  
+  // Persist workspaces to localStorage
+  useEffect(() => {
+    localStorage.setItem('ups-workspaces', JSON.stringify(workspaces));
+  }, [workspaces]);
+  
+  useEffect(() => {
+    localStorage.setItem('ups-selected-workspace', selectedWorkspaceId);
+  }, [selectedWorkspaceId]);
   
   useEffect(() => {
     if (!createTemplateModalVisible) return;
@@ -1127,6 +1688,193 @@ useEffect(() => {
     setTempMetricOrder([]);
   };
   
+  // ========== WORKSPACE MANAGEMENT FUNCTIONS ==========
+  
+  const handleCreateWorkspace = () => {
+    if (!newWorkspaceName.trim()) {
+      message.error('Vui lòng nhập tên workspace');
+      return;
+    }
+    
+    if (selectedItems.length === 0) {
+      message.error('Vui lòng chọn ít nhất một nhóm hoặc mục');
+      return;
+    }
+    
+    const newWorkspace = {
+      id: `workspace-${Date.now()}`,
+      name: newWorkspaceName.trim(),
+      isDefault: false,
+      selectedItems: selectedItems,
+      selectedAlertMetrics: selectedItems.some(item => item.groupId === 'Lỗi & Cảnh báo') ? selectedAlertMetrics : null,
+      layout: {
+        showDashboard: selectedItems.some(item => item.groupId === 'Dashboard'),
+        showAlerts: selectedItems.some(item => item.groupId === 'Lỗi & Cảnh báo'),
+        showGuides: selectedItems.some(item => item.groupId === 'Tin tức')
+      }
+    };
+    
+    setWorkspaces([...workspaces, newWorkspace]);
+    setSelectedWorkspaceId(newWorkspace.id);
+    setWorkspaceConfigDrawerVisible(false);
+    setNewWorkspaceName('');
+    setSelectedGroup(null);
+    setSelectedItems([]);
+    setSelectedAlertMetrics({ errors: [], warnings: [] });
+    message.success(`Workspace "${newWorkspace.name}" đã được tạo!`);
+  };
+  
+  const handleEditWorkspace = () => {
+    if (!newWorkspaceName.trim() || !editingWorkspaceId) {
+      message.error('Vui lòng nhập tên workspace');
+      return;
+    }
+    
+    const updatedWorkspaces = workspaces.map(w => 
+      w.id === editingWorkspaceId
+        ? { 
+            ...w, 
+            name: newWorkspaceName.trim(),
+            groups: [selectedGroup],
+            layout: {
+              showDashboard: selectedGroup === 'Dashboard',
+              showAlerts: selectedGroup === 'Alert & Risks',
+              showGuides: selectedGroup === 'Guides / Case studies'
+            }
+          }
+        : w
+    );
+    
+    setWorkspaces(updatedWorkspaces);
+    setWorkspaceEditModalVisible(false);
+    setNewWorkspaceName('');
+    setSelectedGroup('Dashboard');
+    setEditingWorkspaceId(null);
+    message.success('Workspace đã được cập nhật!');
+  };
+  
+  const handleDeleteWorkspace = () => {
+    if (!workspaceToDelete) return;
+    
+    if (workspaceToDelete.isDefault) {
+      message.error('Không thể xóa workspace mặc định');
+      setDeleteConfirmVisible(false);
+      setWorkspaceToDelete(null);
+      return;
+    }
+    
+    const updatedWorkspaces = workspaces.filter(w => w.id !== workspaceToDelete.id);
+    setWorkspaces(updatedWorkspaces);
+    
+    // If deleted workspace was selected, switch to default
+    if (selectedWorkspaceId === workspaceToDelete.id) {
+      const defaultWorkspace = updatedWorkspaces.find(w => w.isDefault) || updatedWorkspaces[0];
+      setSelectedWorkspaceId(defaultWorkspace.id);
+    }
+    
+    setDeleteConfirmVisible(false);
+    setWorkspaceToDelete(null);
+    message.success('Workspace đã được xóa!');
+  };
+  
+  const handleOpenEditWorkspace = (workspace) => {
+    if (workspace.isTemplate) {
+      message.warning('Không thể chỉnh sửa template mẫu. Vui lòng tạo mới từ template.');
+      return;
+    }
+    setEditingWorkspaceId(workspace.id);
+    setNewWorkspaceName(workspace.name);
+    setSelectedGroup(workspace.groups?.[0] || 'Dashboard');
+    setSelectedSubItem(null);
+    setWorkspaceEditModalVisible(true);
+  };
+  
+  const handleCreateFromTemplate = (template) => {
+    const newWorkspace = {
+      id: `workspace-${Date.now()}`,
+      name: `${template.name} (Copy)`,
+      isDefault: false,
+      isTemplate: false,
+      templateId: template.templateId || template.id,
+      selectedItems: template.selectedItems || [],
+      selectedAlertMetrics: template.selectedAlertMetrics || { errors: [], warnings: [] },
+      layout: template.layout || {
+        showDashboard: true,
+        showAlerts: true,
+        showGuides: true
+      }
+    };
+    
+    setWorkspaces([...workspaces, newWorkspace]);
+    setSelectedWorkspaceId(newWorkspace.id);
+    message.success(`Đã tạo workspace mới từ template "${template.name}"!`);
+  };
+  
+  const handleOpenDeleteConfirm = (workspace) => {
+    setWorkspaceToDelete(workspace);
+    setDeleteConfirmVisible(true);
+  };
+  
+  const handleOpenCreateWorkspace = () => {
+    setNewWorkspaceName('');
+    setSelectedGroup(null);
+    setSelectedItems([]);
+    setSelectedAlertMetrics({ errors: [], warnings: [] });
+    setWorkspaceConfigDrawerVisible(true);
+  };
+  
+  const handleSelectItem = (groupId, itemId = null) => {
+    try {
+      // For Dashboard, only allow selecting one - remove existing dashboard selection first
+      if (groupId === 'Dashboard' && itemId) {
+        const hasDashboard = selectedItems.some(item => item.groupId === 'Dashboard' && item.itemId);
+        if (hasDashboard) {
+          message.warning('Chỉ có thể chọn một dashboard. Vui lòng xóa dashboard hiện tại trước khi chọn dashboard khác.');
+          return;
+        }
+      }
+      
+      const exists = selectedItems.some(item => 
+        itemId ? (item.groupId === groupId && item.itemId === itemId) : item.groupId === groupId && !item.itemId
+      );
+      
+      if (!exists) {
+        setSelectedItems(prev => [...prev, { groupId, itemId }]);
+      }
+    } catch (error) {
+      console.error('Error selecting item:', error);
+      message.error('Có lỗi xảy ra khi chọn mục');
+    }
+  };
+  
+  const hasDashboardSelected = () => {
+    return selectedItems.some(item => item.groupId === 'Dashboard' && item.itemId);
+  };
+  
+  const handleRemoveItem = (groupId, itemId = null) => {
+    setSelectedItems(selectedItems.filter(item => 
+      itemId ? !(item.groupId === groupId && item.itemId === itemId) : item.groupId !== groupId
+    ));
+    
+    // Reset alert metrics if removing Lỗi & Cảnh báo
+    if (groupId === 'Lỗi & Cảnh báo') {
+      setSelectedAlertMetrics({ errors: [], warnings: [] });
+    }
+  };
+  
+  const isItemSelected = (groupId, itemId = null) => {
+    return selectedItems.some(item => 
+      itemId ? (item.groupId === groupId && item.itemId === itemId) : item.groupId === groupId && !item.itemId
+    );
+  };
+  
+  // Filter workspaces for search
+  const filteredWorkspaces = workspaceSearchQuery
+    ? (workspaces || []).filter(w => 
+        w && w.name && w.name.toLowerCase().includes(workspaceSearchQuery.toLowerCase())
+      )
+    : (workspaces || []);
+  
   return (
     <Layout style={{ minHeight: '100vh' }}>
       {/* Header */}
@@ -1212,11 +1960,187 @@ useEffect(() => {
               </div>
             </div>
             
+            {/* Workspace Selector */}
+            <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
+              <Dropdown
+                menu={{
+                  items: [
+                    // Template mẫu section
+                    {
+                      key: 'template-header',
+                      type: 'group',
+                      label: (
+                        <Text strong style={{ fontSize: 12, color: '#8c8c8c', textTransform: 'uppercase' }}>
+                          Template mẫu
+                        </Text>
+                      )
+                    },
+                    ...templateWorkspaces.map(template => ({
+                      key: template.id,
+                      label: (
+                        <div 
+                          style={{ 
+                            display: 'flex', 
+                            justifyContent: 'space-between', 
+                            alignItems: 'center', 
+                            width: '100%' 
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <div style={{ flex: 1 }}>
+                            <div style={{ fontSize: 14, fontWeight: 500 }}>{template.name}</div>
+                            {template.description && (
+                              <div style={{ fontSize: 11, color: '#8c8c8c', marginTop: 2 }}>
+                                {template.description}
+                              </div>
+                            )}
+                          </div>
+                          <Tooltip title="Tạo mới từ template">
+                            <Button
+                              type="text"
+                              size="small"
+                              icon={<AppstoreAddOutlined />}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleCreateFromTemplate(template);
+                              }}
+                              style={{ padding: '0 4px', color: '#1677FF' }}
+                            />
+                          </Tooltip>
+                        </div>
+                      ),
+                      style: { cursor: 'default' },
+                      onClick: () => {
+                        // Templates are not selectable, only for creating new workspaces
+                        message.info('Vui lòng sử dụng nút "Tạo mới từ template" để tạo workspace từ template này');
+                      }
+                    })),
+                    { type: 'divider' },
+                    // Template user tự tạo section
+                    {
+                      key: 'user-workspace-header',
+                      type: 'group',
+                      label: (
+                        <Text strong style={{ fontSize: 12, color: '#8c8c8c', textTransform: 'uppercase' }}>
+                          Template user tự tạo
+                        </Text>
+                      )
+                    },
+                    ...(filteredWorkspaces && filteredWorkspaces.length > 0
+                      ? filteredWorkspaces
+                          .filter(w => w && w.id && !w.isTemplate)
+                          .map(w => ({
+                            key: w.id,
+                            label: (
+                              <div 
+                                style={{ 
+                                  display: 'flex', 
+                                  justifyContent: 'space-between', 
+                                  alignItems: 'center', 
+                                  width: '100%' 
+                                }}
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <span style={{ flex: 1 }}>{w.name || 'Unnamed'}</span>
+                                <Space size={4}>
+                                  {!w.isDefault && (
+                                    <>
+                                      <Tooltip title="Chỉnh sửa">
+                                        <Button
+                                          type="text"
+                                          size="small"
+                                          icon={<EditOutlined />}
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleOpenEditWorkspace(w);
+                                          }}
+                                          style={{ padding: '0 4px' }}
+                                        />
+                                      </Tooltip>
+                                      <Tooltip title="Xóa">
+                                        <Button
+                                          type="text"
+                                          size="small"
+                                          icon={<DeleteOutlined />}
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            handleOpenDeleteConfirm(w);
+                                          }}
+                                          danger
+                                          style={{ padding: '0 4px' }}
+                                        />
+                                      </Tooltip>
+                                    </>
+                                  )}
+                                </Space>
+                              </div>
+                            ),
+                            style: selectedWorkspaceId === w.id ? { background: '#E6F7FF' } : {},
+                            onClick: () => {
+                              setSelectedWorkspaceId(w.id);
+                              setWorkspaceSearchQuery('');
+                            }
+                          }))
+                      : [{
+                          key: 'no-results',
+                          label: <Text type="secondary">Không tìm thấy workspace</Text>,
+                          disabled: true
+                        }]),
+                    { type: 'divider' },
+                    {
+                      key: 'create',
+                      label: 'Tạo workspace mới',
+                      icon: <PlusOutlined />,
+                      style: { 
+                        color: '#1677FF',
+                        background: 'rgba(22, 119, 255, 0.06)',
+                        fontWeight: 500
+                      },
+                      onClick: () => {
+                        handleOpenCreateWorkspace();
+                      }
+                    }
+                  ]
+                }}
+                trigger={['click']}
+                onOpenChange={(open) => {
+                  if (!open) {
+                    setWorkspaceSearchQuery('');
+                  }
+                }}
+                dropdownRender={(menu) => (
+                  <div style={{ width: 280, maxHeight: 400, overflow: 'auto' }}>
+                    {workspaces.length > 5 && (
+                      <div style={{ padding: '8px 12px', borderBottom: '1px solid #f0f0f0' }}>
+                        <Input
+                          placeholder="Tìm kiếm workspace..."
+                          prefix={<SearchOutlined />}
+                          value={workspaceSearchQuery}
+                          onChange={(e) => setWorkspaceSearchQuery(e.target.value)}
+                          size="small"
+                          allowClear
+                        />
+                      </div>
+                    )}
+                    {menu}
+                  </div>
+                )}
+              >
+                <Button style={{ minWidth: 180, textAlign: 'left' }}>
+                  <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {selectedWorkspace?.name || 'Chọn workspace'}
+                  </span>
+                  <RightOutlined style={{ fontSize: 10, marginLeft: 8 }} />
+                </Button>
+              </Dropdown>
+            </div>
+            
             <Row gutter={24}>
               {/* Left Main Column */}
               <Col xs={24} lg={17}>
                 <Space direction="vertical" size={20} style={{ width: '100%' }}>
                   {/* Báo cáo kết quả - Customizable với Template System */}
+                  {(selectedWorkspace?.layout?.showDashboard !== false && selectedWorkspace) && (
                   <Card 
                     title={<Text strong style={{ fontSize: 16, color: '#2b2b2b' }}>Báo cáo kết quả</Text>}
                     extra={
@@ -1286,8 +2210,10 @@ useEffect(() => {
                       </Row>
                     )}
                   </Card>
+                  )}
                   
                   {/* Báo cáo tiến độ - Customizable */}
+                  {(selectedWorkspace?.layout?.showDashboard !== false && selectedWorkspace) && (
                   <Card 
                     title={<Text strong style={{ fontSize: 16, color: '#2b2b2b' }}>Báo cáo tiến độ</Text>}
                     extra={
@@ -1340,8 +2266,10 @@ useEffect(() => {
                       ))}
                     </Row>
                   </Card>
+                  )}
                   
                   {/* Xu hướng Doanh thu */}
+                  {(selectedWorkspace?.layout?.showDashboard !== false && selectedWorkspace) && (
                   <Card 
                     title={<Text strong style={{ fontSize: 16, color: '#2b2b2b' }}>Xu hướng Doanh thu</Text>}
                     style={{ 
@@ -1391,6 +2319,7 @@ useEffect(() => {
                       </LineChart>
                     </ResponsiveContainer>
                   </Card>
+                  )}
                   
                 </Space>
               </Col>
@@ -1399,6 +2328,7 @@ useEffect(() => {
               <Col xs={24} lg={7}>
                 <Space direction="vertical" size={16} style={{ width: '100%' }}>
                   {/* Alert & Risks - Tabbed */}
+                  {(selectedWorkspace?.layout?.showAlerts !== false && selectedWorkspace) && (
                   <Card 
                     title={<Text strong style={{ fontSize: 14, color: '#2b2b2b' }}>Alert & Risks</Text>}
                     size="small"
@@ -1806,8 +2736,10 @@ useEffect(() => {
                       ]}
                     />
                   </Card>
+                  )}
                   
                   {/* Có thể bạn quan tâm - Case Study & Blog Only */}
+                  {(selectedWorkspace?.layout?.showGuides !== false && selectedWorkspace) && (
                   <Card 
                     title={<Text strong style={{ fontSize: 14, color: '#2b2b2b' }}>Có thể bạn quan tâm</Text>}
                     size="small"
@@ -1880,6 +2812,7 @@ useEffect(() => {
                       }}
                     />
                   </Card>
+                  )}
                 </Space>
               </Col>
             </Row>
@@ -2628,6 +3561,919 @@ useEffect(() => {
           closable
         />
       </Drawer>
+      
+      {/* Workspace Configuration Drawer - Full Screen */}
+      <Drawer
+        title={
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Text strong style={{ fontSize: 18 }}>Tạo workspace mới</Text>
+            <Space>
+              <Button onClick={() => {
+                setWorkspaceConfigDrawerVisible(false);
+                setNewWorkspaceName('');
+                setSelectedGroup(null);
+                setSelectedItems([]);
+                setSelectedAlertMetrics({ errors: [], warnings: [] });
+              }}>
+                Hủy
+              </Button>
+              <Button 
+                type="primary" 
+                onClick={handleCreateWorkspace}
+                disabled={!newWorkspaceName.trim() || selectedItems.length === 0}
+              >
+                Lưu workspace
+              </Button>
+            </Space>
+          </div>
+        }
+        open={workspaceConfigDrawerVisible}
+        onClose={() => {
+          setWorkspaceConfigDrawerVisible(false);
+          setNewWorkspaceName('');
+          setSelectedGroup(null);
+          setSelectedItems([]);
+          setSelectedAlertMetrics({ errors: [], warnings: [] });
+        }}
+        width="100%"
+        style={{ zIndex: 1001 }}
+        bodyStyle={{ padding: 0, background: '#FAFBFB' }}
+      >
+        <div style={{ display: 'flex', height: 'calc(100vh - 55px)' }}>
+          {/* Left Column - Tree Navigation */}
+          <div style={{ 
+            width: 360, 
+            background: '#fff', 
+            borderRight: '1px solid #E1E3E5',
+            overflowY: 'auto',
+            padding: 24
+          }}>
+            <div style={{ marginBottom: 24 }}>
+              <Input
+                placeholder="Nhập tên workspace..."
+                value={newWorkspaceName}
+                onChange={(e) => setNewWorkspaceName(e.target.value)}
+                size="large"
+                prefix={<EditOutlined />}
+              />
+            </div>
+            
+            <Text strong style={{ fontSize: 14, color: '#2b2b2b', display: 'block', marginBottom: 16 }}>
+              Chọn nhóm và mục
+            </Text>
+            
+            <Space direction="vertical" style={{ width: '100%' }} size={8}>
+              {workspaceGroups.map(group => (
+                <div key={group.id} style={{ marginBottom: 8 }}>
+                  {/* Group Header - Only show if group has no items or if group is not selected */}
+                  {(!group.items || group.items.length === 0) && !isItemSelected(group.id) && (
+                    <div
+                      onClick={() => {
+                        setSelectedGroup(group.id);
+                        handleSelectItem(group.id);
+                      }}
+                      style={{
+                        padding: '12px 16px',
+                        borderRadius: 8,
+                        border: selectedGroup === group.id ? '1px solid #1677FF' : '1px solid #E4E6EB',
+                        background: selectedGroup === group.id ? 'rgba(22, 119, 255, 0.08)' : '#FAFAFA',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s',
+                        marginBottom: 4
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <span style={{ fontSize: 18, color: selectedGroup === group.id ? '#1677FF' : '#6D7175' }}>
+                          {group.icon}
+                        </span>
+                        <Text strong style={{ fontSize: 14, color: selectedGroup === group.id ? '#1677FF' : '#2b2b2b' }}>
+                          {group.name}
+                        </Text>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Group Header with items - Expandable */}
+                  {group.items && group.items.length > 0 && (
+                    <>
+                      <div
+                        onClick={() => setSelectedGroup(selectedGroup === group.id ? null : group.id)}
+                        style={{
+                          padding: '12px 16px',
+                          borderRadius: 8,
+                          border: selectedGroup === group.id ? '1px solid #1677FF' : '1px solid #E4E6EB',
+                          background: selectedGroup === group.id ? 'rgba(22, 119, 255, 0.08)' : '#FAFAFA',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          marginBottom: 4
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                          <span style={{ fontSize: 18, color: selectedGroup === group.id ? '#1677FF' : '#6D7175' }}>
+                            {group.icon}
+                          </span>
+                          <Text strong style={{ fontSize: 14, color: selectedGroup === group.id ? '#1677FF' : '#2b2b2b' }}>
+                            {group.name}
+                          </Text>
+                        </div>
+                      </div>
+                      
+                      {/* Sub-items - Only show items that are not selected */}
+                      {selectedGroup === group.id && (
+                        <div style={{ marginLeft: 32, marginTop: 8 }}>
+                          {group.items
+                            .filter(item => !isItemSelected(group.id, item.id))
+                            .map(item => {
+                              // For Dashboard, disable if another dashboard is already selected
+                              const isDisabled = group.id === 'Dashboard' && hasDashboardSelected();
+                              
+                              return (
+                                <Tooltip
+                                  key={item.id}
+                                  title={isDisabled ? 'Chỉ có thể chọn một dashboard. Vui lòng xóa dashboard hiện tại trước.' : ''}
+                                  placement="right"
+                                >
+                                  <div
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (!isDisabled) {
+                                        handleSelectItem(group.id, item.id);
+                                      }
+                                    }}
+                                    style={{
+                                      padding: '10px 12px',
+                                      borderRadius: 6,
+                                      border: '1px solid #E4E6EB',
+                                      background: isDisabled ? '#F5F5F5' : '#fff',
+                                      cursor: isDisabled ? 'not-allowed' : 'pointer',
+                                      transition: 'all 0.2s',
+                                      marginBottom: 4,
+                                      opacity: isDisabled ? 0.6 : 1
+                                    }}
+                                  >
+                                    <Text style={{ fontSize: 13, color: isDisabled ? '#8c8c8c' : '#2b2b2b' }}>
+                                      {item.name}
+                                    </Text>
+                                    {item.description && (
+                                      <Text type="secondary" style={{ fontSize: 11, display: 'block', marginTop: 4 }}>
+                                        {item.description}
+                                      </Text>
+                                    )}
+                                  </div>
+                                </Tooltip>
+                              );
+                            })}
+                        </div>
+                      )}
+                    </>
+                  )}
+                </div>
+              ))}
+            </Space>
+          </div>
+          
+          {/* Right Column - Preview */}
+          <div style={{ 
+            flex: 1, 
+            padding: 24,
+            overflowY: 'auto',
+            background: '#FAFBFB'
+          }}>
+            <Text strong style={{ fontSize: 16, display: 'block', marginBottom: 20 }}>
+              Preview workspace: {newWorkspaceName || 'Chưa đặt tên'}
+            </Text>
+            
+            {selectedItems.length === 0 ? (
+              <Empty description="Chưa chọn nhóm hoặc mục nào" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+            ) : (
+              <Row gutter={24}>
+                {/* Left Main Column */}
+                <Col xs={24} lg={17}>
+                  <Space direction="vertical" size={20} style={{ width: '100%' }}>
+                    {/* Dashboard Items */}
+                    {selectedItems
+                      .filter(item => item.groupId === 'Dashboard' && item.itemId)
+                      .map((item, idx) => {
+                        try {
+                          const group = workspaceGroups.find(g => g.id === item.groupId);
+                          const subItem = group?.items?.find(i => i.id === item.itemId);
+                          if (!subItem) return null;
+                          
+                          return (
+                            <Card
+                              key={`${item.groupId}-${item.itemId}-${idx}`}
+                              title={
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                  <Text strong style={{ fontSize: 16, color: '#2b2b2b' }}>Báo cáo kết quả - {subItem.name}</Text>
+                                  <Button
+                                    type="text"
+                                    danger
+                                    icon={<DeleteOutlined />}
+                                    size="small"
+                                    onClick={() => handleRemoveItem(item.groupId, item.itemId)}
+                                  />
+                                </div>
+                              }
+                              style={{ 
+                                background: '#fff',
+                                border: '1px solid #E1E3E5',
+                                borderRadius: 16,
+                                boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)'
+                              }}
+                            >
+                              <Row gutter={[12, 12]}>
+                                {/* KPI Cards */}
+                                {(currentKpiOverview?.col1 || []).map((kpi, i) => (
+                                  <Col span={8} key={`col1-${i}`}>
+                                    <KPICard {...kpi} />
+                                  </Col>
+                                ))}
+                                {(currentKpiOverview?.col2 || []).map((kpi, i) => (
+                                  <Col span={8} key={`col2-${i}`}>
+                                    <KPICard {...kpi} />
+                                  </Col>
+                                ))}
+                                {(currentKpiOverview?.col3 || []).map((kpi, i) => (
+                                  <Col span={8} key={`col3-${i}`}>
+                                    {kpi.breakdown ? (
+                                      <Card size="small" style={{ background: '#F7F7F7', border: 'none', height: '100%' }}>
+                                        <Text strong style={{ fontSize: 13, display: 'block', marginBottom: 12 }}>{kpi.title}</Text>
+                                        <Space direction="vertical" style={{ width: '100%' }} size={8}>
+                                          {(kpi.breakdown || []).map((breakdownItem, breakdownIdx) => (
+                                            <div key={`breakdown-${breakdownIdx}`} style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                              <Text style={{ fontSize: 12 }}>{breakdownItem.label}</Text>
+                                              <Text strong style={{ fontSize: 12 }}>{breakdownItem.value}</Text>
+                                            </div>
+                                          ))}
+                                        </Space>
+                                      </Card>
+                                    ) : (
+                                      <KPICard {...kpi} />
+                                    )}
+                                  </Col>
+                                ))}
+                              </Row>
+                              
+                              {/* Charts Row */}
+                              <Row gutter={[12, 12]} style={{ marginTop: 12 }}>
+                                <Col span={12}>
+                                  <Card size="small" title="Xu hướng Doanh thu" style={{ height: 200 }}>
+                                    <ResponsiveContainer width="100%" height={150}>
+                                      <LineChart data={currentChartData || []}>
+                                        <CartesianGrid strokeDasharray="3 3" />
+                                        <XAxis dataKey="name" />
+                                        <YAxis />
+                                        <ChartTooltip />
+                                        <RechartLine type="monotone" dataKey="value" stroke="#1677FF" />
+                                      </LineChart>
+                                    </ResponsiveContainer>
+                                  </Card>
+                                </Col>
+                                <Col span={12}>
+                                  <Card size="small" title="Phân bổ kênh" style={{ height: 200 }}>
+                                    <ResponsiveContainer width="100%" height={150}>
+                                      <PieChart>
+                                        <RechartPie
+                                          data={currentPieData || []}
+                                          cx="50%"
+                                          cy="50%"
+                                          labelLine={false}
+                                          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                          outerRadius={50}
+                                          fill="#8884d8"
+                                          dataKey="value"
+                                        >
+                                          {(currentPieData || []).map((entry, index) => (
+                                            <Cell key={`cell-${index}`} fill={['#1677FF', '#52C41A', '#FA8C16'][index % 3]} />
+                                          ))}
+                                        </RechartPie>
+                                        <ChartTooltip />
+                                      </PieChart>
+                                    </ResponsiveContainer>
+                                  </Card>
+                                </Col>
+                              </Row>
+                            </Card>
+                          );
+                        } catch (error) {
+                          console.error('Error rendering dashboard preview:', error, item);
+                          return (
+                            <Card key={`error-${idx}`} title="Lỗi hiển thị">
+                              <Text type="danger">Có lỗi xảy ra khi hiển thị dashboard: {error.message}</Text>
+                            </Card>
+                          );
+                        }
+                      })}
+                    
+                    {/* Báo cáo tiến độ - Show if any Dashboard is selected */}
+                    {selectedItems.some(item => item.groupId === 'Dashboard' && item.itemId) && (
+                      <Card 
+                        title={<Text strong style={{ fontSize: 16, color: '#2b2b2b' }}>Báo cáo tiến độ</Text>}
+                        style={{ 
+                          background: '#fff',
+                          border: '1px solid #E1E3E5',
+                          borderRadius: 16,
+                          boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)'
+                        }}
+                      >
+                        <Row gutter={[16, 16]}>
+                          {progressGoals.map((goal, idx) => (
+                            <Col xs={24} md={8} key={idx}>
+                              <div style={{ 
+                                padding: '20px 16px',
+                                background: '#F7F7F7',
+                                borderRadius: 12,
+                                border: 'none'
+                              }}>
+                                <div style={{ fontSize: 13, color: '#6D7175', marginBottom: 8, fontWeight: 500 }}>
+                                  {goal.title}
+                                </div>
+                                <div style={{ fontSize: 24, fontWeight: 700, marginBottom: 12, color: '#2b2b2b' }}>
+                                  {goal.current} / {goal.target}
+                                </div>
+                                <Progress 
+                                  percent={goal.percent} 
+                                  strokeColor="#2684FF"
+                                  strokeWidth={10}
+                                  showInfo={false}
+                                />
+                                <div style={{ 
+                                  fontSize: 14, 
+                                  color: '#2b2b2b', 
+                                  marginTop: 8,
+                                  fontWeight: 500
+                                }}>
+                                  {goal.percent}% {goal.status}
+                                </div>
+                              </div>
+                            </Col>
+                          ))}
+                        </Row>
+                      </Card>
+                    )}
+                  </Space>
+                </Col>
+                
+                {/* Right Sidebar */}
+                <Col xs={24} lg={7}>
+                  <Space direction="vertical" size={16} style={{ width: '100%' }}>
+                    {/* Lỗi & Cảnh báo */}
+                    {selectedItems.some(item => item.groupId === 'Lỗi & Cảnh báo' && !item.itemId) && (
+                      <Card 
+                        title={
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Text strong style={{ fontSize: 14, color: '#2b2b2b' }}>Alert & Risks</Text>
+                            <Button
+                              type="text"
+                              danger
+                              icon={<DeleteOutlined />}
+                              size="small"
+                              onClick={() => handleRemoveItem('Lỗi & Cảnh báo')}
+                            />
+                          </div>
+                        }
+                        size="small"
+                        style={{ 
+                          background: '#fff',
+                          border: '1px solid #E1E3E5',
+                          borderRadius: 12,
+                          boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)'
+                        }}
+                      >
+                        <Tabs 
+                          defaultActiveKey="errors"
+                          size="small"
+                          items={[
+                            {
+                              key: 'errors',
+                              label: (
+                                <Space size={4}>
+                                  <ExclamationCircleOutlined style={{ color: '#D72C0D', fontSize: 14 }} />
+                                  <span>Lỗi</span>
+                                  {selectedAlertMetrics.errors.length > 0 && (
+                                    <div style={{
+                                      width: 20,
+                                      height: 20,
+                                      borderRadius: '50%',
+                                      background: '#D72C0D',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      marginLeft: 4
+                                    }}>
+                                      <Text style={{ fontSize: 11, color: '#fff', fontWeight: 600 }}>
+                                        {selectedAlertMetrics.errors.length}
+                                      </Text>
+                                    </div>
+                                  )}
+                                </Space>
+                              ),
+                              children: (
+                                <div style={{ 
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  gap: 6
+                                }}>
+                                  {selectedAlertMetrics.errors.length === 0 ? (
+                                    <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                                      <Button 
+                                        size="small" 
+                                        type="primary" 
+                                        icon={<PlusOutlined />}
+                                        onClick={() => setAlertMetricsOverlayVisible(true)}
+                                      >
+                                        Thêm chỉ số
+                                      </Button>
+                                    </div>
+                                  ) : (
+                                    <>
+                                      {selectedAlertMetrics.errors.map(metricId => {
+                                        const metric = alertMetrics.errors.find(m => m.id === metricId);
+                                        return metric ? (
+                                          <div
+                                            key={metricId}
+                                            style={{
+                                              padding: '12px',
+                                              background: '#FEF3F2',
+                                              border: `1px solid ${metric.color}`,
+                                              borderRadius: 8
+                                            }}
+                                          >
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                              <Text style={{ fontSize: 13, color: metric.color }}>
+                                                {metric.name}
+                                              </Text>
+                                              {metric.value && (
+                                                <Text strong style={{ fontSize: 13, color: metric.color }}>
+                                                  {metric.value}{metric.unit}
+                                                </Text>
+                                              )}
+                                            </div>
+                                          </div>
+                                        ) : null;
+                                      })}
+                                      <Button 
+                                        size="small" 
+                                        type="dashed" 
+                                        icon={<PlusOutlined />}
+                                        onClick={() => setAlertMetricsOverlayVisible(true)}
+                                        block
+                                        style={{ marginTop: 8 }}
+                                      >
+                                        Thêm chỉ số
+                                      </Button>
+                                    </>
+                                  )}
+                                </div>
+                              )
+                            },
+                            {
+                              key: 'warnings',
+                              label: (
+                                <Space size={4}>
+                                  <WarningOutlined style={{ color: '#FA8C16', fontSize: 14 }} />
+                                  <span>Cảnh báo</span>
+                                  {selectedAlertMetrics.warnings.length > 0 && (
+                                    <div style={{
+                                      width: 20,
+                                      height: 20,
+                                      borderRadius: '50%',
+                                      background: '#FA8C16',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center',
+                                      marginLeft: 4
+                                    }}>
+                                      <Text style={{ fontSize: 11, color: '#fff', fontWeight: 600 }}>
+                                        {selectedAlertMetrics.warnings.length}
+                                      </Text>
+                                    </div>
+                                  )}
+                                </Space>
+                              ),
+                              children: (
+                                <div style={{ 
+                                  display: 'flex',
+                                  flexDirection: 'column',
+                                  gap: 6
+                                }}>
+                                  {selectedAlertMetrics.warnings.length === 0 ? (
+                                    <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                                      <Button 
+                                        size="small" 
+                                        type="primary" 
+                                        icon={<PlusOutlined />}
+                                        onClick={() => setAlertMetricsOverlayVisible(true)}
+                                      >
+                                        Thêm chỉ số
+                                      </Button>
+                                    </div>
+                                  ) : (
+                                    <>
+                                      {selectedAlertMetrics.warnings.map(metricId => {
+                                        const metric = alertMetrics.warnings.find(m => m.id === metricId);
+                                        return metric ? (
+                                          <div
+                                            key={metricId}
+                                            style={{
+                                              padding: '12px',
+                                              background: '#FFF7E6',
+                                              border: `1px solid ${metric.color}`,
+                                              borderRadius: 8
+                                            }}
+                                          >
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                              <Text style={{ fontSize: 13, color: metric.color }}>
+                                                {metric.name}
+                                              </Text>
+                                              {metric.value && (
+                                                <Text strong style={{ fontSize: 13, color: metric.color }}>
+                                                  {metric.value}{metric.unit}
+                                                </Text>
+                                              )}
+                                            </div>
+                                          </div>
+                                        ) : null;
+                                      })}
+                                      <Button 
+                                        size="small" 
+                                        type="dashed" 
+                                        icon={<PlusOutlined />}
+                                        onClick={() => setAlertMetricsOverlayVisible(true)}
+                                        block
+                                        style={{ marginTop: 8 }}
+                                      >
+                                        Thêm chỉ số
+                                      </Button>
+                                    </>
+                                  )}
+                                </div>
+                              )
+                            }
+                          ]}
+                        />
+                      </Card>
+                    )}
+                    
+                    {/* Tin tức */}
+                    {selectedItems.some(item => item.groupId === 'Tin tức' && !item.itemId) && (
+                      <Card 
+                        title={
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <Text strong style={{ fontSize: 14, color: '#2b2b2b' }}>Có thể bạn quan tâm</Text>
+                            <Space>
+                              <Button type="link" size="small">Tất cả</Button>
+                              <Button
+                                type="text"
+                                danger
+                                icon={<DeleteOutlined />}
+                                size="small"
+                                onClick={() => handleRemoveItem('Tin tức')}
+                              />
+                            </Space>
+                          </div>
+                        }
+                        size="small"
+                        style={{ 
+                          background: '#fff',
+                          border: '1px solid #E1E3E5',
+                          borderRadius: 12,
+                          boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)'
+                        }}
+                      >
+                        <List
+                          size="small"
+                          dataSource={contentItems.insights}
+                          renderItem={(item) => {
+                            const getIcon = (iconType) => {
+                              switch(iconType) {
+                                case 'chart': return <LineChartOutlined />;
+                                case 'bulb': return <BulbOutlined />;
+                                case 'book': return <BookOutlined />;
+                                default: return <BookOutlined />;
+                              }
+                            };
+                            return (
+                              <List.Item 
+                                style={{ padding: '8px 0', cursor: 'pointer' }}
+                                onClick={() => message.info('Đang mở bài viết...')}
+                              >
+                                <List.Item.Meta
+                                  avatar={
+                                    <div style={{ 
+                                      width: 32, 
+                                      height: 32, 
+                                      borderRadius: 8, 
+                                      background: `${item.color}15`,
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      justifyContent: 'center'
+                                    }}>
+                                      {React.cloneElement(getIcon(item.icon), { 
+                                        style: { fontSize: 16, color: item.color } 
+                                      })}
+                                    </div>
+                                  }
+                                  title={<Text style={{ fontSize: 13 }}>{item.title}</Text>}
+                                  description={
+                                    <Space>
+                                      <Tag color={item.color} style={{ fontSize: 11 }}>
+                                        {item.category}
+                                      </Tag>
+                                      <Text type="secondary" style={{ fontSize: 11 }}>
+                                        {item.date}
+                                      </Text>
+                                    </Space>
+                                  }
+                                />
+                              </List.Item>
+                            );
+                          }}
+                        />
+                      </Card>
+                    )}
+                  </Space>
+                </Col>
+              </Row>
+            )}
+          </div>
+        </div>
+      </Drawer>
+      
+      {/* Alert Metrics Selection Overlay */}
+      <Modal
+        title="Chọn chỉ số hiển thị"
+        open={alertMetricsOverlayVisible}
+        onCancel={() => setAlertMetricsOverlayVisible(false)}
+        onOk={() => setAlertMetricsOverlayVisible(false)}
+        okText="Xác nhận"
+        cancelText="Hủy"
+        width={600}
+      >
+        <Tabs
+          defaultActiveKey="errors"
+          items={[
+            {
+              key: 'errors',
+              label: (
+                <Space size={4}>
+                  <ExclamationCircleOutlined style={{ color: '#D72C0D' }} />
+                  <span>Lỗi</span>
+                </Space>
+              ),
+              children: (
+                <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+                  <Space direction="vertical" style={{ width: '100%' }} size={12}>
+                    {alertMetrics.errors.map(metric => (
+                      <Checkbox
+                        key={metric.id}
+                        checked={selectedAlertMetrics.errors.includes(metric.id)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedAlertMetrics(prev => ({
+                              ...prev,
+                              errors: [...prev.errors, metric.id]
+                            }));
+                          } else {
+                            setSelectedAlertMetrics(prev => ({
+                              ...prev,
+                              errors: prev.errors.filter(id => id !== metric.id)
+                            }));
+                          }
+                        }}
+                      >
+                        <Text style={{ fontSize: 13, marginLeft: 8 }}>
+                          {metric.name}
+                        </Text>
+                      </Checkbox>
+                    ))}
+                  </Space>
+                </div>
+              )
+            },
+            {
+              key: 'warnings',
+              label: (
+                <Space size={4}>
+                  <WarningOutlined style={{ color: '#FA8C16' }} />
+                  <span>Cảnh báo</span>
+                </Space>
+              ),
+              children: (
+                <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+                  <Space direction="vertical" style={{ width: '100%' }} size={12}>
+                    {alertMetrics.warnings.map(metric => (
+                      <Checkbox
+                        key={metric.id}
+                        checked={selectedAlertMetrics.warnings.includes(metric.id)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setSelectedAlertMetrics(prev => ({
+                              ...prev,
+                              warnings: [...prev.warnings, metric.id]
+                            }));
+                          } else {
+                            setSelectedAlertMetrics(prev => ({
+                              ...prev,
+                              warnings: prev.warnings.filter(id => id !== metric.id)
+                            }));
+                          }
+                        }}
+                      >
+                        <Text style={{ fontSize: 13, marginLeft: 8 }}>
+                          {metric.name}
+                        </Text>
+                      </Checkbox>
+                    ))}
+                  </Space>
+                </div>
+              )
+            }
+          ]}
+        />
+      </Modal>
+      
+      {/* Workspace Edit Modal */}
+      <Modal
+        title="Chỉnh sửa workspace"
+        open={workspaceEditModalVisible}
+        onCancel={() => {
+          setWorkspaceEditModalVisible(false);
+          setNewWorkspaceName('');
+          setSelectedGroup('Dashboard');
+          setEditingWorkspaceId(null);
+        }}
+        footer={[
+          <Button key="cancel" onClick={() => {
+            setWorkspaceEditModalVisible(false);
+            setNewWorkspaceName('');
+            setSelectedGroup('Dashboard');
+            setEditingWorkspaceId(null);
+          }}>
+            Hủy
+          </Button>,
+          <Button 
+            key="save" 
+            type="primary" 
+            onClick={handleEditWorkspace}
+            disabled={!newWorkspaceName.trim()}
+          >
+            Lưu thay đổi
+          </Button>
+        ]}
+        width={1200}
+        style={{ top: 20 }}
+        bodyStyle={{ maxHeight: '70vh', overflowY: 'auto' }}
+      >
+        <Row gutter={[24, 24]}>
+          {/* Left Column - Groups Navigation */}
+          <Col xs={24} lg={8}>
+            <Card 
+              title="Chọn nhóm"
+              bodyStyle={{ padding: 16 }}
+            >
+              <Space direction="vertical" style={{ width: '100%' }} size={12}>
+                {workspaceGroups.map(group => (
+                  <div
+                    key={group.id}
+                    onClick={() => setSelectedGroup(group.id)}
+                    style={{
+                      padding: '16px',
+                      borderRadius: 12,
+                      border: selectedGroup === group.id ? '2px solid #1677FF' : '1px solid #E4E6EB',
+                      background: selectedGroup === group.id ? 'rgba(22, 119, 255, 0.08)' : '#fff',
+                      cursor: 'pointer',
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                      <span style={{ fontSize: 20, color: selectedGroup === group.id ? '#1677FF' : '#6D7175' }}>
+                        {group.icon}
+                      </span>
+                      <Text strong style={{ fontSize: 14, color: selectedGroup === group.id ? '#1677FF' : '#2b2b2b' }}>
+                        {group.name}
+                      </Text>
+                    </div>
+                    <Text type="secondary" style={{ fontSize: 12, display: 'block', marginLeft: 32 }}>
+                      {group.description}
+                    </Text>
+                  </div>
+                ))}
+              </Space>
+            </Card>
+          </Col>
+          
+          {/* Right Column - Preview */}
+          <Col xs={24} lg={16}>
+            <Card
+              title="Preview workspace"
+              bodyStyle={{ padding: 24 }}
+            >
+              <div style={{ marginBottom: 16 }}>
+                <Input
+                  placeholder="Nhập tên workspace..."
+                  value={newWorkspaceName}
+                  onChange={(e) => setNewWorkspaceName(e.target.value)}
+                  size="large"
+                  prefix={<EditOutlined />}
+                />
+              </div>
+              
+              <div style={{ 
+                border: '1px dashed #D9D9D9', 
+                borderRadius: 8, 
+                padding: 24,
+                background: '#FAFAFA',
+                minHeight: 300
+              }}>
+                <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 16 }}>
+                  Workspace: {newWorkspaceName || 'Chưa đặt tên'}
+                </Text>
+                <Divider style={{ margin: '16px 0' }} />
+                
+                {selectedGroup === 'Dashboard' && (
+                  <div>
+                    <Text type="secondary" style={{ fontSize: 13, display: 'block', marginBottom: 12 }}>
+                      ✓ Dashboard - Hiển thị các dashboard chỉ số
+                    </Text>
+                    <div style={{ 
+                      background: '#fff', 
+                      border: '1px solid #E4E6EB', 
+                      borderRadius: 8, 
+                      padding: 16,
+                      marginTop: 12
+                    }}>
+                      <Text style={{ fontSize: 12, color: '#8c8c8c' }}>
+                        Section "Báo cáo kết quả" sẽ được hiển thị
+                      </Text>
+                    </div>
+                  </div>
+                )}
+                
+                {selectedGroup === 'Alert & Risks' && (
+                  <div>
+                    <Text type="secondary" style={{ fontSize: 13, display: 'block', marginBottom: 12 }}>
+                      ✓ Alert & Risks - Hiển thị các widget cảnh báo
+                    </Text>
+                    <div style={{ 
+                      background: '#fff', 
+                      border: '1px solid #E4E6EB', 
+                      borderRadius: 8, 
+                      padding: 16,
+                      marginTop: 12
+                    }}>
+                      <Text style={{ fontSize: 12, color: '#8c8c8c' }}>
+                        Section "Alert & Risks" sẽ được hiển thị
+                      </Text>
+                    </div>
+                  </div>
+                )}
+                
+                {selectedGroup === 'Guides / Case studies' && (
+                  <div>
+                    <Text type="secondary" style={{ fontSize: 13, display: 'block', marginBottom: 12 }}>
+                      ✓ Guides / Case studies - Hiển thị hướng dẫn và case study
+                    </Text>
+                    <div style={{ 
+                      background: '#fff', 
+                      border: '1px solid #E4E6EB', 
+                      borderRadius: 8, 
+                      padding: 16,
+                      marginTop: 12
+                    }}>
+                      <Text style={{ fontSize: 12, color: '#8c8c8c' }}>
+                        Section "Có thể bạn quan tâm" sẽ được hiển thị
+                      </Text>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </Card>
+          </Col>
+        </Row>
+      </Modal>
+      
+      {/* Delete Confirmation Modal */}
+      <Modal
+        title="Xóa workspace"
+        open={deleteConfirmVisible}
+        onOk={handleDeleteWorkspace}
+        onCancel={() => {
+          setDeleteConfirmVisible(false);
+          setWorkspaceToDelete(null);
+        }}
+        okText="Xóa"
+        cancelText="Hủy"
+        okButtonProps={{ danger: true }}
+      >
+        <Text>
+          Bạn có chắc chắn muốn xóa workspace <strong>"{workspaceToDelete?.name}"</strong>?
+        </Text>
+        <br />
+        <Text type="danger" style={{ fontSize: 12, display: 'block', marginTop: 8 }}>
+          Hành động này không thể hoàn tác.
+        </Text>
+      </Modal>
     </Layout>
   );
 };
