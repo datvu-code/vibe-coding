@@ -3,7 +3,7 @@ import {
   Layout, Menu, Card, Statistic, Progress, Tabs, Timeline, Tag, 
   Drawer, Modal, Popover, Tooltip, Button, List, Collapse, DatePicker, 
   Badge, Avatar, Dropdown, Row, Col, Empty, Input, Form, Select, Space,
-  Radio, message, Switch, Divider, Alert, Checkbox, Typography
+  Radio, message, Switch, Divider, Alert, Checkbox, Typography, Pagination
 } from 'antd';
 import {
   HomeOutlined, BarChartOutlined, ShoppingOutlined, InboxOutlined, 
@@ -16,8 +16,8 @@ import {
   SyncOutlined, StarOutlined, SearchOutlined, CalendarOutlined,
   TagsOutlined, InfoCircleOutlined, ThunderboltOutlined, ClockCircleOutlined,
   ExclamationCircleOutlined, FireOutlined, BookOutlined,
-  RightOutlined, ShopOutlined, ExportOutlined,
-  ArrowsAltOutlined
+  ShopOutlined, ExportOutlined,
+  ArrowsAltOutlined, LeftOutlined, EllipsisOutlined
 } from '@ant-design/icons';
 import { LineChart, Line as RechartLine, BarChart, Bar, PieChart, Pie as RechartPie, AreaChart, Area as RechartArea, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import dayjs from 'dayjs';
@@ -26,6 +26,9 @@ import { DndContext, closestCenter } from '@dnd-kit/core';
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { createSnapModifier } from '@dnd-kit/modifiers';
+import GridLayout from 'react-grid-layout';
+import 'react-grid-layout/css/styles.css';
+import 'react-resizable/css/styles.css';
 
 const { Header, Sider, Content } = Layout;
 const { RangePicker } = DatePicker;
@@ -444,16 +447,16 @@ const progressGoals = [
 
 const alertsData = {
   errors: [
-    { id: 1, title: 'SKU quá trọng sắp hết', count: 5, severity: 'high', metric: 'Đơn hàng' },
-    { id: 2, title: 'Đơn bị lỗi', count: 8, severity: 'high', metric: 'Đơn hàng' },
-    { id: 3, title: 'Tỷ lệ hủy tăng', count: 12.5, unit: '%', severity: 'high', metric: 'Sản phẩm' },
-    { id: 4, title: 'CR hiện tại', count: 2.5, unit: '%', severity: 'high', metric: 'Sản phẩm' },
-    { id: 5, title: 'SKU vượt phạm vi', count: 3, severity: 'high', metric: 'Tồn kho' }
+    { id: 1, title: 'SKU quá trọng sắp hết', value: '8', unit: 'SKU', severity: 'high', metric: 'Tồn kho' },
+    { id: 2, title: 'Đơn bị lỗi', value: '8', unit: 'đơn', severity: 'high', metric: 'Đơn hàng' },
+    { id: 3, title: '% Tỷ lệ hủy tăng', value: '12.5', unit: '%', severity: 'high', metric: 'Sản phẩm' },
+    { id: 4, title: '% CR hiện tại', value: '2.5', unit: '%', severity: 'high', metric: 'Sản phẩm' },
+    { id: 5, title: 'SKU vượt phạm vi', value: '3', unit: 'SKU', severity: 'high', metric: 'Tồn kho' }
   ],
   warnings: [
-    { id: 6, title: 'SKU sắp hết hàng', count: 14, severity: 'medium', metric: 'Đơn hàng', desc: 'Sắp vượt' },
-    { id: 7, title: 'Traffic giảm', count: 8, severity: 'medium', metric: 'Sản phẩm', desc: 'vs hôm trước' },
-    { id: 8, title: 'Chi phí tăng', count: 15.3, unit: '%', severity: 'medium', metric: 'Tồn kho', desc: 'vs hôm trước' }
+    { id: 6, title: 'SKU sắp hết hàng', value: '14', unit: 'SKU', severity: 'medium', metric: 'Tồn kho' },
+    { id: 7, title: 'Traffic giảm', value: '8', unit: '%', severity: 'medium', metric: 'Sản phẩm' },
+    { id: 8, title: 'Chi phí tăng', value: '15.3', unit: '%', severity: 'medium', metric: 'Tồn kho' }
   ]
 };
 
@@ -655,6 +658,13 @@ const defaultTemplates = [
     metrics: ['fulfillment-rate', 'cancel-rate', 'return-rate', 'avg-ship-time', 'orders-yesterday', 'gmv-yesterday']
   }
 ];
+
+const templatePreviewKeyMap = {
+  'growth-default': 'default',
+  'account-default': 'template-accounting',
+  'inventory-focus': 'default',
+  'ops-focus': 'default'
+};
 
 // ========== COMPONENTS ==========
 
@@ -886,8 +896,8 @@ const SortablePreviewBlock = ({
     minHeight: block.viewType === 'card' ? 120 : 170,
     background: '#fff',
     borderRadius: 12,
-    border: isDragging ? '1px solid #2684FF' : '1px dashed #D0D5DD',
-    boxShadow: isDragging || isHovered ? '0 0 0 2px rgba(38,132,255,0.25)' : '0 4px 8px rgba(15,23,42,0.06)',
+    border: isDragging ? '1px solid #1677FF' : '1px dashed #D0D5DD',
+    boxShadow: isDragging || isHovered ? '0 0 0 2px rgba(22, 119, 255,0.25)' : '0 4px 8px rgba(15,23,42,0.06)',
     padding: 16,
     position: 'relative',
     cursor: 'grab',
@@ -1137,10 +1147,8 @@ const HomepageLayout = () => {
   // Get personalized greeting
   const userName = 'Dat'; // This could come from auth context
   const greeting = getGreeting();
-  const [customizeModalVisible, setCustomizeModalVisible] = useState(false);
   const [annotationDrawerVisible, setAnnotationDrawerVisible] = useState(false);
   const [insightsDrawerVisible, setInsightsDrawerVisible] = useState(false);
-  const [expandedAlerts, setExpandedAlerts] = useState([]);
   const [annotations, setAnnotations] = useState([
     { id: 1, date: '2025-11-20', title: 'Flash Sale 11.11', description: 'GMV tăng đột biến do chạy flash sale', tags: ['marketing', 'sale'] },
     { id: 2, date: '2025-11-15', title: 'Thay đổi chiến lược ads', description: 'Chuyển từ CPM sang CPC', tags: ['ads'] },
@@ -1151,7 +1159,11 @@ const HomepageLayout = () => {
   // Template System States
   const [templates, setTemplates] = useState(() => {
     const saved = localStorage.getItem('ups-metric-templates');
-    return saved ? JSON.parse(saved) : defaultTemplates;
+    const base = saved ? JSON.parse(saved) : defaultTemplates;
+    return base.map(template => ({
+      ...template,
+      createdAt: template.createdAt || '24/12/2025'
+    }));
   });
   const [selectedTemplateId, setSelectedTemplateId] = useState(() => {
     return localStorage.getItem('ups-selected-template') || 'growth-default';
@@ -1160,17 +1172,280 @@ const HomepageLayout = () => {
   const [tempMetricOrder, setTempMetricOrder] = useState([]);
   
   // Modal States
-  const [createTemplateModalVisible, setCreateTemplateModalVisible] = useState(false);
-  const [editTemplateModalVisible, setEditTemplateModalVisible] = useState(false);
   const [newTemplateName, setNewTemplateName] = useState('');
   const [selectedMetrics, setSelectedMetrics] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [previewBlocks, setPreviewBlocks] = useState([]);
   const [hoveredPreviewBlock, setHoveredPreviewBlock] = useState(null);
   const [hoveredMetricId, setHoveredMetricId] = useState(null);
+  const [activeModule, setActiveModule] = useState('home');
+  const [createTemplateModalVisible, setCreateTemplateModalVisible] = useState(false);
+  const [editTemplateModalVisible, setEditTemplateModalVisible] = useState(false);
+  const [previewTemplateModalVisible, setPreviewTemplateModalVisible] = useState(false);
+  const [previewTemplateId, setPreviewTemplateId] = useState(null);
+  const [previewContext, setPreviewContext] = useState(null); // 'settings' | 'gallery'
+  const [hoveredTemplateCard, setHoveredTemplateCard] = useState(null);
+  const [hoveredGalleryCard, setHoveredGalleryCard] = useState(null);
+  const [editingTemplateName, setEditingTemplateName] = useState(null);
+  const [editingTemplateNameValue, setEditingTemplateNameValue] = useState('');
+  const [hoveredTemplateName, setHoveredTemplateName] = useState(null);
+  const [templateGalleryVisible, setTemplateGalleryVisible] = useState(false);
+  const [builderTemplateName, setBuilderTemplateName] = useState('');
+  const [builderReports, setBuilderReports] = useState([]);
+  const [builderAlertSelected, setBuilderAlertSelected] = useState(false);
+  const [builderNewsSelected, setBuilderNewsSelected] = useState(false);
+  const [templateTablePage, setTemplateTablePage] = useState(1);
+  const [selectedTemplateIds, setSelectedTemplateIds] = useState(new Set());
   
+  // New template builder state
+  const [widgetLayout, setWidgetLayout] = useState([]);
+  const [selectedWidgets, setSelectedWidgets] = useState(new Set());
+  const [widgetSearchQuery, setWidgetSearchQuery] = useState('');
+  const [collapsedSections, setCollapsedSections] = useState({});
+  const [hoveredWidget, setHoveredWidget] = useState(null);
+  const [selectedWidget, setSelectedWidget] = useState(null);
+  
+  // Section-based template builder state
+  const [sectionLayout, setSectionLayout] = useState([]);
+  const [sectionsInPreview, setSectionsInPreview] = useState(new Set()); // Track which sections are in preview
+  const SECTION_TITLE_MAP = {
+    'bao-cao': 'Báo cáo',
+    'loi-canh-bao': 'Lỗi & Cảnh báo',
+    'tin-tuc': 'Tin tức'
+  };
+  const [sectionTitles, setSectionTitles] = useState({});
+  const [sectionMetrics, setSectionMetrics] = useState({});
+  const [metricOverlayVisible, setMetricOverlayVisible] = useState(false);
+  const [currentSectionForMetric, setCurrentSectionForMetric] = useState(null);
+  const [editingSectionTitle, setEditingSectionTitle] = useState(null);
+  const [hoveredSectionTitle, setHoveredSectionTitle] = useState(null);
+  const [alertSectionActiveTab, setAlertSectionActiveTab] = useState({}); // Track active tab for each alert section
+  const [overlayButtonRef, setOverlayButtonRef] = useState(null);
+  const [overlayPosition, setOverlayPosition] = useState({ x: 0, y: 0 });
+  const [isDraggingOverlay, setIsDraggingOverlay] = useState(false);
+  const [overlayDragStart, setOverlayDragStart] = useState({ x: 0, y: 0 });
+  const [expandedAlerts, setExpandedAlerts] = useState(new Set()); // Track expanded alerts for accordion
+  const [metricChartTypes, setMetricChartTypes] = useState({}); // Track chart type for each metric
+  const [sectionWidgetLayouts, setSectionWidgetLayouts] = useState({}); // Track widget layouts within each section
+  const [sectionContainerWidths, setSectionContainerWidths] = useState({}); // Track actual container widths for GridLayout
+  const getSectionType = (sectionId = '') => {
+    if (!sectionId) return 'bao-cao';
+    if (sectionId.startsWith('bao-cao')) return 'bao-cao';
+    if (sectionId.startsWith('loi-canh-bao')) return 'loi-canh-bao';
+    if (sectionId.startsWith('tin-tuc')) return 'tin-tuc';
+    return sectionId;
+  };
+  const createDefaultSectionMetrics = (type) => {
+    if (type === 'loi-canh-bao') {
+      return []; // Store alert IDs as array, similar to bao-cao
+    }
+    return [];
+  };
+  const canSectionRepeat = (type) => type === 'bao-cao';
+
+  // Update container widths when sections are rendered
+  useEffect(() => {
+    const updateWidths = () => {
+      sectionLayout.forEach(({ i }) => {
+        const container = document.getElementById(`section-widget-container-${i}`);
+        if (container) {
+          const width = container.offsetWidth;
+          if (width > 0) {
+            setSectionContainerWidths(prev => ({
+              ...prev,
+              [i]: width
+            }));
+          }
+        }
+      });
+    };
+    
+    updateWidths();
+    window.addEventListener('resize', updateWidths);
+    const interval = setInterval(updateWidths, 100); // Check periodically for initial render
+    
+    return () => {
+      window.removeEventListener('resize', updateWidths);
+      clearInterval(interval);
+    };
+  }, [sectionLayout, sectionMetrics]);
+
+  // Handle overlay dragging with smooth animation
+  useEffect(() => {
+    if (!isDraggingOverlay) return;
+
+    let animationFrameId = null;
+
+    const handleMouseMove = (e) => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+
+      animationFrameId = requestAnimationFrame(() => {
+        const canvasContainer = document.getElementById('grid-canvas-container');
+        const canvasRect = canvasContainer?.getBoundingClientRect() || { left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight };
+        
+        const newX = e.clientX - overlayDragStart.x;
+        const newY = e.clientY - overlayDragStart.y;
+        
+        // Overlay width is fixed at 520px
+        const overlayWidth = 520;
+        
+        // Constrain to canvas bounds
+        const constrainedX = Math.max(canvasRect.left, Math.min(canvasRect.right - overlayWidth, newX));
+        const constrainedY = Math.max(canvasRect.top, Math.min(canvasRect.bottom - 500, newY));
+        
+        setOverlayPosition({ x: constrainedX, y: constrainedY });
+      });
+    };
+
+    const handleMouseUp = () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+      setIsDraggingOverlay(false);
+    };
+
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    window.addEventListener('mouseup', handleMouseUp);
+
+    return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDraggingOverlay, overlayDragStart]);
+
+  // Helper function to determine widget type based on metric
+  const getWidgetType = (metric) => {
+    if (metric.breakdown) return 'breakdown';
+    if (metric.name.includes('theo thời gian') || metric.name.includes('ngày hôm qua') || metric.name.includes('trend')) return 'time-series';
+    if (metric.name.includes('so sánh') || metric.name.includes('đối chiếu')) return 'comparison';
+    return 'single-number';
+  };
+
+  // Helper function to determine widget size based on type
+  const getWidgetSize = (widgetType) => {
+    switch (widgetType) {
+      case 'single-number':
+        return { w: 3, h: 2 };
+      case 'time-series':
+        return { w: 6, h: 4 };
+      case 'breakdown':
+        return { w: 6, h: 5 };
+      case 'comparison':
+        return { w: 6, h: 4 };
+      default:
+        return { w: 3, h: 2 };
+    }
+  };
+
+  // Helper function to find first available position in grid
+  const findAvailablePosition = (sectionId, widgetSize) => {
+    const currentLayout = sectionWidgetLayouts[sectionId] || [];
+    const maxCols = 12;
+    // Calculate max rows based on section height (assuming section is in grid layout)
+    // Each section card has a certain height, we'll use a reasonable max
+    const maxRows = 24;
+    
+    // Try to find available position
+    for (let y = 0; y < maxRows - widgetSize.h + 1; y++) {
+      for (let x = 0; x < maxCols - widgetSize.w + 1; x++) {
+        const canPlace = !currentLayout.some(item => {
+          // Check if rectangles overlap
+          return !(x >= item.x + item.w || x + widgetSize.w <= item.x ||
+                   y >= item.y + item.h || y + widgetSize.h <= item.y);
+        });
+        if (canPlace) {
+          return { x, y };
+        }
+      }
+    }
+    // If no space found, place at bottom
+    const maxY = currentLayout.length > 0 
+      ? Math.max(...currentLayout.map(item => item.y + item.h))
+      : 0;
+    return { x: 0, y: maxY };
+  };
+
+  // Helper function to check if widget can fit in section based on available space
+  const canFitWidget = (sectionId, widgetSize) => {
+    const currentLayout = sectionWidgetLayouts[sectionId] || [];
+    const position = findAvailablePosition(sectionId, widgetSize);
+    // Check if position is within reasonable bounds
+    return position.y + widgetSize.h <= 24;
+  };
+
+  // Check if section has enough space to add new widget/metric
+  const canAddToSection = (sectionId, sectionType, newItemSize = null) => {
+    // Get section layout item to know section dimensions
+    const sectionLayoutItem = sectionLayout.find(item => item.i === sectionId);
+    if (!sectionLayoutItem) return true; // If section not found, allow adding
+    
+    // Calculate available height based on section grid height
+    const sectionGridHeight = sectionLayoutItem.h; // Height in grid units
+    const rowHeight = 30; // Grid row height in pixels
+    const sectionHeight = sectionGridHeight * rowHeight; // Total section height in pixels
+    const headerHeight = 50; // Approximate header height
+    const padding = 32; // 16px top + 16px bottom
+    const availableHeight = sectionHeight - headerHeight - padding;
+    
+    if (sectionType === 'bao-cao') {
+      // For Báo cáo, calculate based on GridLayout
+      const currentLayout = sectionWidgetLayouts[sectionId] || [];
+      const margin = 8; // Margin between widgets
+      const maxRows = Math.floor(availableHeight / (rowHeight + margin));
+      
+      if (newItemSize) {
+        const newItemRows = newItemSize.h || 4;
+        const position = findAvailablePosition(sectionId, newItemSize);
+        const newItemBottom = position.y + newItemRows;
+        return newItemBottom <= maxRows;
+      } else {
+        // Check if current content fits
+        const maxY = currentLayout.length > 0 
+          ? Math.max(...currentLayout.map(item => item.y + item.h))
+          : 0;
+        return maxY < maxRows;
+      }
+    } else if (sectionType === 'loi-canh-bao') {
+      // For Lỗi & Cảnh báo, calculate based on alert cards
+      const alertsList = sectionMetrics[sectionId] || [];
+      const cardHeight = 50; // Approximate height per alert card (including padding)
+      const gap = 6; // Gap between cards
+      // Use maximum height (expanded) for safety
+      const maxCardHeight = 150; // Approximate height when expanded with guides
+      const currentHeight = alertsList.length * (maxCardHeight + gap);
+      const newItemHeight = maxCardHeight + gap;
+      
+      return currentHeight + newItemHeight <= availableHeight;
+    }
+    
+    return true;
+  };
+
   // Template workspaces (predefined templates)
   const templateWorkspaces = [
+    {
+      id: 'template-default',
+      name: 'Template mặc định',
+      isTemplate: true,
+      templateId: 'default',
+      description: 'Hiển thị đầy đủ các section có sẵn',
+      selectedItems: [
+        { groupId: 'Dashboard', itemId: 'growth' },
+        { groupId: 'Lỗi & Cảnh báo' },
+        { groupId: 'Tin tức' }
+      ],
+      usedBy: '12.1k',
+      layout: {
+        showDashboard: true,
+        showAlerts: true,
+        showGuides: true
+      }
+    },
     {
       id: 'template-ceo',
       name: 'CEO',
@@ -1182,6 +1457,7 @@ const HomepageLayout = () => {
         { groupId: 'Lỗi & Cảnh báo' },
         { groupId: 'Tin tức' }
       ],
+      usedBy: '9.8k',
       layout: {
         showDashboard: true,
         showAlerts: true,
@@ -1198,6 +1474,7 @@ const HomepageLayout = () => {
         { groupId: 'Dashboard', itemId: 'growth' },
         { groupId: 'Lỗi & Cảnh báo' }
       ],
+      usedBy: '8.6k',
       layout: {
         showDashboard: true,
         showAlerts: true,
@@ -1214,6 +1491,7 @@ const HomepageLayout = () => {
         { groupId: 'Dashboard', itemId: 'media' },
         { groupId: 'Lỗi & Cảnh báo' }
       ],
+      usedBy: '7.1k',
       layout: {
         showDashboard: true,
         showAlerts: true,
@@ -1230,6 +1508,7 @@ const HomepageLayout = () => {
         { groupId: 'Dashboard', itemId: 'growth' },
         { groupId: 'Tin tức' }
       ],
+      usedBy: '6.9k',
       layout: {
         showDashboard: true,
         showAlerts: false,
@@ -1246,6 +1525,7 @@ const HomepageLayout = () => {
         { groupId: 'Dashboard', itemId: 'accounting' },
         { groupId: 'Lỗi & Cảnh báo' }
       ],
+      usedBy: '5.4k',
       layout: {
         showDashboard: true,
         showAlerts: true,
@@ -1253,6 +1533,2103 @@ const HomepageLayout = () => {
       }
     }
   ];
+
+  const renderTemplateGalleryScreen = () => (
+    <Space direction="vertical" size={24} style={{ width: '100%' }}>
+      <Text type="secondary">
+        Chọn template mẫu để tạo workspace mới. Mỗi thẻ thể hiện bố cục và loại chỉ số chính của template.
+      </Text>
+      <Row gutter={[20, 20]}>
+        {templateWorkspaces.map(template => {
+          const templateId = template.templateId || template.id;
+          return (
+            <Col xs={24} md={12} xl={8} key={template.id}>
+              <Card
+                hoverable
+                onMouseEnter={() => setHoveredGalleryCard(templateId)}
+                onMouseLeave={() => setHoveredGalleryCard(null)}
+                style={{
+                  borderRadius: 18,
+                  border: '1px solid #E1E3E5',
+                  boxShadow: '0 16px 32px rgba(15,23,42,0.12)',
+                  overflow: 'hidden'
+                }}
+                cover={
+                  <div style={{ position: 'relative' }}>
+                    <div style={{
+                      height: 160,
+                      background: 'linear-gradient(135deg, #EEF2FF 0%, #FFF1F2 100%)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: 16
+                    }}>
+                      <div style={{
+                        width: '90%',
+                        height: '80%',
+                        borderRadius: 16,
+                        background: '#fff',
+                        boxShadow: '0 12px 24px rgba(15,23,42,0.08)',
+                        display: 'grid',
+                        gridTemplateRows: 'repeat(3, 1fr)',
+                        gap: 8,
+                        padding: 16
+                      }}>
+                        {[...Array(6)].map((_, idx) => (
+                          <div
+                            key={idx}
+                            style={{
+                              borderRadius: 10,
+                              background: idx % 2 === 0 ? '#F5F7FF' : '#FFF7F0',
+                              border: '1px solid #E5E7EB'
+                            }}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <div
+                      style={{
+                        position: 'absolute',
+                        inset: 0,
+                        background: 'linear-gradient(180deg, rgba(15,23,42,0.05), rgba(15,23,42,0.7))',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        opacity: hoveredGalleryCard === templateId ? 1 : 0,
+                        transition: 'opacity 0.2s'
+                      }}
+                    >
+                      <Button 
+                        type="primary" 
+                        icon={<EyeOutlined />} 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenPreview(templateId, 'gallery');
+                        }}
+                      >
+                        Xem trước
+                      </Button>
+                    </div>
+                  </div>
+                }
+              >
+                <Space direction="vertical" size={6} style={{ width: '100%' }}>
+                  <Title level={4} style={{ margin: 0 }}>{template.name}</Title>
+                  <Text type="secondary">{template.description}</Text>
+                </Space>
+              </Card>
+            </Col>
+          );
+        })}
+      </Row>
+    </Space>
+  );
+
+  // Widget data structure with Vietnamese UI labels
+  const widgetLibrary = {
+    'Báo cáo': [
+      { id: 'widget-sales-channel', name: 'Total sales by sales channel', displayName: 'Tổng doanh thu theo kênh', type: 'chart', defaultSize: { w: 6, h: 8 }, section: 'Báo cáo' },
+      { id: 'widget-sessions', name: 'Sessions over time', displayName: 'Sessions theo thời gian', type: 'chart', defaultSize: { w: 6, h: 8 }, section: 'Báo cáo' },
+      { id: 'widget-revenue', name: 'Revenue trend', displayName: 'Xu hướng doanh thu', type: 'chart', defaultSize: { w: 8, h: 6 }, section: 'Báo cáo' },
+      { id: 'widget-orders', name: 'Orders by status', displayName: 'Đơn hàng theo trạng thái', type: 'chart', defaultSize: { w: 4, h: 4 }, section: 'Báo cáo' },
+      { id: 'widget-gmv', name: 'GMV overview', displayName: 'Tổng quan GMV', type: 'metric', defaultSize: { w: 4, h: 4 }, section: 'Báo cáo' },
+      { id: 'widget-aov', name: 'AOV metric', displayName: 'Giá trị đơn hàng trung bình', type: 'metric', defaultSize: { w: 4, h: 4 }, section: 'Báo cáo' },
+      { id: 'widget-conversion', name: 'Conversion rate', displayName: 'Tỷ lệ chuyển đổi', type: 'metric', defaultSize: { w: 4, h: 4 }, section: 'Báo cáo' },
+      { id: 'widget-traffic', name: 'Traffic sources', displayName: 'Nguồn traffic', type: 'chart', defaultSize: { w: 6, h: 6 }, section: 'Báo cáo' },
+    ],
+    'Lỗi & Cảnh báo': [
+      { id: 'widget-alerts', name: 'Alert & Risks', displayName: 'Lỗi & Cảnh báo', type: 'alert', defaultSize: { w: 12, h: 6 }, section: 'Lỗi & Cảnh báo' },
+    ],
+    'Tin tức': [
+      { id: 'widget-news', name: 'News & Insights', displayName: 'Tin tức & Insights', type: 'news', defaultSize: { w: 12, h: 6 }, section: 'Tin tức' },
+    ]
+  };
+
+  // Initialize with 2 pre-placed widgets
+  useEffect(() => {
+    if (activeModule === 'template-create' && widgetLayout.length === 0) {
+      const initialLayout = [
+        { i: 'widget-sales-channel', x: 0, y: 0, w: 6, h: 8 },
+        { i: 'widget-sessions', x: 0, y: 8, w: 6, h: 8 }
+      ];
+      setWidgetLayout(initialLayout);
+      setSelectedWidgets(new Set(['widget-sales-channel', 'widget-sessions']));
+    }
+  }, [activeModule]);
+
+  // Filtered widgets for template builder (moved to top level to comply with Rules of Hooks)
+  const filteredWidgets = useMemo(() => {
+    const query = widgetSearchQuery.toLowerCase();
+    const filtered = {};
+    Object.entries(widgetLibrary).forEach(([section, widgets]) => {
+      const sectionWidgets = widgets.filter(w => 
+        w.name.toLowerCase().includes(query) || 
+        (w.displayName && w.displayName.toLowerCase().includes(query))
+      );
+      if (sectionWidgets.length > 0) {
+        filtered[section] = sectionWidgets;
+      }
+    });
+    return filtered;
+  }, [widgetSearchQuery]);
+
+  const handleWidgetToggle = (widgetId) => {
+    const widget = Object.values(widgetLibrary).flat().find(w => w.id === widgetId);
+    if (!widget) return;
+
+    const newSelected = new Set(selectedWidgets);
+    if (newSelected.has(widgetId)) {
+      // Remove widget
+      newSelected.delete(widgetId);
+      setWidgetLayout(prev => prev.filter(item => item.i !== widgetId));
+    } else {
+      // Add widget - find first available position
+      newSelected.add(widgetId);
+      const existingPositions = widgetLayout.map(item => ({ x: item.x, y: item.y, w: item.w, h: item.h }));
+      let placed = false;
+      for (let y = 0; y < 20 && !placed; y++) {
+        for (let x = 0; x < 12 && !placed; x++) {
+          if (x + widget.defaultSize.w > 12) continue;
+          const canPlace = !existingPositions.some(pos => {
+            // Check if rectangles overlap
+            return !(x >= pos.x + pos.w || x + widget.defaultSize.w <= pos.x ||
+                     y >= pos.y + pos.h || y + widget.defaultSize.h <= pos.y);
+          });
+          if (canPlace) {
+            setWidgetLayout(prev => [...prev, {
+              i: widgetId,
+              x,
+              y,
+              w: widget.defaultSize.w,
+              h: widget.defaultSize.h
+            }]);
+            placed = true;
+          }
+        }
+      }
+    }
+    setSelectedWidgets(newSelected);
+  };
+
+  const handleLayoutChange = (layout) => {
+    setWidgetLayout(layout);
+  };
+
+  const handleDeleteWidget = (widgetId) => {
+    setWidgetLayout(prev => prev.filter(item => item.i !== widgetId));
+    const newSelected = new Set(selectedWidgets);
+    newSelected.delete(widgetId);
+    setSelectedWidgets(newSelected);
+  };
+
+  const handleDeleteSection = (sectionId) => {
+    setSectionLayout(prev => prev.filter(item => item.i !== sectionId));
+    setSectionTitles(prev => {
+      const next = { ...prev };
+      delete next[sectionId];
+      return next;
+    });
+    setSectionMetrics(prev => {
+      const next = { ...prev };
+      delete next[sectionId];
+      return next;
+    });
+    setSectionWidgetLayouts(prev => {
+      const next = { ...prev };
+      delete next[sectionId];
+      return next;
+    });
+    setSectionContainerWidths(prev => {
+      const next = { ...prev };
+      delete next[sectionId];
+      return next;
+    });
+    setSectionsInPreview(prev => {
+      const next = new Set(prev);
+      next.delete(sectionId);
+      return next;
+    });
+  };
+
+  const calculateSectionPosition = (w = 6, h = 8) => {
+    const existingPositions = sectionLayout.map(item => ({ x: item.x, y: item.y, w: item.w, h: item.h }));
+    const maxCols = 12;
+    const maxRows = 24;
+    for (let y = 0; y <= maxRows - h; y++) {
+      for (let x = 0; x <= maxCols - w; x++) {
+        const canPlace = !existingPositions.some(pos => {
+          return !(x >= pos.x + pos.w || x + w <= pos.x || y >= pos.y + pos.h || y + h <= pos.y);
+        });
+        if (canPlace) {
+          return { x, y };
+        }
+      }
+    }
+    const maxY = existingPositions.length > 0
+      ? Math.max(...existingPositions.map(pos => pos.y + pos.h))
+      : 0;
+    return { x: 0, y: maxY };
+  };
+
+  const addSectionToPreview = (type) => {
+    const allowMultiple = canSectionRepeat(type);
+    if (!allowMultiple && sectionLayout.some(item => (item.type || getSectionType(item.i)) === type)) {
+      return;
+    }
+    const newId = allowMultiple ? `${type}-${Date.now()}` : type;
+    const defaultSize = type === 'tin-tuc' ? { w: 6, h: 6 } : { w: 6, h: 8 };
+    const position = calculateSectionPosition(defaultSize.w, defaultSize.h);
+    const newLayoutItem = { i: newId, type, ...position, w: defaultSize.w, h: defaultSize.h };
+    setSectionLayout(prev => [...prev, newLayoutItem]);
+    setSectionTitles(prev => ({ ...prev, [newId]: SECTION_TITLE_MAP[type] }));
+    setSectionMetrics(prev => ({ ...prev, [newId]: createDefaultSectionMetrics(type) }));
+    setSectionWidgetLayouts(prev => ({ ...prev, [newId]: [] }));
+    setSectionsInPreview(prev => {
+      const next = new Set(prev);
+      next.add(newId);
+      return next;
+    });
+  };
+
+  const renderSectionCard = (sectionId) => {
+    const isHovered = hoveredWidget === sectionId;
+    const isSelected = selectedWidget === sectionId;
+    const sectionType = (sectionLayout.find(item => item.i === sectionId)?.type) || getSectionType(sectionId);
+    const sectionKey = sectionId;
+    const title = sectionTitles[sectionId] ?? SECTION_TITLE_MAP[sectionType];
+    const borderColor = isSelected ? '#1677FF' : isHovered ? '#2b2b2b' : '#E1E3E5';
+    const borderStyle = isSelected ? `2px solid ${borderColor}` : `1px solid ${borderColor}`;
+
+    // Check if section has metrics/alerts
+    const metricsList = sectionMetrics[sectionId] || [];
+    const hasMetrics = metricsList.length > 0;
+    const alertsList = sectionMetrics[sectionId] || [];
+    const hasAlerts = alertsList.length > 0;
+    const showAddButton = (sectionType === 'bao-cao' && hasMetrics) || (sectionType === 'loi-canh-bao' && hasAlerts);
+
+    let content = null;
+    if (sectionType === 'bao-cao') {
+      const metricsList = sectionMetrics[sectionId] || [];
+      const hasMetrics = metricsList.length > 0;
+      const widgetLayout = sectionWidgetLayouts[sectionId] || [];
+      
+      content = (
+        <>
+          {hasMetrics ? (
+            <div 
+              style={{ marginBottom: 12, position: 'relative', minHeight: 200, width: '100%' }}
+              id={`section-widget-container-${sectionId}`}
+            >
+              <GridLayout
+                className="section-widget-layout"
+                layout={widgetLayout}
+                cols={12}
+                rowHeight={30}
+                width={sectionContainerWidths[sectionId] || 600}
+                onLayoutChange={(layout) => {
+                  setSectionWidgetLayouts(prev => ({
+                    ...prev,
+                    [sectionId]: layout
+                  }));
+                }}
+                isDraggable={true}
+                isResizable={true}
+                draggableHandle=".react-draggable-handle"
+                margin={[8, 8]}
+                containerPadding={[0, 0]}
+                compactType="vertical"
+                preventCollision={false}
+                useCSSTransforms={true}
+                resizeHandles={['se']}
+                minW={2}
+                maxW={12}
+                minH={2}
+                maxH={12}
+              >
+                {widgetLayout.filter(item => (sectionMetrics[sectionId] || []).includes(item.i)).map(item => {
+                  const metric = allMetricsPool.find(m => m.id === item.i);
+                  if (!metric) return null;
+                  const widgetType = getWidgetType(metric);
+                  const chartType = metricChartTypes[item.i] || (widgetType === 'breakdown' ? 'pie' : widgetType === 'time-series' ? 'line' : 'card');
+                  return (
+                    <div key={item.i} style={{ position: 'relative', height: '100%' }}>
+                      <Card
+                        size="small"
+                        style={{
+                          borderRadius: 8,
+                          border: '1px solid #E5E7EB',
+                          background: '#fff',
+                          height: '100%',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          animation: 'fadeInScale 0.3s ease-out'
+                        }}
+                        bodyStyle={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column' }}
+                        extra={
+                          <Space>
+                            {(widgetType === 'breakdown' || widgetType === 'time-series') && (
+                              <Dropdown
+                                menu={{
+                                  items: [
+                                    { key: 'card', label: 'Card' },
+                                    { key: 'pie', label: 'Pie Chart' },
+                                    { key: 'line', label: 'Line Chart' },
+                                    { key: 'column', label: 'Column Chart' }
+                                  ],
+                                  onClick: ({ key }) => {
+                                    setMetricChartTypes(prev => ({ ...prev, [item.i]: key }));
+                                  }
+                                }}
+                                trigger={['click']}
+                                getPopupContainer={(trigger) => trigger.parentElement || document.body}
+                                onClick={(e) => e.stopPropagation()}
+                              >
+                                <Button 
+                                  type="text" 
+                                  size="small" 
+                                  icon={<BarChartOutlined />}
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    e.preventDefault();
+                                  }}
+                                  onMouseDown={(e) => {
+                                    e.stopPropagation();
+                                  }}
+                                  style={{ pointerEvents: 'auto' }}
+                                />
+                              </Dropdown>
+                            )}
+                            <Button
+                              type="text"
+                              size="small"
+                              icon={<CloseOutlined />}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                                setSectionMetrics(prev => ({
+                                  ...prev,
+                                  [sectionId]: (prev[sectionId] || []).filter(id => id !== item.i)
+                                }));
+                                setSectionWidgetLayouts(prev => ({
+                                  ...prev,
+                                  [sectionId]: (prev[sectionId] || []).filter(w => w.i !== item.i)
+                                }));
+                                setMetricChartTypes(prev => {
+                                  const newTypes = { ...prev };
+                                  delete newTypes[item.i];
+                                  return newTypes;
+                                });
+                              }}
+                              onMouseDown={(e) => {
+                                e.stopPropagation();
+                                e.preventDefault();
+                              }}
+                              onPointerDown={(e) => {
+                                e.stopPropagation();
+                              }}
+                              style={{ 
+                                padding: 0, 
+                                height: 'auto',
+                                pointerEvents: 'auto',
+                                zIndex: 1000
+                              }}
+                            />
+                          </Space>
+                        }
+                        title={
+                          <div 
+                            style={{ display: 'flex', alignItems: 'center', gap: 8 }}
+                            className="react-draggable-handle"
+                          >
+                            <DragOutlined 
+                              style={{ fontSize: 12, color: '#8c8c8c', cursor: 'move' }}
+                              className="react-draggable-handle"
+                            />
+                            <Text strong style={{ fontSize: 14 }}>{metric.name}</Text>
+                          </div>
+                        }
+                      >
+                        {chartType === 'card' && widgetType === 'single-number' && (
+                          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                            {metric.value && (
+                              <div style={{ fontSize: 32, fontWeight: 700, color: '#2b2b2b', marginBottom: 8, textAlign: 'center' }}>
+                                {metric.value}
+                              </div>
+                            )}
+                            {metric.change && (
+                              <div style={{ fontSize: 12, color: metric.trend === 'up' ? '#52c41a' : '#ff4d4f', textAlign: 'center' }}>
+                                {metric.trend === 'up' ? <ArrowUpOutlined /> : <ArrowDownOutlined />}
+                                {metric.change}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        {chartType === 'card' && widgetType === 'breakdown' && (
+                          <div style={{ marginTop: 8 }}>
+                            {metric.breakdown && metric.breakdown.map((item, idx) => (
+                              <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, marginBottom: 6 }}>
+                                <Text style={{ color: '#6D7175' }}>{item.label}:</Text>
+                                <Text strong style={{ color: '#2b2b2b' }}>{item.value}</Text>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {chartType === 'pie' && metric.breakdown && (
+                          <div style={{ flex: 1, minHeight: 120 }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                              <PieChart>
+                                <RechartPie
+                                  data={metric.breakdown.map(item => ({ name: item.label, value: parseFloat(item.value.replace(/[₫MB]/g, '').replace(/,/g, '')) }))}
+                                  cx="50%"
+                                  cy="50%"
+                                  labelLine={false}
+                                  label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                  outerRadius={Math.min(60, (item.h * 30 - 60) / 2)}
+                                  fill="#8884d8"
+                                  dataKey="value"
+                                >
+                                  {metric.breakdown.map((entry, index) => (
+                                    <Cell key={`cell-${index}`} fill={['#1677FF', '#52C41A', '#FA8C16', '#EB2F96'][index % 4]} />
+                                  ))}
+                                </RechartPie>
+                                <ChartTooltip />
+                              </PieChart>
+                            </ResponsiveContainer>
+                          </div>
+                        )}
+                        {chartType === 'line' && (
+                          <div style={{ flex: 1, minHeight: 120 }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                              <LineChart data={templateData['default'].chartData}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="name" />
+                                <YAxis />
+                                <ChartTooltip />
+                                <RechartLine type="monotone" dataKey="value" stroke="#1677FF" strokeWidth={2} />
+                              </LineChart>
+                            </ResponsiveContainer>
+                          </div>
+                        )}
+                        {chartType === 'column' && metric.breakdown && (
+                          <div style={{ flex: 1, minHeight: 120 }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                              <BarChart data={metric.breakdown.map(item => ({ name: item.label, value: parseFloat(item.value.replace(/[₫MB]/g, '').replace(/,/g, '')) }))}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="name" />
+                                <YAxis />
+                                <ChartTooltip />
+                                <Bar dataKey="value" fill="#1677FF" />
+                              </BarChart>
+                            </ResponsiveContainer>
+                          </div>
+                        )}
+                      </Card>
+                    </div>
+                  );
+                })}
+              </GridLayout>
+            </div>
+          ) : !hasMetrics ? (
+            <div style={{ position: 'relative' }}>
+              <Button
+                ref={(ref) => {
+                  if (currentSectionForMetric === sectionId && metricOverlayVisible) {
+                    setOverlayButtonRef(ref);
+                  }
+                }}
+                type="dashed"
+                size="small"
+                icon={<PlusOutlined />}
+                block
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCurrentSectionForMetric(sectionId);
+                  setMetricOverlayVisible(true);
+                  setOverlayButtonRef(e.currentTarget);
+                  setOverlayPosition({ x: 0, y: 0 });
+                  setIsDraggingOverlay(false);
+                }}
+              >
+                Thêm chỉ số
+              </Button>
+            </div>
+          ) : null}
+          {/* Modal for Báo cáo */}
+          <Modal
+            title="Chọn chỉ số"
+            open={metricOverlayVisible && currentSectionForMetric === sectionId}
+            onCancel={() => setMetricOverlayVisible(false)}
+            footer={null}
+            width={520}
+            style={{ top: 100 }}
+            styles={{
+              body: {
+                maxHeight: '500px',
+                overflowY: 'auto',
+                padding: '16px'
+              }
+            }}
+          >
+            <style>{`
+              .ant-modal-body::-webkit-scrollbar {
+                width: 8px;
+              }
+              .ant-modal-body::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                border-radius: 4px;
+              }
+              .ant-modal-body::-webkit-scrollbar-thumb {
+                background: #888;
+                border-radius: 4px;
+              }
+              .ant-modal-body::-webkit-scrollbar-thumb:hover {
+                background: #555;
+              }
+            `}</style>
+                {Object.entries(
+                  allMetricsPool.reduce((acc, metric) => {
+                    const domain = metric.domain || 'Khác';
+                    if (!acc[domain]) acc[domain] = [];
+                    acc[domain].push(metric);
+                    return acc;
+                  }, {})
+                ).map(([domain, metrics]) => (
+                  <div key={domain} style={{ marginBottom: 20 }}>
+                    <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 12 }}>
+                      {domain}
+                    </Text>
+                    <Space direction="vertical" style={{ width: '100%' }} size={8}>
+                      {metrics.map(metric => {
+                        const isSelected = (sectionMetrics[currentSectionForMetric] || []).includes(metric.id);
+                        return (
+                          <div
+                            key={metric.id}
+                            style={{
+                              padding: '10px 12px',
+                              borderRadius: 6,
+                              border: isSelected ? '1px solid #FF5629' : '1px solid #E1E3E5',
+                              background: '#fff',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 12,
+                              pointerEvents: 'auto'
+                            }}
+                            onClick={(e) => {
+                              // Allow clicking on the checkbox or text to toggle
+                              const checkbox = e.currentTarget.querySelector('input[type="checkbox"]');
+                              if (checkbox && e.target !== checkbox) {
+                                checkbox.click();
+                              }
+                            }}
+                            onMouseEnter={(e) => {
+                              if (!isSelected) e.currentTarget.style.background = '#FFF5F3';
+                            }}
+                            onMouseLeave={(e) => {
+                              e.currentTarget.style.background = '#fff';
+                            }}
+                          >
+                            <Checkbox 
+                              checked={isSelected}
+                              className="custom-primary-checkbox"
+                              onChange={(e) => {
+                                e.stopPropagation();
+                                const checked = e.target.checked;
+                                if (checked) {
+                                  // Check if widget can fit
+                                  const widgetType = getWidgetType(metric);
+                                  const widgetSize = getWidgetSize(widgetType);
+                                  if (!canAddToSection(currentSectionForMetric, 'bao-cao', widgetSize)) {
+                                    message.warning('Không đủ không gian để thêm chỉ số này. Vui lòng xóa một số chỉ số khác trước.');
+                                    return;
+                                  }
+                                  // Add metric and create widget
+                                  setSectionMetrics(prev => ({
+                                    ...prev,
+                                    [currentSectionForMetric]: [...(prev[currentSectionForMetric] || []), metric.id]
+                                  }));
+                                  const position = findAvailablePosition(currentSectionForMetric, widgetSize);
+                                  setSectionWidgetLayouts(prev => {
+                                    const currentLayout = prev[currentSectionForMetric] || [];
+                                    // Check if widget already exists
+                                    if (currentLayout.some(w => w.i === metric.id)) {
+                                      return prev;
+                                    }
+                                    return {
+                                      ...prev,
+                                      [currentSectionForMetric]: [...currentLayout, {
+                                        i: metric.id,
+                                        x: position.x,
+                                        y: position.y,
+                                        w: widgetSize.w,
+                                        h: widgetSize.h
+                                      }]
+                                    };
+                                  });
+                                  // Set default chart type
+                                  if (widgetType === 'breakdown') {
+                                    setMetricChartTypes(prev => ({ ...prev, [metric.id]: 'pie' }));
+                                  }
+                                } else {
+                                  // Remove metric and its widget
+                                  setSectionMetrics(prev => ({
+                                    ...prev,
+                                    [currentSectionForMetric]: (prev[currentSectionForMetric] || []).filter(id => id !== metric.id)
+                                  }));
+                                  setSectionWidgetLayouts(prev => ({
+                                    ...prev,
+                                    [currentSectionForMetric]: (prev[currentSectionForMetric] || []).filter(item => item.i !== metric.id)
+                                  }));
+                                  setMetricChartTypes(prev => {
+                                    const newTypes = { ...prev };
+                                    delete newTypes[metric.id];
+                                    return newTypes;
+                                  });
+                                }
+                              }}
+                              onClick={(e) => e.stopPropagation()}
+                            />
+                            <Text 
+                              style={{ marginLeft: 0, fontSize: 13, flex: 1 }}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                // Toggle checkbox when clicking text
+                                const checkbox = e.currentTarget.previousSibling?.querySelector('input[type="checkbox"]');
+                                if (checkbox) {
+                                  checkbox.click();
+                                }
+                              }}
+                            >
+                              {metric.name}
+                            </Text>
+                          </div>
+                        );
+                      })}
+                    </Space>
+                  </div>
+                ))}
+          </Modal>
+        </>
+      );
+    } else if (sectionId === 'loi-canh-bao') {
+      const alertsList = sectionMetrics[sectionId] || [];
+      const hasAlerts = alertsList.length > 0;
+      const activeTab = alertSectionActiveTab[sectionId] || 'errors';
+      
+      // Helper to get alert data by ID
+      const getAlertById = (alertId) => {
+        const allErrors = alertsData?.errors || [];
+        const allWarnings = alertsData?.warnings || [];
+        const error = allErrors.find(a => a.id === alertId);
+        const warning = allWarnings.find(a => a.id === alertId);
+        if (error) return { ...error, type: 'error' };
+        if (warning) return { ...warning, type: 'warning' };
+        return null;
+      };
+      
+      // Separate errors and warnings
+      const errorsList = alertsList.filter(alertId => {
+        const alert = getAlertById(alertId);
+        return alert && alert.type === 'error';
+      });
+      const warningsList = alertsList.filter(alertId => {
+        const alert = getAlertById(alertId);
+        return alert && alert.type === 'warning';
+      });
+      const hasErrors = errorsList.length > 0;
+      const hasWarnings = warningsList.length > 0;
+      
+      const renderAlertList = (alertIds) => {
+        return (
+          <div style={{ marginBottom: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
+            {alertIds.map(alertId => {
+              const alert = getAlertById(alertId);
+              if (!alert) return null;
+              const isError = alert.type === 'error';
+              const bgColor = isError ? '#FEF3F2' : '#FFF7E6';
+              const hoverBgColor = isError ? '#FEE4E2' : '#FFE7BA';
+              const guides = alertGuides[alert.id] || [];
+              const isExpanded = expandedAlerts.has(alert.id);
+              
+              return (
+                <div key={alertId}>
+                  <div
+                    style={{ 
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '10px 12px',
+                      borderRadius: 6,
+                      background: bgColor,
+                      border: 'none',
+                      transition: 'all 0.2s',
+                      cursor: 'pointer',
+                      gap: 8,
+                      position: 'relative'
+                    }}
+                    onClick={() => {
+                      if (guides.length > 0) {
+                        setExpandedAlerts(prev => {
+                          const newSet = new Set(prev);
+                          if (newSet.has(alert.id)) {
+                            newSet.delete(alert.id);
+                          } else {
+                            newSet.add(alert.id);
+                          }
+                          return newSet;
+                        });
+                      }
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.background = hoverBgColor;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.background = bgColor;
+                    }}
+                  >
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, flexWrap: 'wrap' }}>
+                        <span style={{ 
+                          fontSize: 20, 
+                          fontWeight: 700, 
+                          color: '#2b2b2b',
+                          lineHeight: 1
+                        }}>
+                          {alert.value || alert.count || ''}
+                        </span>
+                        <Text style={{ 
+                          fontSize: 13, 
+                          fontWeight: 500,
+                          color: '#2b2b2b'
+                        }}>
+                          {alert.title}
+                        </Text>
+                      </div>
+                    </div>
+                    <Button
+                      type="text"
+                      size="small"
+                      icon={<CloseOutlined />}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSectionMetrics(prev => ({
+                          ...prev,
+                          [sectionId]: (prev[sectionId] || []).filter(id => id !== alertId)
+                        }));
+                        setExpandedAlerts(prev => {
+                          const newSet = new Set(prev);
+                          newSet.delete(alert.id);
+                          return newSet;
+                        });
+                      }}
+                      style={{ 
+                        padding: 0, 
+                        height: 'auto',
+                        flexShrink: 0
+                      }}
+                    />
+                  </div>
+                  {isExpanded && guides.length > 0 && (
+                    <div style={{ 
+                      padding: '12px',
+                      background: '#FAFAFA',
+                      borderLeft: `3px solid ${isError ? '#D72C0D' : '#FA8C16'}`,
+                      marginTop: 4,
+                      borderRadius: '0 0 6px 6px'
+                    }}>
+                      <List
+                        size="small"
+                        dataSource={guides}
+                        renderItem={(guide) => (
+                          <List.Item style={{ padding: '8px 0', border: 'none' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                              <div style={{ flex: 1 }}>
+                                <Text style={{ fontSize: 12, color: '#2b2b2b' }}>{guide.title}</Text>
+                                <div style={{ fontSize: 11, color: '#6D7175', marginTop: 2 }}>{guide.category}</div>
+                              </div>
+                              <ExportOutlined
+                                style={{
+                                  fontSize: 12,
+                                  color: '#8c8c8c',
+                                  cursor: 'pointer',
+                                  transition: 'all 0.2s'
+                                }}
+                                onMouseEnter={(e) => {
+                                  e.currentTarget.style.color = '#1677FF';
+                                  e.currentTarget.style.transform = 'scale(1.1)';
+                                }}
+                                onMouseLeave={(e) => {
+                                  e.currentTarget.style.color = '#8c8c8c';
+                                  e.currentTarget.style.transform = 'scale(1)';
+                                }}
+                              />
+                            </div>
+                          </List.Item>
+                        )}
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        );
+      };
+      
+      content = (
+        <>
+          <Tabs
+            activeKey={activeTab}
+            onChange={(key) => setAlertSectionActiveTab(prev => ({ ...prev, [sectionId]: key }))}
+            items={[
+              {
+                key: 'errors',
+                label: (
+                  <Space>
+                    <ExclamationCircleOutlined style={{ color: '#D72C0D' }} />
+                    <span>Lỗi</span>
+                    {hasErrors && <Badge count={errorsList.length} style={{ backgroundColor: '#D72C0D' }} />}
+                  </Space>
+                ),
+                children: hasErrors ? renderAlertList(errorsList) : (
+                  <div style={{ position: 'relative', padding: '20px 0' }}>
+                    <Button
+                      ref={(ref) => {
+                        if (currentSectionForMetric === sectionId && metricOverlayVisible && activeTab === 'errors') {
+                          setOverlayButtonRef(ref);
+                        }
+                      }}
+                      type="dashed"
+                      size="small"
+                      icon={<PlusOutlined />}
+                      block
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCurrentSectionForMetric(sectionId);
+                        setMetricOverlayVisible(true);
+                        setOverlayButtonRef(e.currentTarget);
+                        setOverlayPosition({ x: 0, y: 0 });
+                        setIsDraggingOverlay(false);
+                      }}
+                    >
+                      Thêm chỉ số
+                    </Button>
+                  </div>
+                )
+              },
+              {
+                key: 'warnings',
+                label: (
+                  <Space>
+                    <WarningOutlined style={{ color: '#FA8C16' }} />
+                    <span>Cảnh báo</span>
+                    {hasWarnings && <Badge count={warningsList.length} style={{ backgroundColor: '#FA8C16' }} />}
+                  </Space>
+                ),
+                children: hasWarnings ? renderAlertList(warningsList) : (
+                  <div style={{ position: 'relative', padding: '20px 0' }}>
+                    <Button
+                      ref={(ref) => {
+                        if (currentSectionForMetric === sectionId && metricOverlayVisible && activeTab === 'warnings') {
+                          setOverlayButtonRef(ref);
+                        }
+                      }}
+                      type="dashed"
+                      size="small"
+                      icon={<PlusOutlined />}
+                      block
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setCurrentSectionForMetric(sectionId);
+                        setMetricOverlayVisible(true);
+                        setOverlayButtonRef(e.currentTarget);
+                        setOverlayPosition({ x: 0, y: 0 });
+                        setIsDraggingOverlay(false);
+                      }}
+                    >
+                      Thêm chỉ số
+                    </Button>
+                  </div>
+                )
+              }
+            ]}
+          />
+          {/* Modal for Lỗi & Cảnh báo */}
+          <Modal
+            title="Chọn chỉ số"
+            open={metricOverlayVisible && currentSectionForMetric === sectionId}
+            onCancel={() => setMetricOverlayVisible(false)}
+            footer={null}
+            width={520}
+            style={{ top: 100 }}
+            styles={{
+              body: {
+                maxHeight: '500px',
+                overflowY: 'auto',
+                padding: '16px'
+              }
+            }}
+          >
+            <style>{`
+              .ant-modal-body::-webkit-scrollbar {
+                width: 8px;
+              }
+              .ant-modal-body::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                border-radius: 4px;
+              }
+              .ant-modal-body::-webkit-scrollbar-thumb {
+                background: #888;
+                border-radius: 4px;
+              }
+              .ant-modal-body::-webkit-scrollbar-thumb:hover {
+                background: #555;
+              }
+            `}</style>
+              <Tabs
+                size="small"
+                items={[
+                  {
+                    key: 'errors',
+                    label: (
+                      <Space>
+                        <ExclamationCircleOutlined style={{ color: '#D72C0D' }} />
+                        <span>Lỗi</span>
+                      </Space>
+                    ),
+                    children: (
+                      <div>
+                        {Object.entries(
+                          (alertsData?.errors || []).reduce((acc, alert) => {
+                            const metric = alert.metric || 'Khác';
+                            if (!acc[metric]) acc[metric] = [];
+                            acc[metric].push(alert);
+                            return acc;
+                          }, {})
+                        ).map(([metric, alerts]) => (
+                          <div key={metric} style={{ marginBottom: 20 }}>
+                            <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 12 }}>
+                              {metric}
+                            </Text>
+                            <Space direction="vertical" style={{ width: '100%' }} size={8}>
+                              {alerts.map(alert => {
+                                const isSelected = (sectionMetrics[sectionId] || []).includes(alert.id);
+                                return (
+                                  <div
+                                    key={alert.id}
+                                    style={{
+                                      padding: '10px 12px',
+                                      borderRadius: 6,
+                                      border: isSelected ? '1px solid #FF5629' : '1px solid #E1E3E5',
+                                      background: '#fff',
+                                      cursor: 'pointer',
+                                      transition: 'all 0.2s',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: 12,
+                                      pointerEvents: 'auto'
+                                    }}
+                                    onClick={(e) => {
+                                      // Allow clicking on the checkbox or text to toggle
+                                      const checkbox = e.currentTarget.querySelector('input[type="checkbox"]');
+                                      if (checkbox && e.target !== checkbox) {
+                                        checkbox.click();
+                                      }
+                                    }}
+                                    onMouseEnter={(e) => {
+                                      if (!isSelected) e.currentTarget.style.background = '#FFF5F3';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      e.currentTarget.style.background = '#fff';
+                                    }}
+                                  >
+                                    <Checkbox 
+                                      checked={isSelected}
+                                      className="custom-primary-checkbox" 
+                                      onChange={(e) => {
+                                        e.stopPropagation();
+                                        const checked = e.target.checked;
+                                        if (checked) {
+                                          // Check if section has enough space
+                                          if (!canAddToSection(sectionId, 'loi-canh-bao')) {
+                                            message.warning('Không đủ không gian để thêm chỉ số này. Vui lòng xóa một số chỉ số khác trước.');
+                                            return;
+                                          }
+                                          // Add alert
+                                          setSectionMetrics(prev => ({
+                                            ...prev,
+                                            [sectionId]: [...(prev[sectionId] || []), alert.id]
+                                          }));
+                                        } else {
+                                          // Remove alert
+                                          setSectionMetrics(prev => ({
+                                            ...prev,
+                                            [sectionId]: (prev[sectionId] || []).filter(id => id !== alert.id)
+                                          }));
+                                          setExpandedAlerts(prev => {
+                                            const newSet = new Set(prev);
+                                            newSet.delete(alert.id);
+                                            return newSet;
+                                          });
+                                        }
+                                      }}
+                                      onClick={(e) => e.stopPropagation()}
+                                    />
+                                    <Text 
+                                      style={{ marginLeft: 0, fontSize: 13, flex: 1 }}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        const checkbox = e.currentTarget.previousSibling?.querySelector('input[type="checkbox"]');
+                                        if (checkbox) {
+                                          checkbox.click();
+                                        }
+                                      }}
+                                    >
+                                      {alert.title}
+                                    </Text>
+                                  </div>
+                                );
+                              })}
+                            </Space>
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  },
+                  {
+                    key: 'warnings',
+                    label: (
+                      <Space>
+                        <WarningOutlined style={{ color: '#FA8C16' }} />
+                        <span>Cảnh báo</span>
+                      </Space>
+                    ),
+                    children: (
+                      <div>
+                        {Object.entries(
+                          (alertsData?.warnings || []).reduce((acc, alert) => {
+                            const metric = alert.metric || 'Khác';
+                            if (!acc[metric]) acc[metric] = [];
+                            acc[metric].push(alert);
+                            return acc;
+                          }, {})
+                        ).map(([metric, alerts]) => (
+                          <div key={metric} style={{ marginBottom: 20 }}>
+                            <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 12 }}>
+                              {metric}
+                            </Text>
+                            <Space direction="vertical" style={{ width: '100%' }} size={8}>
+                              {alerts.map(alert => {
+                                const isSelected = (sectionMetrics[sectionId] || []).includes(alert.id);
+                                return (
+                                  <div
+                                    key={alert.id}
+                                    style={{
+                                      padding: '10px 12px',
+                                      borderRadius: 6,
+                                      border: isSelected ? '1px solid #FF5629' : '1px solid #E1E3E5',
+                                      background: '#fff',
+                                      cursor: 'pointer',
+                                      transition: 'all 0.2s',
+                                      display: 'flex',
+                                      alignItems: 'center',
+                                      gap: 12,
+                                      pointerEvents: 'auto'
+                                    }}
+                                    onClick={(e) => {
+                                      // Allow clicking on the checkbox or text to toggle
+                                      const checkbox = e.currentTarget.querySelector('input[type="checkbox"]');
+                                      if (checkbox && e.target !== checkbox) {
+                                        checkbox.click();
+                                      }
+                                    }}
+                                    onMouseEnter={(e) => {
+                                      if (!isSelected) e.currentTarget.style.background = '#FFF5F3';
+                                    }}
+                                    onMouseLeave={(e) => {
+                                      e.currentTarget.style.background = '#fff';
+                                    }}
+                                  >
+                                    <Checkbox 
+                                      checked={isSelected}
+                                      className="custom-primary-checkbox" 
+                                      onChange={(e) => {
+                                        e.stopPropagation();
+                                        const checked = e.target.checked;
+                                        if (checked) {
+                                          // Check if section has enough space
+                                          if (!canAddToSection(sectionId, 'loi-canh-bao')) {
+                                            message.warning('Không đủ không gian để thêm chỉ số này. Vui lòng xóa một số chỉ số khác trước.');
+                                            return;
+                                          }
+                                          // Add alert
+                                          setSectionMetrics(prev => ({
+                                            ...prev,
+                                            [sectionId]: [...(prev[sectionId] || []), alert.id]
+                                          }));
+                                        } else {
+                                          // Remove alert
+                                          setSectionMetrics(prev => ({
+                                            ...prev,
+                                            [sectionId]: (prev[sectionId] || []).filter(id => id !== alert.id)
+                                          }));
+                                          setExpandedAlerts(prev => {
+                                            const newSet = new Set(prev);
+                                            newSet.delete(alert.id);
+                                            return newSet;
+                                          });
+                                        }
+                                      }}
+                                      onClick={(e) => e.stopPropagation()}
+                                    />
+                                    <Text 
+                                      style={{ marginLeft: 0, fontSize: 13, flex: 1 }}
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        const checkbox = e.currentTarget.previousSibling?.querySelector('input[type="checkbox"]');
+                                        if (checkbox) {
+                                          checkbox.click();
+                                        }
+                                      }}
+                                    >
+                                      {alert.title}
+                                    </Text>
+                                  </div>
+                                );
+                              })}
+                            </Space>
+                          </div>
+                        ))}
+                      </div>
+                    )
+                  }
+                ]}
+              />
+          </Modal>
+        </>
+      );
+    } else if (sectionId === 'tin-tuc') {
+      content = (
+        <List
+          size="small"
+          dataSource={contentItems.insights}
+          renderItem={(item) => {
+            const getIcon = (iconType) => {
+              switch(iconType) {
+                case 'chart': return <LineChartOutlined />;
+                case 'bulb': return <BulbOutlined />;
+                case 'book': return <BookOutlined />;
+                default: return <BookOutlined />;
+              }
+            };
+            return (
+              <List.Item style={{ padding: '8px 0' }}>
+                <List.Item.Meta
+                  avatar={
+                    <div style={{ 
+                      width: 24, 
+                      height: 24, 
+                      borderRadius: 6, 
+                      background: `${item.color}15`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      {React.cloneElement(getIcon(item.icon), { 
+                        style: { fontSize: 12, color: item.color } 
+                      })}
+                    </div>
+                  }
+                  title={<Text style={{ fontSize: 12 }}>{item.title}</Text>}
+                  description={<Text type="secondary" style={{ fontSize: 11 }}>{item.date}</Text>}
+                />
+              </List.Item>
+            );
+          }}
+        />
+      );
+    }
+
+    return (
+      <div
+        data-section-id={sectionId}
+        className={`react-grid-item ${isSelected ? 'selected' : ''} ${isHovered ? 'hovered' : ''}`}
+        style={{
+          width: '100%',
+          height: '100%',
+          background: '#fff',
+          borderRadius: 8,
+          border: borderStyle,
+          boxShadow: isHovered && !isSelected ? 'none' : '0 1px 2px rgba(0,0,0,0.06)',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          position: 'relative',
+          cursor: 'move',
+          transition: 'all 0.2s'
+        }}
+        onMouseEnter={() => setHoveredWidget(sectionId)}
+        onMouseLeave={() => setHoveredWidget(null)}
+        onClick={() => setSelectedWidget(sectionId)}
+      >
+        <div style={{
+          padding: '12px 16px',
+          borderBottom: '1px solid #E1E3E5',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          background: '#FAFAFA'
+        }}>
+          <div 
+            style={{ display: 'flex', alignItems: 'center', gap: 4, flex: 1 }}
+            onMouseEnter={() => setHoveredSectionTitle(sectionKey)}
+            onMouseLeave={() => setHoveredSectionTitle(null)}
+          >
+            {editingSectionTitle === sectionKey ? (
+              <Input
+                value={sectionTitles[sectionKey]}
+                onChange={(e) => setSectionTitles(prev => ({ ...prev, [sectionKey]: e.target.value }))}
+                onBlur={() => setEditingSectionTitle(null)}
+                onPressEnter={() => setEditingSectionTitle(null)}
+                autoFocus
+                style={{ flex: 1 }}
+                onClick={(e) => e.stopPropagation()}
+              />
+            ) : (
+              <>
+                <Text
+                  strong
+                  style={{ fontSize: 14, display: 'inline-block' }}
+                >
+                  {title}
+                </Text>
+                {hoveredSectionTitle === sectionKey && (
+                  <Button
+                    type="text"
+                    size="small"
+                    icon={<EditOutlined />}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setEditingSectionTitle(sectionKey);
+                    }}
+                    style={{ 
+                      padding: '0 4px',
+                      minWidth: 'auto',
+                      height: 'auto',
+                      marginLeft: 4,
+                      display: 'inline-flex',
+                      alignItems: 'center'
+                    }}
+                  />
+                )}
+              </>
+            )}
+          </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+            {showAddButton && (
+              <Button
+                type="text"
+                size="small"
+                icon={<PlusOutlined />}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setCurrentSectionForMetric(sectionId);
+                  setMetricOverlayVisible(true);
+                }}
+                style={{ 
+                  color: '#1677FF',
+                  fontSize: 12
+                }}
+              >
+                Thêm chỉ số
+              </Button>
+            )}
+            <Button
+              type="text"
+              size="small"
+              icon={<CloseOutlined />}
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                handleDeleteSection(sectionId);
+              }}
+              onMouseDown={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+              }}
+              onPointerDown={(e) => {
+                e.stopPropagation();
+              }}
+              style={{ 
+                color: '#8c8c8c', 
+                zIndex: 1000, 
+                position: 'relative',
+                pointerEvents: 'auto'
+              }}
+            />
+          </div>
+        </div>
+        <div className="section-content-area" style={{ flex: 1, padding: 16, overflow: 'hidden' }}>
+          {content}
+        </div>
+      </div>
+    );
+  };
+
+  const renderWidget = (widgetId) => {
+    const widget = Object.values(widgetLibrary).flat().find(w => w.id === widgetId);
+    if (!widget) return null;
+
+    const isHovered = hoveredWidget === widgetId;
+    const isSelected = selectedWidget === widgetId;
+
+    let content = null;
+    if (widget.type === 'chart') {
+      if (widget.id === 'widget-sales-channel') {
+        content = (
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={[
+              { name: 'Shopee', value: 1200 },
+              { name: 'TikTok', value: 800 },
+              { name: 'Website', value: 400 }
+            ]}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <ChartTooltip />
+              <Bar dataKey="value" fill="#1677FF" />
+            </BarChart>
+          </ResponsiveContainer>
+        );
+      } else if (widget.id === 'widget-sessions') {
+        content = (
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={templateData['default'].chartData}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" />
+              <YAxis />
+              <ChartTooltip />
+              <RechartLine type="monotone" dataKey="value" stroke="#1677FF" strokeWidth={2} />
+            </LineChart>
+          </ResponsiveContainer>
+        );
+      } else {
+        content = <div style={{ padding: 20, textAlign: 'center', color: '#8c8c8c' }}>No data for this date range</div>;
+      }
+    } else if (widget.type === 'metric') {
+      content = (
+        <div style={{ padding: 20, textAlign: 'center' }}>
+          <div style={{ fontSize: 32, fontWeight: 700, color: '#2b2b2b', marginBottom: 8 }}>₫2.4B</div>
+          <div style={{ fontSize: 14, color: '#6D7175' }}>{widget.name}</div>
+        </div>
+      );
+    } else if (widget.type === 'alert') {
+      content = (
+        <div style={{ padding: 16 }}>
+          <Tabs size="small" items={[
+            { key: 'errors', label: 'Lỗi', children: <div style={{ padding: '8px 0' }}>5 SKU quá trọng sắp hết</div> },
+            { key: 'warnings', label: 'Cảnh báo', children: <div style={{ padding: '8px 0' }}>14 SKU sắp hết hàng</div> }
+          ]} />
+        </div>
+      );
+    } else if (widget.type === 'news') {
+      content = (
+        <List
+          size="small"
+          dataSource={contentItems.insights.slice(0, 3)}
+          renderItem={(item) => (
+            <List.Item>
+              <List.Item.Meta title={item.title} description={item.date} />
+            </List.Item>
+          )}
+        />
+      );
+    }
+
+    return (
+      <div
+        className={`react-grid-item ${isSelected ? 'selected' : ''} ${isHovered ? 'hovered' : ''}`}
+        style={{
+          width: '100%',
+          height: '100%',
+          background: '#fff',
+          borderRadius: 8,
+          border: isSelected ? '2px solid #1677FF' : '1px solid #E1E3E5',
+          boxShadow: isHovered ? '0 4px 12px rgba(0,0,0,0.15)' : '0 1px 2px rgba(0,0,0,0.06)',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden',
+          position: 'relative',
+          cursor: 'move',
+          transition: 'all 0.2s'
+        }}
+        onMouseEnter={() => setHoveredWidget(widgetId)}
+        onMouseLeave={() => setHoveredWidget(null)}
+        onClick={() => setSelectedWidget(widgetId)}
+      >
+        <div style={{
+          padding: '12px 16px',
+          borderBottom: '1px solid #E1E3E5',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          background: '#FAFAFA'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1 }}>
+            <DragOutlined style={{ color: '#8c8c8c', cursor: 'move' }} />
+            <Text strong style={{ fontSize: 14 }}>{widget.displayName || widget.name}</Text>
+          </div>
+          <Button
+            type="text"
+            size="small"
+            icon={<CloseOutlined />}
+            onClick={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+              handleDeleteWidget(widgetId);
+            }}
+            onMouseDown={(e) => {
+              e.stopPropagation();
+              e.preventDefault();
+            }}
+            onPointerDown={(e) => {
+              e.stopPropagation();
+            }}
+            style={{ 
+              color: '#8c8c8c', 
+              zIndex: 1000, 
+              position: 'relative',
+              pointerEvents: 'auto'
+            }}
+          />
+        </div>
+        <div style={{ flex: 1, padding: 16, overflow: 'auto' }}>
+          {content}
+        </div>
+      </div>
+    );
+  };
+
+  const renderTemplateBuilderScreen = () => {
+    const hasAlertSection = sectionLayout.some(item => (item.type || getSectionType(item.i)) === 'loi-canh-bao');
+    const hasNewsSection = sectionLayout.some(item => (item.type || getSectionType(item.i)) === 'tin-tuc');
+    return (
+      <>
+        <style>{`
+          .react-grid-layout {
+            position: relative;
+          }
+          .react-grid-item {
+            transition: all 200ms ease;
+            transition-property: left, top, width, height;
+          }
+          .react-grid-item.cssTransforms {
+            transition-property: transform, width, height;
+          }
+          .react-grid-item.resizing {
+            z-index: 1;
+            will-change: width, height;
+          }
+          .react-grid-item.react-draggable-dragging {
+            transition: none;
+            z-index: 3;
+            opacity: 0.5;
+          }
+          .react-grid-item.dropping {
+            visibility: hidden;
+          }
+          .react-grid-item > .react-resizable-handle {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            bottom: 0;
+            right: 0;
+            cursor: se-resize;
+            z-index: 3;
+          }
+          .react-grid-item > .react-resizable-handle::after {
+            content: "";
+            position: absolute;
+            right: 3px;
+            bottom: 3px;
+            width: 5px;
+            height: 5px;
+            border-right: 2px solid rgba(0, 0, 0, 0.4);
+            border-bottom: 2px solid rgba(0, 0, 0, 0.4);
+          }
+          .react-grid-item:hover > .react-resizable-handle {
+            opacity: 1;
+          }
+          .react-grid-item > .react-resizable-handle {
+            opacity: 0;
+            transition: opacity 0.2s;
+          }
+          .react-grid-item.selected {
+            border: 2px solid #1677FF !important;
+          }
+          .react-grid-item.hovered > .react-resizable-handle {
+            opacity: 1;
+          }
+        `}</style>
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: '#FAFBFB',
+          display: 'flex',
+          zIndex: 1000
+        }}>
+        {/* Left Sidebar - 25% */}
+        <div style={{
+          width: '25%',
+          background: '#fff',
+          borderRight: '1px solid #E1E3E5',
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden'
+        }}>
+          {/* Header */}
+          <div style={{
+            padding: '20px 16px',
+            borderBottom: '1px solid #E1E3E5',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'relative'
+          }}>
+            <Button
+              type="text"
+              icon={<LeftOutlined />}
+              onClick={handleCancelTemplateCreation}
+              style={{ position: 'absolute', left: 12 }}
+            />
+          </div>
+
+          {/* Template name input */}
+          <div style={{ padding: 16, borderBottom: '1px solid #F0F0F0' }}>
+            <Input
+              placeholder="Nhập tên template"
+              value={newTemplateName}
+              onChange={(e) => setNewTemplateName(e.target.value)}
+            />
+          </div>
+
+          {/* Sections List - Only Titles */}
+          <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
+            <Space direction="vertical" style={{ width: '100%' }} size={12}>
+              {/* Section: Báo cáo */}
+              <div
+                style={{
+                  padding: '12px 16px',
+                  border: '1px solid #E1E3E5',
+                  borderRadius: 8,
+                  background: '#fff',
+                  cursor: 'pointer',
+                  transition: 'all 0.2s'
+                }}
+                onClick={() => addSectionToPreview('bao-cao')}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = '#F5F7FB';
+                  e.currentTarget.style.borderColor = '#1677FF';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = '#fff';
+                  e.currentTarget.style.borderColor = '#E1E3E5';
+                }}
+              >
+                <Text strong style={{ fontSize: 14 }}>Báo cáo</Text>
+              </div>
+
+              {/* Section: Lỗi & Cảnh báo */}
+              <div
+                style={{
+                  padding: '12px 16px',
+                  border: '1px solid #E1E3E5',
+                  borderRadius: 8,
+                  background: '#fff',
+                  cursor: hasAlertSection ? 'not-allowed' : 'pointer',
+                  opacity: hasAlertSection ? 0.5 : 1,
+                  transition: 'all 0.2s',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 8
+                }}
+                onClick={() => {
+                  if (hasAlertSection) return;
+                  addSectionToPreview('loi-canh-bao');
+                }}
+                onMouseEnter={(e) => {
+                  if (hasAlertSection) return;
+                  e.currentTarget.style.background = '#F5F7FB';
+                  e.currentTarget.style.borderColor = '#1677FF';
+                }}
+                onMouseLeave={(e) => {
+                  if (hasAlertSection) return;
+                  e.currentTarget.style.background = '#fff';
+                  e.currentTarget.style.borderColor = '#E1E3E5';
+                }}
+              >
+                <Text strong style={{ fontSize: 14 }}>Lỗi & Cảnh báo</Text>
+                {hasAlertSection && <Tag color="default">Đã thêm</Tag>}
+              </div>
+
+              {/* Section: Tin tức */}
+              <div
+                style={{
+                  padding: '12px 16px',
+                  border: '1px solid #E1E3E5',
+                  borderRadius: 8,
+                  background: '#fff',
+                  cursor: hasNewsSection ? 'not-allowed' : 'pointer',
+                  opacity: hasNewsSection ? 0.5 : 1,
+                  transition: 'all 0.2s',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 8
+                }}
+                onClick={() => {
+                  if (hasNewsSection) return;
+                  addSectionToPreview('tin-tuc');
+                }}
+                onMouseEnter={(e) => {
+                  if (hasNewsSection) return;
+                  e.currentTarget.style.background = '#F5F7FB';
+                  e.currentTarget.style.borderColor = '#1677FF';
+                }}
+                onMouseLeave={(e) => {
+                  if (hasNewsSection) return;
+                  e.currentTarget.style.background = '#fff';
+                  e.currentTarget.style.borderColor = '#E1E3E5';
+                }}
+              >
+                <Text strong style={{ fontSize: 14 }}>Tin tức</Text>
+                {hasNewsSection && <Tag color="default">Đã thêm</Tag>}
+              </div>
+            </Space>
+          </div>
+
+          {/* Footer Actions */}
+          <div style={{
+            padding: '16px',
+            borderTop: '1px solid #E1E3E5',
+            display: 'flex',
+            gap: 8
+          }}>
+            <Button onClick={handleCancelTemplateCreation} style={{ flex: 1 }}>
+              Hủy
+            </Button>
+            <Button
+              onClick={() => {
+                if (!newTemplateName.trim() && sectionLayout.length === 0) {
+                  message.error('Vui lòng nhập tên template và chọn ít nhất 1 section');
+                  return;
+                }
+                if (!newTemplateName.trim()) {
+                  message.error('Vui lòng nhập tên template');
+                  return;
+                }
+                if (sectionLayout.length === 0) {
+                  message.error('Vui lòng chọn ít nhất 1 section');
+                  return;
+                }
+                handleSaveTemplateFromBuilder(false);
+              }}
+              disabled={!newTemplateName.trim() && sectionLayout.length === 0}
+              style={{ flex: 1 }}
+            >
+              Lưu nháp
+            </Button>
+            <Button
+              type="primary"
+              onClick={() => {
+                if (!newTemplateName.trim() && sectionLayout.length === 0) {
+                  message.error('Vui lòng nhập tên template và chọn ít nhất 1 section');
+                  return;
+                }
+                if (!newTemplateName.trim()) {
+                  message.error('Vui lòng nhập tên template');
+                  return;
+                }
+                if (sectionLayout.length === 0) {
+                  message.error('Vui lòng chọn ít nhất 1 section');
+                  return;
+                }
+                handleSaveTemplateFromBuilder(true);
+              }}
+              disabled={!newTemplateName.trim() && sectionLayout.length === 0}
+              style={{ flex: 1 }}
+            >
+              Lưu & Sử dụng
+            </Button>
+          </div>
+        </div>
+
+        {/* Right Canvas - 75% */}
+        <div style={{
+          flex: 1,
+          display: 'flex',
+          flexDirection: 'column',
+          overflow: 'hidden'
+        }}>
+          {/* Canvas Header */}
+          <div style={{
+            padding: '20px 24px',
+            borderBottom: '1px solid #E1E3E5',
+            background: '#fff',
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center'
+          }}>
+            <Text strong style={{ fontSize: 16 }}>Xem trước</Text>
+          </div>
+
+          {/* Grid Canvas */}
+          <div 
+            id="grid-canvas-container"
+            style={{
+              flex: 1,
+              padding: '24px',
+              overflow: 'auto',
+              background: '#F5F5F5',
+              position: 'relative'
+            }}
+          >
+            {/* Grid Cells Background - 12 columns × 24 rows */}
+            <div
+              style={{
+                position: 'absolute',
+                top: 24,
+                left: 24,
+                right: 24,
+                bottom: 24,
+                pointerEvents: 'none',
+                zIndex: 1
+              }}
+            >
+              {(() => {
+                const containerWidth = typeof window !== 'undefined' 
+                  ? Math.floor((window.innerWidth * 0.75 - 48) / 12) * 12 
+                  : 1200;
+                const rowHeight = 30;
+                const colWidth = (containerWidth - (16 * 11)) / 12; // 11 gaps between 12 columns
+                const cellHeight = rowHeight;
+                
+                return Array.from({ length: 12 * 24 }).map((_, index) => {
+                  const col = index % 12;
+                  const row = Math.floor(index / 12);
+                  return (
+                    <div
+                      key={`cell-${col}-${row}`}
+                      style={{
+                        position: 'absolute',
+                        left: col * (colWidth + 16),
+                        top: row * (cellHeight + 16),
+                        width: colWidth,
+                        height: cellHeight,
+                        border: '1px dashed #D9D9D9',
+                        borderRadius: 8,
+                        background: 'transparent'
+                      }}
+                    />
+                  );
+                });
+              })()}
+            </div>
+
+            <GridLayout
+              className="layout"
+              layout={sectionLayout}
+              cols={12}
+              rowHeight={30}
+              width={typeof window !== 'undefined' ? Math.floor((window.innerWidth * 0.75 - 48) / 12) * 12 : 1200}
+              onLayoutChange={(layout) => setSectionLayout(layout)}
+              isDraggable={true}
+              isResizable={true}
+              margin={[16, 16]}
+              containerPadding={[0, 0]}
+              compactType={null}
+              preventCollision={true}
+              useCSSTransforms={true}
+              resizeHandles={['se']}
+              minW={3}
+              maxW={12}
+              minH={3}
+              maxH={12}
+            >
+              {sectionLayout.map(item => (
+                <div key={item.i} style={{ position: 'relative', zIndex: 10 }}>
+                  {renderSectionCard(item.i)}
+                </div>
+              ))}
+            </GridLayout>
+          </div>
+        </div>
+
+        </div>
+      </>
+    );
+  };
+  const handleOpenPreview = (templateId, context) => {
+    setPreviewTemplateId(templateId);
+    setPreviewContext(context);
+    setPreviewTemplateModalVisible(true);
+  };
+
+  const handleClosePreview = () => {
+    setPreviewTemplateModalVisible(false);
+    setPreviewTemplateId(null);
+    setPreviewContext(null);
+  };
+
+  const handleUsePreviewTemplate = () => {
+    if (!previewTemplateId) return;
+    if (previewContext === 'gallery') {
+      const template = templateWorkspaces.find(t => (t.templateId || t.id) === previewTemplateId);
+      if (!template) return;
+      handleCreateFromTemplate(template);
+      setActiveModule('workspace-settings');
+    } else {
+      handleTemplateCardApply(previewTemplateId);
+    }
+    handleClosePreview();
+  };
+
+  const cloneAlerts = (items = []) => items.map(item => ({ ...item }));
+
+  const buildSectionLayoutFromFlags = (flags = {}) => {
+    const {
+      showDashboard = true,
+      showAlerts = true,
+      showGuides = true
+    } = flags;
+    const layout = [];
+    let currentY = 0;
+    if (showDashboard) {
+      layout.push({ i: 'bao-cao', x: 0, y: currentY, w: 12, h: 10 });
+      currentY += 10;
+    }
+    if (showAlerts) {
+      layout.push({ i: 'loi-canh-bao', x: 0, y: currentY, w: 12, h: 8 });
+      currentY += 8;
+    }
+    if (showGuides) {
+      layout.push({ i: 'tin-tuc', x: 0, y: currentY, w: 12, h: 6 });
+    }
+    if (layout.length === 0) {
+      return [{ i: 'bao-cao', x: 0, y: 0, w: 12, h: 10 }];
+    }
+    return layout;
+  };
+
+  const templateReportMetricPresets = {
+    default: ['gmv-yesterday', 'orders-yesterday', 'aov', 'roas', 'gmv-channel', 'ads-cost'],
+    'template-ceo': ['revenue-net', 'profit', 'margin', 'gmv-channel', 'stock-value', 'roas'],
+    'template-ecommerce-manager': ['gmv-yesterday', 'orders-yesterday', 'repeat-rate', 'new-customers', 'aov', 'gmv-channel'],
+    'template-media': ['ads-cost', 'roas', 'cpc', 'ctr', 'ad-impression', 'gmv-yesterday'],
+    'template-marketing': ['new-customers', 'repeat-rate', 'customer-ltv', 'roas', 'gmv-channel', 'orders-yesterday'],
+    'template-accounting': ['revenue-net', 'cogs', 'profit', 'margin', 'stock-value', 'gmv-yesterday']
+  };
+
+  const buildPresetSectionMetrics = (templateKey, flags = {}) => {
+    const reports = templateReportMetricPresets[templateKey] || templateReportMetricPresets.default;
+    const includeAlerts = flags.showAlerts !== false;
+    const includeNews = flags.showGuides !== false;
+    return {
+      'bao-cao': reports,
+      'loi-canh-bao': includeAlerts ? { 
+        errors: cloneAlerts(alertMetrics.errors.slice(0, 2)), 
+        warnings: cloneAlerts(alertMetrics.warnings.slice(0, 2)) 
+      } : { errors: [], warnings: [] },
+      'tin-tuc': includeNews ? contentItems.insights.slice(0, 3) : []
+    };
+  };
+
+  const buildWidgetLayoutFromMetricIds = (metricIds = []) => {
+    let x = 0;
+    let y = 0;
+    const layouts = [];
+    metricIds.forEach(metricId => {
+      const metric = allMetricsPool.find(m => m.id === metricId);
+      const widgetType = getWidgetType(metric || { name: '' });
+      const size = getWidgetSize(widgetType);
+      layouts.push({
+        i: metricId,
+        x,
+        y,
+        w: size.w,
+        h: size.h
+      });
+      x += size.w;
+      if (x >= 12) {
+        x = 0;
+        y += size.h;
+      }
+    });
+    return layouts;
+  };
+
+  const hydrateBuilderFromTemplate = (templateSource) => {
+    if (!templateSource) return;
+    const templateKey = templateSource.templateId || templateSource.id || 'default';
+    const hasCustomSections = Array.isArray(templateSource.sectionLayout) && templateSource.sectionLayout.length > 0;
+    let nextSectionLayout;
+    let nextSectionMetrics;
+    let nextSectionTitles = { ...sectionTitles };
+
+    if (hasCustomSections) {
+      nextSectionLayout = templateSource.sectionLayout;
+      const metricsPayload = templateSource.sectionMetrics || {};
+      nextSectionMetrics = {
+        'bao-cao': Array.isArray(metricsPayload['bao-cao']) ? metricsPayload['bao-cao'] : [],
+        'loi-canh-bao': metricsPayload['loi-canh-bao'] || { errors: [], warnings: [] },
+        'tin-tuc': Array.isArray(metricsPayload['tin-tuc']) ? metricsPayload['tin-tuc'] : []
+      };
+      if (templateSource.sectionTitles) {
+        nextSectionTitles = {
+          ...sectionTitles,
+          ...templateSource.sectionTitles
+        };
+      }
+    } else {
+      const flags = templateSource.layout || { showDashboard: true, showAlerts: true, showGuides: true };
+      nextSectionLayout = buildSectionLayoutFromFlags(flags);
+      nextSectionMetrics = buildPresetSectionMetrics(templateKey, flags);
+    }
+
+    setSectionLayout(nextSectionLayout);
+    setSectionsInPreview(new Set(nextSectionLayout.map(item => item.i)));
+    setSectionMetrics(nextSectionMetrics);
+    setSectionTitles(nextSectionTitles);
+    setSectionWidgetLayouts(prev => ({
+      ...prev,
+      'bao-cao': buildWidgetLayoutFromMetricIds(nextSectionMetrics['bao-cao']),
+      'loi-canh-bao': [],
+      'tin-tuc': []
+    }));
+
+    const newChartTypes = {};
+    (nextSectionMetrics['bao-cao'] || []).forEach(metricId => {
+      const metric = allMetricsPool.find(m => m.id === metricId);
+      const widgetType = getWidgetType(metric || { name: '' });
+      newChartTypes[metricId] = widgetType === 'breakdown'
+        ? 'pie'
+        : widgetType === 'time-series'
+          ? 'line'
+          : widgetType === 'comparison'
+            ? 'bar'
+            : 'card';
+    });
+    setMetricChartTypes(newChartTypes);
+  };
+
+  const handleCustomizePreviewTemplate = () => {
+    if (!previewTemplateId) return;
+    const templateSource = previewContext === 'gallery'
+      ? templateWorkspaces.find(t => (t.templateId || t.id) === previewTemplateId)
+      : templates.find(t => t.id === previewTemplateId);
+    if (!templateSource) {
+      message.error('Không tìm thấy template để tuỳ chỉnh');
+      return;
+    }
+    resetTemplateBuilder();
+    setNewTemplateName(`${templateSource.name || 'Template mới'} - tuỳ chỉnh`);
+    hydrateBuilderFromTemplate(templateSource, previewContext);
+    setActiveModule('template-create');
+    setTemplateGalleryVisible(false);
+    handleClosePreview();
+  };
+
+  const resetTemplateBuilder = () => {
+    setNewTemplateName('');
+    setBuilderTemplateName('');
+    setBuilderReports([]);
+    setBuilderAlertSelected(false);
+    setBuilderNewsSelected(false);
+    setWidgetLayout([]);
+    setSelectedWidgets(new Set());
+    setWidgetSearchQuery('');
+    setHoveredWidget(null);
+    setSelectedWidget(null);
+    setSectionsInPreview(new Set());
+    setSectionLayout([]);
+    setSectionMetrics({
+      'bao-cao': [],
+      'loi-canh-bao': { errors: [], warnings: [] },
+      'tin-tuc': []
+    });
+    setSectionTitles({
+      'bao-cao': 'Báo cáo',
+      'loi-canh-bao': 'Lỗi & Cảnh báo',
+      'tin-tuc': 'Tin tức'
+    });
+  };
+
+  const handleAddReportSection = () => {
+    setBuilderReports((prev) => [
+      ...prev,
+      { id: `report-${Date.now()}-${Math.random().toString(36).slice(2, 5)}` }
+    ]);
+  };
+
+  const handleRemoveReportSection = (reportId) => {
+    setBuilderReports((prev) => prev.filter(report => report.id !== reportId));
+  };
+
+  const handleToggleAlertSection = () => {
+    setBuilderAlertSelected((prev) => !prev);
+  };
+
+  const handleToggleNewsSection = () => {
+    setBuilderNewsSelected((prev) => !prev);
+  };
+
+  const handleCancelTemplateCreation = () => {
+    resetTemplateBuilder();
+    setActiveModule('workspace-settings');
+  };
+
+  const handleSaveTemplateFromBuilder = (applyImmediately = false) => {
+    const trimmedName = newTemplateName.trim();
+    if (!trimmedName) {
+      message.error('Vui lòng nhập tên template');
+      return;
+    }
+    if (sectionLayout.length === 0) {
+      message.error('Vui lòng chọn ít nhất 1 section');
+      return;
+    }
+    const newTemplate = {
+      id: `custom-${Date.now()}`,
+      name: trimmedName,
+      isDefault: false,
+      metrics: defaultTemplates[0].metrics,
+      createdAt: dayjs().format('DD/MM/YYYY'),
+      sectionLayout: sectionLayout,
+      sectionTitles: sectionTitles,
+      sectionMetrics: sectionMetrics
+    };
+    setTemplates((prev) => [...prev, newTemplate]);
+    if (applyImmediately) {
+      handleTemplateCardApply(newTemplate.id);
+    } else {
+      message.success(`Template "${newTemplate.name}" đã được lưu nháp`);
+    }
+    resetTemplateBuilder();
+    setActiveModule('workspace-settings');
+  };
+
+  const previewModalTitle = useMemo(() => {
+    if (!previewTemplateId) return '';
+    const customTemplate = templates.find(t => t.id === previewTemplateId);
+    if (customTemplate) return customTemplate.name;
+    const galleryTemplate = templateWorkspaces.find(t => (t.templateId || t.id) === previewTemplateId);
+    return galleryTemplate?.name || '';
+  }, [previewTemplateId, templates, templateWorkspaces]);
+  const previewTemplateName = previewModalTitle;
 
   // ========== WORKSPACE MANAGEMENT STATES ==========
   const [workspaces, setWorkspaces] = useState(() => {
@@ -1282,7 +3659,6 @@ const HomepageLayout = () => {
   const [newWorkspaceName, setNewWorkspaceName] = useState('');
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [selectedItems, setSelectedItems] = useState([]); // Array of { groupId, itemId } or { groupId } for groups without items
-  const [workspaceSearchQuery, setWorkspaceSearchQuery] = useState('');
   const [editingWorkspaceId, setEditingWorkspaceId] = useState(null);
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
   const [workspaceToDelete, setWorkspaceToDelete] = useState(null);
@@ -1419,7 +3795,7 @@ const HomepageLayout = () => {
   useEffect(() => {
     localStorage.setItem('ups-selected-workspace', selectedWorkspaceId);
   }, [selectedWorkspaceId]);
-  
+
   useEffect(() => {
     if (!createTemplateModalVisible) return;
     setPreviewBlocks((prevBlocks) => {
@@ -1452,8 +3828,564 @@ useEffect(() => {
     { key: 'analytics', icon: <BarChartOutlined />, label: 'Phân tích' },
     { key: 'orders', icon: <ShoppingOutlined />, label: 'Đơn hàng' },
     { key: 'inventory', icon: <InboxOutlined />, label: 'Kho hàng' },
-    { key: 'shipping', icon: <CarOutlined />, label: 'Vận chuyển' }
+    { key: 'shipping', icon: <CarOutlined />, label: 'Vận chuyển' },
+    {
+      key: 'workspace',
+      icon: <SettingOutlined />,
+      label: 'Quản lý Workspace',
+      children: [
+        { key: 'workspace-settings', label: 'Cài đặt' }
+      ]
+    }
   ];
+  const moduleBreadcrumb = activeModule === 'workspace-settings'
+    ? 'Quản lý Workspace / Cài đặt'
+    : activeModule === 'template-gallery'
+      ? 'Template mẫu'
+      : 'Trang chủ';
+
+  const handleTemplateCardApply = (templateId) => {
+    if (templateId === selectedTemplateId) return;
+    setSelectedTemplateId(templateId);
+    message.success('Template đã được áp dụng cho homepage.');
+  };
+
+  const renderTemplatePreviewContent = (templateId) => {
+    if (!templateId) return null;
+    const templateInState = templates.find(t => t.id === templateId);
+    const galleryTemplate = templateWorkspaces.find(t => (t.templateId || t.id) === templateId);
+
+    if (templateInState?.sections) {
+      const sections = [];
+      templateInState.sections.reports && sections.push(...Array(templateInState.sections.reports).fill('report'));
+      if (templateInState.sections.alert) sections.push('alert');
+      if (templateInState.sections.news) sections.push('news');
+      return (
+        <Space direction="vertical" style={{ width: '100%' }} size={16}>
+          {sections.map((section, idx) => {
+            if (section === 'report') {
+              return (
+                <Card key={`report-${idx}`} title={`Report section #${idx + 1}`}>
+                  <Row gutter={[12, 12]}>
+                    {previewCardData.map((card, index) => (
+                      <Col span={8} key={`preview-card-${idx}-${index}`}>
+                        <KPICard {...card} />
+                      </Col>
+                    ))}
+                  </Row>
+                </Card>
+              );
+            }
+            if (section === 'alert') {
+              return (
+                <Card key="alert-section" title="Alert section">
+                  <List
+                    dataSource={alertsData.errors}
+                    renderItem={(item) => (
+                      <List.Item>
+                        <List.Item.Meta
+                          title={item.title}
+                          description={`${item.count} ${item.unit || ''}`}
+                        />
+                      </List.Item>
+                    )}
+                  />
+                </Card>
+              );
+            }
+            if (section === 'news') {
+              return (
+                <Card key="news-section" title="Tin tức">
+                  <List
+                    dataSource={contentItems.insights}
+                    renderItem={(item) => (
+                      <List.Item>
+                        <List.Item.Meta title={item.title} description={item.date} />
+                      </List.Item>
+                    )}
+                  />
+                </Card>
+              );
+            }
+            return null;
+          })}
+        </Space>
+      );
+    }
+
+    const dataKey = templatePreviewKeyMap[templateId]
+      || galleryTemplate?.templateId
+      || (templateData[templateId] ? templateId : null);
+    const previewData = dataKey ? templateData[dataKey] : null;
+    
+    if (!previewData) {
+      const metricList = templateInState?.metrics || [];
+      if (metricList.length === 0) {
+        return <Empty description="Không có dữ liệu preview cho template này" />;
+      }
+      return (
+        <div>
+          <Title level={5} style={{ marginBottom: 12 }}>Danh sách metrics</Title>
+          <Space wrap>
+            {metricList.map(metricId => {
+              const metric = allMetricsPool.find(m => m.id === metricId);
+              return (
+                <Tag key={metricId} color="geekblue">
+                  {metric?.name || metricId}
+                </Tag>
+              );
+            })}
+          </Space>
+        </div>
+      );
+    }
+
+    return (
+      <>
+        <Row gutter={[12, 12]} style={{ marginBottom: 24 }}>
+          {['col1', 'col2', 'col3'].map(col => (
+            (previewData.kpiOverview?.[col] || []).map((kpi, idx) => (
+              <Col span={8} key={`${col}-${idx}`}>
+                <KPICard {...kpi} />
+              </Col>
+            ))
+          ))}
+        </Row>
+        <Row gutter={[16, 16]}>
+          <Col span={12}>
+            <Card size="small" title="Xu hướng Doanh thu" style={{ height: 240 }}>
+              <ResponsiveContainer width="100%" height={180}>
+                <LineChart data={previewData.chartData}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <ChartTooltip />
+                  <RechartLine type="monotone" dataKey="value" stroke="#1677FF" />
+                </LineChart>
+              </ResponsiveContainer>
+            </Card>
+          </Col>
+          <Col span={12}>
+            <Card size="small" title="Phân bổ kênh" style={{ height: 240 }}>
+              <ResponsiveContainer width="100%" height={180}>
+                <PieChart>
+                  <RechartPie
+                    data={previewData.pieData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                    outerRadius={70}
+                    dataKey="value"
+                  >
+                    {(previewData.pieData || []).map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={['#1677FF', '#52C41A', '#FA8C16'][index % 3]} />
+                    ))}
+                  </RechartPie>
+                  <ChartTooltip />
+                </PieChart>
+              </ResponsiveContainer>
+            </Card>
+          </Col>
+        </Row>
+      </>
+    );
+  };
+
+  const renderTemplateCard = (template) => {
+    if (!template) return null;
+    const isActive = template.id === selectedTemplateId;
+    const metrics = template.metrics || [];
+    return (
+      <Col xs={24} md={12} xl={8} key={template.id}>
+        <Card
+          hoverable
+          onMouseEnter={() => setHoveredTemplateCard(template.id)}
+          onMouseLeave={() => setHoveredTemplateCard(null)}
+          style={{
+            border: isActive ? '1px solid #1677FF' : '1px solid #E1E3E5',
+            borderRadius: 20,
+            boxShadow: '0 20px 40px rgba(15, 23, 42, 0.08)',
+            minHeight: 300,
+            position: 'relative',
+            overflow: 'hidden'
+          }}
+          bodyStyle={{ padding: 24, display: 'flex', flexDirection: 'column', height: '100%' }}
+        >
+          <div style={{ position: 'relative', marginBottom: 16 }}>
+            <div style={{
+              borderRadius: 16,
+              padding: 16,
+              background: 'linear-gradient(135deg, #F5F7FF 0%, #FDF2FF 100%)',
+              display: 'grid',
+              gridTemplateColumns: 'repeat(3, 1fr)',
+              gap: 8,
+              minHeight: 96
+            }}>
+              {[...Array(6)].map((_, idx) => (
+                <div 
+                  key={idx}
+                  style={{
+                    background: idx % 2 === 0 ? '#fff' : '#F2F4FF',
+                    borderRadius: 10,
+                    height: idx < 3 ? 24 : 36,
+                    border: '1px solid #E4E6F1'
+                  }}
+                />
+              ))}
+            </div>
+            <div
+              style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(180deg, rgba(15,23,42,0.1), rgba(15,23,42,0.7))',
+                borderRadius: 16,
+                opacity: hoveredTemplateCard === template.id ? 1 : 0,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'opacity 0.2s'
+              }}
+            >
+              <Button 
+                type="primary" 
+                icon={<EyeOutlined />} 
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleOpenPreview(template.id, 'settings');
+                }}
+              >
+                Xem trước
+              </Button>
+            </div>
+          </div>
+          <Space size={8} style={{ marginBottom: 12 }}>
+            <Tag color={template.isDefault ? 'blue' : 'purple'}>
+              {template.isDefault ? 'Template mẫu' : 'Template của bạn'}
+            </Tag>
+            {isActive && <Tag color="green">Đang sử dụng</Tag>}
+          </Space>
+          <Title level={4} style={{ margin: 0 }}>{template.name}</Title>
+          <Text type="secondary" style={{ display: 'block', marginBottom: 12 }}>
+            {metrics.length} metrics
+          </Text>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', minHeight: 48 }}>
+            {metrics.slice(0, 4).map(metricId => {
+              const metric = allMetricsPool.find(m => m.id === metricId);
+              return metric ? (
+                <Tag key={metric.id} color="geekblue" style={{ marginBottom: 6 }}>
+                  {metric.domain || 'Metric'}
+                </Tag>
+              ) : null;
+            })}
+            {metrics.length > 4 && (
+              <Tag>+{metrics.length - 4}</Tag>
+            )}
+          </div>
+          <div style={{ marginTop: 'auto', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <Button 
+              type={isActive ? 'primary' : 'default'}
+              disabled={isActive}
+              onClick={() => handleTemplateCardApply(template.id)}
+            >
+              {isActive ? 'Đang sử dụng' : 'Áp dụng'}
+            </Button>
+            {!template.isDefault && (
+              <>
+                <Button icon={<EditOutlined />} onClick={() => handleOpenEditModal(template)}>
+                  Chỉnh sửa
+                </Button>
+                <Button 
+                  icon={<DeleteOutlined />} 
+                  danger 
+                  onClick={() => handleDeleteTemplate(template)}
+                >
+                  Xóa
+                </Button>
+              </>
+            )}
+          </div>
+        </Card>
+      </Col>
+    );
+  };
+
+  const handleOpenTemplateGallery = () => {
+    setTemplateGalleryVisible(true);
+  };
+
+  const renderWorkspaceSettings = () => {
+    const pageSize = 5;
+    const sortedTemplates = [...templates].sort((a, b) => {
+      if (a.id === selectedTemplateId && b.id !== selectedTemplateId) return -1;
+      if (b.id === selectedTemplateId && a.id !== selectedTemplateId) return 1;
+      return 0;
+    });
+    const startIndex = (templateTablePage - 1) * pageSize;
+    const pagedTemplates = sortedTemplates.slice(startIndex, startIndex + pageSize);
+    const allSelected = pagedTemplates.length > 0 && pagedTemplates.every(t => selectedTemplateIds.has(t.id));
+    const someSelected = pagedTemplates.some(t => selectedTemplateIds.has(t.id));
+    const selectedCount = selectedTemplateIds.size;
+
+    const handleSelectAll = (checked) => {
+      const newSelected = new Set(selectedTemplateIds);
+      if (checked) {
+        pagedTemplates.forEach(t => newSelected.add(t.id));
+      } else {
+        pagedTemplates.forEach(t => newSelected.delete(t.id));
+      }
+      setSelectedTemplateIds(newSelected);
+    };
+
+    const handleSelectTemplate = (templateId, checked) => {
+      const newSelected = new Set(selectedTemplateIds);
+      if (checked) {
+        newSelected.add(templateId);
+      } else {
+        newSelected.delete(templateId);
+      }
+      setSelectedTemplateIds(newSelected);
+    };
+
+    const handleDeleteSelected = () => {
+      if (selectedTemplateIds.size === 0) return;
+      const deletableTemplates = templates.filter(t => selectedTemplateIds.has(t.id) && !t.isDefault);
+      if (deletableTemplates.length === 0) {
+        message.warning('Không thể xóa template mặc định');
+        setSelectedTemplateIds(new Set());
+        return;
+      }
+      
+      Modal.confirm({
+        title: 'Xác nhận xóa',
+        content: `Bạn có chắc chắn muốn xóa ${deletableTemplates.length} template đã chọn?`,
+        okText: 'Xóa',
+        okType: 'danger',
+        cancelText: 'Hủy',
+        onOk: () => {
+          const updatedTemplates = templates.filter(t => !(selectedTemplateIds.has(t.id) && !t.isDefault));
+          setTemplates(updatedTemplates);
+          setSelectedTemplateIds(new Set());
+          if (selectedTemplateIds.has(selectedTemplateId) && updatedTemplates.length > 0) {
+            setSelectedTemplateId(updatedTemplates[0].id);
+          }
+          message.success(`Đã xóa ${deletableTemplates.length} template`);
+        }
+      });
+    };
+
+    const templateRowLayout = '40px 1fr 160px 180px 120px';
+
+    const handleTemplateRowAction = (action, template) => {
+      if (!template) return;
+      switch (action) {
+        case 'apply':
+          handleTemplateCardApply(template.id);
+          break;
+        case 'preview':
+          handleOpenPreview(template.id, 'settings');
+          break;
+        case 'edit':
+          handleOpenEditModal(template);
+          break;
+        case 'delete':
+          if (!template.isDefault) {
+            handleDeleteTemplate(template);
+          }
+          break;
+        default:
+          break;
+      }
+    };
+
+    const buildActionMenu = (template) => ({
+      items: [
+        { key: 'apply', label: 'Sử dụng', disabled: template.id === selectedTemplateId },
+        { key: 'preview', label: 'Xem trước' },
+        { type: 'divider' },
+        { key: 'edit', label: 'Chỉnh sửa' },
+        { key: 'delete', label: <span style={{ color: '#D72C0D' }}>Xóa</span>, disabled: template.isDefault }
+      ],
+      onClick: ({ key }) => handleTemplateRowAction(key, template)
+    });
+
+    return (
+      <Card
+        bodyStyle={{ padding: 0 }}
+        style={{ borderRadius: 20, border: '1px solid #E1E3E5', boxShadow: '0 20px 40px rgba(15,23,42,0.08)' }}
+      >
+        <div style={{ padding: 24 }}>
+          {selectedCount > 0 && (
+            <div style={{ 
+              marginBottom: 16, 
+              padding: '12px 16px', 
+              background: '#F0F5FF', 
+              borderRadius: 8,
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <Text style={{ color: '#1677FF', fontWeight: 500 }}>
+                Đã chọn {selectedCount} template
+              </Text>
+              <Button 
+                danger
+                icon={<DeleteOutlined />}
+                onClick={handleDeleteSelected}
+              >
+                Xóa ({selectedCount})
+              </Button>
+            </div>
+          )}
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: templateRowLayout,
+              padding: '0 20px 8px',
+              color: '#6D7175',
+              fontSize: 12,
+              fontWeight: 500,
+              textAlign: 'left',
+              alignItems: 'center'
+            }}
+          >
+            <Checkbox
+              indeterminate={someSelected && !allSelected}
+              checked={allSelected && pagedTemplates.length > 0}
+              onChange={(e) => handleSelectAll(e.target.checked)}
+            />
+            <span style={{ display: 'flex', alignItems: 'center' }}>Tên</span>
+            <span style={{ display: 'flex', alignItems: 'center' }}>Trạng thái</span>
+            <span style={{ display: 'flex', alignItems: 'center' }}>Cập nhật gần nhất</span>
+            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: 4 }}>
+              Thao tác
+            </span>
+          </div>
+          <Space direction="vertical" style={{ width: '100%' }} size={12}>
+            {pagedTemplates.map((template) => {
+              const isSelected = selectedTemplateIds.has(template.id);
+              return (
+                <div
+                  key={template.id}
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: templateRowLayout,
+                    alignItems: 'center',
+                    padding: '16px 20px',
+                    borderRadius: 14,
+                    border: '1px solid #E1E3E5',
+                    background: isSelected ? 'rgba(22, 119, 255, 0.02)' : '#fff',
+                    boxShadow: '0 8px 24px rgba(15,23,42,0.05)',
+                    gap: 12
+                  }}
+                >
+                  <Checkbox
+                    checked={isSelected}
+                    onChange={(e) => handleSelectTemplate(template.id, e.target.checked)}
+                  />
+                  <div
+                    style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 4 }}
+                    onMouseEnter={() => setHoveredTemplateName(template.id)}
+                    onMouseLeave={() => setHoveredTemplateName(null)}
+                  >
+                    {editingTemplateName === template.id ? (
+                      <Input
+                        value={editingTemplateNameValue}
+                        onChange={(e) => {
+                          setEditingTemplateNameValue(e.target.value);
+                        }}
+                        onBlur={() => {
+                          if (editingTemplateNameValue.trim()) {
+                            const updatedTemplates = templates.map(t => 
+                              t.id === template.id ? { ...t, name: editingTemplateNameValue.trim() } : t
+                            );
+                            setTemplates(updatedTemplates);
+                            localStorage.setItem('ups-metric-templates', JSON.stringify(updatedTemplates));
+                          }
+                          setEditingTemplateName(null);
+                          setEditingTemplateNameValue('');
+                        }}
+                        onPressEnter={() => {
+                          if (editingTemplateNameValue.trim()) {
+                            const updatedTemplates = templates.map(t => 
+                              t.id === template.id ? { ...t, name: editingTemplateNameValue.trim() } : t
+                            );
+                            setTemplates(updatedTemplates);
+                            localStorage.setItem('ups-metric-templates', JSON.stringify(updatedTemplates));
+                          }
+                          setEditingTemplateName(null);
+                          setEditingTemplateNameValue('');
+                        }}
+                        autoFocus
+                        onClick={(e) => e.stopPropagation()}
+                        style={{ flex: 1 }}
+                      />
+                    ) : (
+                      <>
+                        <Text strong style={{ fontSize: 15, display: 'inline-block' }}>{template.name}</Text>
+                        {hoveredTemplateName === template.id && (
+                          <Button
+                            type="text"
+                            size="small"
+                            icon={<EditOutlined />}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditingTemplateName(template.id);
+                              setEditingTemplateNameValue(template.name);
+                            }}
+                            style={{ 
+                              padding: '0 4px',
+                              minWidth: 'auto',
+                              height: 'auto',
+                              marginLeft: 4,
+                              display: 'inline-flex',
+                              alignItems: 'center'
+                            }}
+                          />
+                        )}
+                      </>
+                    )}
+                  </div>
+                  <div>
+                    <Tag 
+                      color={template.id === selectedTemplateId ? 'green' : 'default'} 
+                      style={{ padding: '0 12px' }}
+                    >
+                      {template.id === selectedTemplateId ? 'Đang sử dụng' : 'Nháp'}
+                    </Tag>
+                  </div>
+                  <div>
+                    <Text>{template.createdAt || '—'}</Text>
+                  </div>
+                  <div style={{ textAlign: 'right' }}>
+                    <Dropdown trigger={['click']} placement="bottomRight" menu={buildActionMenu(template)}>
+                      <Button type="text" icon={<EllipsisOutlined />} />
+                    </Dropdown>
+                  </div>
+                </div>
+              );
+            })}
+            {sortedTemplates.length === 0 && (
+              <Empty description="Chưa có template nào" />
+            )}
+          </Space>
+          <div style={{ marginTop: 24, textAlign: 'right' }}>
+            <Pagination 
+              current={templateTablePage}
+              pageSize={pageSize}
+              total={sortedTemplates.length}
+              onChange={(page) => {
+                setTemplateTablePage(page);
+                setSelectedTemplateIds(new Set());
+              }}
+              showSizeChanger={false}
+              disabled={templates.length <= pageSize}
+            />
+          </div>
+        </div>
+      </Card>
+    );
+  };
   
   const userMenu = (
     <Menu
@@ -1478,7 +4410,7 @@ useEffect(() => {
   
   // ========== TEMPLATE CRUD FUNCTIONS ==========
   
-  const handleCreateTemplate = () => {
+  const handleCreateTemplate = (applyImmediately = false) => {
     if (!newTemplateName.trim() || selectedMetrics.length === 0) {
       message.error('Vui lòng nhập tên template và chọn ít nhất 1 metric');
       return;
@@ -1497,18 +4429,20 @@ useEffect(() => {
     };
     
     setTemplates([...templates, newTemplate]);
-    setSelectedTemplateId(newTemplate.id);
     setCreateTemplateModalVisible(false);
-    setCustomizeModalVisible(true);
     setNewTemplateName('');
     setSelectedMetrics([]);
     setPreviewBlocks([]);
     setHoveredPreviewBlock(null);
     setSearchQuery('');
-    message.success(`Template "${newTemplate.name}" đã được tạo!`);
+    if (applyImmediately) {
+      handleTemplateCardApply(newTemplate.id);
+    } else {
+      message.success(`Template "${newTemplate.name}" đã được lưu nháp`);
+    }
   };
   
-  const handleEditTemplate = () => {
+  const handleEditTemplate = (applyImmediately = false) => {
     if (!newTemplateName.trim() || selectedMetrics.length === 0) {
       message.error('Vui lòng nhập tên template và chọn ít nhất 1 metric');
       return;
@@ -1522,23 +4456,38 @@ useEffect(() => {
     
     setTemplates(updatedTemplates);
     setEditTemplateModalVisible(false);
-    setCustomizeModalVisible(true);
     setNewTemplateName('');
     setSelectedMetrics([]);
     setSearchQuery('');
-    message.success('Template đã được cập nhật!');
+    if (applyImmediately) {
+      handleTemplateCardApply(selectedTemplateId);
+    } else {
+      message.success('Template đã được lưu nháp!');
+    }
   };
   
-  const handleDeleteTemplate = () => {
-    if (selectedTemplate.isDefault) {
+  const handleDeleteTemplate = (templateToDelete = selectedTemplate) => {
+    if (!templateToDelete) return;
+    if (templateToDelete.isDefault) {
       message.error('Không thể xóa template mặc định');
       return;
     }
     
-    const updatedTemplates = templates.filter(t => t.id !== selectedTemplateId);
-    setTemplates(updatedTemplates);
-    setSelectedTemplateId(updatedTemplates[0].id);
-    message.success(`Template "${selectedTemplate.name}" đã được xóa`);
+    Modal.confirm({
+      title: 'Xác nhận xóa',
+      content: `Bạn có chắc chắn muốn xóa template "${templateToDelete.name}"?`,
+      okText: 'Xóa',
+      okType: 'danger',
+      cancelText: 'Hủy',
+      onOk: () => {
+        const updatedTemplates = templates.filter(t => t.id !== templateToDelete.id);
+        setTemplates(updatedTemplates);
+        if (templateToDelete.id === selectedTemplateId && updatedTemplates.length > 0) {
+          setSelectedTemplateId(updatedTemplates[0].id);
+        }
+        message.success(`Template "${templateToDelete.name}" đã được xóa`);
+      }
+    });
   };
   
   const handleOpenCreateModal = () => {
@@ -1548,15 +4497,15 @@ useEffect(() => {
     setPreviewBlocks([]);
     setHoveredPreviewBlock(null);
     setHoveredMetricId(null);
-    setCustomizeModalVisible(false);
     setCreateTemplateModalVisible(true);
   };
   
-  const handleOpenEditModal = () => {
-    setNewTemplateName(selectedTemplate.name);
-    setSelectedMetrics([...selectedTemplate.metrics]);
+  const handleOpenEditModal = (templateToEdit = selectedTemplate) => {
+    if (!templateToEdit) return;
+    setSelectedTemplateId(templateToEdit.id);
+    setNewTemplateName(templateToEdit.name);
+    setSelectedMetrics([...(templateToEdit.metrics || [])]);
     setSearchQuery('');
-    setCustomizeModalVisible(false);
     setEditTemplateModalVisible(true);
   };
   
@@ -1569,7 +4518,6 @@ useEffect(() => {
     }
     setHoveredPreviewBlock(null);
     setHoveredMetricId(null);
-    setCustomizeModalVisible(true);
   };
 
   const handleCloneTemplate = (template) => {
@@ -1604,7 +4552,6 @@ useEffect(() => {
     }
     setHoveredPreviewBlock(null);
     setHoveredMetricId(null);
-    setCustomizeModalVisible(false);
     setCreateTemplateModalVisible(true);
   };
   
@@ -1868,17 +4815,14 @@ useEffect(() => {
     );
   };
   
-  // Filter workspaces for search
-  const filteredWorkspaces = workspaceSearchQuery
-    ? (workspaces || []).filter(w => 
-        w && w.name && w.name.toLowerCase().includes(workspaceSearchQuery.toLowerCase())
-      )
-    : (workspaces || []);
-  
   return (
-    <Layout style={{ minHeight: '100vh' }}>
-      {/* Header */}
-      <Header style={{ 
+    <>
+      {activeModule === 'template-create' ? (
+        renderTemplateBuilderScreen()
+      ) : (
+        <Layout style={{ minHeight: '100vh' }}>
+          {/* Header */}
+          <Header style={{ 
         background: '#fff', 
         padding: '0 24px', 
         display: 'flex', 
@@ -1899,7 +4843,7 @@ useEffect(() => {
             style={{ fontSize: 18 }}
           />
           <div style={{ fontSize: 13, color: '#8c8c8c', marginLeft: 16 }}>
-            Bảng điều khiển <span style={{ margin: '0 6px' }}>›</span> Trang chủ
+            Bảng điều khiển <span style={{ margin: '0 6px' }}>›</span> {moduleBreadcrumb}
           </div>
         </div>
         
@@ -1912,7 +4856,7 @@ useEffect(() => {
           <Button type="text" icon={<SettingOutlined style={{ fontSize: 18 }} />} />
           <Dropdown overlay={userMenu} trigger={['click']}>
             <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Avatar style={{ backgroundColor: '#1890ff' }} size="small">
+              <Avatar style={{ backgroundColor: '#1677FF' }} size="small">
                 D
               </Avatar>
               <span style={{ fontWeight: 500 }}>Dat Vu</span>
@@ -1932,8 +4876,10 @@ useEffect(() => {
         >
           <Menu
             mode="inline"
-            defaultSelectedKeys={['home']}
+            selectedKeys={[activeModule]}
+            onClick={({ key }) => setActiveModule(key)}
             items={menuItems}
+            defaultOpenKeys={['workspace']}
             style={{ borderRight: 0, marginTop: 8 }}
           />
         </Sider>
@@ -1942,199 +4888,78 @@ useEffect(() => {
         <Layout style={{ background: '#FAFBFB' }}>
           <Content style={{ padding: '24px' }}>
             {/* Page Header */}
-            <div style={{ marginBottom: 20 }}>
-              <Title 
-                level={2} 
-                style={{ 
-                  marginBottom: 8, 
-                  color: '#2b2b2b', 
-                  fontWeight: 400,
-                  fontFamily: '"Italianno", cursive',
-                  fontSize: 48,
-                  letterSpacing: '1px'
-                }}
-              >
-                {greeting}, {userName} 👋
-              </Title>
-              <div style={{ display: 'flex', gap: 16, alignItems: 'center', justifyContent: 'flex-end', flexWrap: 'wrap' }}>
-              </div>
+            <div 
+              style={{ 
+                marginBottom: 20,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'flex-start',
+                flexWrap: 'wrap',
+                gap: 16
+              }}
+            >
+              {activeModule === 'home' ? (
+                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', width: '100%' }}>
+                  <Button 
+                    type="text"
+                    icon={<EditOutlined />}
+                    onClick={() => setActiveModule('workspace-settings')}
+                    style={{ 
+                      color: '#6D7175',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 6
+                    }}
+                  >
+                    Tùy chỉnh
+                  </Button>
+                </div>
+              ) : (
+                <Title 
+                  level={3} 
+                  style={{ 
+                    marginBottom: 4, 
+                    color: '#2b2b2b',
+                    fontWeight: 600
+                  }}
+                >
+                  {activeModule === 'workspace-settings' ? '' : 'Tạo template mới'}
+                </Title>
+              )}
+              {activeModule === 'workspace-settings' && (
+                <Space size="middle" wrap>
+                  <Button 
+                    icon={<AppstoreAddOutlined />} 
+                    onClick={() => setTemplateGalleryVisible(true)}
+                  >
+                    Tạo mới từ template
+                  </Button>
+                  <Button 
+                    type="primary" 
+                    icon={<PlusOutlined />} 
+                    onClick={() => {
+                      resetTemplateBuilder();
+                      setActiveModule('template-create');
+                    }}
+                  >
+                    Tạo
+                  </Button>
+                </Space>
+              )}
+              {activeModule === 'template-create' && (
+                <Space size="middle" wrap>
+                  <Button 
+                    icon={<LeftOutlined />} 
+                    onClick={handleCancelTemplateCreation}
+                  >
+                    Quay lại danh sách
+                  </Button>
+                </Space>
+              )}
             </div>
             
-            {/* Workspace Selector */}
-            <div style={{ marginBottom: 16, display: 'flex', justifyContent: 'flex-start', alignItems: 'center' }}>
-              <Dropdown
-                menu={{
-                  items: [
-                    // Template mẫu section
-                    {
-                      key: 'template-header',
-                      type: 'group',
-                      label: (
-                        <Text strong style={{ fontSize: 12, color: '#8c8c8c', textTransform: 'uppercase' }}>
-                          Template mẫu
-                        </Text>
-                      )
-                    },
-                    ...templateWorkspaces.map(template => ({
-                      key: template.id,
-                      label: (
-                        <div 
-                          style={{ 
-                            display: 'flex', 
-                            justifyContent: 'space-between', 
-                            alignItems: 'center', 
-                            width: '100%' 
-                          }}
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <div style={{ flex: 1 }}>
-                            <div style={{ fontSize: 14, fontWeight: 500 }}>{template.name}</div>
-                            {template.description && (
-                              <div style={{ fontSize: 11, color: '#8c8c8c', marginTop: 2 }}>
-                                {template.description}
-                              </div>
-                            )}
-                          </div>
-                          <Tooltip title="Tạo mới từ template">
-                            <Button
-                              type="text"
-                              size="small"
-                              icon={<AppstoreAddOutlined />}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleCreateFromTemplate(template);
-                              }}
-                              style={{ padding: '0 4px', color: '#1677FF' }}
-                            />
-                          </Tooltip>
-                        </div>
-                      ),
-                      style: { cursor: 'default' },
-                      onClick: () => {
-                        // Templates are not selectable, only for creating new workspaces
-                        message.info('Vui lòng sử dụng nút "Tạo mới từ template" để tạo workspace từ template này');
-                      }
-                    })),
-                    { type: 'divider' },
-                    // Template user tự tạo section
-                    {
-                      key: 'user-workspace-header',
-                      type: 'group',
-                      label: (
-                        <Text strong style={{ fontSize: 12, color: '#8c8c8c', textTransform: 'uppercase' }}>
-                          Template user tự tạo
-                        </Text>
-                      )
-                    },
-                    ...(filteredWorkspaces && filteredWorkspaces.length > 0
-                      ? filteredWorkspaces
-                          .filter(w => w && w.id && !w.isTemplate)
-                          .map(w => ({
-                            key: w.id,
-                            label: (
-                              <div 
-                                style={{ 
-                                  display: 'flex', 
-                                  justifyContent: 'space-between', 
-                                  alignItems: 'center', 
-                                  width: '100%' 
-                                }}
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                <span style={{ flex: 1 }}>{w.name || 'Unnamed'}</span>
-                                <Space size={4}>
-                                  {!w.isDefault && (
-                                    <>
-                                      <Tooltip title="Chỉnh sửa">
-                                        <Button
-                                          type="text"
-                                          size="small"
-                                          icon={<EditOutlined />}
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleOpenEditWorkspace(w);
-                                          }}
-                                          style={{ padding: '0 4px' }}
-                                        />
-                                      </Tooltip>
-                                      <Tooltip title="Xóa">
-                                        <Button
-                                          type="text"
-                                          size="small"
-                                          icon={<DeleteOutlined />}
-                                          onClick={(e) => {
-                                            e.stopPropagation();
-                                            handleOpenDeleteConfirm(w);
-                                          }}
-                                          danger
-                                          style={{ padding: '0 4px' }}
-                                        />
-                                      </Tooltip>
-                                    </>
-                                  )}
-                                </Space>
-                              </div>
-                            ),
-                            style: selectedWorkspaceId === w.id ? { background: '#E6F7FF' } : {},
-                            onClick: () => {
-                              setSelectedWorkspaceId(w.id);
-                              setWorkspaceSearchQuery('');
-                            }
-                          }))
-                      : [{
-                          key: 'no-results',
-                          label: <Text type="secondary">Không tìm thấy workspace</Text>,
-                          disabled: true
-                        }]),
-                    { type: 'divider' },
-                    {
-                      key: 'create',
-                      label: 'Tạo workspace mới',
-                      icon: <PlusOutlined />,
-                      style: { 
-                        color: '#1677FF',
-                        background: 'rgba(22, 119, 255, 0.06)',
-                        fontWeight: 500
-                      },
-                      onClick: () => {
-                        handleOpenCreateWorkspace();
-                      }
-                    }
-                  ]
-                }}
-                trigger={['click']}
-                onOpenChange={(open) => {
-                  if (!open) {
-                    setWorkspaceSearchQuery('');
-                  }
-                }}
-                dropdownRender={(menu) => (
-                  <div style={{ width: 280, maxHeight: 400, overflow: 'auto' }}>
-                    {workspaces.length > 5 && (
-                      <div style={{ padding: '8px 12px', borderBottom: '1px solid #f0f0f0' }}>
-                        <Input
-                          placeholder="Tìm kiếm workspace..."
-                          prefix={<SearchOutlined />}
-                          value={workspaceSearchQuery}
-                          onChange={(e) => setWorkspaceSearchQuery(e.target.value)}
-                          size="small"
-                          allowClear
-                        />
-                      </div>
-                    )}
-                    {menu}
-                  </div>
-                )}
-              >
-                <Button style={{ minWidth: 180, textAlign: 'left' }}>
-                  <span style={{ flex: 1, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                    {selectedWorkspace?.name || 'Chọn workspace'}
-                  </span>
-                  <RightOutlined style={{ fontSize: 10, marginLeft: 8 }} />
-                </Button>
-              </Dropdown>
-            </div>
-            
+            {activeModule === 'home' ? (
+            <>
             <Row gutter={24}>
               {/* Left Main Column */}
               <Col xs={24} lg={17}>
@@ -2161,16 +4986,7 @@ useEffect(() => {
                             Lưu sắp xếp
                           </Button>
                         </Space>
-                      ) : (
-                        <Tooltip title="Tùy chỉnh">
-                          <Button 
-                            type="text"
-                            icon={<EditOutlined />}
-                            onClick={() => setCustomizeModalVisible(true)}
-                            style={{ color: '#6D7175' }}
-                          />
-                        </Tooltip>
-                      )
+                      ) : null
                     }
                     style={{ 
                       background: '#fff',
@@ -2216,15 +5032,6 @@ useEffect(() => {
                   {(selectedWorkspace?.layout?.showDashboard !== false && selectedWorkspace) && (
                   <Card 
                     title={<Text strong style={{ fontSize: 16, color: '#2b2b2b' }}>Báo cáo tiến độ</Text>}
-                    extra={
-                      <Tooltip title="Tùy chỉnh">
-                        <Button 
-                          type="text"
-                          icon={<EditOutlined />}
-                          style={{ color: '#6D7175' }}
-                        />
-                      </Tooltip>
-                    }
                     style={{ 
                       background: '#fff',
                       border: '1px solid #E1E3E5',
@@ -2249,7 +5056,7 @@ useEffect(() => {
                             </div>
                             <Progress 
                               percent={goal.percent} 
-                              strokeColor="#2684FF"
+                              strokeColor="#1677FF"
                               strokeWidth={10}
                               showInfo={false}
                             />
@@ -2372,7 +5179,7 @@ useEffect(() => {
                               gap: 6
                             }}>
                               {alertsData.errors.map((alert) => {
-                                const isExpanded = expandedAlerts.includes(alert.id);
+                                const isExpanded = expandedAlerts.has(alert.id);
                                 const guides = alertGuides[alert.id] || [];
                                 return (
                                   <div key={alert.id}>
@@ -2389,11 +5196,15 @@ useEffect(() => {
                                         gap: 8
                                       }}
                                       onClick={() => {
-                                        if (isExpanded) {
-                                          setExpandedAlerts(expandedAlerts.filter(id => id !== alert.id));
-                                        } else {
-                                          setExpandedAlerts([...expandedAlerts, alert.id]);
-                                        }
+                                        setExpandedAlerts(prev => {
+                                          const newSet = new Set(prev);
+                                          if (newSet.has(alert.id)) {
+                                            newSet.delete(alert.id);
+                                          } else {
+                                            newSet.add(alert.id);
+                                          }
+                                          return newSet;
+                                        });
                                       }}
                                       onMouseEnter={(e) => {
                                         e.currentTarget.style.background = '#FEE4E2';
@@ -2410,18 +5221,8 @@ useEffect(() => {
                                             color: '#2b2b2b',
                                             lineHeight: 1
                                           }}>
-                                            {alert.count}
+                                            {alert.value || alert.count}
                                           </span>
-                                          {alert.unit && (
-                                            <span style={{ 
-                                              fontSize: 13, 
-                                              fontWeight: 600, 
-                                              color: '#6D7175',
-                                              lineHeight: 1
-                                            }}>
-                                              {alert.unit}
-                                            </span>
-                                          )}
                                           <Text style={{ 
                                             fontSize: 13, 
                                             fontWeight: 500,
@@ -2518,7 +5319,7 @@ useEffect(() => {
                                                     transition: 'all 0.2s'
                                                   }}
                                                   onMouseEnter={(e) => {
-                                                    e.currentTarget.style.color = '#1890ff';
+                                                    e.currentTarget.style.color = '#1677FF';
                                                     e.currentTarget.style.transform = 'scale(1.1)';
                                                   }}
                                                   onMouseLeave={(e) => {
@@ -2567,7 +5368,7 @@ useEffect(() => {
                               gap: 6
                             }}>
                               {alertsData.warnings.map((alert) => {
-                                const isExpanded = expandedAlerts.includes(alert.id);
+                                const isExpanded = expandedAlerts.has(alert.id);
                                 const guides = alertGuides[alert.id] || [];
                                 return (
                                   <div key={alert.id}>
@@ -2584,11 +5385,15 @@ useEffect(() => {
                                         gap: 8
                                       }}
                                       onClick={() => {
-                                        if (isExpanded) {
-                                          setExpandedAlerts(expandedAlerts.filter(id => id !== alert.id));
-                                        } else {
-                                          setExpandedAlerts([...expandedAlerts, alert.id]);
-                                        }
+                                        setExpandedAlerts(prev => {
+                                          const newSet = new Set(prev);
+                                          if (newSet.has(alert.id)) {
+                                            newSet.delete(alert.id);
+                                          } else {
+                                            newSet.add(alert.id);
+                                          }
+                                          return newSet;
+                                        });
                                       }}
                                       onMouseEnter={(e) => {
                                         e.currentTarget.style.background = '#FFE8D7';
@@ -2605,18 +5410,9 @@ useEffect(() => {
                                             color: '#2b2b2b',
                                             lineHeight: 1
                                           }}>
-                                            {alert.count}
+                                            {alert.value || alert.count}
+                                            {alert.unit === '%' ? '%' : alert.unit ? ` ${alert.unit}` : ''}
                                           </span>
-                                          {alert.unit && (
-                                            <span style={{ 
-                                              fontSize: 13, 
-                                              fontWeight: 600, 
-                                              color: '#6D7175',
-                                              lineHeight: 1
-                                            }}>
-                                              {alert.unit}
-                                            </span>
-                                          )}
                                           <Text style={{ 
                                             fontSize: 13, 
                                             fontWeight: 500,
@@ -2713,7 +5509,7 @@ useEffect(() => {
                                                     transition: 'all 0.2s'
                                                   }}
                                                   onMouseEnter={(e) => {
-                                                    e.currentTarget.style.color = '#1890ff';
+                                                    e.currentTarget.style.color = '#1677FF';
                                                     e.currentTarget.style.transform = 'scale(1.1)';
                                                   }}
                                                   onMouseLeave={(e) => {
@@ -2799,7 +5595,7 @@ useEffect(() => {
                                 transition: 'all 0.2s'
                               }}
                               onMouseEnter={(e) => {
-                                e.currentTarget.style.color = '#1890ff';
+                                e.currentTarget.style.color = '#1677FF';
                                 e.currentTarget.style.transform = 'scale(1.1)';
                               }}
                               onMouseLeave={(e) => {
@@ -2816,222 +5612,20 @@ useEffect(() => {
                 </Space>
               </Col>
             </Row>
+            </>
+            ) : activeModule === 'workspace-settings' ? (
+              renderWorkspaceSettings()
+            ) : activeModule === 'template-create' ? (
+              renderTemplateBuilderScreen()
+            ) : (
+              <div style={{ padding: 64 }}>
+                <Empty description="Module đang được phát triển" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+              </div>
+            )}
           </Content>
         </Layout>
       </Layout>
       
-      {/* Parent Modal - Chọn template */}
-      <Modal
-        title="Chọn template"
-        open={customizeModalVisible}
-        onCancel={() => setCustomizeModalVisible(false)}
-        footer={[
-          <Button key="cancel" onClick={() => setCustomizeModalVisible(false)}>
-            Đóng
-          </Button>,
-          <Button key="save" type="primary" onClick={() => {
-            message.success('Đã áp dụng template!');
-            setCustomizeModalVisible(false);
-          }}>
-            Lưu thay đổi
-          </Button>
-        ]}
-        width={800}
-      >
-        {/* Default Templates Section */}
-        <div style={{ marginBottom: 32 }}>
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
-            alignItems: 'center', 
-            marginBottom: 16,
-            gap: 12,
-            flexWrap: 'wrap'
-          }}>
-            <Text strong style={{ fontSize: 14, color: '#2b2b2b', display: 'block' }}>
-              Templates có sẵn
-            </Text>
-            <Button 
-              type="text" 
-              icon={<PlusOutlined />} 
-              onClick={handleOpenCreateModal}
-              style={{ color: '#1677FF', fontWeight: 600 }}
-            >
-              Tạo template
-            </Button>
-          </div>
-          <Radio.Group 
-            value={selectedTemplateId} 
-            onChange={(e) => setSelectedTemplateId(e.target.value)}
-            style={{ width: '100%' }}
-          >
-            <Space direction="vertical" style={{ width: '100%' }} size={8}>
-              {templates.filter(t => t.isDefault).map(template => (
-                <div key={template.id}>
-                  <div style={{ 
-                    display: 'flex', 
-                    alignItems: 'center',
-                    padding: '12px 16px',
-                    background: selectedTemplateId === template.id ? '#F0F5FF' : '#FAFBFB',
-                    border: selectedTemplateId === template.id ? '1px solid #2684FF' : '1px solid #E1E3E5',
-                    borderRadius: 8,
-                    cursor: 'pointer',
-                    transition: 'all 0.2s'
-                  }}
-                  onClick={() => setSelectedTemplateId(template.id)}
-                  >
-                    <Radio value={template.id} style={{ marginRight: 12 }} />
-                    <div style={{ flex: 1 }}>
-                      <Space>
-                        <Text strong style={{ fontSize: 14 }}>{template.name}</Text>
-                        <Text type="secondary" style={{ fontSize: 12 }}>
-                          {template.metrics.length} metrics
-                        </Text>
-                      </Space>
-                    </div>
-                    <Tooltip title="Tạo mới từ template">
-                      <Button
-                        type="text"
-                        icon={<AppstoreAddOutlined />}
-                        size="small"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleCloneTemplate(template);
-                        }}
-                        style={{ color: '#6D7175' }}
-                      />
-                    </Tooltip>
-                  </div>
-                  {selectedTemplateId === template.id && (
-                    <div style={{ 
-                      padding: '12px 16px 12px 44px',
-                      background: '#F9FAFB',
-                      borderLeft: '2px solid #2684FF',
-                      marginTop: 4,
-                      borderRadius: '0 0 8px 8px'
-                    }}>
-                      <Row gutter={[8, 8]}>
-                        {template.metrics.map(metricId => {
-                          const metric = allMetricsPool.find(m => m.id === metricId);
-                          return metric ? (
-                            <Col span={12} key={metric.id}>
-                              <Tag color="blue" style={{ fontSize: 11, marginBottom: 4 }}>
-                                {metric.domain}
-                              </Tag>
-                              <Text style={{ fontSize: 12, display: 'block' }}>{metric.name}</Text>
-                            </Col>
-                          ) : null;
-                        })}
-                      </Row>
-                    </div>
-                  )}
-                </div>
-              ))}
-            </Space>
-          </Radio.Group>
-        </div>
-
-        {/* Custom Templates Section */}
-        {templates.filter(t => !t.isDefault).length > 0 && (
-          <div>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-              <Text strong style={{ fontSize: 14, color: '#2b2b2b' }}>
-                Templates của tôi
-              </Text>
-            </div>
-            <Radio.Group 
-              value={selectedTemplateId} 
-              onChange={(e) => setSelectedTemplateId(e.target.value)}
-              style={{ width: '100%' }}
-            >
-              <Space direction="vertical" style={{ width: '100%' }} size={8}>
-                {templates.filter(t => !t.isDefault).map(template => (
-                  <div key={template.id}>
-                    <div style={{ 
-                      display: 'flex', 
-                      alignItems: 'center',
-                      padding: '12px 16px',
-                      background: selectedTemplateId === template.id ? '#F0F5FF' : '#FAFBFB',
-                      border: selectedTemplateId === template.id ? '1px solid #2684FF' : '1px solid #E1E3E5',
-                      borderRadius: 8,
-                      cursor: 'pointer',
-                      transition: 'all 0.2s'
-                    }}
-                    onClick={() => setSelectedTemplateId(template.id)}
-                    >
-                      <Radio value={template.id} style={{ marginRight: 12 }} />
-                      <div style={{ flex: 1 }}>
-                        <Space>
-                          <Text strong style={{ fontSize: 14 }}>{template.name}</Text>
-                          <Text type="secondary" style={{ fontSize: 12 }}>
-                            {template.metrics.length} metrics
-                          </Text>
-                        </Space>
-                      </div>
-                      <Space>
-                        <Tooltip title="Tạo mới từ template">
-                          <Button
-                            type="text"
-                            icon={<AppstoreAddOutlined />}
-                            size="small"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleCloneTemplate(template);
-                            }}
-                            style={{ color: '#6D7175' }}
-                          />
-                        </Tooltip>
-                        <Tooltip title="Xóa">
-                          <Button
-                            type="text"
-                            icon={<DeleteOutlined />}
-                            size="small"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              Modal.confirm({
-                                title: 'Xóa template này?',
-                                content: 'Hành động không thể hoàn tác.',
-                                okText: 'Xóa',
-                                cancelText: 'Hủy',
-                                okButtonProps: { danger: true },
-                                onOk: handleDeleteTemplate
-                              });
-                            }}
-                            style={{ color: '#6D7175' }}
-                          />
-                        </Tooltip>
-                      </Space>
-                    </div>
-                    {selectedTemplateId === template.id && (
-                      <div style={{ 
-                        padding: '12px 16px 12px 44px',
-                        background: '#F9FAFB',
-                        borderLeft: '2px solid #2684FF',
-                        marginTop: 4,
-                        borderRadius: '0 0 8px 8px'
-                      }}>
-                        <Row gutter={[8, 8]}>
-                          {template.metrics.map(metricId => {
-                            const metric = allMetricsPool.find(m => m.id === metricId);
-                            return metric ? (
-                              <Col span={12} key={metric.id}>
-                                <Tag color="blue" style={{ fontSize: 11, marginBottom: 4 }}>
-                                  {metric.domain}
-                                </Tag>
-                                <Text style={{ fontSize: 12, display: 'block' }}>{metric.name}</Text>
-                              </Col>
-                            ) : null;
-                          })}
-                        </Row>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </Space>
-            </Radio.Group>
-          </div>
-        )}
-      </Modal>
 
       {/* Child Modal - Tạo Template Mới */}
       <Modal
@@ -3043,12 +5637,19 @@ useEffect(() => {
             Hủy
           </Button>,
           <Button 
-            key="save" 
-            type="primary" 
-            onClick={handleCreateTemplate}
+            key="draft" 
+            onClick={() => handleCreateTemplate(false)}
             disabled={!newTemplateName.trim() || selectedMetrics.length === 0}
           >
-            Lưu template mới ({selectedMetrics.length} metrics)
+            Lưu nháp
+          </Button>,
+          <Button 
+            key="save" 
+            type="primary" 
+            onClick={() => handleCreateTemplate(true)}
+            disabled={!newTemplateName.trim() || selectedMetrics.length === 0}
+          >
+            Lưu & Sử dụng ({selectedMetrics.length} metrics)
           </Button>
         ]}
         width={1200}
@@ -3239,12 +5840,19 @@ useEffect(() => {
             Hủy
           </Button>,
           <Button 
-            key="save" 
-            type="primary" 
-            onClick={handleEditTemplate}
+            key="draft" 
+            onClick={() => handleEditTemplate(false)}
             disabled={!newTemplateName.trim() || selectedMetrics.length === 0}
           >
-            Lưu thay đổi ({selectedMetrics.length} metrics)
+            Lưu nháp
+          </Button>,
+          <Button 
+            key="save" 
+            type="primary" 
+            onClick={() => handleEditTemplate(true)}
+            disabled={!newTemplateName.trim() || selectedMetrics.length === 0}
+          >
+            Lưu & Sử dụng ({selectedMetrics.length} metrics)
           </Button>
         ]}
         width={1000}
@@ -3457,12 +6065,12 @@ useEffect(() => {
         {/* Contextual Insights */}
         <Card 
           size="small" 
-          style={{ marginBottom: 16, borderLeft: '3px solid #1890ff', background: '#f0f5ff' }}
+          style={{ marginBottom: 16, borderLeft: '3px solid #1677FF', background: '#f0f5ff' }}
         >
           <Space direction="vertical" size="small" style={{ width: '100%' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <ThunderboltOutlined style={{ color: '#1890ff', fontSize: 18 }} />
-              <Text strong style={{ color: '#1890ff' }}>Insight nổi bật</Text>
+              <ThunderboltOutlined style={{ color: '#1677FF', fontSize: 18 }} />
+              <Text strong style={{ color: '#1677FF' }}>Insight nổi bật</Text>
             </div>
             <Title level={5} style={{ margin: '8px 0' }}>
               GMV tăng 12.5% so với hôm trước
@@ -3893,7 +6501,7 @@ useEffect(() => {
                                 </div>
                                 <Progress 
                                   percent={goal.percent} 
-                                  strokeColor="#2684FF"
+                                  strokeColor="#1677FF"
                                   strokeWidth={10}
                                   showInfo={false}
                                 />
@@ -4452,6 +7060,79 @@ useEffect(() => {
           </Col>
         </Row>
       </Modal>
+
+      {/* Template Gallery Modal */}
+      <Modal
+        title="Template mẫu"
+        open={templateGalleryVisible}
+        onCancel={() => setTemplateGalleryVisible(false)}
+        footer={null}
+        width={960}
+      >
+        <Space direction="vertical" size={16} style={{ width: '100%' }}>
+          <Text type="secondary">
+            Chọn template mẫu để tạo workspace mới. Bạn có thể preview trước khi áp dụng.
+          </Text>
+          <Row gutter={[16, 16]}>
+            {templateWorkspaces.map(template => (
+              <Col xs={24} md={12} key={template.id}>
+                <Card
+                  hoverable
+                  style={{
+                    borderRadius: 16,
+                    border: '1px solid #E1E3E5',
+                    boxShadow: '0 8px 24px rgba(15,23,42,0.08)'
+                  }}
+                >
+                  <Space direction="vertical" size={8} style={{ width: '100%' }}>
+                    <Title level={4} style={{ margin: 0 }}>{template.name}</Title>
+                    <Text type="secondary">{template.description}</Text>
+                    <Space>
+                      <Button 
+                        icon={<EyeOutlined />} 
+                        onClick={() => handleOpenPreview(template.templateId || template.id, 'gallery')}
+                      >
+                        Xem trước
+                      </Button>
+                      <Button 
+                        type="primary" 
+                        icon={<PlusOutlined />} 
+                        onClick={() => {
+                          handleCreateFromTemplate(template);
+                          setTemplateGalleryVisible(false);
+                        }}
+                      >
+                        Sử dụng
+                      </Button>
+                    </Space>
+                  </Space>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        </Space>
+      </Modal>
+
+      {/* Template Preview Modal */}
+      <Modal
+        title={previewModalTitle ? `Xem trước: ${previewModalTitle}` : 'Xem trước template'}
+        open={previewTemplateModalVisible}
+        onCancel={handleClosePreview}
+        footer={[
+          <Button key="back" onClick={handleClosePreview}>
+            Quay lại
+          </Button>,
+          <Button key="customize" onClick={handleCustomizePreviewTemplate}>
+            Tùy chỉnh
+          </Button>,
+          <Button key="apply" type="primary" onClick={handleUsePreviewTemplate}>
+            {previewContext === 'gallery' ? 'Sử dụng' : 'Áp dụng'}
+          </Button>
+        ]}
+        width={960}
+      >
+        {previewTemplateId ? renderTemplatePreviewContent(previewTemplateId) : <Empty description="Chưa chọn template" />}
+      </Modal>
       
       {/* Delete Confirmation Modal */}
       <Modal
@@ -4474,7 +7155,9 @@ useEffect(() => {
           Hành động này không thể hoàn tác.
         </Text>
       </Modal>
-    </Layout>
+        </Layout>
+      )}
+    </>
   );
 };
 

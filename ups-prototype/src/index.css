@@ -65,4 +65,57 @@
   transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1) !important;
 }
 
+/* Primary button color override */
+:root {
+  --ups-primary: #FF5629;
+  --ups-primary-hover: #ff6b45;
+  --ups-primary-active: #e64b21;
+}
+
+.ant-btn-primary {
+  background-color: var(--ups-primary) !important;
+  border-color: var(--ups-primary) !important;
+}
+
+.ant-btn-primary:hover,
+.ant-btn-primary:focus {
+  background-color: var(--ups-primary-hover) !important;
+  border-color: var(--ups-primary-hover) !important;
+}
+
+.ant-btn-primary:active {
+  background-color: var(--ups-primary-active) !important;
+  border-color: var(--ups-primary-active) !important;
+}
+
+.ant-btn-primary:disabled,
+.ant-btn-primary[disabled],
+.ant-btn-primary:disabled:hover,
+.ant-btn-primary[disabled]:hover,
+.ant-btn-primary:disabled:focus,
+.ant-btn-primary[disabled]:focus {
+  background-color: #d9d9d9 !important;
+  border-color: #d9d9d9 !important;
+  color: rgba(0, 0, 0, 0.25) !important;
+}
+
+/* Custom primary checkbox color */
+.custom-primary-checkbox .ant-checkbox-checked .ant-checkbox-inner {
+  background-color: var(--ups-primary) !important;
+  border-color: var(--ups-primary) !important;
+}
+
+.custom-primary-checkbox .ant-checkbox:hover .ant-checkbox-inner {
+  border-color: var(--ups-primary) !important;
+}
+
+.custom-primary-checkbox .ant-checkbox-checked:hover .ant-checkbox-inner {
+  background-color: var(--ups-primary-hover) !important;
+  border-color: var(--ups-primary-hover) !important;
+}
+
+.custom-primary-checkbox .ant-checkbox-input:focus + .ant-checkbox-inner {
+  border-color: var(--ups-primary) !important;
+}
+
 
