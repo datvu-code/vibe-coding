@@ -16,6 +16,6 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: ['react', 'react-dom', 'antd', 'recharts']
-  }
+    }
 })
 
