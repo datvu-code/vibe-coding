@@ -17,7 +17,7 @@ import {
   TagsOutlined, InfoCircleOutlined, ThunderboltOutlined, ClockCircleOutlined,
   ExclamationCircleOutlined, FireOutlined, BookOutlined,
   ShopOutlined, ExportOutlined,
-  ArrowsAltOutlined, LeftOutlined, EllipsisOutlined
+  ArrowsAltOutlined, LeftOutlined, EllipsisOutlined, LinkOutlined
 } from '@ant-design/icons';
 import { LineChart, Line as RechartLine, BarChart, Bar, PieChart, Pie as RechartPie, AreaChart, Area as RechartArea, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import dayjs from 'dayjs';
@@ -1214,11 +1214,17 @@ const HomepageLayout = () => {
     'tin-tuc': 'Tin tức'
   };
   const [sectionTitles, setSectionTitles] = useState({});
+  const [sectionLinks, setSectionLinks] = useState({}); // Store links for each section
   const [sectionMetrics, setSectionMetrics] = useState({});
   const [metricOverlayVisible, setMetricOverlayVisible] = useState(false);
   const [currentSectionForMetric, setCurrentSectionForMetric] = useState(null);
   const [editingSectionTitle, setEditingSectionTitle] = useState(null);
   const [hoveredSectionTitle, setHoveredSectionTitle] = useState(null);
+  const [linkOverlayVisible, setLinkOverlayVisible] = useState(false);
+  const [editingSectionLink, setEditingSectionLink] = useState(null); // Section ID being edited
+  const [linkInputValue, setLinkInputValue] = useState(''); // Link input value
+  const [linkOverlayPosition, setLinkOverlayPosition] = useState({ top: 0, left: 0 });
+  const [linkButtonRef, setLinkButtonRef] = useState(null);
   const [alertSectionActiveTab, setAlertSectionActiveTab] = useState({}); // Track active tab for each alert section
   const [overlayButtonRef, setOverlayButtonRef] = useState(null);
   const [overlayPosition, setOverlayPosition] = useState({ x: 0, y: 0 });
@@ -1269,6 +1275,30 @@ const HomepageLayout = () => {
       clearInterval(interval);
     };
   }, [sectionLayout, sectionMetrics]);
+
+  // Update link overlay position when scrolling or resizing
+  useEffect(() => {
+    if (!linkOverlayVisible || !linkButtonRef) return;
+
+    const updatePosition = () => {
+      if (linkButtonRef) {
+        const buttonRect = linkButtonRef.getBoundingClientRect();
+        setLinkOverlayPosition({
+          top: buttonRect.bottom + 4,
+          left: buttonRect.left
+        });
+      }
+    };
+
+    updatePosition();
+    window.addEventListener('scroll', updatePosition, true);
+    window.addEventListener('resize', updatePosition);
+
+    return () => {
+      window.removeEventListener('scroll', updatePosition, true);
+      window.removeEventListener('resize', updatePosition);
+    };
+  }, [linkOverlayVisible, linkButtonRef]);
 
   // Handle overlay dragging with smooth animation
   useEffect(() => {
@@ -2723,8 +2753,16 @@ const HomepageLayout = () => {
               }
             };
             return (
-              <List.Item style={{ padding: '8px 0' }}>
+              <List.Item 
+                style={{ 
+                  padding: '8px 0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between'
+                }}
+              >
                 <List.Item.Meta
+                  style={{ flex: 1 }}
                   avatar={
                     <div style={{ 
                       width: 24, 
@@ -2742,6 +2780,24 @@ const HomepageLayout = () => {
                   }
                   title={<Text style={{ fontSize: 12 }}>{item.title}</Text>}
                   description={<Text type="secondary" style={{ fontSize: 11 }}>{item.date}</Text>}
+                />
+                <ExportOutlined
+                  style={{
+                    fontSize: 10,
+                    color: '#8c8c8c',
+                    transition: 'all 0.2s',
+                    cursor: 'pointer',
+                    flexShrink: 0,
+                    marginLeft: 8
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = '#1677FF';
+                    e.currentTarget.style.transform = 'scale(1.1)';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = '#8c8c8c';
+                    e.currentTarget.style.transform = 'scale(1)';
+                  }}
                 />
               </List.Item>
             );
@@ -2844,6 +2900,34 @@ const HomepageLayout = () => {
                 Thêm chỉ số
               </Button>
             )}
+            <Tooltip title={sectionLinks[sectionType] ? `Link: ${sectionLinks[sectionType]}` : 'Thêm link'}>
+              <Button
+                ref={(el) => {
+                  if (el && editingSectionLink === sectionId) {
+                    setLinkButtonRef(el);
+                  }
+                }}
+                type="text"
+                size="small"
+                icon={<LinkOutlined />}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const buttonRect = e.currentTarget.getBoundingClientRect();
+                  setEditingSectionLink(sectionId);
+                  setLinkInputValue(sectionLinks[sectionType] || '');
+                  setLinkOverlayPosition({
+                    top: buttonRect.bottom + 4,
+                    left: buttonRect.left
+                  });
+                  setLinkButtonRef(e.currentTarget);
+                  setLinkOverlayVisible(true);
+                }}
+                style={{ 
+                  color: sectionLinks[sectionType] ? '#1677FF' : '#8c8c8c',
+                  fontSize: 12
+                }}
+              />
+            </Tooltip>
             <Button
               type="text"
               size="small"
@@ -3370,6 +3454,94 @@ const HomepageLayout = () => {
         </div>
 
         </div>
+        {/* Overlay for editing section link */}
+        {linkOverlayVisible && editingSectionLink && (
+          <>
+            {/* Backdrop */}
+            <div
+              style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                zIndex: 9999,
+                background: 'transparent'
+              }}
+              onClick={() => {
+                setLinkOverlayVisible(false);
+                setEditingSectionLink(null);
+                setLinkInputValue('');
+              }}
+            />
+            {/* Overlay */}
+            <div
+              style={{
+                position: 'fixed',
+                top: linkOverlayPosition.top,
+                left: linkOverlayPosition.left,
+                zIndex: 10000,
+                background: '#fff',
+                border: '1px solid #E1E3E5',
+                borderRadius: 8,
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+                padding: 16,
+                minWidth: 300,
+                maxWidth: 400
+              }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div style={{ marginBottom: 12 }}>
+                <Text style={{ display: 'block', marginBottom: 8, fontSize: 13 }}>URL:</Text>
+                <Input
+                  placeholder="Nhập link (ví dụ: https://example.com)"
+                  value={linkInputValue}
+                  onChange={(e) => setLinkInputValue(e.target.value)}
+                  onPressEnter={() => {
+                    if (editingSectionLink) {
+                      const sectionKey = getSectionType(editingSectionLink);
+                      setSectionLinks(prev => ({
+                        ...prev,
+                        [sectionKey]: linkInputValue.trim()
+                      }));
+                      setLinkOverlayVisible(false);
+                      setEditingSectionLink(null);
+                      setLinkInputValue('');
+                    }
+                  }}
+                  autoFocus
+                />
+                {editingSectionLink && sectionLinks[getSectionType(editingSectionLink)] && (
+                  <div style={{ marginTop: 8, padding: 8, background: '#f5f5f5', borderRadius: 4 }}>
+                    <Text type="secondary" style={{ fontSize: 11 }}>
+                      Link hiện tại: <a href={sectionLinks[getSectionType(editingSectionLink)]} target="_blank" rel="noopener noreferrer">{sectionLinks[getSectionType(editingSectionLink)]}</a>
+                    </Text>
+                  </div>
+                )}
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8 }}>
+                <Button
+                  type="primary"
+                  size="small"
+                  onClick={() => {
+                    if (editingSectionLink) {
+                      const sectionKey = getSectionType(editingSectionLink);
+                      setSectionLinks(prev => ({
+                        ...prev,
+                        [sectionKey]: linkInputValue.trim()
+                      }));
+                      setLinkOverlayVisible(false);
+                      setEditingSectionLink(null);
+                      setLinkInputValue('');
+                    }
+                  }}
+                >
+                  Lưu
+                </Button>
+              </div>
+            </div>
+          </>
+        )}
       </>
     );
   };
@@ -3494,6 +3666,9 @@ const HomepageLayout = () => {
           ...templateSource.sectionTitles
         };
       }
+      if (templateSource.sectionLinks) {
+        setSectionLinks(templateSource.sectionLinks);
+      }
     } else {
       const flags = templateSource.layout || { showDashboard: true, showAlerts: true, showGuides: true };
       nextSectionLayout = buildSectionLayoutFromFlags(flags);
@@ -3610,7 +3785,8 @@ const HomepageLayout = () => {
       createdAt: dayjs().format('DD/MM/YYYY'),
       sectionLayout: sectionLayout,
       sectionTitles: sectionTitles,
-      sectionMetrics: sectionMetrics
+      sectionMetrics: sectionMetrics,
+      sectionLinks: sectionLinks
     };
     setTemplates((prev) => [...prev, newTemplate]);
     if (applyImmediately) {
@@ -4992,7 +5168,14 @@ useEffect(() => {
                       background: '#fff',
                       border: '1px solid #E1E3E5',
                       borderRadius: 16,
-                      boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)'
+                      boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)',
+                      cursor: selectedTemplate?.sectionLinks?.['bao-cao'] ? 'pointer' : 'default'
+                    }}
+                    onClick={() => {
+                      const link = selectedTemplate?.sectionLinks?.['bao-cao'];
+                      if (link && !isReorderMode) {
+                        window.open(link, '_blank', 'noopener,noreferrer');
+                      }
                     }}
                   >
                     {isReorderMode ? (
@@ -5143,7 +5326,14 @@ useEffect(() => {
                       background: '#fff',
                       border: '1px solid #E1E3E5',
                       borderRadius: 12,
-                      boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)'
+                      boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)',
+                      cursor: selectedTemplate?.sectionLinks?.['loi-canh-bao'] ? 'pointer' : 'default'
+                    }}
+                    onClick={() => {
+                      const link = selectedTemplate?.sectionLinks?.['loi-canh-bao'];
+                      if (link) {
+                        window.open(link, '_blank', 'noopener,noreferrer');
+                      }
                     }}
                   >
                     <Tabs 
@@ -5539,12 +5729,27 @@ useEffect(() => {
                   <Card 
                     title={<Text strong style={{ fontSize: 14, color: '#2b2b2b' }}>Có thể bạn quan tâm</Text>}
                     size="small"
-                    extra={<Button type="link" size="small">Tất cả</Button>}
+                    extra={
+                      <Button 
+                        type="link" 
+                        size="small"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        Tất cả
+                      </Button>
+                    }
                     style={{ 
                       background: '#fff',
                       border: '1px solid #E1E3E5',
                       borderRadius: 12,
-                      boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)'
+                      boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)',
+                      cursor: selectedTemplate?.sectionLinks?.['tin-tuc'] ? 'pointer' : 'default'
+                    }}
+                    onClick={() => {
+                      const link = selectedTemplate?.sectionLinks?.['tin-tuc'];
+                      if (link) {
+                        window.open(link, '_blank', 'noopener,noreferrer');
+                      }
                     }}
                   >
                     <List
