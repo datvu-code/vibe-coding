@@ -118,4 +118,15 @@
   border-color: var(--ups-primary) !important;
 }
 
+/* Xem thêm link color */
+.xem-them-link,
+.ant-btn-link.xem-them-link {
+  color: #1677FF !important;
+}
+
+.ant-btn-link.xem-them-link:hover,
+.ant-btn-link.xem-them-link:focus {
+  color: #4096ff !important;
+}
+
 

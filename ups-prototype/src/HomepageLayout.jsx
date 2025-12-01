@@ -1222,7 +1222,8 @@ const HomepageLayout = () => {
   const [hoveredSectionTitle, setHoveredSectionTitle] = useState(null);
   const [linkOverlayVisible, setLinkOverlayVisible] = useState(false);
   const [editingSectionLink, setEditingSectionLink] = useState(null); // Section ID being edited
-  const [linkInputValue, setLinkInputValue] = useState(''); // Link input value
+  const [linkInputValue, setLinkInputValue] = useState(''); // Link URL input value
+  const [linkTextValue, setLinkTextValue] = useState('Xem thêm'); // Link text input value
   const [linkOverlayPosition, setLinkOverlayPosition] = useState({ top: 0, left: 0 });
   const [linkButtonRef, setLinkButtonRef] = useState(null);
   const [alertSectionActiveTab, setAlertSectionActiveTab] = useState({}); // Track active tab for each alert section
@@ -2900,7 +2901,7 @@ const HomepageLayout = () => {
                 Thêm chỉ số
               </Button>
             )}
-            <Tooltip title={sectionLinks[sectionType] ? `Link: ${sectionLinks[sectionType]}` : 'Thêm link'}>
+            <Tooltip title={sectionLinks[sectionType] ? `Link: ${typeof sectionLinks[sectionType] === 'object' ? sectionLinks[sectionType].url : sectionLinks[sectionType]}` : 'Thêm link'}>
               <Button
                 ref={(el) => {
                   if (el && editingSectionLink === sectionId) {
@@ -2914,7 +2915,9 @@ const HomepageLayout = () => {
                   e.stopPropagation();
                   const buttonRect = e.currentTarget.getBoundingClientRect();
                   setEditingSectionLink(sectionId);
-                  setLinkInputValue(sectionLinks[sectionType] || '');
+                  const currentLink = sectionLinks[sectionType];
+                  setLinkInputValue(typeof currentLink === 'object' ? (currentLink?.url || '') : (currentLink || ''));
+                  setLinkTextValue(typeof currentLink === 'object' ? (currentLink?.text || 'Xem thêm') : 'Xem thêm');
                   setLinkOverlayPosition({
                     top: buttonRect.bottom + 4,
                     left: buttonRect.left
@@ -3472,6 +3475,7 @@ const HomepageLayout = () => {
                 setLinkOverlayVisible(false);
                 setEditingSectionLink(null);
                 setLinkInputValue('');
+                setLinkTextValue('Xem thêm');
               }}
             />
             {/* Overlay */}
@@ -3497,24 +3501,35 @@ const HomepageLayout = () => {
                   placeholder="Nhập link (ví dụ: https://example.com)"
                   value={linkInputValue}
                   onChange={(e) => setLinkInputValue(e.target.value)}
+                  style={{ marginBottom: 12 }}
+                  autoFocus
+                />
+                <Text style={{ display: 'block', marginBottom: 8, fontSize: 13 }}>Text hiển thị:</Text>
+                <Input
+                  placeholder="Xem thêm"
+                  value={linkTextValue}
+                  onChange={(e) => setLinkTextValue(e.target.value)}
                   onPressEnter={() => {
-                    if (editingSectionLink) {
+                    if (editingSectionLink && linkInputValue.trim()) {
                       const sectionKey = getSectionType(editingSectionLink);
                       setSectionLinks(prev => ({
                         ...prev,
-                        [sectionKey]: linkInputValue.trim()
+                        [sectionKey]: {
+                          url: linkInputValue.trim(),
+                          text: linkTextValue.trim() || 'Xem thêm'
+                        }
                       }));
                       setLinkOverlayVisible(false);
                       setEditingSectionLink(null);
                       setLinkInputValue('');
+                      setLinkTextValue('Xem thêm');
                     }
                   }}
-                  autoFocus
                 />
                 {editingSectionLink && sectionLinks[getSectionType(editingSectionLink)] && (
-                  <div style={{ marginTop: 8, padding: 8, background: '#f5f5f5', borderRadius: 4 }}>
+                  <div style={{ marginTop: 12, padding: 8, background: '#f5f5f5', borderRadius: 4 }}>
                     <Text type="secondary" style={{ fontSize: 11 }}>
-                      Link hiện tại: <a href={sectionLinks[getSectionType(editingSectionLink)]} target="_blank" rel="noopener noreferrer">{sectionLinks[getSectionType(editingSectionLink)]}</a>
+                      Link hiện tại: <a href={typeof sectionLinks[getSectionType(editingSectionLink)] === 'object' ? sectionLinks[getSectionType(editingSectionLink)].url : sectionLinks[getSectionType(editingSectionLink)]} target="_blank" rel="noopener noreferrer">{typeof sectionLinks[getSectionType(editingSectionLink)] === 'object' ? sectionLinks[getSectionType(editingSectionLink)].url : sectionLinks[getSectionType(editingSectionLink)]}</a>
                     </Text>
                   </div>
                 )}
@@ -3524,15 +3539,19 @@ const HomepageLayout = () => {
                   type="primary"
                   size="small"
                   onClick={() => {
-                    if (editingSectionLink) {
+                    if (editingSectionLink && linkInputValue.trim()) {
                       const sectionKey = getSectionType(editingSectionLink);
                       setSectionLinks(prev => ({
                         ...prev,
-                        [sectionKey]: linkInputValue.trim()
+                        [sectionKey]: {
+                          url: linkInputValue.trim(),
+                          text: linkTextValue.trim() || 'Xem thêm'
+                        }
                       }));
                       setLinkOverlayVisible(false);
                       setEditingSectionLink(null);
                       setLinkInputValue('');
+                      setLinkTextValue('Xem thêm');
                     }
                   }}
                 >
@@ -5162,20 +5181,33 @@ useEffect(() => {
                             Lưu sắp xếp
                           </Button>
                         </Space>
-                      ) : null
+                      ) : (() => {
+                        const linkData = selectedTemplate?.sectionLinks?.['bao-cao'];
+                        const linkUrl = typeof linkData === 'object' ? linkData?.url : linkData;
+                        const linkText = typeof linkData === 'object' ? (linkData?.text || 'Xem thêm') : 'Xem thêm';
+                        return (
+                          <Button
+                            type="link"
+                            size="small"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (linkUrl) {
+                                window.open(linkUrl, '_blank', 'noopener,noreferrer');
+                              }
+                            }}
+                            style={{ padding: 0 }}
+                            className="xem-them-link"
+                          >
+                            {linkText}
+                          </Button>
+                        );
+                      })()
                     }
                     style={{ 
                       background: '#fff',
                       border: '1px solid #E1E3E5',
                       borderRadius: 16,
-                      boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)',
-                      cursor: selectedTemplate?.sectionLinks?.['bao-cao'] ? 'pointer' : 'default'
-                    }}
-                    onClick={() => {
-                      const link = selectedTemplate?.sectionLinks?.['bao-cao'];
-                      if (link && !isReorderMode) {
-                        window.open(link, '_blank', 'noopener,noreferrer');
-                      }
+                      boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)'
                     }}
                   >
                     {isReorderMode ? (
@@ -5215,6 +5247,27 @@ useEffect(() => {
                   {(selectedWorkspace?.layout?.showDashboard !== false && selectedWorkspace) && (
                   <Card 
                     title={<Text strong style={{ fontSize: 16, color: '#2b2b2b' }}>Báo cáo tiến độ</Text>}
+                    extra={(() => {
+                      const linkData = selectedTemplate?.sectionLinks?.['bao-cao'];
+                      const linkUrl = typeof linkData === 'object' ? linkData?.url : linkData;
+                      const linkText = typeof linkData === 'object' ? (linkData?.text || 'Xem thêm') : 'Xem thêm';
+                      return (
+                        <Button
+                          type="link"
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (linkUrl) {
+                              window.open(linkUrl, '_blank', 'noopener,noreferrer');
+                            }
+                          }}
+                          style={{ padding: 0 }}
+                          className="xem-them-link"
+                        >
+                          {linkText}
+                        </Button>
+                      );
+                    })()}
                     style={{ 
                       background: '#fff',
                       border: '1px solid #E1E3E5',
@@ -5730,26 +5783,39 @@ useEffect(() => {
                     title={<Text strong style={{ fontSize: 14, color: '#2b2b2b' }}>Có thể bạn quan tâm</Text>}
                     size="small"
                     extra={
-                      <Button 
-                        type="link" 
-                        size="small"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        Tất cả
-                      </Button>
+                      (() => {
+                        const linkData = selectedTemplate?.sectionLinks?.['tin-tuc'];
+                        const linkUrl = typeof linkData === 'object' ? linkData?.url : linkData;
+                        const linkText = typeof linkData === 'object' ? (linkData?.text || 'Xem thêm') : 'Xem thêm';
+                        return linkUrl ? (
+                          <Button
+                            type="link"
+                            size="small"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              window.open(linkUrl, '_blank', 'noopener,noreferrer');
+                            }}
+                            style={{ padding: 0 }}
+                            className="xem-them-link"
+                          >
+                            {linkText}
+                          </Button>
+                        ) : (
+                          <Button 
+                            type="link" 
+                            size="small"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            Tất cả
+                          </Button>
+                        );
+                      })()
                     }
                     style={{ 
                       background: '#fff',
                       border: '1px solid #E1E3E5',
                       borderRadius: 12,
-                      boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)',
-                      cursor: selectedTemplate?.sectionLinks?.['tin-tuc'] ? 'pointer' : 'default'
-                    }}
-                    onClick={() => {
-                      const link = selectedTemplate?.sectionLinks?.['tin-tuc'];
-                      if (link) {
-                        window.open(link, '_blank', 'noopener,noreferrer');
-                      }
+                      boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)'
                     }}
                   >
                     <List
