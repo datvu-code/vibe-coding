@@ -1173,6 +1173,7 @@ const HomepageLayout = () => {
   
   // Modal States
   const [newTemplateName, setNewTemplateName] = useState('');
+  const [templateDateRange, setTemplateDateRange] = useState(null); // [startDate, endDate]
   const [selectedMetrics, setSelectedMetrics] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [previewBlocks, setPreviewBlocks] = useState([]);
@@ -3374,6 +3375,23 @@ const HomepageLayout = () => {
             <Text strong style={{ fontSize: 16 }}>Xem trước</Text>
           </div>
 
+          {/* Date Range */}
+          <div style={{
+            padding: '12px 24px',
+            borderBottom: '1px solid #E1E3E5',
+            background: '#fff',
+            display: 'flex',
+            justifyContent: 'flex-start',
+            alignItems: 'center'
+          }}>
+            <RangePicker
+              value={templateDateRange}
+              onChange={(dates) => setTemplateDateRange(dates)}
+              placeholder={['Từ ngày', 'Đến ngày']}
+              format="DD/MM/YYYY"
+            />
+          </div>
+
           {/* Grid Canvas */}
           <div 
             id="grid-canvas-container"
@@ -3704,6 +3722,16 @@ const HomepageLayout = () => {
       'loi-canh-bao': [],
       'tin-tuc': []
     }));
+    
+    // Load date range if exists
+    if (templateSource.dateRange && Array.isArray(templateSource.dateRange) && templateSource.dateRange.length === 2) {
+      setTemplateDateRange([
+        dayjs(templateSource.dateRange[0]),
+        dayjs(templateSource.dateRange[1])
+      ]);
+    } else {
+      setTemplateDateRange(null);
+    }
 
     const newChartTypes = {};
     (nextSectionMetrics['bao-cao'] || []).forEach(metricId => {
@@ -3739,6 +3767,7 @@ const HomepageLayout = () => {
 
   const resetTemplateBuilder = () => {
     setNewTemplateName('');
+    setTemplateDateRange(null);
     setBuilderTemplateName('');
     setBuilderReports([]);
     setBuilderAlertSelected(false);
@@ -3805,7 +3834,11 @@ const HomepageLayout = () => {
       sectionLayout: sectionLayout,
       sectionTitles: sectionTitles,
       sectionMetrics: sectionMetrics,
-      sectionLinks: sectionLinks
+      sectionLinks: sectionLinks,
+      dateRange: templateDateRange ? [
+        templateDateRange[0]?.format('YYYY-MM-DD'),
+        templateDateRange[1]?.format('YYYY-MM-DD')
+      ] : null
     };
     setTemplates((prev) => [...prev, newTemplate]);
     if (applyImmediately) {
