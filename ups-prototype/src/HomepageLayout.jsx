@@ -1179,6 +1179,7 @@ const HomepageLayout = () => {
   const [hoveredPreviewBlock, setHoveredPreviewBlock] = useState(null);
   const [hoveredMetricId, setHoveredMetricId] = useState(null);
   const [activeModule, setActiveModule] = useState('home');
+  const [datePeriod, setDatePeriod] = useState('today'); // 'yesterday', 'today', 'thisWeek', 'thisMonth', 'thisYear'
   const [createTemplateModalVisible, setCreateTemplateModalVisible] = useState(false);
   const [editTemplateModalVisible, setEditTemplateModalVisible] = useState(false);
   const [previewTemplateModalVisible, setPreviewTemplateModalVisible] = useState(false);
@@ -1190,6 +1191,12 @@ const HomepageLayout = () => {
   const [editingTemplateNameValue, setEditingTemplateNameValue] = useState('');
   const [hoveredTemplateName, setHoveredTemplateName] = useState(null);
   const [templateGalleryVisible, setTemplateGalleryVisible] = useState(false);
+  const [templateApplyConfirmVisible, setTemplateApplyConfirmVisible] = useState(false);
+  const [templateToApply, setTemplateToApply] = useState(null); // Template ID to apply after confirmation
+  const [confirmDontShowAgain, setConfirmDontShowAgain] = useState(false);
+  const [skipTemplateConfirm, setSkipTemplateConfirm] = useState(() => {
+    return localStorage.getItem('ups-skip-template-confirm') === 'true';
+  });
   const [builderTemplateName, setBuilderTemplateName] = useState('');
   const [builderReports, setBuilderReports] = useState([]);
   const [builderAlertSelected, setBuilderAlertSelected] = useState(false);
@@ -1848,15 +1855,73 @@ const HomepageLayout = () => {
         <>
           {hasMetrics ? (
             <div 
-              style={{ marginBottom: 12, position: 'relative', minHeight: 200, width: '100%' }}
+              style={{ 
+                marginBottom: 12, 
+                position: 'relative', 
+                minHeight: (() => {
+                  const rowHeight = 30;
+                  const gap = 8;
+                  const maxY = widgetLayout.length > 0 
+                    ? Math.max(...widgetLayout.map(w => (w.y || 0) + (w.h || 2))) 
+                    : 0;
+                  const rows = Math.max(8, maxY + 2);
+                  return rows * (rowHeight + gap) - gap;
+                })(),
+                width: '100%' 
+              }}
               id={`section-widget-container-${sectionId}`}
             >
+              {/* Grid Slots Background */}
+              {(() => {
+                const containerWidth = sectionContainerWidths[sectionId] || 600;
+                const cols = 12;
+                const rowHeight = 30;
+                const gap = 8;
+                const cellWidth = (containerWidth - (gap * (cols - 1))) / cols;
+                // Calculate rows based on widget layout or minimum 8 rows
+                const maxY = widgetLayout.length > 0 
+                  ? Math.max(...widgetLayout.map(w => (w.y || 0) + (w.h || 2))) 
+                  : 0;
+                const rows = Math.max(8, maxY + 2); // At least 8 rows, or max widget position + 2
+                return (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      pointerEvents: 'none',
+                      zIndex: 0
+                    }}
+                  >
+                    {Array.from({ length: rows }).map((_, rowIdx) =>
+                      Array.from({ length: cols }).map((_, colIdx) => (
+                        <div
+                          key={`${rowIdx}-${colIdx}`}
+                          style={{
+                            position: 'absolute',
+                            left: colIdx * (cellWidth + gap),
+                            top: rowIdx * (rowHeight + gap),
+                            width: cellWidth,
+                            height: rowHeight,
+                            border: '1px dashed #D9D9D9',
+                            borderRadius: 4,
+                            background: 'transparent'
+                          }}
+                        />
+                      ))
+                    )}
+                  </div>
+                );
+              })()}
               <GridLayout
                 className="section-widget-layout"
                 layout={widgetLayout}
                 cols={12}
                 rowHeight={30}
                 width={sectionContainerWidths[sectionId] || 600}
+                style={{ position: 'relative', zIndex: 1 }}
                 onLayoutChange={(layout) => {
                   setSectionWidgetLayouts(prev => ({
                     ...prev,
@@ -3809,12 +3874,20 @@ const HomepageLayout = () => {
     };
     setTemplates((prev) => [...prev, newTemplate]);
     if (applyImmediately) {
-      handleTemplateCardApply(newTemplate.id);
+      if (skipTemplateConfirm) {
+        handleTemplateCardApply(newTemplate.id);
+        resetTemplateBuilder();
+        setActiveModule('workspace-settings');
+      } else {
+        setTemplateToApply(newTemplate.id);
+        setTemplateApplyConfirmVisible(true);
+        // Don't reset builder yet, wait for confirmation
+      }
     } else {
       message.success(`Template "${newTemplate.name}" đã được lưu nháp`);
+      resetTemplateBuilder();
+      setActiveModule('workspace-settings');
     }
-    resetTemplateBuilder();
-    setActiveModule('workspace-settings');
   };
 
   const previewModalTitle = useMemo(() => {
@@ -4043,6 +4116,35 @@ useEffect(() => {
     if (templateId === selectedTemplateId) return;
     setSelectedTemplateId(templateId);
     message.success('Template đã được áp dụng cho homepage.');
+  };
+
+  const handleConfirmTemplateApply = () => {
+    if (templateToApply) {
+      handleTemplateCardApply(templateToApply);
+      if (confirmDontShowAgain) {
+        setSkipTemplateConfirm(true);
+        localStorage.setItem('ups-skip-template-confirm', 'true');
+      }
+      setTemplateApplyConfirmVisible(false);
+      setTemplateToApply(null);
+      setConfirmDontShowAgain(false);
+      // Reset builder if coming from template creation
+      if (activeModule === 'template-create') {
+        resetTemplateBuilder();
+        setActiveModule('workspace-settings');
+      }
+    }
+  };
+
+  const handleCancelTemplateApply = () => {
+    setTemplateApplyConfirmVisible(false);
+    setTemplateToApply(null);
+    setConfirmDontShowAgain(false);
+    // Reset builder if coming from template creation
+    if (activeModule === 'template-create') {
+      resetTemplateBuilder();
+      setActiveModule('workspace-settings');
+    }
   };
 
   const renderTemplatePreviewContent = (templateId) => {
@@ -4375,7 +4477,12 @@ useEffect(() => {
       if (!template) return;
       switch (action) {
         case 'apply':
-          handleTemplateCardApply(template.id);
+          if (skipTemplateConfirm) {
+            handleTemplateCardApply(template.id);
+          } else {
+            setTemplateToApply(template.id);
+            setTemplateApplyConfirmVisible(true);
+          }
           break;
         case 'preview':
           handleOpenPreview(template.id, 'settings');
@@ -5155,6 +5262,26 @@ useEffect(() => {
             
             {activeModule === 'home' ? (
             <>
+            {/* Date Period Selector */}
+            <div style={{ 
+              marginBottom: 20,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 16
+            }}>
+              <Select
+                value={datePeriod}
+                onChange={setDatePeriod}
+                style={{ width: 150 }}
+                options={[
+                  { label: 'Hôm qua', value: 'yesterday' },
+                  { label: 'Hôm nay', value: 'today' },
+                  { label: 'Tuần này', value: 'thisWeek' },
+                  { label: 'Tháng này', value: 'thisMonth' },
+                  { label: 'Năm nay', value: 'thisYear' }
+                ]}
+              />
+            </div>
             <Row gutter={24}>
               {/* Left Main Column */}
               <Col xs={24} lg={17}>
@@ -7405,6 +7532,29 @@ useEffect(() => {
         {previewTemplateId ? renderTemplatePreviewContent(previewTemplateId) : <Empty description="Chưa chọn template" />}
       </Modal>
       
+      {/* Template Apply Confirmation Modal */}
+      <Modal
+        title="Xác nhận áp dụng template"
+        open={templateApplyConfirmVisible}
+        onOk={handleConfirmTemplateApply}
+        onCancel={handleCancelTemplateApply}
+        okText="Áp dụng"
+        cancelText="Hủy"
+        okButtonProps={{ type: 'primary' }}
+      >
+        <Text>
+          Template này sẽ thay thế template hiện tại đang sử dụng trên Homepage.
+        </Text>
+        <div style={{ marginTop: 16 }}>
+          <Checkbox
+            checked={confirmDontShowAgain}
+            onChange={(e) => setConfirmDontShowAgain(e.target.checked)}
+          >
+            Không nhắc lại lần sau
+          </Checkbox>
+        </div>
+      </Modal>
+
       {/* Delete Confirmation Modal */}
       <Modal
         title="Xóa workspace"
