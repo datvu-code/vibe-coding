@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import {
   Layout, Menu, Card, Statistic, Progress, Tabs, Timeline, Tag, 
   Drawer, Modal, Popover, Tooltip, Button, List, Collapse, DatePicker, 
@@ -8,7 +8,8 @@ import {
 import {
   HomeOutlined, BarChartOutlined, ShoppingOutlined, InboxOutlined, 
   CarOutlined, BellOutlined, SettingOutlined, UserOutlined, MenuFoldOutlined, 
-  MenuUnfoldOutlined, PlusOutlined, MinusOutlined, EditOutlined, DeleteOutlined, 
+  MenuUnfoldOutlined, PlusOutlined, MinusOutlined, EditOutlined, DeleteOutlined,
+  CaretRightOutlined, CaretDownOutlined, 
   CommentOutlined, BulbOutlined, LineChartOutlined, ShareAltOutlined,
   DownloadOutlined, ArrowUpOutlined, ArrowDownOutlined, CloseOutlined,
   DragOutlined, SaveOutlined, AppstoreAddOutlined, EyeOutlined,
@@ -17,10 +18,12 @@ import {
   TagsOutlined, InfoCircleOutlined, ThunderboltOutlined, ClockCircleOutlined,
   ExclamationCircleOutlined, FireOutlined, BookOutlined,
   ShopOutlined, ExportOutlined,
-  ArrowsAltOutlined, LeftOutlined, EllipsisOutlined, LinkOutlined
+  ArrowsAltOutlined, LeftOutlined, EllipsisOutlined, LinkOutlined,
+  RightOutlined, DownOutlined
 } from '@ant-design/icons';
 import { LineChart, Line as RechartLine, BarChart, Bar, PieChart, Pie as RechartPie, AreaChart, Area as RechartArea, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import dayjs from 'dayjs';
+import { MdHome, MdShoppingBag, MdBarChart, MdInbox, MdSettings } from 'react-icons/md';
 import logoSvg from './assets/logo-dark.svg';
 import { DndContext, closestCenter } from '@dnd-kit/core';
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy, rectSortingStrategy } from '@dnd-kit/sortable';
@@ -668,6 +671,544 @@ const templatePreviewKeyMap = {
 
 // ========== COMPONENTS ==========
 
+// Vận hành Card - Wafer silicon patterns and CPU microchip architecture with skeleton grid lines and circuit paths
+const VanHanhCard = () => {
+  return (
+    <Card
+      style={{
+        background: '#FFFFFF',
+        border: '1px solid #E1E3E5',
+        borderRadius: 12,
+        overflow: 'hidden',
+        position: 'relative',
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+        padding: 0,
+        transition: 'all 0.2s ease',
+        minHeight: '280px'
+      }}
+      bodyStyle={{ padding: '28px 24px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', minHeight: 0 }}
+      hoverable
+      onMouseEnter={(e) => {
+        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+      }}
+    >
+      {/* Wafer Silicon Pattern with CPU Microchip Architecture Background */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 0,
+        background: '#FFFFFF',
+        pointerEvents: 'none'
+      }}>
+        <svg width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0, opacity: 0.08 }}>
+          <defs>
+            <pattern id="waferSilicon1" x="0" y="0" width="100" height="100" patternUnits="userSpaceOnUse">
+              <circle cx="50" cy="50" r="45" fill="none" stroke="#D0D0D0" strokeWidth="0.4" />
+              <circle cx="50" cy="50" r="36" fill="none" stroke="#D0D0D0" strokeWidth="0.4" />
+              <circle cx="50" cy="50" r="27" fill="none" stroke="#D0D0D0" strokeWidth="0.4" />
+              <circle cx="50" cy="50" r="18" fill="none" stroke="#D0D0D0" strokeWidth="0.4" />
+              <line x1="50" y1="5" x2="50" y2="95" stroke="#D0D0D0" strokeWidth="0.4" />
+              <line x1="5" y1="50" x2="95" y2="50" stroke="#D0D0D0" strokeWidth="0.4" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#waferSilicon1)" />
+          
+          <g transform="translate(15%, 25%)">
+            <rect x="-70" y="-50" width="140" height="100" fill="none" stroke="#C0C0C0" strokeWidth="1" rx="4" />
+            <path d="M -50 -35 L 50 -35 M -50 -20 L 50 -20 M -50 -5 L 50 -5 M -50 10 L 50 10 M -50 25 L 50 25" 
+                  stroke="#D0D0D0" strokeWidth="0.5" />
+            <path d="M -35 -50 L -35 50 M -10 -50 L -10 50 M 15 -50 L 15 50 M 40 -50 L 40 50" 
+                  stroke="#D0D0D0" strokeWidth="0.5" />
+            <path d="M -70 -30 L -50 -30 L -50 -20 L 50 -20 L 50 -10 L 70 -10" 
+                  stroke="#B0B0B0" strokeWidth="0.6" fill="none" />
+            <path d="M -70 10 L -50 10 L -50 20 L 50 20 L 50 30 L 70 30" 
+                  stroke="#B0B0B0" strokeWidth="0.6" fill="none" />
+          </g>
+        </svg>
+      </div>
+      
+      {/* Stacked Cards Visual Metaphor */}
+      <div style={{
+        position: 'relative',
+        height: '80px',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: '20px',
+        zIndex: 1,
+        overflow: 'visible',
+        flexShrink: 0
+      }}>
+        {/* Bottom card - peeking right */}
+        <div style={{
+          position: 'absolute',
+          right: '20%',
+          width: '60px',
+          height: '80px',
+          background: 'linear-gradient(135deg, #FFE0E6 0%, #FFB3C1 100%)',
+          borderRadius: '8px',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+          zIndex: 1,
+          transform: 'rotate(-5deg)'
+        }} />
+        
+        {/* Middle card - peeking left */}
+        <div style={{
+          position: 'absolute',
+          left: '20%',
+          width: '60px',
+          height: '80px',
+          background: 'linear-gradient(135deg, #FFF4E6 0%, #FFE0B2 100%)',
+          borderRadius: '8px',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+          zIndex: 2,
+          transform: 'rotate(5deg)'
+        }} />
+        
+        {/* Top card - main placeholder */}
+        <div style={{
+          position: 'relative',
+          width: '80px',
+          height: '90px',
+          background: '#FFFFFF',
+          border: '2px dashed #D0D0D0',
+          borderRadius: '8px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 3,
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+        }}>
+          <MdShoppingBag style={{ fontSize: 24, color: '#B0B0B0', marginBottom: '4px' }} />
+          <div style={{
+            width: '50px',
+            height: '3px',
+            background: '#E0E0E0',
+            borderRadius: '2px',
+            marginTop: '4px'
+          }} />
+        </div>
+      </div>
+      
+      {/* Text Content */}
+      <div style={{ textAlign: 'center', position: 'relative', zIndex: 1, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+        <div>
+          <h3 style={{
+            fontSize: 20,
+            fontWeight: 600,
+            color: '#2b2b2b',
+            margin: 0,
+            marginBottom: '8px',
+            lineHeight: 1.4
+          }}>
+            Vận hành
+          </h3>
+          <p style={{
+            fontSize: 14,
+            color: '#6D7175',
+            margin: 0,
+            marginBottom: '20px',
+            lineHeight: 1.5
+          }}>
+            Quản lý đơn hàng và vận hành hệ thống
+          </p>
+        </div>
+        
+        {/* CTA Buttons */}
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginTop: 'auto' }}>
+          <Button
+            type="default"
+            style={{
+              background: '#FFFFFF',
+              borderColor: '#D0D0D0',
+              color: '#2b2b2b',
+              borderRadius: '6px',
+              height: '36px',
+              padding: '0 16px',
+              fontWeight: 500,
+              fontSize: 14
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setActiveNavItem('quan-ly-don-hang');
+              setExpandedSubNav('van-hanh');
+              setActiveModule('orders');
+            }}
+          >
+            Quản lý đơn hàng
+          </Button>
+        </div>
+      </div>
+    </Card>
+  );
+};
+
+// Quản trị Card - Wafer pattern and CPU chip structure with geometric lines and skeleton circuits
+const QuanTriCard = () => {
+  return (
+    <Card
+      style={{
+        background: '#FFFFFF',
+        border: '1px solid #E1E3E5',
+        borderRadius: 12,
+        overflow: 'hidden',
+        position: 'relative',
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+        padding: 0,
+        transition: 'all 0.2s ease',
+        minHeight: '280px'
+      }}
+      bodyStyle={{ padding: '28px 24px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', minHeight: 0 }}
+      hoverable
+      onMouseEnter={(e) => {
+        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+      }}
+    >
+      {/* Wafer Pattern and CPU Chip Structure Background */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 0,
+        background: '#FFFFFF',
+        pointerEvents: 'none'
+      }}>
+        <svg width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0, opacity: 0.08 }}>
+          <defs>
+            <pattern id="waferPattern2" x="0" y="0" width="80" height="80" patternUnits="userSpaceOnUse">
+              <circle cx="40" cy="40" r="35" fill="none" stroke="#D0D0D0" strokeWidth="0.4" />
+              <circle cx="40" cy="40" r="28" fill="none" stroke="#D0D0D0" strokeWidth="0.4" />
+              <circle cx="40" cy="40" r="21" fill="none" stroke="#D0D0D0" strokeWidth="0.4" />
+              <circle cx="40" cy="40" r="14" fill="none" stroke="#D0D0D0" strokeWidth="0.4" />
+              <line x1="40" y1="5" x2="40" y2="75" stroke="#D0D0D0" strokeWidth="0.4" />
+              <line x1="5" y1="40" x2="75" y2="40" stroke="#D0D0D0" strokeWidth="0.4" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#waferPattern2)" />
+          
+          <g transform="translate(20%, 30%)">
+            <rect x="-60" y="-45" width="120" height="90" fill="none" stroke="#C0C0C0" strokeWidth="1" rx="3" />
+            <path d="M -40 -30 L 40 -30 M -40 -15 L 40 -15 M -40 0 L 40 0 M -40 15 L 40 15 M -40 30 L 40 30" 
+                  stroke="#D0D0D0" strokeWidth="0.5" />
+            <path d="M -30 -45 L -30 45 M -15 -45 L -15 45 M 0 -45 L 0 45 M 15 -45 L 15 45 M 30 -45 L 30 45" 
+                  stroke="#D0D0D0" strokeWidth="0.5" />
+            <path d="M -50 -40 L -30 -20 M 30 -20 L 50 -40 M -50 40 L -30 20 M 30 20 L 50 40" 
+                  stroke="#C0C0C0" strokeWidth="0.4" />
+            <circle cx="-60" cy="-30" r="1.5" fill="#B0B0B0" />
+            <circle cx="-60" cy="0" r="1.5" fill="#B0B0B0" />
+            <circle cx="-60" cy="30" r="1.5" fill="#B0B0B0" />
+            <circle cx="60" cy="-30" r="1.5" fill="#B0B0B0" />
+            <circle cx="60" cy="0" r="1.5" fill="#B0B0B0" />
+            <circle cx="60" cy="30" r="1.5" fill="#B0B0B0" />
+          </g>
+        </svg>
+      </div>
+      
+      {/* Stacked Cards Visual Metaphor */}
+      <div style={{
+        position: 'relative',
+        height: '80px',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: '20px',
+        zIndex: 1,
+        overflow: 'visible',
+        flexShrink: 0
+      }}>
+        {/* Bottom card - peeking right */}
+        <div style={{
+          position: 'absolute',
+          right: '20%',
+          width: '70px',
+          height: '90px',
+          background: 'linear-gradient(135deg, #E3F2FD 0%, #90CAF9 100%)',
+          borderRadius: '8px',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+          zIndex: 1,
+          transform: 'rotate(-5deg)'
+        }} />
+        
+        {/* Middle card - peeking left */}
+        <div style={{
+          position: 'absolute',
+          left: '20%',
+          width: '70px',
+          height: '90px',
+          background: 'linear-gradient(135deg, #FFF3E0 0%, #FFCC80 100%)',
+          borderRadius: '8px',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+          zIndex: 2,
+          transform: 'rotate(5deg)'
+        }} />
+        
+        {/* Top card - main placeholder */}
+        <div style={{
+          position: 'relative',
+          width: '80px',
+          height: '90px',
+          background: '#FFFFFF',
+          border: '2px dashed #D0D0D0',
+          borderRadius: '8px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 3,
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+        }}>
+          <MdBarChart style={{ fontSize: 24, color: '#B0B0B0', marginBottom: '4px' }} />
+          <div style={{
+            width: '50px',
+            height: '3px',
+            background: '#E0E0E0',
+            borderRadius: '2px',
+            marginTop: '4px'
+          }} />
+        </div>
+      </div>
+      
+      {/* Text Content */}
+      <div style={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
+        <h3 style={{
+          fontSize: 20,
+          fontWeight: 600,
+          color: '#2b2b2b',
+          margin: 0,
+          marginBottom: '8px',
+          lineHeight: 1.4
+        }}>
+          Quản trị
+        </h3>
+        <p style={{
+          fontSize: 14,
+          color: '#6D7175',
+          margin: 0,
+          marginBottom: '16px',
+          lineHeight: 1.5
+        }}>
+          Báo cáo và phân tích dữ liệu
+        </p>
+        
+        {/* CTA Buttons */}
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <Button
+            type="default"
+            style={{
+              background: '#FFFFFF',
+              borderColor: '#D0D0D0',
+              color: '#2b2b2b',
+              borderRadius: '6px',
+              height: '36px',
+              padding: '0 16px',
+              fontWeight: 500,
+              fontSize: 14
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setActiveNavItem('bao-cao-van-hanh');
+              setExpandedSubNav('quan-tri');
+              setActiveModule('home');
+            }}
+          >
+            Báo cáo vận hành
+          </Button>
+        </div>
+      </div>
+    </Card>
+  );
+};
+
+// Cài đặt Card - Control panel pattern with geometric grid, representing configuration and system management
+const CaiDatCard = () => {
+  return (
+    <Card
+      style={{
+        background: '#FFFFFF',
+        border: '1px solid #E1E3E5',
+        borderRadius: 12,
+        overflow: 'hidden',
+        position: 'relative',
+        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
+        padding: 0,
+        transition: 'all 0.2s ease',
+        minHeight: '280px'
+      }}
+      bodyStyle={{ padding: '28px 24px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', minHeight: 0 }}
+      hoverable
+      onMouseEnter={(e) => {
+        e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.boxShadow = '0 1px 3px rgba(0, 0, 0, 0.1)';
+      }}
+    >
+      {/* Control Panel Pattern - Geometric grid representing settings/configuration */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 0,
+        background: '#FFFFFF',
+        pointerEvents: 'none'
+      }}>
+        <svg width="100%" height="100%" style={{ position: 'absolute', top: 0, left: 0, opacity: 0.08 }}>
+          <defs>
+            <pattern id="controlGrid" x="0" y="0" width="60" height="60" patternUnits="userSpaceOnUse">
+              <rect x="0" y="0" width="60" height="60" fill="none" stroke="#D0D0D0" strokeWidth="0.5" />
+              <line x1="0" y1="30" x2="60" y2="30" stroke="#D0D0D0" strokeWidth="0.5" />
+              <line x1="30" y1="0" x2="30" y2="60" stroke="#D0D0D0" strokeWidth="0.5" />
+              <circle cx="30" cy="30" r="8" fill="none" stroke="#D0D0D0" strokeWidth="0.5" />
+              <circle cx="30" cy="30" r="4" fill="none" stroke="#D0D0D0" strokeWidth="0.5" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#controlGrid)" />
+          
+          <g transform="translate(20%, 30%)">
+            <rect x="-60" y="-45" width="120" height="90" fill="none" stroke="#C0C0C0" strokeWidth="1" rx="4" />
+            <path d="M -40 -30 L 40 -30 M -40 -15 L 40 -15 M -40 0 L 40 0 M -40 15 L 40 15 M -40 30 L 40 30" 
+                  stroke="#D0D0D0" strokeWidth="0.5" />
+            <path d="M -30 -45 L -30 45 M -10 -45 L -10 45 M 10 -45 L 10 45 M 30 -45 L 30 45" 
+                  stroke="#D0D0D0" strokeWidth="0.5" />
+            <circle cx="-40" cy="-20" r="3" fill="#B0B0B0" />
+            <circle cx="0" cy="-20" r="3" fill="#B0B0B0" />
+            <circle cx="40" cy="-20" r="3" fill="#B0B0B0" />
+            <circle cx="-40" cy="20" r="3" fill="#B0B0B0" />
+            <circle cx="0" cy="20" r="3" fill="#B0B0B0" />
+            <circle cx="40" cy="20" r="3" fill="#B0B0B0" />
+          </g>
+        </svg>
+      </div>
+      
+      {/* Stacked Cards Visual Metaphor */}
+      <div style={{
+        position: 'relative',
+        height: '80px',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginBottom: '20px',
+        zIndex: 1,
+        overflow: 'visible',
+        flexShrink: 0
+      }}>
+        {/* Bottom card - peeking right */}
+        <div style={{
+          position: 'absolute',
+          right: '20%',
+          width: '70px',
+          height: '90px',
+          background: 'linear-gradient(135deg, #F3E5F5 0%, #CE93D8 100%)',
+          borderRadius: '8px',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+          zIndex: 1,
+          transform: 'rotate(-5deg)'
+        }} />
+        
+        {/* Middle card - peeking left */}
+        <div style={{
+          position: 'absolute',
+          left: '20%',
+          width: '70px',
+          height: '90px',
+          background: 'linear-gradient(135deg, #E8F5E9 0%, #A5D6A7 100%)',
+          borderRadius: '8px',
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+          zIndex: 2,
+          transform: 'rotate(5deg)'
+        }} />
+        
+        {/* Top card - main placeholder */}
+        <div style={{
+          position: 'relative',
+          width: '80px',
+          height: '90px',
+          background: '#FFFFFF',
+          border: '2px dashed #D0D0D0',
+          borderRadius: '8px',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          zIndex: 3,
+          boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+        }}>
+          <MdSettings style={{ fontSize: 24, color: '#B0B0B0', marginBottom: '4px' }} />
+          <div style={{
+            width: '50px',
+            height: '3px',
+            background: '#E0E0E0',
+            borderRadius: '2px',
+            marginTop: '4px'
+          }} />
+        </div>
+      </div>
+      
+      {/* Text Content */}
+      <div style={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
+        <h3 style={{
+          fontSize: 20,
+          fontWeight: 600,
+          color: '#2b2b2b',
+          margin: 0,
+          marginBottom: '8px',
+          lineHeight: 1.4
+        }}>
+          Cài đặt
+        </h3>
+        <p style={{
+          fontSize: 14,
+          color: '#6D7175',
+          margin: 0,
+          marginBottom: '16px',
+          lineHeight: 1.5
+        }}>
+          Cấu hình và quản lý hệ thống
+        </p>
+        
+        {/* CTA Buttons */}
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+          <Button
+            type="default"
+            style={{
+              background: '#FFFFFF',
+              borderColor: '#D0D0D0',
+              color: '#2b2b2b',
+              borderRadius: '6px',
+              height: '36px',
+              padding: '0 16px',
+              fontWeight: 500,
+              fontSize: 14
+            }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setActiveNavItem('cai-dat');
+              setExpandedSubNav(null);
+              setActiveModule('workspace-settings');
+            }}
+          >
+            Kết nối gian hàng
+          </Button>
+        </div>
+      </div>
+    </Card>
+  );
+};
+
 // KPI Overview Card
 const KPICard = ({ title, value, change, trend, changePrevPeriod, trendPrevPeriod, subtext, breakdown }) => (
   <Card 
@@ -683,7 +1224,7 @@ const KPICard = ({ title, value, change, trend, changePrevPeriod, trendPrevPerio
   >
     {breakdown ? (
       <div>
-        <div style={{ fontSize: 13, color: '#6D7175', marginBottom: 12, fontWeight: 500 }}>{title}</div>
+        <div style={{ fontSize: 13, color: '#2b2b2b', marginBottom: 12, fontWeight: 500 }}>{title}</div>
         {breakdown.map((item, idx) => (
           <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
             <Text style={{ fontSize: 13, color: '#2b2b2b' }}>{item.label}:</Text>
@@ -696,7 +1237,7 @@ const KPICard = ({ title, value, change, trend, changePrevPeriod, trendPrevPerio
         {/* Title at top */}
         <div style={{ 
           fontSize: 13, 
-          color: '#6D7175', 
+          color: '#2b2b2b', 
           marginBottom: 12, 
           fontWeight: 500,
           lineHeight: 1.4
@@ -753,23 +1294,18 @@ const KPICard = ({ title, value, change, trend, changePrevPeriod, trendPrevPerio
           marginTop: 6
         }}>
           {/* Left: "So với kỳ trước" text */}
-          <div style={{ 
-            fontSize: 12, 
-            color: '#6D7175',
-            display: 'flex',
-            alignItems: 'center',
-            gap: 4
-          }}>
-            So với kỳ trước
-            <Tooltip title="So với cùng kỳ tháng trước">
-              <InfoCircleOutlined 
-                style={{ 
-                  fontSize: 11, 
-                  color: '#8c8c8c'
-                }} 
-              />
-            </Tooltip>
-          </div>
+          <Tooltip title="So với cùng kỳ tháng trước">
+            <div style={{ 
+              fontSize: 12, 
+              color: '#6D7175',
+              borderBottom: '1px dotted #6D7175',
+              cursor: 'help',
+              display: 'inline-block',
+              paddingBottom: '1px'
+            }}>
+              So với kỳ trước
+            </div>
+          </Tooltip>
           
           {/* Right: Change percentage */}
           {changePrevPeriod && (
@@ -1144,6 +1680,14 @@ const HomepageLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [dateRange, setDateRange] = useState([dayjs().subtract(7, 'day'), dayjs()]);
   
+  // Sidebar navigation state
+  const [expandedNavItems, setExpandedNavItems] = useState(new Set());
+  const [activeNavItem, setActiveNavItem] = useState('home');
+  const [hoveredNavItem, setHoveredNavItem] = useState(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false); // Always expanded
+  const [sidebarHovered, setSidebarHovered] = useState(false);
+  const [expandedSubNav, setExpandedSubNav] = useState(null); // Track which parent item has sub-nav expanded (key of parent)
+  
   // Get personalized greeting
   const userName = 'Dat'; // This could come from auth context
   const greeting = getGreeting();
@@ -1162,6 +1706,7 @@ const HomepageLayout = () => {
     const base = saved ? JSON.parse(saved) : defaultTemplates;
     return base.map(template => ({
       ...template,
+      metrics: template.metrics || [],
       createdAt: template.createdAt || '24/12/2025'
     }));
   });
@@ -1203,6 +1748,7 @@ const HomepageLayout = () => {
   const [builderNewsSelected, setBuilderNewsSelected] = useState(false);
   const [templateTablePage, setTemplateTablePage] = useState(1);
   const [selectedTemplateIds, setSelectedTemplateIds] = useState(new Set());
+  const [templateSearchQuery, setTemplateSearchQuery] = useState('');
   
   // New template builder state
   const [widgetLayout, setWidgetLayout] = useState([]);
@@ -1283,6 +1829,63 @@ const HomepageLayout = () => {
       clearInterval(interval);
     };
   }, [sectionLayout, sectionMetrics]);
+
+  // Sync activeNavItem with activeModule and expand parent items
+  useEffect(() => {
+    // Map activeModule to navigation item
+    let matchedKey = null;
+    let parentKey = null;
+    let subParentKey = null;
+    
+    if (activeModule === 'home') {
+      matchedKey = 'trang-chu';
+    } else if (activeModule === 'workspace-settings') {
+      matchedKey = 'cai-dat';
+    } else if (activeModule === 'orders') {
+      matchedKey = 'danh-sach-don-hang';
+      parentKey = 'quan-ly-don-hang';
+      subParentKey = 'van-hanh';
+    } else {
+      // Try to find matching nav item
+      const findNavItem = (items, module) => {
+        for (const item of items) {
+          if (item.module === module) return { key: item.key, parent: null, subParent: null };
+          if (item.children) {
+            for (const child of item.children) {
+              if (child.module === module) return { key: child.key, parent: item.key, subParent: null };
+              if (child.children) {
+                for (const nested of child.children) {
+                  if (nested.module === module) return { key: nested.key, parent: child.key, subParent: item.key };
+                }
+              }
+            }
+          }
+        }
+        return null;
+      };
+      const result = findNavItem(navigationItems, activeModule);
+      if (result) {
+        matchedKey = result.key;
+        parentKey = result.parent;
+        subParentKey = result.subParent;
+      }
+    }
+    
+    if (matchedKey) {
+      setActiveNavItem(matchedKey);
+      // Expand parent items
+      const newExpanded = new Set(expandedNavItems);
+      if (parentKey) {
+        newExpanded.add(parentKey);
+      }
+      if (subParentKey) {
+        newExpanded.add(subParentKey);
+        // Auto-show sub-nav for parent
+        setExpandedSubNav(subParentKey);
+      }
+      setExpandedNavItems(newExpanded);
+    }
+  }, [activeModule]);
 
   // Update link overlay position when scrolling or resizing
   useEffect(() => {
@@ -1464,6 +2067,52 @@ const HomepageLayout = () => {
     return true;
   };
 
+  // Navigation handlers - moved to top level to comply with React hooks rules
+  const handleNavItemClick = useCallback((item) => {
+    if (item.expandable && item.children && item.children.length > 0) {
+      // Set active nav item and show sub-menu
+      setActiveNavItem(item.key);
+      setExpandedSubNav(item.key);
+      // Collapse sidebar when item is selected
+      setSidebarCollapsed(true);
+      // If item has a module, navigate to it
+      if (item.module) {
+        setActiveModule(item.module);
+      }
+    } else {
+      setActiveNavItem(item.key);
+      // Collapse sidebar when item is selected
+      setSidebarCollapsed(true);
+      if (item.module) {
+        setActiveModule(item.module);
+      }
+      // Close sub-nav if clicking on non-expandable item
+      setExpandedSubNav(null);
+    }
+  }, []);
+
+  const handleSubItemClick = useCallback((parentKey, subItem) => {
+    setActiveNavItem(subItem.key);
+    // Keep sub-nav open
+    setExpandedSubNav(parentKey);
+    // Collapse sidebar when item is selected
+    setSidebarCollapsed(true);
+    if (subItem.module) {
+      setActiveModule(subItem.module);
+    }
+  }, []);
+
+  const handleNestedSubItemClick = useCallback((parentKey, subParentKey, nestedItem) => {
+    setActiveNavItem(nestedItem.key);
+    // Keep sub-nav open
+    setExpandedSubNav(parentKey);
+    // Collapse sidebar when item is selected
+    setSidebarCollapsed(true);
+    if (nestedItem.module) {
+      setActiveModule(nestedItem.module);
+    }
+  }, []);
+
   // Template workspaces (predefined templates)
   const templateWorkspaces = [
     {
@@ -1572,12 +2221,340 @@ const HomepageLayout = () => {
     }
   ];
 
+  // Render GA4-style sidebar navigation
+  const renderSidebarNavigation = () => {
+    const isSidebarExpanded = !sidebarCollapsed; // Collapse when item is selected
+
+    const renderNavItem = (item, level = 0, isSettings = false) => {
+      const isSubNavExpanded = expandedSubNav === item.key;
+      const isActive = activeNavItem === item.key || (level === 0 && item.children?.some(child => 
+        child.children?.some(nested => activeNavItem === nested.key) || activeNavItem === child.key
+      ));
+      const isHovered = hoveredNavItem === item.key;
+      const hasChildren = item.children && item.children.length > 0;
+
+      return (
+        <div key={item.key}>
+          <div
+            onClick={() => handleNavItemClick(item)}
+            onMouseEnter={() => setHoveredNavItem(item.key)}
+            onMouseLeave={() => setHoveredNavItem(null)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              padding: level === 0 
+                ? (isSidebarExpanded ? '10px 16px' : '10px 0') 
+                : '8px 16px 8px 32px',
+              cursor: 'pointer',
+              backgroundColor: isActive 
+                ? '#E8F0FE' 
+                : isHovered 
+                  ? '#F5F5F5' 
+                  : 'transparent',
+              borderLeft: isActive ? '3px solid #1677FF' : '3px solid transparent',
+              borderTopRightRadius: isActive && level === 0 ? '20px' : 0,
+              borderBottomRightRadius: isActive && level === 0 ? '20px' : 0,
+              marginRight: isActive && level === 0 ? '8px' : 0,
+              color: isActive ? '#1677FF' : '#202124',
+              fontSize: level === 0 ? 16 : 13,
+              fontWeight: level === 0 ? 500 : 400,
+              transition: 'all 0.2s',
+              position: 'relative',
+              justifyContent: isSidebarExpanded ? 'flex-start' : 'center',
+              boxShadow: isActive && level === 0 
+                ? '0 4px 12px rgba(22, 119, 255, 0.15), 0 2px 4px rgba(22, 119, 255, 0.1)' 
+                : 'none',
+              transform: isActive && level === 0 ? 'translateY(-1px)' : 'translateY(0)'
+            }}
+          >
+            {item.icon && (
+              <span 
+                style={{ 
+                  marginRight: isSidebarExpanded ? 12 : 0, 
+                  display: 'inline-flex', 
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                {React.cloneElement(item.icon, {
+                  style: {
+                    fontSize: 32,
+                    width: 32,
+                    height: 32,
+                    color: isActive ? '#1677FF' : '#5F6368',
+                    ...item.icon.props?.style
+                  }
+                })}
+              </span>
+            )}
+            {isSidebarExpanded && (
+              <>
+                <span style={{ flex: 1 }}>
+                  {item.label}
+                </span>
+                {item.expandable && hasChildren && (
+                  <CaretRightOutlined style={{ 
+                    fontSize: 10, 
+                    color: '#5F6368',
+                    marginLeft: 8
+                  }} />
+                )}
+              </>
+            )}
+          </div>
+          {/* Remove inline children - they will be shown in sub-nav column */}
+        </div>
+      );
+    };
+
+    // Render sub-navigation column
+    const renderSubNavigation = () => {
+      if (!parentItemToShow || !parentItemToShow.children) return null;
+      
+      const parentItem = parentItemToShow;
+
+      return (
+        <div
+          style={{
+            position: 'fixed',
+            left: sidebarCollapsed ? 64 : 240,
+            top: 64,
+            bottom: 0,
+            width: 240,
+            backgroundColor: '#fff',
+            borderRight: '1px solid #E1E3E5',
+            zIndex: 1001,
+            height: 'calc(100vh - 64px)',
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            boxShadow: '2px 0 8px rgba(0,0,0,0.1)',
+            transition: 'left 0.2s ease'
+          }}
+        >
+          <div style={{ paddingTop: 24, paddingBottom: 16 }}>
+            {/* Header */}
+            <div style={{ 
+              padding: '0 16px 16px 16px',
+              borderBottom: '1px solid #E1E3E5',
+              marginBottom: 8
+            }}>
+              <div style={{ 
+                fontSize: 12, 
+                color: '#5F6368', 
+                fontWeight: 500,
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
+              }}>
+                {parentItem.label}
+              </div>
+            </div>
+
+            {/* Sub-items */}
+            <div>
+              {parentItem.children.map((child) => {
+                if (child.children && child.children.length > 0) {
+                  // Nested children (e.g., Quản lý đơn hàng)
+                  const isSubExpanded = expandedNavItems.has(child.key);
+                  const isChildActive = activeNavItem === child.key || 
+                    child.children.some(nested => activeNavItem === nested.key);
+                  
+                  return (
+                    <div key={child.key}>
+                      <div
+                        onClick={() => {
+                          const newExpanded = new Set(expandedNavItems);
+                          if (newExpanded.has(child.key)) {
+                            newExpanded.delete(child.key);
+                          } else {
+                            newExpanded.add(child.key);
+                          }
+                          setExpandedNavItems(newExpanded);
+                        }}
+                        onMouseEnter={() => setHoveredNavItem(child.key)}
+                        onMouseLeave={() => setHoveredNavItem(null)}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          padding: '10px 16px',
+                          cursor: 'pointer',
+                          backgroundColor: isChildActive 
+                            ? '#E8F0FE' 
+                            : hoveredNavItem === child.key 
+                              ? '#F5F5F5' 
+                              : 'transparent',
+                          borderLeft: isChildActive ? '3px solid #1677FF' : '3px solid transparent',
+                          color: isChildActive ? '#1677FF' : '#202124',
+                          fontSize: 14,
+                          fontWeight: 500,
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        <span style={{ flex: 1 }}>{child.label}</span>
+                        <CaretDownOutlined style={{ 
+                          fontSize: 10, 
+                          transition: 'transform 0.2s',
+                          transform: isSubExpanded ? 'rotate(0deg)' : 'rotate(-90deg)',
+                          color: '#5F6368'
+                        }} />
+                      </div>
+                      {isSubExpanded && (
+                        <div>
+                          {child.children.map((nestedChild) => (
+                            <div
+                              key={nestedChild.key}
+                              onClick={() => {
+                                setActiveNavItem(nestedChild.key);
+                                if (nestedChild.module) {
+                                  setActiveModule(nestedChild.module);
+                                }
+                              }}
+                              onMouseEnter={() => setHoveredNavItem(nestedChild.key)}
+                              onMouseLeave={() => setHoveredNavItem(null)}
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                padding: '8px 16px 8px 32px',
+                                cursor: 'pointer',
+                                backgroundColor: activeNavItem === nestedChild.key 
+                                  ? '#E8F0FE' 
+                                  : hoveredNavItem === nestedChild.key 
+                                    ? '#F5F5F5' 
+                                    : 'transparent',
+                                borderLeft: activeNavItem === nestedChild.key 
+                                  ? '3px solid #1677FF' 
+                                  : '3px solid transparent',
+                                color: activeNavItem === nestedChild.key ? '#1677FF' : '#5F6368',
+                                fontSize: 13,
+                                fontWeight: 400,
+                                transition: 'all 0.2s'
+                              }}
+                            >
+                              {nestedChild.label}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                } else {
+                  // Direct children (e.g., Báo cáo vận hành)
+                  return (
+                    <div
+                      key={child.key}
+                      onClick={() => {
+                        setActiveNavItem(child.key);
+                        if (child.module) {
+                          setActiveModule(child.module);
+                        }
+                      }}
+                      onMouseEnter={() => setHoveredNavItem(child.key)}
+                      onMouseLeave={() => setHoveredNavItem(null)}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '10px 16px',
+                        cursor: 'pointer',
+                        backgroundColor: activeNavItem === child.key 
+                          ? '#E8F0FE' 
+                          : hoveredNavItem === child.key 
+                            ? '#F5F5F5' 
+                            : 'transparent',
+                        borderLeft: activeNavItem === child.key 
+                          ? '3px solid #1677FF' 
+                          : '3px solid transparent',
+                        color: activeNavItem === child.key ? '#1677FF' : '#202124',
+                        fontSize: 14,
+                        fontWeight: 500,
+                        transition: 'all 0.2s'
+                      }}
+                    >
+                      {child.label}
+                    </div>
+                  );
+                }
+              })}
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const settingsItem = {
+      key: 'cai-dat',
+      label: 'Cài đặt',
+      icon: <MdSettings />,
+      expandable: false,
+      module: 'workspace-settings'
+    };
+
+    return (
+      <>
+        <div
+          style={{
+            position: 'fixed',
+            left: 0,
+            top: 64,
+            bottom: 0,
+            width: sidebarCollapsed ? 64 : 240,
+            backgroundColor: '#fff',
+            borderRight: '1px solid #E1E3E5',
+            zIndex: 1000,
+            height: 'calc(100vh - 64px)',
+            display: 'flex',
+            flexDirection: 'column',
+            overflowY: 'auto',
+            overflowX: 'hidden',
+            transition: 'width 0.2s ease'
+          }}
+        >
+          {/* Collapse/Expand Toggle Button */}
+          <div style={{
+            padding: isSidebarExpanded ? '12px 16px' : '12px',
+            display: 'flex',
+            justifyContent: isSidebarExpanded ? 'flex-end' : 'center',
+            alignItems: 'center',
+            borderBottom: '1px solid #E1E3E5'
+          }}>
+            <Button
+              type="text"
+              icon={sidebarCollapsed ? <MenuUnfoldOutlined style={{ fontSize: 18 }} /> : <MenuFoldOutlined style={{ fontSize: 18 }} />}
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              style={{
+                color: '#5F6368',
+                width: isSidebarExpanded ? 'auto' : '100%',
+                height: '32px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: isSidebarExpanded ? '4px 8px' : '4px 0'
+              }}
+            />
+          </div>
+
+          {/* Main Navigation Items */}
+          <div style={{ flex: 1, paddingTop: 24 }}>
+            {navigationItems.map((item) => renderNavItem(item))}
+          </div>
+
+          {/* Settings at bottom, separated */}
+          <div style={{ 
+            borderTop: '1px solid #E1E3E5',
+            paddingTop: 8,
+            paddingBottom: 16,
+            marginTop: 'auto'
+          }}>
+            {renderNavItem(settingsItem, 0, true)}
+          </div>
+        </div>
+
+        {/* Sub-navigation column */}
+        {renderSubNavigation()}
+      </>
+    );
+  };
+
   const renderTemplateGalleryScreen = () => (
-    <Space direction="vertical" size={24} style={{ width: '100%' }}>
-      <Text type="secondary">
-        Chọn template mẫu để tạo workspace mới. Mỗi thẻ thể hiện bố cục và loại chỉ số chính của template.
-      </Text>
-      <Row gutter={[20, 20]}>
+    <Row gutter={[20, 20]}>
         {templateWorkspaces.map(template => {
           const templateId = template.templateId || template.id;
           return (
@@ -1651,16 +2628,12 @@ const HomepageLayout = () => {
                   </div>
                 }
               >
-                <Space direction="vertical" size={6} style={{ width: '100%' }}>
-                  <Title level={4} style={{ margin: 0 }}>{template.name}</Title>
-                  <Text type="secondary">{template.description}</Text>
-                </Space>
+                <Title level={4} style={{ margin: 0 }}>{template.name}</Title>
               </Card>
             </Col>
           );
         })}
       </Row>
-    </Space>
   );
 
   // Widget data structure with Vietnamese UI labels
@@ -2482,9 +3455,27 @@ const HomepageLayout = () => {
                 key: 'errors',
                 label: (
                   <Space>
-                    <ExclamationCircleOutlined style={{ color: '#D72C0D' }} />
                     <span>Lỗi</span>
-                    {hasErrors && <Badge count={errorsList.length} style={{ backgroundColor: '#D72C0D' }} />}
+                    {hasErrors && (
+                      <span style={{
+                        backgroundColor: '#FEF3F2',
+                        color: '#D72C0D',
+                        border: '1px solid #D72C0D',
+                        borderRadius: '50%',
+                        fontSize: 12,
+                        fontWeight: 600,
+                        width: '20px',
+                        height: '20px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        textAlign: 'center',
+                        lineHeight: 1,
+                        flexShrink: 0
+                      }}>
+                        {errorsList.length}
+                      </span>
+                    )}
                   </Space>
                 ),
                 children: hasErrors ? renderAlertList(errorsList) : (
@@ -2517,9 +3508,27 @@ const HomepageLayout = () => {
                 key: 'warnings',
                 label: (
                   <Space>
-                    <WarningOutlined style={{ color: '#FA8C16' }} />
                     <span>Cảnh báo</span>
-                    {hasWarnings && <Badge count={warningsList.length} style={{ backgroundColor: '#FA8C16' }} />}
+                    {hasWarnings && (
+                      <span style={{
+                        backgroundColor: '#FFFBE6',
+                        color: '#D48806',
+                        border: '1px solid #D48806',
+                        borderRadius: '50%',
+                        fontSize: 12,
+                        fontWeight: 600,
+                        width: '20px',
+                        height: '20px',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        textAlign: 'center',
+                        lineHeight: 1,
+                        flexShrink: 0
+                      }}>
+                        {warningsList.length}
+                      </span>
+                    )}
                   </Space>
                 ),
                 children: hasWarnings ? renderAlertList(warningsList) : (
@@ -2589,7 +3598,6 @@ const HomepageLayout = () => {
                     key: 'errors',
                     label: (
                       <Space>
-                        <ExclamationCircleOutlined style={{ color: '#D72C0D' }} />
                         <span>Lỗi</span>
                       </Space>
                     ),
@@ -2696,7 +3704,6 @@ const HomepageLayout = () => {
                     key: 'warnings',
                     label: (
                       <Space>
-                        <WarningOutlined style={{ color: '#FA8C16' }} />
                         <span>Cảnh báo</span>
                       </Space>
                     ),
@@ -3233,9 +4240,9 @@ const HomepageLayout = () => {
           display: 'flex',
           zIndex: 1000
         }}>
-        {/* Left Sidebar - 25% */}
+        {/* Left Sidebar - Fixed 240px */}
         <div style={{
-          width: '25%',
+          width: '240px',
           background: '#fff',
           borderRight: '1px solid #E1E3E5',
           display: 'flex',
@@ -3374,49 +4381,76 @@ const HomepageLayout = () => {
             <Button onClick={handleCancelTemplateCreation} style={{ flex: 1 }}>
               Hủy
             </Button>
-            <Button
-              onClick={() => {
-                if (!newTemplateName.trim() && sectionLayout.length === 0) {
-                  message.error('Vui lòng nhập tên template và chọn ít nhất 1 section');
-                  return;
-                }
-                if (!newTemplateName.trim()) {
-                  message.error('Vui lòng nhập tên template');
-                  return;
-                }
-                if (sectionLayout.length === 0) {
-                  message.error('Vui lòng chọn ít nhất 1 section');
-                  return;
-                }
-                handleSaveTemplateFromBuilder(false);
-              }}
-              disabled={!newTemplateName.trim() && sectionLayout.length === 0}
-              style={{ flex: 1 }}
-            >
-              Lưu nháp
-            </Button>
-            <Button
-              type="primary"
-              onClick={() => {
-                if (!newTemplateName.trim() && sectionLayout.length === 0) {
-                  message.error('Vui lòng nhập tên template và chọn ít nhất 1 section');
-                  return;
-                }
-                if (!newTemplateName.trim()) {
-                  message.error('Vui lòng nhập tên template');
-                  return;
-                }
-                if (sectionLayout.length === 0) {
-                  message.error('Vui lòng chọn ít nhất 1 section');
-                  return;
-                }
-                handleSaveTemplateFromBuilder(true);
-              }}
-              disabled={!newTemplateName.trim() && sectionLayout.length === 0}
-              style={{ flex: 1 }}
-            >
-              Lưu & Sử dụng
-            </Button>
+            <Button.Group style={{ flex: 1, display: 'flex' }}>
+              <Button
+                type="primary"
+                onClick={() => {
+                  if (!newTemplateName.trim() && sectionLayout.length === 0) {
+                    message.error('Vui lòng nhập tên template và chọn ít nhất 1 section');
+                    return;
+                  }
+                  if (!newTemplateName.trim()) {
+                    message.error('Vui lòng nhập tên template');
+                    return;
+                  }
+                  if (sectionLayout.length === 0) {
+                    message.error('Vui lòng chọn ít nhất 1 section');
+                    return;
+                  }
+                  handleSaveTemplateFromBuilder(false);
+                }}
+                disabled={!newTemplateName.trim() && sectionLayout.length === 0}
+                style={{ 
+                  flex: 1,
+                  borderTopRightRadius: 0,
+                  borderBottomRightRadius: 0,
+                  borderRight: 'none'
+                }}
+              >
+                Lưu
+              </Button>
+              <Dropdown
+                menu={{
+                  items: [
+                    {
+                      key: 'save-and-use',
+                      label: 'Lưu & Sử dụng',
+                      onClick: () => {
+                        if (!newTemplateName.trim() && sectionLayout.length === 0) {
+                          message.error('Vui lòng nhập tên template và chọn ít nhất 1 section');
+                          return;
+                        }
+                        if (!newTemplateName.trim()) {
+                          message.error('Vui lòng nhập tên template');
+                          return;
+                        }
+                        if (sectionLayout.length === 0) {
+                          message.error('Vui lòng chọn ít nhất 1 section');
+                          return;
+                        }
+                        handleSaveTemplateFromBuilder(true);
+                      }
+                    }
+                  ]
+                }}
+                disabled={!newTemplateName.trim() && sectionLayout.length === 0}
+              >
+                <Button
+                  type="primary"
+                  icon={<ArrowDownOutlined />}
+                  style={{ 
+                    paddingLeft: 12,
+                    paddingRight: 12,
+                    borderTopLeftRadius: 0,
+                    borderBottomLeftRadius: 0,
+                    borderLeft: '1px solid rgba(255, 255, 255, 0.3)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                />
+              </Dropdown>
+            </Button.Group>
           </div>
         </div>
 
@@ -4015,10 +5049,12 @@ const HomepageLayout = () => {
   const currentPieData = currentTemplateData.pieData;
   
   // Get current template
-  const selectedTemplate = templates.find(t => t.id === selectedTemplateId) || templates[0];
+  const selectedTemplate = templates.length > 0 
+    ? (templates.find(t => t.id === selectedTemplateId) || templates[0])
+    : null;
   
   // Get metrics for current template
-  const currentMetrics = selectedTemplate.metrics
+  const currentMetrics = (selectedTemplate?.metrics || [])
     .map(metricId => allMetricsPool.find(m => m.id === metricId))
     .filter(Boolean);
   
@@ -4091,6 +5127,97 @@ useEffect(() => {
   }
 }, [createTemplateModalVisible]);
 
+  // Navigation structure for new GA4-style sidebar
+  const navigationItems = [
+    {
+      key: 'trang-chu',
+      label: 'Trang chủ',
+      icon: <MdHome />,
+      expandable: false,
+      module: 'home'
+    },
+    {
+      key: 'quan-tri',
+      label: 'Quản trị',
+      icon: <MdBarChart />,
+      expandable: true,
+      children: [
+        { key: 'bao-cao-van-hanh', label: 'Báo cáo vận hành', module: 'home' },
+        { key: 'bao-cao-dieu-hanh', label: 'Báo cáo điều hành', module: 'home' },
+        { key: 'tai-chinh', label: 'Tài chính', module: 'home' }
+      ]
+    },
+    {
+      key: 'van-hanh',
+      label: 'Vận hành',
+      icon: <MdShoppingBag />,
+      expandable: true,
+      children: [
+        {
+          key: 'quan-ly-don-hang',
+          label: 'Quản lý đơn hàng',
+          children: [
+            { key: 'danh-sach-don-hang', label: 'Danh sách đơn hàng', module: 'orders' },
+            { key: 'xu-ly-hang-loat', label: 'Xử lý hàng loạt', module: 'orders' },
+            { key: 'xu-ly-theo-danh-sach', label: 'Xử lý theo danh sách', module: 'orders' }
+          ]
+        }
+      ]
+    }
+  ];
+
+  // Memoize sub-nav visibility calculation
+  const isSubNavVisible = useMemo(() => {
+    if (expandedSubNav) return true;
+    // Auto-detect based on activeNavItem
+    const activeItem = navigationItems.find(item => item.key === activeNavItem);
+    if (activeItem && activeItem.expandable && activeItem.children) {
+      return true;
+    }
+    // Check if activeNavItem is a child of any expandable item
+    for (const item of navigationItems) {
+      if (item.children) {
+        const isDirectChild = item.children.some(child => 
+          child.key === activeNavItem || 
+          (child.children && child.children.some(nested => nested.key === activeNavItem))
+        );
+        if (isDirectChild) return true;
+      }
+    }
+    return false;
+  }, [expandedSubNav, activeNavItem]);
+
+  // Memoize parent item to show in sub-nav
+  const parentItemToShow = useMemo(() => {
+    if (expandedSubNav) {
+      return navigationItems.find(item => item.key === expandedSubNav);
+    }
+    // Auto-detect based on activeNavItem
+    const activeItem = navigationItems.find(item => item.key === activeNavItem);
+    if (activeItem && activeItem.expandable && activeItem.children) {
+      return activeItem;
+    }
+    // Check if activeNavItem is a child of any expandable item
+    for (const item of navigationItems) {
+      if (item.children) {
+        const isDirectChild = item.children.some(child => 
+          child.key === activeNavItem || 
+          (child.children && child.children.some(nested => nested.key === activeNavItem))
+        );
+        if (isDirectChild) return item;
+      }
+    }
+    return null;
+  }, [expandedSubNav, activeNavItem]);
+
+  // Memoize main content margin-left
+  const mainContentMarginLeft = useMemo(() => {
+    const sidebarWidth = sidebarCollapsed ? 64 : 240;
+    const subNavWidth = isSubNavVisible ? 240 : 0;
+    return sidebarWidth + subNavWidth;
+  }, [sidebarCollapsed, isSubNavVisible]);
+
+  // Legacy menu items (keeping for compatibility)
   const menuItems = [
     { key: 'home', icon: <HomeOutlined />, label: 'Trang chủ' },
     { key: 'analytics', icon: <BarChartOutlined />, label: 'Phân tích' },
@@ -4413,7 +5540,13 @@ useEffect(() => {
 
   const renderWorkspaceSettings = () => {
     const pageSize = 5;
-    const sortedTemplates = [...templates].sort((a, b) => {
+    // Filter templates by search query
+    const filteredTemplates = templateSearchQuery.trim()
+      ? templates.filter(t => 
+          t.name.toLowerCase().includes(templateSearchQuery.toLowerCase().trim())
+        )
+      : templates;
+    const sortedTemplates = [...filteredTemplates].sort((a, b) => {
       if (a.id === selectedTemplateId && b.id !== selectedTemplateId) return -1;
       if (b.id === selectedTemplateId && a.id !== selectedTemplateId) return 1;
       return 0;
@@ -4446,13 +5579,32 @@ useEffect(() => {
 
     const handleDeleteSelected = () => {
       if (selectedTemplateIds.size === 0) return;
-      const deletableTemplates = templates.filter(t => selectedTemplateIds.has(t.id) && !t.isDefault);
+      const deletableTemplates = templates.filter(t => selectedTemplateIds.has(t.id));
       if (deletableTemplates.length === 0) {
-        message.warning('Không thể xóa template mặc định');
         setSelectedTemplateIds(new Set());
         return;
       }
       
+      // Check if any selected template is in use
+      const hasTemplateInUse = selectedTemplateIds.has(selectedTemplateId);
+      
+      // If template in use is selected, show warning modal and prevent deletion
+      if (hasTemplateInUse) {
+        Modal.warning({
+          title: 'Không thể xóa template đang sử dụng',
+          content: 'Bạn không thể xóa template đang được sử dụng. Vui lòng bỏ chọn template đang sử dụng và chọn lại.',
+          okText: 'Đã hiểu',
+          onOk: () => {
+            // Auto-deselect the template in use
+            const newSelected = new Set(selectedTemplateIds);
+            newSelected.delete(selectedTemplateId);
+            setSelectedTemplateIds(newSelected);
+          }
+        });
+        return;
+      }
+      
+      // Regular deletion confirmation for templates not in use
       Modal.confirm({
         title: 'Xác nhận xóa',
         content: `Bạn có chắc chắn muốn xóa ${deletableTemplates.length} template đã chọn?`,
@@ -4460,12 +5612,9 @@ useEffect(() => {
         okType: 'danger',
         cancelText: 'Hủy',
         onOk: () => {
-          const updatedTemplates = templates.filter(t => !(selectedTemplateIds.has(t.id) && !t.isDefault));
+          const updatedTemplates = templates.filter(t => !selectedTemplateIds.has(t.id));
           setTemplates(updatedTemplates);
           setSelectedTemplateIds(new Set());
-          if (selectedTemplateIds.has(selectedTemplateId) && updatedTemplates.length > 0) {
-            setSelectedTemplateId(updatedTemplates[0].id);
-          }
           message.success(`Đã xóa ${deletableTemplates.length} template`);
         }
       });
@@ -4506,10 +5655,12 @@ useEffect(() => {
         { key: 'preview', label: 'Xem trước' },
         { type: 'divider' },
         { key: 'edit', label: 'Chỉnh sửa' },
-        { key: 'delete', label: <span style={{ color: '#D72C0D' }}>Xóa</span>, disabled: template.isDefault }
+        { key: 'delete', label: <span style={{ color: '#D72C0D' }}>Xóa</span> }
       ],
       onClick: ({ key }) => handleTemplateRowAction(key, template)
     });
+
+    const isEmptyState = sortedTemplates.length === 0 && !templateSearchQuery.trim();
 
     return (
       <Card
@@ -4517,7 +5668,7 @@ useEffect(() => {
         style={{ borderRadius: 20, border: '1px solid #E1E3E5', boxShadow: '0 20px 40px rgba(15,23,42,0.08)' }}
       >
         <div style={{ padding: 24 }}>
-          {selectedCount > 0 && (
+          {!isEmptyState && selectedCount > 0 && (
             <div style={{ 
               marginBottom: 16, 
               padding: '12px 16px', 
@@ -4539,18 +5690,34 @@ useEffect(() => {
               </Button>
             </div>
           )}
-          <div
-            style={{
-              display: 'grid',
-              gridTemplateColumns: templateRowLayout,
-              padding: '0 20px 8px',
-              color: '#6D7175',
-              fontSize: 12,
-              fontWeight: 500,
-              textAlign: 'left',
-              alignItems: 'center'
-            }}
-          >
+          {!isEmptyState && (
+            <div style={{ marginBottom: 16 }}>
+              <Input
+                placeholder="Tìm kiếm theo tên template"
+                prefix={<SearchOutlined />}
+                value={templateSearchQuery}
+                onChange={(e) => {
+                  setTemplateSearchQuery(e.target.value);
+                  setTemplateTablePage(1); // Reset to first page when searching
+                }}
+                allowClear
+                style={{ maxWidth: 400 }}
+              />
+            </div>
+          )}
+          {!isEmptyState && (
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: templateRowLayout,
+                padding: '0 20px 8px',
+                color: '#6D7175',
+                fontSize: 12,
+                fontWeight: 500,
+                textAlign: 'left',
+                alignItems: 'center'
+              }}
+            >
             <Checkbox
               indeterminate={someSelected && !allSelected}
               checked={allSelected && pagedTemplates.length > 0}
@@ -4563,8 +5730,10 @@ useEffect(() => {
               Thao tác
             </span>
           </div>
-          <Space direction="vertical" style={{ width: '100%' }} size={12}>
-            {pagedTemplates.map((template) => {
+          )}
+          {!isEmptyState && (
+            <Space direction="vertical" style={{ width: '100%' }} size={12}>
+              {pagedTemplates.map((template) => {
               const isSelected = selectedTemplateIds.has(template.id);
               return (
                 <div
@@ -4666,24 +5835,67 @@ useEffect(() => {
                   </div>
                 </div>
               );
-            })}
-            {sortedTemplates.length === 0 && (
-              <Empty description="Chưa có template nào" />
-            )}
-          </Space>
-          <div style={{ marginTop: 24, textAlign: 'right' }}>
-            <Pagination 
-              current={templateTablePage}
-              pageSize={pageSize}
-              total={sortedTemplates.length}
-              onChange={(page) => {
-                setTemplateTablePage(page);
-                setSelectedTemplateIds(new Set());
-              }}
-              showSizeChanger={false}
-              disabled={templates.length <= pageSize}
-            />
-          </div>
+              })}
+              {sortedTemplates.length === 0 && !isEmptyState && (
+                <Empty description="Không tìm thấy template nào" />
+              )}
+            </Space>
+          )}
+          {isEmptyState && (
+            <div style={{ 
+              padding: '60px 20px',
+              textAlign: 'center',
+              width: '100%'
+            }}>
+              <Empty 
+                description={
+                  <div>
+                    <div style={{ marginBottom: 8, fontSize: 16, color: '#262626' }}>
+                      Chưa có template nào
+                    </div>
+                    <div style={{ fontSize: 14, color: '#8c8c8c', marginBottom: 24 }}>
+                      Tạo template mới để bắt đầu quản lý workspace của bạn
+                    </div>
+                  </div>
+                }
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+              >
+                <Space size="middle" style={{ marginTop: 24 }}>
+                  <Button 
+                    icon={<AppstoreAddOutlined />} 
+                    onClick={() => setTemplateGalleryVisible(true)}
+                  >
+                    Tạo mới từ template
+                  </Button>
+                  <Button 
+                    type="primary" 
+                    icon={<PlusOutlined />} 
+                    onClick={() => {
+                      resetTemplateBuilder();
+                      setActiveModule('template-create');
+                    }}
+                  >
+                    Tạo
+                  </Button>
+                </Space>
+              </Empty>
+            </div>
+          )}
+          {!isEmptyState && (
+            <div style={{ marginTop: 24, textAlign: 'right' }}>
+              <Pagination 
+                current={templateTablePage}
+                pageSize={pageSize}
+                total={sortedTemplates.length}
+                onChange={(page) => {
+                  setTemplateTablePage(page);
+                  setSelectedTemplateIds(new Set());
+                }}
+                showSizeChanger={false}
+                disabled={sortedTemplates.length <= pageSize}
+              />
+            </div>
+          )}
         </div>
       </Card>
     );
@@ -4770,11 +5982,31 @@ useEffect(() => {
   
   const handleDeleteTemplate = (templateToDelete = selectedTemplate) => {
     if (!templateToDelete) return;
-    if (templateToDelete.isDefault) {
-      message.error('Không thể xóa template mặc định');
+    
+    // Special confirmation for template in use
+    if (templateToDelete.id === selectedTemplateId) {
+      Modal.confirm({
+        title: 'Xác nhận xóa template đang sử dụng',
+        content: `Template "${templateToDelete.name}" đang được sử dụng. Bạn có chắc chắn muốn xóa? Sau khi xóa, hệ thống sẽ tự động chuyển sang template khác.`,
+        okText: 'Xóa',
+        okType: 'danger',
+        cancelText: 'Hủy',
+        onOk: () => {
+          const updatedTemplates = templates.filter(t => t.id !== templateToDelete.id);
+          setTemplates(updatedTemplates);
+          if (updatedTemplates.length > 0) {
+            setSelectedTemplateId(updatedTemplates[0].id);
+            message.success(`Template "${templateToDelete.name}" đã được xóa. Đã chuyển sang template "${updatedTemplates[0].name}"`);
+          } else {
+            setSelectedTemplateId(null);
+            message.success(`Template "${templateToDelete.name}" đã được xóa`);
+          }
+        }
+      });
       return;
     }
     
+    // Regular confirmation for other templates
     Modal.confirm({
       title: 'Xác nhận xóa',
       content: `Bạn có chắc chắn muốn xóa template "${templateToDelete.name}"?`,
@@ -4784,9 +6016,6 @@ useEffect(() => {
       onOk: () => {
         const updatedTemplates = templates.filter(t => t.id !== templateToDelete.id);
         setTemplates(updatedTemplates);
-        if (templateToDelete.id === selectedTemplateId && updatedTemplates.length > 0) {
-          setSelectedTemplateId(updatedTemplates[0].id);
-        }
         message.success(`Template "${templateToDelete.name}" đã được xóa`);
       }
     });
@@ -5127,24 +6356,20 @@ useEffect(() => {
           <Header style={{ 
         background: '#fff', 
         padding: '0 24px', 
+        paddingLeft: '24px',
         display: 'flex', 
         alignItems: 'center',
         justifyContent: 'space-between',
         borderBottom: '1px solid #f0f0f0',
         position: 'sticky',
         top: 0,
-        zIndex: 1000,
+        zIndex: 1002,
+        width: '100%',
         boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
           <img src={logoSvg} alt="UpS Logo" style={{ height: 28 }} />
-          <Button
-            type="text"
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            onClick={() => setCollapsed(!collapsed)}
-            style={{ fontSize: 18 }}
-          />
-          <div style={{ fontSize: 13, color: '#8c8c8c', marginLeft: 16 }}>
+          <div style={{ fontSize: 13, color: '#8c8c8c' }}>
             Bảng điều khiển <span style={{ margin: '0 6px' }}>›</span> {moduleBreadcrumb}
           </div>
         </div>
@@ -5155,7 +6380,6 @@ useEffect(() => {
               <Button type="text" icon={<BellOutlined style={{ fontSize: 18 }} />} />
             </Badge>
           </Dropdown>
-          <Button type="text" icon={<SettingOutlined style={{ fontSize: 18 }} />} />
           <Dropdown overlay={userMenu} trigger={['click']}>
             <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
               <Avatar style={{ backgroundColor: '#1677FF' }} size="small">
@@ -5168,26 +6392,15 @@ useEffect(() => {
       </Header>
       
       <Layout>
-        {/* Sidebar */}
-        <Sider 
-          trigger={null} 
-          collapsible 
-          collapsed={collapsed}
-          style={{ background: '#fff', borderRight: '1px solid #f0f0f0' }}
-          width={200}
-        >
-          <Menu
-            mode="inline"
-            selectedKeys={[activeModule]}
-            onClick={({ key }) => setActiveModule(key)}
-            items={menuItems}
-            defaultOpenKeys={['workspace']}
-            style={{ borderRight: 0, marginTop: 8 }}
-          />
-        </Sider>
+        {/* GA4-style Sidebar */}
+        {renderSidebarNavigation()}
         
         {/* Main Content Area */}
-        <Layout style={{ background: '#FAFBFB' }}>
+        <Layout style={{ 
+          background: '#FAFBFB', 
+          marginLeft: mainContentMarginLeft,
+          transition: 'margin-left 0.2s ease'
+        }}>
           <Content style={{ padding: '24px' }}>
             {/* Page Header */}
             <div 
@@ -5200,23 +6413,7 @@ useEffect(() => {
                 gap: 16
               }}
             >
-              {activeModule === 'home' ? (
-                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', width: '100%' }}>
-                  <Button 
-                    type="text"
-                    icon={<EditOutlined />}
-                    onClick={() => setActiveModule('workspace-settings')}
-                    style={{ 
-                      color: '#6D7175',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: 6
-                    }}
-                  >
-                    Tùy chỉnh
-                  </Button>
-                </div>
-              ) : (
+              {activeModule !== 'home' && (
                 <Title 
                   level={3} 
                   style={{ 
@@ -5228,7 +6425,7 @@ useEffect(() => {
                   {activeModule === 'workspace-settings' ? '' : 'Tạo template mới'}
                 </Title>
               )}
-              {activeModule === 'workspace-settings' && (
+              {activeModule === 'workspace-settings' && templates.length > 0 && (
                 <Space size="middle" wrap>
                   <Button 
                     icon={<AppstoreAddOutlined />} 
@@ -5262,12 +6459,14 @@ useEffect(() => {
             
             {activeModule === 'home' ? (
             <>
-            {/* Date Period Selector */}
+            {/* Date Period Selector and Customize Action */}
             <div style={{ 
               marginBottom: 20,
               display: 'flex',
               alignItems: 'center',
-              gap: 16
+              justifyContent: 'space-between',
+              gap: 16,
+              flexWrap: 'wrap'
             }}>
               <Select
                 value={datePeriod}
@@ -5281,7 +6480,21 @@ useEffect(() => {
                   { label: 'Năm nay', value: 'thisYear' }
                 ]}
               />
+              <Button 
+                type="text"
+                icon={<EditOutlined />}
+                onClick={() => setActiveModule('workspace-settings')}
+                style={{ 
+                  color: '#6D7175',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 6
+                }}
+              >
+                Tùy chỉnh
+              </Button>
             </div>
+            
             <Row gutter={24}>
               {/* Left Main Column */}
               <Col xs={24} lg={17}>
@@ -5604,7 +6817,7 @@ useEffect(() => {
                                       </div>
                                       {guides.length > 0 && (
                                         isExpanded ? (
-                                          <MinusOutlined 
+                                          <DownOutlined 
                                             style={{ 
                                               fontSize: 12, 
                                               color: '#6D7175',
@@ -5620,7 +6833,7 @@ useEffect(() => {
                                             }}
                                           />
                                         ) : (
-                                          <PlusOutlined 
+                                          <RightOutlined 
                                             style={{ 
                                               fontSize: 12, 
                                               color: '#6D7175',
@@ -5794,7 +7007,7 @@ useEffect(() => {
                                       </div>
                                       {guides.length > 0 && (
                                         isExpanded ? (
-                                          <MinusOutlined 
+                                          <DownOutlined 
                                             style={{ 
                                               fontSize: 12, 
                                               color: '#6D7175',
@@ -5810,7 +7023,7 @@ useEffect(() => {
                                             }}
                                           />
                                         ) : (
-                                          <PlusOutlined 
+                                          <RightOutlined 
                                             style={{ 
                                               fontSize: 12, 
                                               color: '#6D7175',
@@ -6164,11 +7377,12 @@ useEffect(() => {
                     position: 'absolute',
                     inset: 16,
                     display: 'grid',
-                    gridTemplateColumns: 'repeat(6, minmax(0, 1fr))',
+                    gridTemplateColumns: `repeat(auto-fill, minmax(100px, 1fr))`,
                     gridAutoRows: `${PREVIEW_SLOT_HEIGHT}px`,
                     gap: PREVIEW_SLOT_GAP,
                     pointerEvents: 'none',
-                    zIndex: 1
+                    zIndex: 1,
+                    width: '100%'
                   }}
                 >
                   {Array.from({ length: 36 }).map((_, idx) => (
@@ -6177,7 +7391,8 @@ useEffect(() => {
                       style={{ 
                         border: '1px dashed #CBD5F5', 
                         borderRadius: 24, 
-                        background: 'rgba(241, 245, 249, 0.6)' 
+                        background: 'rgba(241, 245, 249, 0.6)',
+                        minWidth: 0
                       }} 
                     />
                   ))}
@@ -6195,8 +7410,9 @@ useEffect(() => {
                       >
                         <div style={{ 
                           display: 'grid', 
-                          gridTemplateColumns: 'repeat(6, minmax(0, 1fr))',
-                          gap: PREVIEW_SLOT_GAP 
+                          gridTemplateColumns: `repeat(auto-fill, minmax(100px, 1fr))`,
+                          gap: PREVIEW_SLOT_GAP,
+                          width: '100%'
                         }}>
                           {previewBlocks.map(block => {
                             const metric = allMetricsPool.find(m => m.id === block.metricId);
@@ -6230,7 +7446,7 @@ useEffect(() => {
 
       {/* Child Modal - Chỉnh Template */}
       <Modal
-        title={`Chỉnh sửa: ${selectedTemplate.name}`}
+        title={`Chỉnh sửa: ${selectedTemplate?.name || ''}`}
         open={editTemplateModalVisible}
         onCancel={() => handleCloseChildModal(false)}
         footer={[
@@ -7467,25 +8683,20 @@ useEffect(() => {
         footer={null}
         width={960}
       >
-        <Space direction="vertical" size={16} style={{ width: '100%' }}>
-          <Text type="secondary">
-            Chọn template mẫu để tạo workspace mới. Bạn có thể preview trước khi áp dụng.
-          </Text>
-          <Row gutter={[16, 16]}>
-            {templateWorkspaces.map(template => (
-              <Col xs={24} md={12} key={template.id}>
-                <Card
-                  hoverable
-                  style={{
-                    borderRadius: 16,
-                    border: '1px solid #E1E3E5',
-                    boxShadow: '0 8px 24px rgba(15,23,42,0.08)'
-                  }}
-                >
-                  <Space direction="vertical" size={8} style={{ width: '100%' }}>
-                    <Title level={4} style={{ margin: 0 }}>{template.name}</Title>
-                    <Text type="secondary">{template.description}</Text>
-                    <Space>
+        <Row gutter={[16, 16]}>
+          {templateWorkspaces.map(template => (
+            <Col xs={24} md={12} key={template.id}>
+              <Card
+                hoverable
+                style={{
+                  borderRadius: 16,
+                  border: '1px solid #E1E3E5',
+                  boxShadow: '0 8px 24px rgba(15,23,42,0.08)'
+                }}
+              >
+                <Space direction="vertical" size={8} style={{ width: '100%' }}>
+                  <Title level={4} style={{ margin: 0 }}>{template.name}</Title>
+                  <Space>
                       <Button 
                         icon={<EyeOutlined />} 
                         onClick={() => handleOpenPreview(template.templateId || template.id, 'gallery')}
@@ -7508,7 +8719,6 @@ useEffect(() => {
               </Col>
             ))}
           </Row>
-        </Space>
       </Modal>
 
       {/* Template Preview Modal */}

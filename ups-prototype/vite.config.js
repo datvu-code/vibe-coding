@@ -9,6 +9,9 @@ export default defineConfig({
     open: true,
     hmr: {
       overlay: true
+    },
+    fs: {
+      strict: false
     }
   },
   build: {
@@ -16,6 +19,6 @@ export default defineConfig({
   },
   optimizeDeps: {
     include: ['react', 'react-dom', 'antd', 'recharts']
-    }
+  }
 })
 
