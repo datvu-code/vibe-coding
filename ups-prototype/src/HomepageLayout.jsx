@@ -1,15 +1,15 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import {
-  Layout, Menu, Card, Statistic, Progress, Tabs, Timeline, Tag, 
-  Drawer, Modal, Popover, Tooltip, Button, List, Collapse, DatePicker, 
+  Layout, Menu, Card, Statistic, Progress, Tabs, Timeline, Tag,
+  Drawer, Modal, Popover, Tooltip, Button, List, Collapse, DatePicker,
   Badge, Avatar, Dropdown, Row, Col, Empty, Input, Form, Select, Space,
   Radio, message, Switch, Divider, Alert, Checkbox, Typography, Pagination
 } from 'antd';
 import {
-  HomeOutlined, BarChartOutlined, ShoppingOutlined, InboxOutlined, 
-  CarOutlined, BellOutlined, SettingOutlined, UserOutlined, MenuFoldOutlined, 
+  HomeOutlined, BarChartOutlined, ShoppingOutlined, InboxOutlined,
+  CarOutlined, BellOutlined, SettingOutlined, UserOutlined, MenuFoldOutlined,
   MenuUnfoldOutlined, PlusOutlined, MinusOutlined, EditOutlined, DeleteOutlined,
-  CaretRightOutlined, CaretDownOutlined, 
+  CaretRightOutlined, CaretDownOutlined,
   CommentOutlined, BulbOutlined, LineChartOutlined, ShareAltOutlined,
   DownloadOutlined, ArrowUpOutlined, ArrowDownOutlined, CloseOutlined,
   DragOutlined, SaveOutlined, AppstoreAddOutlined, EyeOutlined,
@@ -23,7 +23,7 @@ import {
 } from '@ant-design/icons';
 import { LineChart, Line as RechartLine, BarChart, Bar, PieChart, Pie as RechartPie, AreaChart, Area as RechartArea, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import dayjs from 'dayjs';
-import { MdHome, MdShoppingBag, MdBarChart, MdInbox, MdSettings } from 'react-icons/md';
+import { MdHome, MdShoppingBag, MdBarChart, MdInbox, MdSettings, MdAssignment } from 'react-icons/md';
 import logoSvg from './assets/logo-dark.svg';
 import { DndContext, closestCenter } from '@dnd-kit/core';
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy, rectSortingStrategy } from '@dnd-kit/sortable';
@@ -44,33 +44,33 @@ const templateData = {
   'default': {
     kpiOverview: {
       col1: [
-        { 
-          title: 'GMV ngày hôm qua', 
-          value: '₫2.4B', 
-          change: '+12.5%', 
+        {
+          title: 'GMV ngày hôm qua',
+          value: '₫2.4B',
+          change: '+12.5%',
           trend: 'up',
           subtext: 'vs hôm trước'
         },
-        { 
-          title: 'AOV', 
-          value: '₫1,925', 
-          change: '+3.8%', 
+        {
+          title: 'AOV',
+          value: '₫1,925',
+          change: '+3.8%',
           trend: 'up',
           subtext: 'vs hôm trước'
         }
       ],
       col2: [
-        { 
-          title: 'Số đơn ngày hôm qua', 
-          value: '1,247', 
-          change: '+8.2%', 
+        {
+          title: 'Số đơn ngày hôm qua',
+          value: '1,247',
+          change: '+8.2%',
           trend: 'up',
           subtext: 'vs hôm trước'
         },
-        { 
-          title: 'ROAS tổng ngày hôm qua', 
-          value: '4.2x', 
-          change: '-5.1%', 
+        {
+          title: 'ROAS tổng ngày hôm qua',
+          value: '4.2x',
+          change: '-5.1%',
           trend: 'down',
           subtext: 'vs hôm trước'
         }
@@ -84,10 +84,10 @@ const templateData = {
             { label: 'Website', value: '₫400M' }
           ]
         },
-        { 
-          title: 'Chi phí Ads hôm qua', 
-          value: '₫571M', 
-          change: '+15.3%', 
+        {
+          title: 'Chi phí Ads hôm qua',
+          value: '₫571M',
+          change: '+15.3%',
           trend: 'up',
           subtext: 'vs hôm trước'
         }
@@ -111,33 +111,33 @@ const templateData = {
   'template-ceo': {
     kpiOverview: {
       col1: [
-        { 
-          title: 'Tổng doanh thu tháng', 
-          value: '₫45.2B', 
-          change: '+18.5%', 
+        {
+          title: 'Tổng doanh thu tháng',
+          value: '₫45.2B',
+          change: '+18.5%',
           trend: 'up',
           subtext: 'vs tháng trước'
         },
-        { 
-          title: 'Lợi nhuận ròng', 
-          value: '₫8.5B', 
-          change: '+22.3%', 
+        {
+          title: 'Lợi nhuận ròng',
+          value: '₫8.5B',
+          change: '+22.3%',
           trend: 'up',
           subtext: 'vs tháng trước'
         }
       ],
       col2: [
-        { 
-          title: 'Tổng số đơn tháng', 
-          value: '23,450', 
-          change: '+15.2%', 
+        {
+          title: 'Tổng số đơn tháng',
+          value: '23,450',
+          change: '+15.2%',
           trend: 'up',
           subtext: 'vs tháng trước'
         },
-        { 
-          title: 'Tỷ suất lợi nhuận', 
-          value: '18.8%', 
-          change: '+2.1%', 
+        {
+          title: 'Tỷ suất lợi nhuận',
+          value: '18.8%',
+          change: '+2.1%',
           trend: 'up',
           subtext: 'vs tháng trước'
         }
@@ -151,10 +151,10 @@ const templateData = {
             { label: 'Website', value: '₫7.5B' }
           ]
         },
-        { 
-          title: 'Chi phí vận hành', 
-          value: '₫12.8B', 
-          change: '+8.5%', 
+        {
+          title: 'Chi phí vận hành',
+          value: '₫12.8B',
+          change: '+8.5%',
           trend: 'up',
           subtext: 'vs tháng trước'
         }
@@ -175,33 +175,33 @@ const templateData = {
   'template-ecommerce-manager': {
     kpiOverview: {
       col1: [
-        { 
-          title: 'GMV hôm nay', 
-          value: '₫2.8B', 
-          change: '+15.2%', 
+        {
+          title: 'GMV hôm nay',
+          value: '₫2.8B',
+          change: '+15.2%',
           trend: 'up',
           subtext: 'vs hôm qua'
         },
-        { 
-          title: 'Conversion Rate', 
-          value: '3.2%', 
-          change: '+0.5%', 
+        {
+          title: 'Conversion Rate',
+          value: '3.2%',
+          change: '+0.5%',
           trend: 'up',
           subtext: 'vs hôm qua'
         }
       ],
       col2: [
-        { 
-          title: 'Số đơn hôm nay', 
-          value: '1,456', 
-          change: '+12.8%', 
+        {
+          title: 'Số đơn hôm nay',
+          value: '1,456',
+          change: '+12.8%',
           trend: 'up',
           subtext: 'vs hôm qua'
         },
-        { 
-          title: 'Cart Abandonment', 
-          value: '68.5%', 
-          change: '-2.3%', 
+        {
+          title: 'Cart Abandonment',
+          value: '68.5%',
+          change: '-2.3%',
           trend: 'down',
           subtext: 'vs hôm qua'
         }
@@ -215,10 +215,10 @@ const templateData = {
             { label: 'Direct', value: '20%' }
           ]
         },
-        { 
-          title: 'Bounce Rate', 
-          value: '42.3%', 
-          change: '-1.8%', 
+        {
+          title: 'Bounce Rate',
+          value: '42.3%',
+          change: '-1.8%',
           trend: 'down',
           subtext: 'vs hôm qua'
         }
@@ -242,33 +242,33 @@ const templateData = {
   'template-media': {
     kpiOverview: {
       col1: [
-        { 
-          title: 'Chi tiêu Media hôm nay', 
-          value: '₫850M', 
-          change: '+22.5%', 
+        {
+          title: 'Chi tiêu Media hôm nay',
+          value: '₫850M',
+          change: '+22.5%',
           trend: 'up',
           subtext: 'vs hôm qua'
         },
-        { 
-          title: 'ROAS Media', 
-          value: '5.8x', 
-          change: '+0.8x', 
+        {
+          title: 'ROAS Media',
+          value: '5.8x',
+          change: '+0.8x',
           trend: 'up',
           subtext: 'vs hôm qua'
         }
       ],
       col2: [
-        { 
-          title: 'Impressions', 
-          value: '2.5M', 
-          change: '+18.2%', 
+        {
+          title: 'Impressions',
+          value: '2.5M',
+          change: '+18.2%',
           trend: 'up',
           subtext: 'vs hôm qua'
         },
-        { 
-          title: 'CTR', 
-          value: '2.8%', 
-          change: '+0.3%', 
+        {
+          title: 'CTR',
+          value: '2.8%',
+          change: '+0.3%',
           trend: 'up',
           subtext: 'vs hôm qua'
         }
@@ -282,10 +282,10 @@ const templateData = {
             { label: 'TikTok', value: '₫220M' }
           ]
         },
-        { 
-          title: 'CPC trung bình', 
-          value: '₫3,450', 
-          change: '-5.2%', 
+        {
+          title: 'CPC trung bình',
+          value: '₫3,450',
+          change: '-5.2%',
           trend: 'down',
           subtext: 'vs hôm qua'
         }
@@ -309,33 +309,33 @@ const templateData = {
   'template-marketing': {
     kpiOverview: {
       col1: [
-        { 
-          title: 'Marketing ROI', 
-          value: '4.5x', 
-          change: '+0.6x', 
+        {
+          title: 'Marketing ROI',
+          value: '4.5x',
+          change: '+0.6x',
           trend: 'up',
           subtext: 'vs tháng trước'
         },
-        { 
-          title: 'CAC', 
-          value: '₫125K', 
-          change: '-8.2%', 
+        {
+          title: 'CAC',
+          value: '₫125K',
+          change: '-8.2%',
           trend: 'down',
           subtext: 'vs tháng trước'
         }
       ],
       col2: [
-        { 
-          title: 'Lead Generated', 
-          value: '8,450', 
-          change: '+25.3%', 
+        {
+          title: 'Lead Generated',
+          value: '8,450',
+          change: '+25.3%',
           trend: 'up',
           subtext: 'vs tháng trước'
         },
-        { 
-          title: 'Email Open Rate', 
-          value: '28.5%', 
-          change: '+3.2%', 
+        {
+          title: 'Email Open Rate',
+          value: '28.5%',
+          change: '+3.2%',
           trend: 'up',
           subtext: 'vs tháng trước'
         }
@@ -349,10 +349,10 @@ const templateData = {
             { label: 'Seasonal', value: '37%' }
           ]
         },
-        { 
-          title: 'Social Engagement', 
-          value: '12.5K', 
-          change: '+18.5%', 
+        {
+          title: 'Social Engagement',
+          value: '12.5K',
+          change: '+18.5%',
           trend: 'up',
           subtext: 'vs tháng trước'
         }
@@ -373,33 +373,33 @@ const templateData = {
   'template-accounting': {
     kpiOverview: {
       col1: [
-        { 
-          title: 'Doanh thu thuần', 
-          value: '₫42.8B', 
-          change: '+12.3%', 
+        {
+          title: 'Doanh thu thuần',
+          value: '₫42.8B',
+          change: '+12.3%',
           trend: 'up',
           subtext: 'vs tháng trước'
         },
-        { 
-          title: 'Chi phí hàng bán', 
-          value: '₫28.5B', 
-          change: '+8.5%', 
+        {
+          title: 'Chi phí hàng bán',
+          value: '₫28.5B',
+          change: '+8.5%',
           trend: 'up',
           subtext: 'vs tháng trước'
         }
       ],
       col2: [
-        { 
-          title: 'Lợi nhuận gộp', 
-          value: '₫14.3B', 
-          change: '+20.1%', 
+        {
+          title: 'Lợi nhuận gộp',
+          value: '₫14.3B',
+          change: '+20.1%',
           trend: 'up',
           subtext: 'vs tháng trước'
         },
-        { 
-          title: 'Biên lợi nhuận', 
-          value: '33.4%', 
-          change: '+2.1%', 
+        {
+          title: 'Biên lợi nhuận',
+          value: '33.4%',
+          change: '+2.1%',
           trend: 'up',
           subtext: 'vs tháng trước'
         }
@@ -413,10 +413,10 @@ const templateData = {
             { label: 'Marketing', value: '₫8.2B' }
           ]
         },
-        { 
-          title: 'Dòng tiền ròng', 
-          value: '₫9.8B', 
-          change: '+15.6%', 
+        {
+          title: 'Dòng tiền ròng',
+          value: '₫9.8B',
+          change: '+15.6%',
           trend: 'up',
           subtext: 'vs tháng trước'
         }
@@ -598,36 +598,38 @@ const allMetricsPool = [
   { id: 'orders-yesterday', name: 'Số đơn ngày hôm qua', domain: 'Sales', value: '1,247', change: '+8.2%', trend: 'up', changePrevPeriod: '+5.7%', trendPrevPeriod: 'up' },
   { id: 'aov', name: 'AOV', domain: 'Sales', value: '₫1,925', change: '+3.8%', trend: 'up', changePrevPeriod: '+2.1%', trendPrevPeriod: 'up' },
   { id: 'revenue-net', name: 'Doanh thu thuần', domain: 'Sales', value: '₫2.1B', change: '+10.2%', trend: 'up', changePrevPeriod: '+7.5%', trendPrevPeriod: 'up' },
-  { id: 'gmv-channel', name: 'GMV theo kênh', domain: 'Sales', breakdown: [
-    { label: 'Shopee', value: '₫1.2B' },
-    { label: 'TikTok', value: '₫800M' },
-    { label: 'Website', value: '₫400M' }
-  ]},
-  
+  {
+    id: 'gmv-channel', name: 'GMV theo kênh', domain: 'Sales', breakdown: [
+      { label: 'Shopee', value: '₫1.2B' },
+      { label: 'TikTok', value: '₫800M' },
+      { label: 'Website', value: '₫400M' }
+    ]
+  },
+
   // Ads Domain
   { id: 'roas', name: 'ROAS tổng ngày hôm qua', domain: 'Ads', value: '4.2x', change: '-5.1%', trend: 'down', changePrevPeriod: '-3.2%', trendPrevPeriod: 'down' },
   { id: 'ads-cost', name: 'Chi phí Ads hôm qua', domain: 'Ads', value: '₫571M', change: '+15.3%', trend: 'up', changePrevPeriod: '+12.8%', trendPrevPeriod: 'up' },
   { id: 'cpc', name: 'CPC trung bình', domain: 'Ads', value: '₫3,500', change: '-2.1%', trend: 'down', changePrevPeriod: '-1.5%', trendPrevPeriod: 'down' },
   { id: 'ctr', name: 'CTR', domain: 'Ads', value: '2.8%', change: '+0.5%', trend: 'up', changePrevPeriod: '+0.3%', trendPrevPeriod: 'up' },
   { id: 'ad-impression', name: 'Lượt hiển thị Ads', domain: 'Ads', value: '2.4M', change: '+18.3%', trend: 'up', changePrevPeriod: '+15.2%', trendPrevPeriod: 'up' },
-  
+
   // Ops Domain
   { id: 'fulfillment-rate', name: 'Tỷ lệ hoàn thành đơn', domain: 'Ops', value: '94.5%', change: '+1.2%', trend: 'up', changePrevPeriod: '+0.8%', trendPrevPeriod: 'up' },
   { id: 'cancel-rate', name: 'Tỷ lệ hủy đơn', domain: 'Ops', value: '3.2%', change: '-0.5%', trend: 'down', changePrevPeriod: '-0.3%', trendPrevPeriod: 'down' },
   { id: 'return-rate', name: 'Tỷ lệ trả hàng', domain: 'Ops', value: '2.1%', change: '-0.3%', trend: 'down', changePrevPeriod: '-0.2%', trendPrevPeriod: 'down' },
   { id: 'avg-ship-time', name: 'Thời gian giao TB', domain: 'Ops', value: '2.8 ngày', change: '-0.2', trend: 'down', changePrevPeriod: '-0.1', trendPrevPeriod: 'down' },
-  
+
   // Inventory Domain
   { id: 'stock-value', name: 'Giá trị tồn kho', domain: 'Inventory', value: '₫15.3B', change: '+5.2%', trend: 'up', changePrevPeriod: '+4.1%', trendPrevPeriod: 'up' },
   { id: 'sku-count', name: 'Số SKU', domain: 'Inventory', value: '1,234', change: '+12', trend: 'up', changePrevPeriod: '+8', trendPrevPeriod: 'up' },
   { id: 'turnover-rate', name: 'Vòng quay kho', domain: 'Inventory', value: '8.5x', change: '+0.3x', trend: 'up', changePrevPeriod: '+0.2x', trendPrevPeriod: 'up' },
   { id: 'out-of-stock', name: 'SKU hết hàng', domain: 'Inventory', value: '23', change: '+5', trend: 'up', changePrevPeriod: '+3', trendPrevPeriod: 'up' },
-  
+
   // Accounting Domain
   { id: 'profit', name: 'Lợi nhuận', domain: 'Kế toán', value: '₫425M', change: '+8.7%', trend: 'up', changePrevPeriod: '+6.5%', trendPrevPeriod: 'up' },
   { id: 'margin', name: 'Margin', domain: 'Kế toán', value: '18.5%', change: '+1.2%', trend: 'up', changePrevPeriod: '+0.9%', trendPrevPeriod: 'up' },
   { id: 'cogs', name: 'Giá vốn hàng bán', domain: 'Kế toán', value: '₫1.8B', change: '+10.5%', trend: 'up', changePrevPeriod: '+8.2%', trendPrevPeriod: 'up' },
-  
+
   // Customer Domain
   { id: 'new-customers', name: 'Khách hàng mới', domain: 'Customer', value: '347', change: '+12.3%', trend: 'up', changePrevPeriod: '+9.8%', trendPrevPeriod: 'up' },
   { id: 'repeat-rate', name: 'Tỷ lệ mua lại', domain: 'Customer', value: '28.5%', change: '+2.1%', trend: 'up', changePrevPeriod: '+1.5%', trendPrevPeriod: 'up' },
@@ -718,21 +720,21 @@ const VanHanhCard = () => {
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#waferSilicon1)" />
-          
+
           <g transform="translate(15%, 25%)">
             <rect x="-70" y="-50" width="140" height="100" fill="none" stroke="#C0C0C0" strokeWidth="1" rx="4" />
-            <path d="M -50 -35 L 50 -35 M -50 -20 L 50 -20 M -50 -5 L 50 -5 M -50 10 L 50 10 M -50 25 L 50 25" 
-                  stroke="#D0D0D0" strokeWidth="0.5" />
-            <path d="M -35 -50 L -35 50 M -10 -50 L -10 50 M 15 -50 L 15 50 M 40 -50 L 40 50" 
-                  stroke="#D0D0D0" strokeWidth="0.5" />
-            <path d="M -70 -30 L -50 -30 L -50 -20 L 50 -20 L 50 -10 L 70 -10" 
-                  stroke="#B0B0B0" strokeWidth="0.6" fill="none" />
-            <path d="M -70 10 L -50 10 L -50 20 L 50 20 L 50 30 L 70 30" 
-                  stroke="#B0B0B0" strokeWidth="0.6" fill="none" />
+            <path d="M -50 -35 L 50 -35 M -50 -20 L 50 -20 M -50 -5 L 50 -5 M -50 10 L 50 10 M -50 25 L 50 25"
+              stroke="#D0D0D0" strokeWidth="0.5" />
+            <path d="M -35 -50 L -35 50 M -10 -50 L -10 50 M 15 -50 L 15 50 M 40 -50 L 40 50"
+              stroke="#D0D0D0" strokeWidth="0.5" />
+            <path d="M -70 -30 L -50 -30 L -50 -20 L 50 -20 L 50 -10 L 70 -10"
+              stroke="#B0B0B0" strokeWidth="0.6" fill="none" />
+            <path d="M -70 10 L -50 10 L -50 20 L 50 20 L 50 30 L 70 30"
+              stroke="#B0B0B0" strokeWidth="0.6" fill="none" />
           </g>
         </svg>
       </div>
-      
+
       {/* Stacked Cards Visual Metaphor */}
       <div style={{
         position: 'relative',
@@ -757,7 +759,7 @@ const VanHanhCard = () => {
           zIndex: 1,
           transform: 'rotate(-5deg)'
         }} />
-        
+
         {/* Middle card - peeking left */}
         <div style={{
           position: 'absolute',
@@ -770,7 +772,7 @@ const VanHanhCard = () => {
           zIndex: 2,
           transform: 'rotate(5deg)'
         }} />
-        
+
         {/* Top card - main placeholder */}
         <div style={{
           position: 'relative',
@@ -796,7 +798,7 @@ const VanHanhCard = () => {
           }} />
         </div>
       </div>
-      
+
       {/* Text Content */}
       <div style={{ textAlign: 'center', position: 'relative', zIndex: 1, flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
         <div>
@@ -820,7 +822,7 @@ const VanHanhCard = () => {
             Quản lý đơn hàng và vận hành hệ thống
           </p>
         </div>
-        
+
         {/* CTA Buttons */}
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px', flexWrap: 'wrap', marginTop: 'auto' }}>
           <Button
@@ -897,15 +899,15 @@ const QuanTriCard = () => {
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#waferPattern2)" />
-          
+
           <g transform="translate(20%, 30%)">
             <rect x="-60" y="-45" width="120" height="90" fill="none" stroke="#C0C0C0" strokeWidth="1" rx="3" />
-            <path d="M -40 -30 L 40 -30 M -40 -15 L 40 -15 M -40 0 L 40 0 M -40 15 L 40 15 M -40 30 L 40 30" 
-                  stroke="#D0D0D0" strokeWidth="0.5" />
-            <path d="M -30 -45 L -30 45 M -15 -45 L -15 45 M 0 -45 L 0 45 M 15 -45 L 15 45 M 30 -45 L 30 45" 
-                  stroke="#D0D0D0" strokeWidth="0.5" />
-            <path d="M -50 -40 L -30 -20 M 30 -20 L 50 -40 M -50 40 L -30 20 M 30 20 L 50 40" 
-                  stroke="#C0C0C0" strokeWidth="0.4" />
+            <path d="M -40 -30 L 40 -30 M -40 -15 L 40 -15 M -40 0 L 40 0 M -40 15 L 40 15 M -40 30 L 40 30"
+              stroke="#D0D0D0" strokeWidth="0.5" />
+            <path d="M -30 -45 L -30 45 M -15 -45 L -15 45 M 0 -45 L 0 45 M 15 -45 L 15 45 M 30 -45 L 30 45"
+              stroke="#D0D0D0" strokeWidth="0.5" />
+            <path d="M -50 -40 L -30 -20 M 30 -20 L 50 -40 M -50 40 L -30 20 M 30 20 L 50 40"
+              stroke="#C0C0C0" strokeWidth="0.4" />
             <circle cx="-60" cy="-30" r="1.5" fill="#B0B0B0" />
             <circle cx="-60" cy="0" r="1.5" fill="#B0B0B0" />
             <circle cx="-60" cy="30" r="1.5" fill="#B0B0B0" />
@@ -915,7 +917,7 @@ const QuanTriCard = () => {
           </g>
         </svg>
       </div>
-      
+
       {/* Stacked Cards Visual Metaphor */}
       <div style={{
         position: 'relative',
@@ -940,7 +942,7 @@ const QuanTriCard = () => {
           zIndex: 1,
           transform: 'rotate(-5deg)'
         }} />
-        
+
         {/* Middle card - peeking left */}
         <div style={{
           position: 'absolute',
@@ -953,7 +955,7 @@ const QuanTriCard = () => {
           zIndex: 2,
           transform: 'rotate(5deg)'
         }} />
-        
+
         {/* Top card - main placeholder */}
         <div style={{
           position: 'relative',
@@ -979,7 +981,7 @@ const QuanTriCard = () => {
           }} />
         </div>
       </div>
-      
+
       {/* Text Content */}
       <div style={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
         <h3 style={{
@@ -1001,7 +1003,7 @@ const QuanTriCard = () => {
         }}>
           Báo cáo và phân tích dữ liệu
         </p>
-        
+
         {/* CTA Buttons */}
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
           <Button
@@ -1077,13 +1079,13 @@ const CaiDatCard = () => {
             </pattern>
           </defs>
           <rect width="100%" height="100%" fill="url(#controlGrid)" />
-          
+
           <g transform="translate(20%, 30%)">
             <rect x="-60" y="-45" width="120" height="90" fill="none" stroke="#C0C0C0" strokeWidth="1" rx="4" />
-            <path d="M -40 -30 L 40 -30 M -40 -15 L 40 -15 M -40 0 L 40 0 M -40 15 L 40 15 M -40 30 L 40 30" 
-                  stroke="#D0D0D0" strokeWidth="0.5" />
-            <path d="M -30 -45 L -30 45 M -10 -45 L -10 45 M 10 -45 L 10 45 M 30 -45 L 30 45" 
-                  stroke="#D0D0D0" strokeWidth="0.5" />
+            <path d="M -40 -30 L 40 -30 M -40 -15 L 40 -15 M -40 0 L 40 0 M -40 15 L 40 15 M -40 30 L 40 30"
+              stroke="#D0D0D0" strokeWidth="0.5" />
+            <path d="M -30 -45 L -30 45 M -10 -45 L -10 45 M 10 -45 L 10 45 M 30 -45 L 30 45"
+              stroke="#D0D0D0" strokeWidth="0.5" />
             <circle cx="-40" cy="-20" r="3" fill="#B0B0B0" />
             <circle cx="0" cy="-20" r="3" fill="#B0B0B0" />
             <circle cx="40" cy="-20" r="3" fill="#B0B0B0" />
@@ -1093,7 +1095,7 @@ const CaiDatCard = () => {
           </g>
         </svg>
       </div>
-      
+
       {/* Stacked Cards Visual Metaphor */}
       <div style={{
         position: 'relative',
@@ -1118,7 +1120,7 @@ const CaiDatCard = () => {
           zIndex: 1,
           transform: 'rotate(-5deg)'
         }} />
-        
+
         {/* Middle card - peeking left */}
         <div style={{
           position: 'absolute',
@@ -1131,7 +1133,7 @@ const CaiDatCard = () => {
           zIndex: 2,
           transform: 'rotate(5deg)'
         }} />
-        
+
         {/* Top card - main placeholder */}
         <div style={{
           position: 'relative',
@@ -1157,7 +1159,7 @@ const CaiDatCard = () => {
           }} />
         </div>
       </div>
-      
+
       {/* Text Content */}
       <div style={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
         <h3 style={{
@@ -1179,7 +1181,7 @@ const CaiDatCard = () => {
         }}>
           Cấu hình và quản lý hệ thống
         </p>
-        
+
         {/* CTA Buttons */}
         <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
           <Button
@@ -1211,10 +1213,10 @@ const CaiDatCard = () => {
 
 // KPI Overview Card
 const KPICard = ({ title, value, change, trend, changePrevPeriod, trendPrevPeriod, subtext, breakdown }) => (
-  <Card 
-    size="small" 
-    style={{ 
-      height: '100%', 
+  <Card
+    size="small"
+    style={{
+      height: '100%',
       borderRadius: 12,
       background: '#F7F7F7',
       border: 'none',
@@ -1235,45 +1237,45 @@ const KPICard = ({ title, value, change, trend, changePrevPeriod, trendPrevPerio
     ) : (
       <div style={{ position: 'relative', minHeight: '100px' }}>
         {/* Title at top */}
-        <div style={{ 
-          fontSize: 13, 
-          color: '#2b2b2b', 
-          marginBottom: 12, 
+        <div style={{
+          fontSize: 13,
+          color: '#2b2b2b',
+          marginBottom: 12,
           fontWeight: 500,
           lineHeight: 1.4
         }}>
           {title}
         </div>
-        
+
         {/* Large value in center */}
-        <div style={{ 
-          fontSize: 24, 
-          fontWeight: 700, 
+        <div style={{
+          fontSize: 24,
+          fontWeight: 700,
           color: '#2b2b2b',
           marginBottom: 8,
           lineHeight: 1.2
         }}>
           {value}
         </div>
-        
+
         {/* First row: "So với hôm qua" (left) + Change% (right) */}
-        <div style={{ 
+        <div style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           marginTop: 8
         }}>
           {/* Left: "So với hôm qua" text */}
-          <div style={{ 
-            fontSize: 12, 
+          <div style={{
+            fontSize: 12,
             color: '#6D7175'
           }}>
             So với hôm qua
           </div>
-          
+
           {/* Right: Change percentage */}
           {change && (
-            <div style={{ 
+            <div style={{
               fontSize: 14,
               fontWeight: 600,
               color: trend === 'up' ? '#008060' : '#D72C0D',
@@ -1285,9 +1287,9 @@ const KPICard = ({ title, value, change, trend, changePrevPeriod, trendPrevPerio
             </div>
           )}
         </div>
-        
+
         {/* Second row: "So với kỳ trước" (left) + Change% (right) */}
-        <div style={{ 
+        <div style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -1295,8 +1297,8 @@ const KPICard = ({ title, value, change, trend, changePrevPeriod, trendPrevPerio
         }}>
           {/* Left: "So với kỳ trước" text */}
           <Tooltip title="So với cùng kỳ tháng trước">
-            <div style={{ 
-              fontSize: 12, 
+            <div style={{
+              fontSize: 12,
               color: '#6D7175',
               borderBottom: '1px dotted #6D7175',
               cursor: 'help',
@@ -1306,10 +1308,10 @@ const KPICard = ({ title, value, change, trend, changePrevPeriod, trendPrevPerio
               So với kỳ trước
             </div>
           </Tooltip>
-          
+
           {/* Right: Change percentage */}
           {changePrevPeriod && (
-            <div style={{ 
+            <div style={{
               fontSize: 14,
               fontWeight: 600,
               color: trendPrevPeriod === 'up' ? '#008060' : '#D72C0D',
@@ -1329,9 +1331,9 @@ const KPICard = ({ title, value, change, trend, changePrevPeriod, trendPrevPerio
 // Custom Sparkles Icon
 const SparklesIcon = ({ style }) => (
   <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" style={style}>
-    <path d="M5.58115 0.0946875L6.08303 1.48844C6.64053 3.03531 7.85865 4.25344 9.40553 4.81094L10.7993 5.31281C10.9249 5.35844 10.9249 5.53656 10.7993 5.58156L9.40553 6.08344C7.85865 6.64094 6.64053 7.85906 6.08303 9.40594L5.58115 10.7997C5.53553 10.9253 5.3574 10.9253 5.3124 10.7997L4.81053 9.40594C4.25303 7.85906 3.0349 6.64094 1.48803 6.08344L0.0942798 5.58156C-0.0313452 5.53594 -0.0313452 5.35781 0.0942798 5.31281L1.48803 4.81094C3.0349 4.25344 4.25303 3.03531 4.81053 1.48844L5.3124 0.0946875C5.3574 -0.0315625 5.53553 -0.0315625 5.58115 0.0946875Z" fill="white"/>
-    <path d="M11.6368 6.58637L11.8912 7.29199C12.1737 8.07512 12.7906 8.69199 13.5737 8.97449L14.2793 9.22887C14.3431 9.25199 14.3431 9.34199 14.2793 9.36512L13.5737 9.61949C12.7906 9.90199 12.1737 10.5189 11.8912 11.302L11.6368 12.0076C11.6137 12.0714 11.5237 12.0714 11.5006 12.0076L11.2462 11.302C10.9637 10.5189 10.3468 9.90199 9.56368 9.61949L8.85805 9.36512C8.7943 9.34199 8.7943 9.25199 8.85805 9.22887L9.56368 8.97449C10.3468 8.69199 10.9637 8.07512 11.2462 7.29199L11.5006 6.58637C11.5237 6.52199 11.6143 6.52199 11.6368 6.58637Z" fill="white"/>
-    <path d="M3.28585 10.4205L3.48093 10.9616C3.69757 11.5621 4.17064 12.0352 4.7712 12.2519L5.31233 12.4469C5.36122 12.4647 5.36122 12.5337 5.31233 12.5514L4.7712 12.7465C4.17064 12.9631 3.69757 13.4362 3.48093 14.0368L3.28585 14.5779C3.26812 14.6268 3.1991 14.6268 3.18137 14.5779L2.98629 14.0368C2.76965 13.4362 2.29658 12.9631 1.69602 12.7465L1.15489 12.5514C1.106 12.5337 1.106 12.4647 1.15489 12.4469L1.69602 12.2519C2.29658 12.0352 2.76965 11.5621 2.98629 10.9616L3.18137 10.4205C3.1991 10.3716 3.2686 10.3716 3.28585 10.4205Z" fill="white"/>
+    <path d="M5.58115 0.0946875L6.08303 1.48844C6.64053 3.03531 7.85865 4.25344 9.40553 4.81094L10.7993 5.31281C10.9249 5.35844 10.9249 5.53656 10.7993 5.58156L9.40553 6.08344C7.85865 6.64094 6.64053 7.85906 6.08303 9.40594L5.58115 10.7997C5.53553 10.9253 5.3574 10.9253 5.3124 10.7997L4.81053 9.40594C4.25303 7.85906 3.0349 6.64094 1.48803 6.08344L0.0942798 5.58156C-0.0313452 5.53594 -0.0313452 5.35781 0.0942798 5.31281L1.48803 4.81094C3.0349 4.25344 4.25303 3.03531 4.81053 1.48844L5.3124 0.0946875C5.3574 -0.0315625 5.53553 -0.0315625 5.58115 0.0946875Z" fill="white" />
+    <path d="M11.6368 6.58637L11.8912 7.29199C12.1737 8.07512 12.7906 8.69199 13.5737 8.97449L14.2793 9.22887C14.3431 9.25199 14.3431 9.34199 14.2793 9.36512L13.5737 9.61949C12.7906 9.90199 12.1737 10.5189 11.8912 11.302L11.6368 12.0076C11.6137 12.0714 11.5237 12.0714 11.5006 12.0076L11.2462 11.302C10.9637 10.5189 10.3468 9.90199 9.56368 9.61949L8.85805 9.36512C8.7943 9.34199 8.7943 9.25199 8.85805 9.22887L9.56368 8.97449C10.3468 8.69199 10.9637 8.07512 11.2462 7.29199L11.5006 6.58637C11.5237 6.52199 11.6143 6.52199 11.6368 6.58637Z" fill="white" />
+    <path d="M3.28585 10.4205L3.48093 10.9616C3.69757 11.5621 4.17064 12.0352 4.7712 12.2519L5.31233 12.4469C5.36122 12.4647 5.36122 12.5337 5.31233 12.5514L4.7712 12.7465C4.17064 12.9631 3.69757 13.4362 3.48093 14.0368L3.28585 14.5779C3.26812 14.6268 3.1991 14.6268 3.18137 14.5779L2.98629 14.0368C2.76965 13.4362 2.29658 12.9631 1.69602 12.7465L1.15489 12.5514C1.106 12.5337 1.106 12.4647 1.15489 12.4469L1.69602 12.2519C2.29658 12.0352 2.76965 11.5621 2.98629 10.9616L3.18137 10.4205C3.1991 10.3716 3.2686 10.3716 3.28585 10.4205Z" fill="white" />
   </svg>
 );
 
@@ -1389,10 +1391,10 @@ const SortableMetricCard = ({ metric, isReorderMode }) => {
   return (
     <div ref={setNodeRef} style={style} {...attributes} {...listeners}>
       {isReorderMode && (
-        <div style={{ 
-          position: 'absolute', 
-          top: 8, 
-          right: 8, 
+        <div style={{
+          position: 'absolute',
+          top: 8,
+          right: 8,
           zIndex: 10,
           background: '#fff',
           borderRadius: 8,
@@ -1557,20 +1559,20 @@ const SortablePreviewBlock = ({
         {isHovered && (
           <Space size={4}>
             <Tooltip title="Di chuyển">
-              <Button 
-                size="small" 
-                type="text" 
-                icon={<DragOutlined />} 
+              <Button
+                size="small"
+                type="text"
+                icon={<DragOutlined />}
                 {...dragHandleProps}
                 onClick={(e) => e.stopPropagation()}
               />
             </Tooltip>
             <Tooltip title="Xóa">
-              <Button 
-                size="small" 
-                type="text" 
-                danger 
-                icon={<DeleteOutlined />} 
+              <Button
+                size="small"
+                type="text"
+                danger
+                icon={<DeleteOutlined />}
                 onClick={(e) => {
                   e.stopPropagation();
                   onRemove(block.metricId);
@@ -1583,14 +1585,14 @@ const SortablePreviewBlock = ({
       {renderPreviewContent()}
       {isHovered && (
         <div style={{ position: 'absolute', bottom: 8, right: 8 }}>
-          <Dropdown 
+          <Dropdown
             menu={{
               items: [
                 { key: 'smaller', label: 'Thu nhỏ 1 slot' },
                 { key: 'larger', label: 'Phóng to 1 slot' }
               ],
               onClick: ({ key }) => onResize(block.id, key === 'larger' ? 1 : -1)
-            }} 
+            }}
             trigger={['click']}
           >
             <Button
@@ -1611,9 +1613,9 @@ const SortablePreviewBlock = ({
 // Alert Item Component - Shopify Style with AI touch
 const AlertItem = ({ title, count, unit, severity, metric, desc }) => {
   const bgColor = severity === 'error' ? '#FEF3F2' : '#FFF8F1';
-  
+
   return (
-    <div style={{ 
+    <div style={{
       display: 'flex',
       alignItems: 'center',
       padding: '14px 16px',
@@ -1624,37 +1626,37 @@ const AlertItem = ({ title, count, unit, severity, metric, desc }) => {
       cursor: 'pointer',
       gap: 12
     }}
-    onMouseEnter={(e) => {
-      e.currentTarget.style.background = severity === 'error' ? '#FEE4E2' : '#FFE8D7';
-    }}
-    onMouseLeave={(e) => {
-      e.currentTarget.style.background = bgColor;
-    }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = severity === 'error' ? '#FEE4E2' : '#FFE8D7';
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = bgColor;
+      }}
     >
       {/* Content - Number and Title Only */}
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
           {/* Number - Primary Color (Not Semantic) */}
-          <span style={{ 
-            fontSize: 24, 
-            fontWeight: 700, 
+          <span style={{
+            fontSize: 24,
+            fontWeight: 700,
             color: '#2b2b2b',
             lineHeight: 1
           }}>
             {count}
           </span>
           {unit && (
-            <span style={{ 
-              fontSize: 14, 
-              fontWeight: 600, 
+            <span style={{
+              fontSize: 14,
+              fontWeight: 600,
               color: '#6D7175',
               lineHeight: 1
             }}>
               {unit}
             </span>
           )}
-          <Text style={{ 
-            fontSize: 13, 
+          <Text style={{
+            fontSize: 13,
             fontWeight: 500,
             color: '#2b2b2b',
             marginLeft: 4
@@ -1676,18 +1678,50 @@ const getGreeting = () => {
 };
 
 // Main Layout Component
+// Custom Tooltip component that only shows when content is truncated
+const TruncatedTooltip = ({ children, title, placement = 'top', style }) => {
+  const [isTruncated, setIsTruncated] = useState(false);
+  const textRef = useRef(null);
+
+  useEffect(() => {
+    const checkTruncation = () => {
+      if (textRef.current) {
+        setIsTruncated(textRef.current.scrollWidth > textRef.current.clientWidth);
+      }
+    };
+
+    checkTruncation();
+    // Optional: Add resize listener if needed, but for this sidebar width is fixed/transitioned
+    // window.addEventListener('resize', checkTruncation);
+    // return () => window.removeEventListener('resize', checkTruncation);
+  }, [children]);
+
+  const content = (
+    <span ref={textRef} style={{ ...style, display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+      {children}
+    </span>
+  );
+
+  return isTruncated ? (
+    <Tooltip title={title} placement={placement}>
+      {content}
+    </Tooltip>
+  ) : content;
+};
+
 const HomepageLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [dateRange, setDateRange] = useState([dayjs().subtract(7, 'day'), dayjs()]);
-  
+
   // Sidebar navigation state
   const [expandedNavItems, setExpandedNavItems] = useState(new Set());
   const [activeNavItem, setActiveNavItem] = useState('home');
   const [hoveredNavItem, setHoveredNavItem] = useState(null);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false); // Always expanded
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true); // Default collapsed, expand on hover
+  const [sidebarLocked, setSidebarLocked] = useState(false); // Lock sidebar collapsed until mouse leave
   const [sidebarHovered, setSidebarHovered] = useState(false);
   const [expandedSubNav, setExpandedSubNav] = useState(null); // Track which parent item has sub-nav expanded (key of parent)
-  
+
   // Get personalized greeting
   const userName = 'Dat'; // This could come from auth context
   const greeting = getGreeting();
@@ -1699,7 +1733,7 @@ const HomepageLayout = () => {
     { id: 3, date: '2025-11-10', title: 'Ra mắt sản phẩm mới', description: 'SKU-NEW-001 đến SKU-NEW-010', tags: ['product'] }
   ]);
   const [newAnnotation, setNewAnnotation] = useState({ date: '', title: '', description: '', tags: '' });
-  
+
   // Template System States
   const [templates, setTemplates] = useState(() => {
     const saved = localStorage.getItem('ups-metric-templates');
@@ -1715,7 +1749,7 @@ const HomepageLayout = () => {
   });
   const [isReorderMode, setIsReorderMode] = useState(false);
   const [tempMetricOrder, setTempMetricOrder] = useState([]);
-  
+
   // Modal States
   const [newTemplateName, setNewTemplateName] = useState('');
   const [selectedMetrics, setSelectedMetrics] = useState([]);
@@ -1749,7 +1783,7 @@ const HomepageLayout = () => {
   const [templateTablePage, setTemplateTablePage] = useState(1);
   const [selectedTemplateIds, setSelectedTemplateIds] = useState(new Set());
   const [templateSearchQuery, setTemplateSearchQuery] = useState('');
-  
+
   // New template builder state
   const [widgetLayout, setWidgetLayout] = useState([]);
   const [selectedWidgets, setSelectedWidgets] = useState(new Set());
@@ -1757,7 +1791,7 @@ const HomepageLayout = () => {
   const [collapsedSections, setCollapsedSections] = useState({});
   const [hoveredWidget, setHoveredWidget] = useState(null);
   const [selectedWidget, setSelectedWidget] = useState(null);
-  
+
   // Section-based template builder state
   const [sectionLayout, setSectionLayout] = useState([]);
   const [sectionsInPreview, setSectionsInPreview] = useState(new Set()); // Track which sections are in preview
@@ -1785,6 +1819,7 @@ const HomepageLayout = () => {
   const [isDraggingOverlay, setIsDraggingOverlay] = useState(false);
   const [overlayDragStart, setOverlayDragStart] = useState({ x: 0, y: 0 });
   const [expandedAlerts, setExpandedAlerts] = useState(new Set()); // Track expanded alerts for accordion
+  const [hoveredAlertId, setHoveredAlertId] = useState(null); // Track hovered alert row for showing actions
   const [metricChartTypes, setMetricChartTypes] = useState({}); // Track chart type for each metric
   const [sectionWidgetLayouts, setSectionWidgetLayouts] = useState({}); // Track widget layouts within each section
   const [sectionContainerWidths, setSectionContainerWidths] = useState({}); // Track actual container widths for GridLayout
@@ -1819,11 +1854,11 @@ const HomepageLayout = () => {
         }
       });
     };
-    
+
     updateWidths();
     window.addEventListener('resize', updateWidths);
     const interval = setInterval(updateWidths, 100); // Check periodically for initial render
-    
+
     return () => {
       window.removeEventListener('resize', updateWidths);
       clearInterval(interval);
@@ -1836,7 +1871,7 @@ const HomepageLayout = () => {
     let matchedKey = null;
     let parentKey = null;
     let subParentKey = null;
-    
+
     if (activeModule === 'home') {
       matchedKey = 'trang-chu';
     } else if (activeModule === 'workspace-settings') {
@@ -1870,7 +1905,7 @@ const HomepageLayout = () => {
         subParentKey = result.subParent;
       }
     }
-    
+
     if (matchedKey) {
       setActiveNavItem(matchedKey);
       // Expand parent items
@@ -1925,17 +1960,17 @@ const HomepageLayout = () => {
       animationFrameId = requestAnimationFrame(() => {
         const canvasContainer = document.getElementById('grid-canvas-container');
         const canvasRect = canvasContainer?.getBoundingClientRect() || { left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight };
-        
+
         const newX = e.clientX - overlayDragStart.x;
         const newY = e.clientY - overlayDragStart.y;
-        
+
         // Overlay width is fixed at 520px
         const overlayWidth = 520;
-        
+
         // Constrain to canvas bounds
         const constrainedX = Math.max(canvasRect.left, Math.min(canvasRect.right - overlayWidth, newX));
         const constrainedY = Math.max(canvasRect.top, Math.min(canvasRect.bottom - 500, newY));
-        
+
         setOverlayPosition({ x: constrainedX, y: constrainedY });
       });
     };
@@ -1990,14 +2025,14 @@ const HomepageLayout = () => {
     // Calculate max rows based on section height (assuming section is in grid layout)
     // Each section card has a certain height, we'll use a reasonable max
     const maxRows = 24;
-    
+
     // Try to find available position
     for (let y = 0; y < maxRows - widgetSize.h + 1; y++) {
       for (let x = 0; x < maxCols - widgetSize.w + 1; x++) {
         const canPlace = !currentLayout.some(item => {
           // Check if rectangles overlap
           return !(x >= item.x + item.w || x + widgetSize.w <= item.x ||
-                   y >= item.y + item.h || y + widgetSize.h <= item.y);
+            y >= item.y + item.h || y + widgetSize.h <= item.y);
         });
         if (canPlace) {
           return { x, y };
@@ -2005,7 +2040,7 @@ const HomepageLayout = () => {
       }
     }
     // If no space found, place at bottom
-    const maxY = currentLayout.length > 0 
+    const maxY = currentLayout.length > 0
       ? Math.max(...currentLayout.map(item => item.y + item.h))
       : 0;
     return { x: 0, y: maxY };
@@ -2024,7 +2059,7 @@ const HomepageLayout = () => {
     // Get section layout item to know section dimensions
     const sectionLayoutItem = sectionLayout.find(item => item.i === sectionId);
     if (!sectionLayoutItem) return true; // If section not found, allow adding
-    
+
     // Calculate available height based on section grid height
     const sectionGridHeight = sectionLayoutItem.h; // Height in grid units
     const rowHeight = 30; // Grid row height in pixels
@@ -2032,13 +2067,13 @@ const HomepageLayout = () => {
     const headerHeight = 50; // Approximate header height
     const padding = 32; // 16px top + 16px bottom
     const availableHeight = sectionHeight - headerHeight - padding;
-    
+
     if (sectionType === 'bao-cao') {
       // For Báo cáo, calculate based on GridLayout
       const currentLayout = sectionWidgetLayouts[sectionId] || [];
       const margin = 8; // Margin between widgets
       const maxRows = Math.floor(availableHeight / (rowHeight + margin));
-      
+
       if (newItemSize) {
         const newItemRows = newItemSize.h || 4;
         const position = findAvailablePosition(sectionId, newItemSize);
@@ -2046,7 +2081,7 @@ const HomepageLayout = () => {
         return newItemBottom <= maxRows;
       } else {
         // Check if current content fits
-        const maxY = currentLayout.length > 0 
+        const maxY = currentLayout.length > 0
           ? Math.max(...currentLayout.map(item => item.y + item.h))
           : 0;
         return maxY < maxRows;
@@ -2060,10 +2095,10 @@ const HomepageLayout = () => {
       const maxCardHeight = 150; // Approximate height when expanded with guides
       const currentHeight = alertsList.length * (maxCardHeight + gap);
       const newItemHeight = maxCardHeight + gap;
-      
+
       return currentHeight + newItemHeight <= availableHeight;
     }
-    
+
     return true;
   };
 
@@ -2075,6 +2110,7 @@ const HomepageLayout = () => {
       setExpandedSubNav(item.key);
       // Collapse sidebar when item is selected
       setSidebarCollapsed(true);
+      setSidebarLocked(true); // Prevent re-expansion until mouse leave
       // If item has a module, navigate to it
       if (item.module) {
         setActiveModule(item.module);
@@ -2083,6 +2119,7 @@ const HomepageLayout = () => {
       setActiveNavItem(item.key);
       // Collapse sidebar when item is selected
       setSidebarCollapsed(true);
+      setSidebarLocked(true); // Prevent re-expansion until mouse leave
       if (item.module) {
         setActiveModule(item.module);
       }
@@ -2227,7 +2264,7 @@ const HomepageLayout = () => {
 
     const renderNavItem = (item, level = 0, isSettings = false) => {
       const isSubNavExpanded = expandedSubNav === item.key;
-      const isActive = activeNavItem === item.key || (level === 0 && item.children?.some(child => 
+      const isActive = activeNavItem === item.key || (level === 0 && item.children?.some(child =>
         child.children?.some(nested => activeNavItem === nested.key) || activeNavItem === child.key
       ));
       const isHovered = hoveredNavItem === item.key;
@@ -2242,45 +2279,48 @@ const HomepageLayout = () => {
             style={{
               display: 'flex',
               alignItems: 'center',
-              padding: level === 0 
-                ? (isSidebarExpanded ? '10px 16px' : '10px 0') 
+              padding: level === 0
+                ? (isSidebarExpanded ? '10px 16px' : '10px 0')
                 : '8px 16px 8px 32px',
               cursor: 'pointer',
-              backgroundColor: isActive 
-                ? '#E8F0FE' 
-                : isHovered 
-                  ? '#F5F5F5' 
+              backgroundColor: isActive
+                ? '#E8F0FE'
+                : isHovered
+                  ? '#F5F5F5'
                   : 'transparent',
               borderLeft: isActive ? '3px solid #1677FF' : '3px solid transparent',
               borderTopRightRadius: isActive && level === 0 ? '20px' : 0,
               borderBottomRightRadius: isActive && level === 0 ? '20px' : 0,
               marginRight: isActive && level === 0 ? '8px' : 0,
               color: isActive ? '#1677FF' : '#202124',
-              fontSize: level === 0 ? 16 : 13,
+              fontSize: level === 0 ? 15 : 13,
               fontWeight: level === 0 ? 500 : 400,
               transition: 'all 0.2s',
               position: 'relative',
               justifyContent: isSidebarExpanded ? 'flex-start' : 'center',
-              boxShadow: isActive && level === 0 
-                ? '0 4px 12px rgba(22, 119, 255, 0.15), 0 2px 4px rgba(22, 119, 255, 0.1)' 
+              boxShadow: isActive && level === 0
+                ? '0 4px 12px rgba(22, 119, 255, 0.15), 0 2px 4px rgba(22, 119, 255, 0.1)'
                 : 'none',
-              transform: isActive && level === 0 ? 'translateY(-1px)' : 'translateY(0)'
+              transform: isActive && level === 0 ? 'translateY(-1px)' : 'translateY(0)',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden'
             }}
           >
             {item.icon && (
-              <span 
-                style={{ 
-                  marginRight: isSidebarExpanded ? 12 : 0, 
-                  display: 'inline-flex', 
+              <span
+                style={{
+                  marginRight: isSidebarExpanded ? 12 : 0,
+                  display: 'inline-flex',
                   alignItems: 'center',
-                  justifyContent: 'center'
+                  justifyContent: 'center',
+                  flexShrink: 0
                 }}
               >
                 {React.cloneElement(item.icon, {
                   style: {
-                    fontSize: 32,
-                    width: 32,
-                    height: 32,
+                    fontSize: 28,
+                    width: 28,
+                    height: 28,
                     color: isActive ? '#1677FF' : '#5F6368',
                     ...item.icon.props?.style
                   }
@@ -2289,16 +2329,14 @@ const HomepageLayout = () => {
             )}
             {isSidebarExpanded && (
               <>
-                <span style={{ flex: 1 }}>
+                <span style={{
+                  flex: 1,
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap'
+                }}>
                   {item.label}
                 </span>
-                {item.expandable && hasChildren && (
-                  <CaretRightOutlined style={{ 
-                    fontSize: 10, 
-                    color: '#5F6368',
-                    marginLeft: 8
-                  }} />
-                )}
               </>
             )}
           </div>
@@ -2310,169 +2348,151 @@ const HomepageLayout = () => {
     // Render sub-navigation column
     const renderSubNavigation = () => {
       if (!parentItemToShow || !parentItemToShow.children) return null;
-      
+
       const parentItem = parentItemToShow;
 
       return (
         <div
           style={{
             position: 'fixed',
-            left: sidebarCollapsed ? 64 : 240,
+            left: 64,
             top: 64,
             bottom: 0,
-            width: 240,
-            backgroundColor: '#fff',
+            width: 177,
+            backgroundColor: '#FAFBFB',
             borderRight: '1px solid #E1E3E5',
             zIndex: 1001,
             height: 'calc(100vh - 64px)',
             overflowY: 'auto',
             overflowX: 'hidden',
-            boxShadow: '2px 0 8px rgba(0,0,0,0.1)',
             transition: 'left 0.2s ease'
           }}
         >
           <div style={{ paddingTop: 24, paddingBottom: 16 }}>
-            {/* Header */}
-            <div style={{ 
-              padding: '0 16px 16px 16px',
-              borderBottom: '1px solid #E1E3E5',
-              marginBottom: 8
-            }}>
-              <div style={{ 
-                fontSize: 12, 
-                color: '#5F6368', 
-                fontWeight: 500,
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px'
-              }}>
-                {parentItem.label}
-              </div>
-            </div>
+            {/* Items */}
+            <div style={{ padding: '0 8px' }}>          {parentItem.children.map((child) => {
+              if (child.children && child.children.length > 0) {
+                // Nested children (e.g., Quản lý đơn hàng)
+                const isSubExpanded = expandedNavItems.has(child.key);
+                const isChildActive = activeNavItem === child.key ||
+                  child.children.some(nested => activeNavItem === nested.key);
 
-            {/* Sub-items */}
-            <div>
-              {parentItem.children.map((child) => {
-                if (child.children && child.children.length > 0) {
-                  // Nested children (e.g., Quản lý đơn hàng)
-                  const isSubExpanded = expandedNavItems.has(child.key);
-                  const isChildActive = activeNavItem === child.key || 
-                    child.children.some(nested => activeNavItem === nested.key);
-                  
-                  return (
-                    <div key={child.key}>
-                      <div
-                        onClick={() => {
-                          const newExpanded = new Set(expandedNavItems);
-                          if (newExpanded.has(child.key)) {
-                            newExpanded.delete(child.key);
-                          } else {
-                            newExpanded.add(child.key);
-                          }
-                          setExpandedNavItems(newExpanded);
-                        }}
-                        onMouseEnter={() => setHoveredNavItem(child.key)}
-                        onMouseLeave={() => setHoveredNavItem(null)}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          padding: '10px 16px',
-                          cursor: 'pointer',
-                          backgroundColor: isChildActive 
-                            ? '#E8F0FE' 
-                            : hoveredNavItem === child.key 
-                              ? '#F5F5F5' 
-                              : 'transparent',
-                          borderLeft: isChildActive ? '3px solid #1677FF' : '3px solid transparent',
-                          color: isChildActive ? '#1677FF' : '#202124',
-                          fontSize: 14,
-                          fontWeight: 500,
-                          transition: 'all 0.2s'
-                        }}
-                      >
-                        <span style={{ flex: 1 }}>{child.label}</span>
-                        <CaretDownOutlined style={{ 
-                          fontSize: 10, 
-                          transition: 'transform 0.2s',
-                          transform: isSubExpanded ? 'rotate(0deg)' : 'rotate(-90deg)',
-                          color: '#5F6368'
-                        }} />
-                      </div>
-                      {isSubExpanded && (
-                        <div>
-                          {child.children.map((nestedChild) => (
-                            <div
-                              key={nestedChild.key}
-                              onClick={() => {
-                                setActiveNavItem(nestedChild.key);
-                                if (nestedChild.module) {
-                                  setActiveModule(nestedChild.module);
-                                }
-                              }}
-                              onMouseEnter={() => setHoveredNavItem(nestedChild.key)}
-                              onMouseLeave={() => setHoveredNavItem(null)}
-                              style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                padding: '8px 16px 8px 32px',
-                                cursor: 'pointer',
-                                backgroundColor: activeNavItem === nestedChild.key 
-                                  ? '#E8F0FE' 
-                                  : hoveredNavItem === nestedChild.key 
-                                    ? '#F5F5F5' 
-                                    : 'transparent',
-                                borderLeft: activeNavItem === nestedChild.key 
-                                  ? '3px solid #1677FF' 
-                                  : '3px solid transparent',
-                                color: activeNavItem === nestedChild.key ? '#1677FF' : '#5F6368',
-                                fontSize: 13,
-                                fontWeight: 400,
-                                transition: 'all 0.2s'
-                              }}
-                            >
-                              {nestedChild.label}
-                            </div>
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  );
-                } else {
-                  // Direct children (e.g., Báo cáo vận hành)
-                  return (
+                return (
+                  <div key={child.key}>
                     <div
-                      key={child.key}
                       onClick={() => {
-                        setActiveNavItem(child.key);
-                        if (child.module) {
-                          setActiveModule(child.module);
+                        const newExpanded = new Set();
+                        if (!expandedNavItems.has(child.key)) {
+                          newExpanded.add(child.key);
                         }
+                        setExpandedNavItems(newExpanded);
                       }}
                       onMouseEnter={() => setHoveredNavItem(child.key)}
                       onMouseLeave={() => setHoveredNavItem(null)}
                       style={{
                         display: 'flex',
                         alignItems: 'center',
-                        padding: '10px 16px',
+                        padding: '8px 16px',
                         cursor: 'pointer',
-                        backgroundColor: activeNavItem === child.key 
-                          ? '#E8F0FE' 
-                          : hoveredNavItem === child.key 
-                            ? '#F5F5F5' 
+                        backgroundColor: isChildActive
+                          ? '#F5F5F5'
+                          : hoveredNavItem === child.key
+                            ? '#F5F5F5'
                             : 'transparent',
-                        borderLeft: activeNavItem === child.key 
-                          ? '3px solid #1677FF' 
-                          : '3px solid transparent',
-                        color: activeNavItem === child.key ? '#1677FF' : '#202124',
+                        color: isChildActive ? '#202124' : '#5F6368',
                         fontSize: 14,
                         fontWeight: 500,
+                        borderRadius: 6,
                         transition: 'all 0.2s'
                       }}
                     >
-                      {child.label}
+                      <TruncatedTooltip title={child.label} placement="top" style={{ flex: 1 }}>
+                        {child.label}
+                      </TruncatedTooltip>
+                      <CaretDownOutlined style={{
+                        fontSize: 10,
+                        transition: 'transform 0.2s',
+                        transform: isSubExpanded ? 'rotate(0deg)' : 'rotate(-90deg)',
+                        color: '#5F6368',
+                        flexShrink: 0
+                      }} />
                     </div>
-                  );
-                }
-              })}
+                    {isSubExpanded && (
+                      <div>
+                        {child.children.map((nestedChild) => (
+                          <div
+                            key={nestedChild.key}
+                            onClick={() => {
+                              setActiveNavItem(nestedChild.key);
+                              if (nestedChild.module) {
+                                setActiveModule(nestedChild.module);
+                              }
+                            }}
+                            onMouseEnter={() => setHoveredNavItem(nestedChild.key)}
+                            onMouseLeave={() => setHoveredNavItem(null)}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              padding: '6px 16px 6px 28px',
+                              cursor: 'pointer',
+                              backgroundColor: activeNavItem === nestedChild.key
+                                ? '#E8F0FE'
+                                : hoveredNavItem === nestedChild.key
+                                  ? '#F5F5F5'
+                                  : 'transparent',
+                              color: activeNavItem === nestedChild.key ? '#1677FF' : '#202124',
+                              fontSize: 14,
+                              fontWeight: 400,
+                              borderRadius: 6,
+                              transition: 'all 0.2s'
+                            }}
+                          >
+                            <TruncatedTooltip title={nestedChild.label} placement="top">
+                              {nestedChild.label}
+                            </TruncatedTooltip>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              } else {
+                // Direct children (e.g., Báo cáo vận hành)
+                return (
+                  <div
+                    key={child.key}
+                    onClick={() => {
+                      setActiveNavItem(child.key);
+                      if (child.module) {
+                        setActiveModule(child.module);
+                      }
+                    }}
+                    onMouseEnter={() => setHoveredNavItem(child.key)}
+                    onMouseLeave={() => setHoveredNavItem(null)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      padding: '8px 16px',
+                      cursor: 'pointer',
+                      backgroundColor: activeNavItem === child.key
+                        ? '#E8F0FE'
+                        : hoveredNavItem === child.key
+                          ? '#F5F5F5'
+                          : 'transparent',
+                      color: activeNavItem === child.key ? '#1677FF' : '#202124',
+                      fontSize: 14,
+                      fontWeight: 400,
+                      borderRadius: 6,
+                      transition: 'all 0.2s'
+                    }}
+                  >
+                    <TruncatedTooltip title={child.label} placement="top">
+                      {child.label}
+                    </TruncatedTooltip>
+                  </div>
+                );
+              }
+            })}
             </div>
           </div>
         </div>
@@ -2483,13 +2503,32 @@ const HomepageLayout = () => {
       key: 'cai-dat',
       label: 'Cài đặt',
       icon: <MdSettings />,
-      expandable: false,
-      module: 'workspace-settings'
+      expandable: true,
+      children: [
+        { key: 'tai-khoan', label: 'Tài khoản', module: 'settings' },
+        { key: 'gian-hang-ket-noi', label: 'Gian hàng kết nối', module: 'settings' },
+        { key: 'nhan-hang', label: 'Nhãn hàng', module: 'settings' },
+        { key: 'tai-khoan-quang-cao', label: 'Tài khoản quảng cáo', module: 'settings' },
+        { key: 'ton-da-kenh', label: 'Tồn đa kênh', module: 'settings' },
+        { key: 'ket-noi-mo-rong', label: 'Kết nối mở rộng', module: 'settings' },
+        { key: 'thiet-lap-tai-chinh', label: 'Thiết lập tài chính', module: 'settings' },
+        { key: 'trang-thai-hang-hoa', label: 'Trạng thái hàng hóa', module: 'settings' },
+        { key: 'cau-hinh-van-chuyen', label: 'Cấu hình vận chuyển', module: 'settings' }
+      ]
     };
 
     return (
       <>
         <div
+          onMouseEnter={() => {
+            if (!sidebarLocked) {
+              setSidebarCollapsed(false);
+            }
+          }}
+          onMouseLeave={() => {
+            setSidebarCollapsed(true);
+            setSidebarLocked(false); // Reset lock on mouse leave
+          }}
           style={{
             position: 'fixed',
             left: 0,
@@ -2498,7 +2537,7 @@ const HomepageLayout = () => {
             width: sidebarCollapsed ? 64 : 240,
             backgroundColor: '#fff',
             borderRight: '1px solid #E1E3E5',
-            zIndex: 1000,
+            zIndex: 1002,
             height: 'calc(100vh - 64px)',
             display: 'flex',
             flexDirection: 'column',
@@ -2507,37 +2546,13 @@ const HomepageLayout = () => {
             transition: 'width 0.2s ease'
           }}
         >
-          {/* Collapse/Expand Toggle Button */}
-          <div style={{
-            padding: isSidebarExpanded ? '12px 16px' : '12px',
-            display: 'flex',
-            justifyContent: isSidebarExpanded ? 'flex-end' : 'center',
-            alignItems: 'center',
-            borderBottom: '1px solid #E1E3E5'
-          }}>
-            <Button
-              type="text"
-              icon={sidebarCollapsed ? <MenuUnfoldOutlined style={{ fontSize: 18 }} /> : <MenuFoldOutlined style={{ fontSize: 18 }} />}
-              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-              style={{
-                color: '#5F6368',
-                width: isSidebarExpanded ? 'auto' : '100%',
-                height: '32px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                padding: isSidebarExpanded ? '4px 8px' : '4px 0'
-              }}
-            />
-          </div>
-
           {/* Main Navigation Items */}
           <div style={{ flex: 1, paddingTop: 24 }}>
             {navigationItems.map((item) => renderNavItem(item))}
           </div>
 
           {/* Settings at bottom, separated */}
-          <div style={{ 
+          <div style={{
             borderTop: '1px solid #E1E3E5',
             paddingTop: 8,
             paddingBottom: 16,
@@ -2555,85 +2570,85 @@ const HomepageLayout = () => {
 
   const renderTemplateGalleryScreen = () => (
     <Row gutter={[20, 20]}>
-        {templateWorkspaces.map(template => {
-          const templateId = template.templateId || template.id;
-          return (
-            <Col xs={24} md={12} xl={8} key={template.id}>
-              <Card
-                hoverable
-                onMouseEnter={() => setHoveredGalleryCard(templateId)}
-                onMouseLeave={() => setHoveredGalleryCard(null)}
-                style={{
-                  borderRadius: 18,
-                  border: '1px solid #E1E3E5',
-                  boxShadow: '0 16px 32px rgba(15,23,42,0.12)',
-                  overflow: 'hidden'
-                }}
-                cover={
-                  <div style={{ position: 'relative' }}>
+      {templateWorkspaces.map(template => {
+        const templateId = template.templateId || template.id;
+        return (
+          <Col xs={24} md={12} xl={8} key={template.id}>
+            <Card
+              hoverable
+              onMouseEnter={() => setHoveredGalleryCard(templateId)}
+              onMouseLeave={() => setHoveredGalleryCard(null)}
+              style={{
+                borderRadius: 18,
+                border: '1px solid #E1E3E5',
+                boxShadow: '0 16px 32px rgba(15,23,42,0.12)',
+                overflow: 'hidden'
+              }}
+              cover={
+                <div style={{ position: 'relative' }}>
+                  <div style={{
+                    height: 160,
+                    background: 'linear-gradient(135deg, #EEF2FF 0%, #FFF1F2 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    padding: 16
+                  }}>
                     <div style={{
-                      height: 160,
-                      background: 'linear-gradient(135deg, #EEF2FF 0%, #FFF1F2 100%)',
+                      width: '90%',
+                      height: '80%',
+                      borderRadius: 16,
+                      background: '#fff',
+                      boxShadow: '0 12px 24px rgba(15,23,42,0.08)',
+                      display: 'grid',
+                      gridTemplateRows: 'repeat(3, 1fr)',
+                      gap: 8,
+                      padding: 16
+                    }}>
+                      {[...Array(6)].map((_, idx) => (
+                        <div
+                          key={idx}
+                          style={{
+                            borderRadius: 10,
+                            background: idx % 2 === 0 ? '#F5F7FF' : '#FFF7F0',
+                            border: '1px solid #E5E7EB'
+                          }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  <div
+                    style={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: 'linear-gradient(180deg, rgba(15,23,42,0.05), rgba(15,23,42,0.7))',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      padding: 16
-                    }}>
-                      <div style={{
-                        width: '90%',
-                        height: '80%',
-                        borderRadius: 16,
-                        background: '#fff',
-                        boxShadow: '0 12px 24px rgba(15,23,42,0.08)',
-                        display: 'grid',
-                        gridTemplateRows: 'repeat(3, 1fr)',
-                        gap: 8,
-                        padding: 16
-                      }}>
-                        {[...Array(6)].map((_, idx) => (
-                          <div
-                            key={idx}
-                            style={{
-                              borderRadius: 10,
-                              background: idx % 2 === 0 ? '#F5F7FF' : '#FFF7F0',
-                              border: '1px solid #E5E7EB'
-                            }}
-                          />
-                        ))}
-                      </div>
-                    </div>
-                    <div
-                      style={{
-                        position: 'absolute',
-                        inset: 0,
-                        background: 'linear-gradient(180deg, rgba(15,23,42,0.05), rgba(15,23,42,0.7))',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        opacity: hoveredGalleryCard === templateId ? 1 : 0,
-                        transition: 'opacity 0.2s'
+                      opacity: hoveredGalleryCard === templateId ? 1 : 0,
+                      transition: 'opacity 0.2s'
+                    }}
+                  >
+                    <Button
+                      type="primary"
+                      icon={<EyeOutlined />}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenPreview(templateId, 'gallery');
                       }}
                     >
-                      <Button 
-                        type="primary" 
-                        icon={<EyeOutlined />} 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleOpenPreview(templateId, 'gallery');
-                        }}
-                      >
-                        Xem trước
-                      </Button>
-                    </div>
+                      Xem trước
+                    </Button>
                   </div>
-                }
-              >
-                <Title level={4} style={{ margin: 0 }}>{template.name}</Title>
-              </Card>
-            </Col>
-          );
-        })}
-      </Row>
+                </div>
+              }
+            >
+              <Title level={4} style={{ margin: 0 }}>{template.name}</Title>
+            </Card>
+          </Col>
+        );
+      })}
+    </Row>
   );
 
   // Widget data structure with Vietnamese UI labels
@@ -2673,8 +2688,8 @@ const HomepageLayout = () => {
     const query = widgetSearchQuery.toLowerCase();
     const filtered = {};
     Object.entries(widgetLibrary).forEach(([section, widgets]) => {
-      const sectionWidgets = widgets.filter(w => 
-        w.name.toLowerCase().includes(query) || 
+      const sectionWidgets = widgets.filter(w =>
+        w.name.toLowerCase().includes(query) ||
         (w.displayName && w.displayName.toLowerCase().includes(query))
       );
       if (sectionWidgets.length > 0) {
@@ -2704,7 +2719,7 @@ const HomepageLayout = () => {
           const canPlace = !existingPositions.some(pos => {
             // Check if rectangles overlap
             return !(x >= pos.x + pos.w || x + widget.defaultSize.w <= pos.x ||
-                     y >= pos.y + pos.h || y + widget.defaultSize.h <= pos.y);
+              y >= pos.y + pos.h || y + widget.defaultSize.h <= pos.y);
           });
           if (canPlace) {
             setWidgetLayout(prev => [...prev, {
@@ -2823,24 +2838,24 @@ const HomepageLayout = () => {
       const metricsList = sectionMetrics[sectionId] || [];
       const hasMetrics = metricsList.length > 0;
       const widgetLayout = sectionWidgetLayouts[sectionId] || [];
-      
+
       content = (
         <>
           {hasMetrics ? (
-            <div 
-              style={{ 
-                marginBottom: 12, 
-                position: 'relative', 
+            <div
+              style={{
+                marginBottom: 12,
+                position: 'relative',
                 minHeight: (() => {
                   const rowHeight = 30;
                   const gap = 8;
-                  const maxY = widgetLayout.length > 0 
-                    ? Math.max(...widgetLayout.map(w => (w.y || 0) + (w.h || 2))) 
+                  const maxY = widgetLayout.length > 0
+                    ? Math.max(...widgetLayout.map(w => (w.y || 0) + (w.h || 2)))
                     : 0;
                   const rows = Math.max(8, maxY + 2);
                   return rows * (rowHeight + gap) - gap;
                 })(),
-                width: '100%' 
+                width: '100%'
               }}
               id={`section-widget-container-${sectionId}`}
             >
@@ -2852,8 +2867,8 @@ const HomepageLayout = () => {
                 const gap = 8;
                 const cellWidth = (containerWidth - (gap * (cols - 1))) / cols;
                 // Calculate rows based on widget layout or minimum 8 rows
-                const maxY = widgetLayout.length > 0 
-                  ? Math.max(...widgetLayout.map(w => (w.y || 0) + (w.h || 2))) 
+                const maxY = widgetLayout.length > 0
+                  ? Math.max(...widgetLayout.map(w => (w.y || 0) + (w.h || 2)))
                   : 0;
                 const rows = Math.max(8, maxY + 2); // At least 8 rows, or max widget position + 2
                 return (
@@ -2953,9 +2968,9 @@ const HomepageLayout = () => {
                                 getPopupContainer={(trigger) => trigger.parentElement || document.body}
                                 onClick={(e) => e.stopPropagation()}
                               >
-                                <Button 
-                                  type="text" 
-                                  size="small" 
+                                <Button
+                                  type="text"
+                                  size="small"
                                   icon={<BarChartOutlined />}
                                   onClick={(e) => {
                                     e.stopPropagation();
@@ -2996,8 +3011,8 @@ const HomepageLayout = () => {
                               onPointerDown={(e) => {
                                 e.stopPropagation();
                               }}
-                              style={{ 
-                                padding: 0, 
+                              style={{
+                                padding: 0,
                                 height: 'auto',
                                 pointerEvents: 'auto',
                                 zIndex: 1000
@@ -3006,11 +3021,11 @@ const HomepageLayout = () => {
                           </Space>
                         }
                         title={
-                          <div 
+                          <div
                             style={{ display: 'flex', alignItems: 'center', gap: 8 }}
                             className="react-draggable-handle"
                           >
-                            <DragOutlined 
+                            <DragOutlined
                               style={{ fontSize: 12, color: '#8c8c8c', cursor: 'move' }}
                               className="react-draggable-handle"
                             />
@@ -3155,129 +3170,129 @@ const HomepageLayout = () => {
                 background: #555;
               }
             `}</style>
-                {Object.entries(
-                  allMetricsPool.reduce((acc, metric) => {
-                    const domain = metric.domain || 'Khác';
-                    if (!acc[domain]) acc[domain] = [];
-                    acc[domain].push(metric);
-                    return acc;
-                  }, {})
-                ).map(([domain, metrics]) => (
-                  <div key={domain} style={{ marginBottom: 20 }}>
-                    <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 12 }}>
-                      {domain}
-                    </Text>
-                    <Space direction="vertical" style={{ width: '100%' }} size={8}>
-                      {metrics.map(metric => {
-                        const isSelected = (sectionMetrics[currentSectionForMetric] || []).includes(metric.id);
-                        return (
-                          <div
-                            key={metric.id}
-                            style={{
-                              padding: '10px 12px',
-                              borderRadius: 6,
-                              border: isSelected ? '1px solid #FF5629' : '1px solid #E1E3E5',
-                              background: '#fff',
-                              cursor: 'pointer',
-                              transition: 'all 0.2s',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: 12,
-                              pointerEvents: 'auto'
-                            }}
-                            onClick={(e) => {
-                              // Allow clicking on the checkbox or text to toggle
-                              const checkbox = e.currentTarget.querySelector('input[type="checkbox"]');
-                              if (checkbox && e.target !== checkbox) {
-                                checkbox.click();
+            {Object.entries(
+              allMetricsPool.reduce((acc, metric) => {
+                const domain = metric.domain || 'Khác';
+                if (!acc[domain]) acc[domain] = [];
+                acc[domain].push(metric);
+                return acc;
+              }, {})
+            ).map(([domain, metrics]) => (
+              <div key={domain} style={{ marginBottom: 20 }}>
+                <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 12 }}>
+                  {domain}
+                </Text>
+                <Space direction="vertical" style={{ width: '100%' }} size={8}>
+                  {metrics.map(metric => {
+                    const isSelected = (sectionMetrics[currentSectionForMetric] || []).includes(metric.id);
+                    return (
+                      <div
+                        key={metric.id}
+                        style={{
+                          padding: '10px 12px',
+                          borderRadius: 6,
+                          border: isSelected ? '1px solid #FF5629' : '1px solid #E1E3E5',
+                          background: '#fff',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 12,
+                          pointerEvents: 'auto'
+                        }}
+                        onClick={(e) => {
+                          // Allow clicking on the checkbox or text to toggle
+                          const checkbox = e.currentTarget.querySelector('input[type="checkbox"]');
+                          if (checkbox && e.target !== checkbox) {
+                            checkbox.click();
+                          }
+                        }}
+                        onMouseEnter={(e) => {
+                          if (!isSelected) e.currentTarget.style.background = '#FFF5F3';
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = '#fff';
+                        }}
+                      >
+                        <Checkbox
+                          checked={isSelected}
+                          className="custom-primary-checkbox"
+                          onChange={(e) => {
+                            e.stopPropagation();
+                            const checked = e.target.checked;
+                            if (checked) {
+                              // Check if widget can fit
+                              const widgetType = getWidgetType(metric);
+                              const widgetSize = getWidgetSize(widgetType);
+                              if (!canAddToSection(currentSectionForMetric, 'bao-cao', widgetSize)) {
+                                message.warning('Không đủ không gian để thêm chỉ số này. Vui lòng xóa một số chỉ số khác trước.');
+                                return;
                               }
-                            }}
-                            onMouseEnter={(e) => {
-                              if (!isSelected) e.currentTarget.style.background = '#FFF5F3';
-                            }}
-                            onMouseLeave={(e) => {
-                              e.currentTarget.style.background = '#fff';
-                            }}
-                          >
-                            <Checkbox 
-                              checked={isSelected}
-                              className="custom-primary-checkbox"
-                              onChange={(e) => {
-                                e.stopPropagation();
-                                const checked = e.target.checked;
-                                if (checked) {
-                                  // Check if widget can fit
-                                  const widgetType = getWidgetType(metric);
-                                  const widgetSize = getWidgetSize(widgetType);
-                                  if (!canAddToSection(currentSectionForMetric, 'bao-cao', widgetSize)) {
-                                    message.warning('Không đủ không gian để thêm chỉ số này. Vui lòng xóa một số chỉ số khác trước.');
-                                    return;
-                                  }
-                                  // Add metric and create widget
-                                  setSectionMetrics(prev => ({
-                                    ...prev,
-                                    [currentSectionForMetric]: [...(prev[currentSectionForMetric] || []), metric.id]
-                                  }));
-                                  const position = findAvailablePosition(currentSectionForMetric, widgetSize);
-                                  setSectionWidgetLayouts(prev => {
-                                    const currentLayout = prev[currentSectionForMetric] || [];
-                                    // Check if widget already exists
-                                    if (currentLayout.some(w => w.i === metric.id)) {
-                                      return prev;
-                                    }
-                                    return {
-                                      ...prev,
-                                      [currentSectionForMetric]: [...currentLayout, {
-                                        i: metric.id,
-                                        x: position.x,
-                                        y: position.y,
-                                        w: widgetSize.w,
-                                        h: widgetSize.h
-                                      }]
-                                    };
-                                  });
-                                  // Set default chart type
-                                  if (widgetType === 'breakdown') {
-                                    setMetricChartTypes(prev => ({ ...prev, [metric.id]: 'pie' }));
-                                  }
-                                } else {
-                                  // Remove metric and its widget
-                                  setSectionMetrics(prev => ({
-                                    ...prev,
-                                    [currentSectionForMetric]: (prev[currentSectionForMetric] || []).filter(id => id !== metric.id)
-                                  }));
-                                  setSectionWidgetLayouts(prev => ({
-                                    ...prev,
-                                    [currentSectionForMetric]: (prev[currentSectionForMetric] || []).filter(item => item.i !== metric.id)
-                                  }));
-                                  setMetricChartTypes(prev => {
-                                    const newTypes = { ...prev };
-                                    delete newTypes[metric.id];
-                                    return newTypes;
-                                  });
+                              // Add metric and create widget
+                              setSectionMetrics(prev => ({
+                                ...prev,
+                                [currentSectionForMetric]: [...(prev[currentSectionForMetric] || []), metric.id]
+                              }));
+                              const position = findAvailablePosition(currentSectionForMetric, widgetSize);
+                              setSectionWidgetLayouts(prev => {
+                                const currentLayout = prev[currentSectionForMetric] || [];
+                                // Check if widget already exists
+                                if (currentLayout.some(w => w.i === metric.id)) {
+                                  return prev;
                                 }
-                              }}
-                              onClick={(e) => e.stopPropagation()}
-                            />
-                            <Text 
-                              style={{ marginLeft: 0, fontSize: 13, flex: 1 }}
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                // Toggle checkbox when clicking text
-                                const checkbox = e.currentTarget.previousSibling?.querySelector('input[type="checkbox"]');
-                                if (checkbox) {
-                                  checkbox.click();
-                                }
-                              }}
-                            >
-                              {metric.name}
-                            </Text>
-                          </div>
-                        );
-                      })}
-                    </Space>
-                  </div>
-                ))}
+                                return {
+                                  ...prev,
+                                  [currentSectionForMetric]: [...currentLayout, {
+                                    i: metric.id,
+                                    x: position.x,
+                                    y: position.y,
+                                    w: widgetSize.w,
+                                    h: widgetSize.h
+                                  }]
+                                };
+                              });
+                              // Set default chart type
+                              if (widgetType === 'breakdown') {
+                                setMetricChartTypes(prev => ({ ...prev, [metric.id]: 'pie' }));
+                              }
+                            } else {
+                              // Remove metric and its widget
+                              setSectionMetrics(prev => ({
+                                ...prev,
+                                [currentSectionForMetric]: (prev[currentSectionForMetric] || []).filter(id => id !== metric.id)
+                              }));
+                              setSectionWidgetLayouts(prev => ({
+                                ...prev,
+                                [currentSectionForMetric]: (prev[currentSectionForMetric] || []).filter(item => item.i !== metric.id)
+                              }));
+                              setMetricChartTypes(prev => {
+                                const newTypes = { ...prev };
+                                delete newTypes[metric.id];
+                                return newTypes;
+                              });
+                            }
+                          }}
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                        <Text
+                          style={{ marginLeft: 0, fontSize: 13, flex: 1 }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            // Toggle checkbox when clicking text
+                            const checkbox = e.currentTarget.previousSibling?.querySelector('input[type="checkbox"]');
+                            if (checkbox) {
+                              checkbox.click();
+                            }
+                          }}
+                        >
+                          {metric.name}
+                        </Text>
+                      </div>
+                    );
+                  })}
+                </Space>
+              </div>
+            ))}
           </Modal>
         </>
       );
@@ -3285,7 +3300,7 @@ const HomepageLayout = () => {
       const alertsList = sectionMetrics[sectionId] || [];
       const hasAlerts = alertsList.length > 0;
       const activeTab = alertSectionActiveTab[sectionId] || 'errors';
-      
+
       // Helper to get alert data by ID
       const getAlertById = (alertId) => {
         const allErrors = alertsData?.errors || [];
@@ -3296,7 +3311,7 @@ const HomepageLayout = () => {
         if (warning) return { ...warning, type: 'warning' };
         return null;
       };
-      
+
       // Separate errors and warnings
       const errorsList = alertsList.filter(alertId => {
         const alert = getAlertById(alertId);
@@ -3308,7 +3323,7 @@ const HomepageLayout = () => {
       });
       const hasErrors = errorsList.length > 0;
       const hasWarnings = warningsList.length > 0;
-      
+
       const renderAlertList = (alertIds) => {
         return (
           <div style={{ marginBottom: 12, display: 'flex', flexDirection: 'column', gap: 6 }}>
@@ -3320,11 +3335,11 @@ const HomepageLayout = () => {
               const hoverBgColor = isError ? '#FEE4E2' : '#FFE7BA';
               const guides = alertGuides[alert.id] || [];
               const isExpanded = expandedAlerts.has(alert.id);
-              
+
               return (
                 <div key={alertId}>
                   <div
-                    style={{ 
+                    style={{
                       display: 'flex',
                       alignItems: 'center',
                       padding: '10px 12px',
@@ -3358,16 +3373,16 @@ const HomepageLayout = () => {
                   >
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, flexWrap: 'wrap' }}>
-                        <span style={{ 
-                          fontSize: 20, 
-                          fontWeight: 700, 
+                        <span style={{
+                          fontSize: 20,
+                          fontWeight: 700,
                           color: '#2b2b2b',
                           lineHeight: 1
                         }}>
                           {alert.value || alert.count || ''}
                         </span>
-                        <Text style={{ 
-                          fontSize: 13, 
+                        <Text style={{
+                          fontSize: 13,
                           fontWeight: 500,
                           color: '#2b2b2b'
                         }}>
@@ -3391,15 +3406,15 @@ const HomepageLayout = () => {
                           return newSet;
                         });
                       }}
-                      style={{ 
-                        padding: 0, 
+                      style={{
+                        padding: 0,
                         height: 'auto',
                         flexShrink: 0
                       }}
                     />
                   </div>
                   {isExpanded && guides.length > 0 && (
-                    <div style={{ 
+                    <div style={{
                       padding: '12px',
                       background: '#FAFAFA',
                       borderLeft: `3px solid ${isError ? '#D72C0D' : '#FA8C16'}`,
@@ -3444,7 +3459,7 @@ const HomepageLayout = () => {
           </div>
         );
       };
-      
+
       content = (
         <>
           <Tabs
@@ -3591,223 +3606,223 @@ const HomepageLayout = () => {
                 background: #555;
               }
             `}</style>
-              <Tabs
-                size="small"
-                items={[
-                  {
-                    key: 'errors',
-                    label: (
-                      <Space>
-                        <span>Lỗi</span>
-                      </Space>
-                    ),
-                    children: (
-                      <div>
-                        {Object.entries(
-                          (alertsData?.errors || []).reduce((acc, alert) => {
-                            const metric = alert.metric || 'Khác';
-                            if (!acc[metric]) acc[metric] = [];
-                            acc[metric].push(alert);
-                            return acc;
-                          }, {})
-                        ).map(([metric, alerts]) => (
-                          <div key={metric} style={{ marginBottom: 20 }}>
-                            <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 12 }}>
-                              {metric}
-                            </Text>
-                            <Space direction="vertical" style={{ width: '100%' }} size={8}>
-                              {alerts.map(alert => {
-                                const isSelected = (sectionMetrics[sectionId] || []).includes(alert.id);
-                                return (
-                                  <div
-                                    key={alert.id}
-                                    style={{
-                                      padding: '10px 12px',
-                                      borderRadius: 6,
-                                      border: isSelected ? '1px solid #FF5629' : '1px solid #E1E3E5',
-                                      background: '#fff',
-                                      cursor: 'pointer',
-                                      transition: 'all 0.2s',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      gap: 12,
-                                      pointerEvents: 'auto'
+            <Tabs
+              size="small"
+              items={[
+                {
+                  key: 'errors',
+                  label: (
+                    <Space>
+                      <span>Lỗi</span>
+                    </Space>
+                  ),
+                  children: (
+                    <div>
+                      {Object.entries(
+                        (alertsData?.errors || []).reduce((acc, alert) => {
+                          const metric = alert.metric || 'Khác';
+                          if (!acc[metric]) acc[metric] = [];
+                          acc[metric].push(alert);
+                          return acc;
+                        }, {})
+                      ).map(([metric, alerts]) => (
+                        <div key={metric} style={{ marginBottom: 20 }}>
+                          <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 12 }}>
+                            {metric}
+                          </Text>
+                          <Space direction="vertical" style={{ width: '100%' }} size={8}>
+                            {alerts.map(alert => {
+                              const isSelected = (sectionMetrics[sectionId] || []).includes(alert.id);
+                              return (
+                                <div
+                                  key={alert.id}
+                                  style={{
+                                    padding: '10px 12px',
+                                    borderRadius: 6,
+                                    border: isSelected ? '1px solid #FF5629' : '1px solid #E1E3E5',
+                                    background: '#fff',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 12,
+                                    pointerEvents: 'auto'
+                                  }}
+                                  onClick={(e) => {
+                                    // Allow clicking on the checkbox or text to toggle
+                                    const checkbox = e.currentTarget.querySelector('input[type="checkbox"]');
+                                    if (checkbox && e.target !== checkbox) {
+                                      checkbox.click();
+                                    }
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    if (!isSelected) e.currentTarget.style.background = '#FFF5F3';
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.background = '#fff';
+                                  }}
+                                >
+                                  <Checkbox
+                                    checked={isSelected}
+                                    className="custom-primary-checkbox"
+                                    onChange={(e) => {
+                                      e.stopPropagation();
+                                      const checked = e.target.checked;
+                                      if (checked) {
+                                        // Check if section has enough space
+                                        if (!canAddToSection(sectionId, 'loi-canh-bao')) {
+                                          message.warning('Không đủ không gian để thêm chỉ số này. Vui lòng xóa một số chỉ số khác trước.');
+                                          return;
+                                        }
+                                        // Add alert
+                                        setSectionMetrics(prev => ({
+                                          ...prev,
+                                          [sectionId]: [...(prev[sectionId] || []), alert.id]
+                                        }));
+                                      } else {
+                                        // Remove alert
+                                        setSectionMetrics(prev => ({
+                                          ...prev,
+                                          [sectionId]: (prev[sectionId] || []).filter(id => id !== alert.id)
+                                        }));
+                                        setExpandedAlerts(prev => {
+                                          const newSet = new Set(prev);
+                                          newSet.delete(alert.id);
+                                          return newSet;
+                                        });
+                                      }
                                     }}
+                                    onClick={(e) => e.stopPropagation()}
+                                  />
+                                  <Text
+                                    style={{ marginLeft: 0, fontSize: 13, flex: 1 }}
                                     onClick={(e) => {
-                                      // Allow clicking on the checkbox or text to toggle
-                                      const checkbox = e.currentTarget.querySelector('input[type="checkbox"]');
-                                      if (checkbox && e.target !== checkbox) {
+                                      e.stopPropagation();
+                                      const checkbox = e.currentTarget.previousSibling?.querySelector('input[type="checkbox"]');
+                                      if (checkbox) {
                                         checkbox.click();
                                       }
                                     }}
-                                    onMouseEnter={(e) => {
-                                      if (!isSelected) e.currentTarget.style.background = '#FFF5F3';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                      e.currentTarget.style.background = '#fff';
-                                    }}
                                   >
-                                    <Checkbox 
-                                      checked={isSelected}
-                                      className="custom-primary-checkbox" 
-                                      onChange={(e) => {
-                                        e.stopPropagation();
-                                        const checked = e.target.checked;
-                                        if (checked) {
-                                          // Check if section has enough space
-                                          if (!canAddToSection(sectionId, 'loi-canh-bao')) {
-                                            message.warning('Không đủ không gian để thêm chỉ số này. Vui lòng xóa một số chỉ số khác trước.');
-                                            return;
-                                          }
-                                          // Add alert
-                                          setSectionMetrics(prev => ({
-                                            ...prev,
-                                            [sectionId]: [...(prev[sectionId] || []), alert.id]
-                                          }));
-                                        } else {
-                                          // Remove alert
-                                          setSectionMetrics(prev => ({
-                                            ...prev,
-                                            [sectionId]: (prev[sectionId] || []).filter(id => id !== alert.id)
-                                          }));
-                                          setExpandedAlerts(prev => {
-                                            const newSet = new Set(prev);
-                                            newSet.delete(alert.id);
-                                            return newSet;
-                                          });
+                                    {alert.title}
+                                  </Text>
+                                </div>
+                              );
+                            })}
+                          </Space>
+                        </div>
+                      ))}
+                    </div>
+                  )
+                },
+                {
+                  key: 'warnings',
+                  label: (
+                    <Space>
+                      <span>Cảnh báo</span>
+                    </Space>
+                  ),
+                  children: (
+                    <div>
+                      {Object.entries(
+                        (alertsData?.warnings || []).reduce((acc, alert) => {
+                          const metric = alert.metric || 'Khác';
+                          if (!acc[metric]) acc[metric] = [];
+                          acc[metric].push(alert);
+                          return acc;
+                        }, {})
+                      ).map(([metric, alerts]) => (
+                        <div key={metric} style={{ marginBottom: 20 }}>
+                          <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 12 }}>
+                            {metric}
+                          </Text>
+                          <Space direction="vertical" style={{ width: '100%' }} size={8}>
+                            {alerts.map(alert => {
+                              const isSelected = (sectionMetrics[sectionId] || []).includes(alert.id);
+                              return (
+                                <div
+                                  key={alert.id}
+                                  style={{
+                                    padding: '10px 12px',
+                                    borderRadius: 6,
+                                    border: isSelected ? '1px solid #FF5629' : '1px solid #E1E3E5',
+                                    background: '#fff',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 12,
+                                    pointerEvents: 'auto'
+                                  }}
+                                  onClick={(e) => {
+                                    // Allow clicking on the checkbox or text to toggle
+                                    const checkbox = e.currentTarget.querySelector('input[type="checkbox"]');
+                                    if (checkbox && e.target !== checkbox) {
+                                      checkbox.click();
+                                    }
+                                  }}
+                                  onMouseEnter={(e) => {
+                                    if (!isSelected) e.currentTarget.style.background = '#FFF5F3';
+                                  }}
+                                  onMouseLeave={(e) => {
+                                    e.currentTarget.style.background = '#fff';
+                                  }}
+                                >
+                                  <Checkbox
+                                    checked={isSelected}
+                                    className="custom-primary-checkbox"
+                                    onChange={(e) => {
+                                      e.stopPropagation();
+                                      const checked = e.target.checked;
+                                      if (checked) {
+                                        // Check if section has enough space
+                                        if (!canAddToSection(sectionId, 'loi-canh-bao')) {
+                                          message.warning('Không đủ không gian để thêm chỉ số này. Vui lòng xóa một số chỉ số khác trước.');
+                                          return;
                                         }
-                                      }}
-                                      onClick={(e) => e.stopPropagation()}
-                                    />
-                                    <Text 
-                                      style={{ marginLeft: 0, fontSize: 13, flex: 1 }}
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        const checkbox = e.currentTarget.previousSibling?.querySelector('input[type="checkbox"]');
-                                        if (checkbox) {
-                                          checkbox.click();
-                                        }
-                                      }}
-                                    >
-                                      {alert.title}
-                                    </Text>
-                                  </div>
-                                );
-                              })}
-                            </Space>
-                          </div>
-                        ))}
-                      </div>
-                    )
-                  },
-                  {
-                    key: 'warnings',
-                    label: (
-                      <Space>
-                        <span>Cảnh báo</span>
-                      </Space>
-                    ),
-                    children: (
-                      <div>
-                        {Object.entries(
-                          (alertsData?.warnings || []).reduce((acc, alert) => {
-                            const metric = alert.metric || 'Khác';
-                            if (!acc[metric]) acc[metric] = [];
-                            acc[metric].push(alert);
-                            return acc;
-                          }, {})
-                        ).map(([metric, alerts]) => (
-                          <div key={metric} style={{ marginBottom: 20 }}>
-                            <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 12 }}>
-                              {metric}
-                            </Text>
-                            <Space direction="vertical" style={{ width: '100%' }} size={8}>
-                              {alerts.map(alert => {
-                                const isSelected = (sectionMetrics[sectionId] || []).includes(alert.id);
-                                return (
-                                  <div
-                                    key={alert.id}
-                                    style={{
-                                      padding: '10px 12px',
-                                      borderRadius: 6,
-                                      border: isSelected ? '1px solid #FF5629' : '1px solid #E1E3E5',
-                                      background: '#fff',
-                                      cursor: 'pointer',
-                                      transition: 'all 0.2s',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      gap: 12,
-                                      pointerEvents: 'auto'
+                                        // Add alert
+                                        setSectionMetrics(prev => ({
+                                          ...prev,
+                                          [sectionId]: [...(prev[sectionId] || []), alert.id]
+                                        }));
+                                      } else {
+                                        // Remove alert
+                                        setSectionMetrics(prev => ({
+                                          ...prev,
+                                          [sectionId]: (prev[sectionId] || []).filter(id => id !== alert.id)
+                                        }));
+                                        setExpandedAlerts(prev => {
+                                          const newSet = new Set(prev);
+                                          newSet.delete(alert.id);
+                                          return newSet;
+                                        });
+                                      }
                                     }}
+                                    onClick={(e) => e.stopPropagation()}
+                                  />
+                                  <Text
+                                    style={{ marginLeft: 0, fontSize: 13, flex: 1 }}
                                     onClick={(e) => {
-                                      // Allow clicking on the checkbox or text to toggle
-                                      const checkbox = e.currentTarget.querySelector('input[type="checkbox"]');
-                                      if (checkbox && e.target !== checkbox) {
+                                      e.stopPropagation();
+                                      const checkbox = e.currentTarget.previousSibling?.querySelector('input[type="checkbox"]');
+                                      if (checkbox) {
                                         checkbox.click();
                                       }
                                     }}
-                                    onMouseEnter={(e) => {
-                                      if (!isSelected) e.currentTarget.style.background = '#FFF5F3';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                      e.currentTarget.style.background = '#fff';
-                                    }}
                                   >
-                                    <Checkbox 
-                                      checked={isSelected}
-                                      className="custom-primary-checkbox" 
-                                      onChange={(e) => {
-                                        e.stopPropagation();
-                                        const checked = e.target.checked;
-                                        if (checked) {
-                                          // Check if section has enough space
-                                          if (!canAddToSection(sectionId, 'loi-canh-bao')) {
-                                            message.warning('Không đủ không gian để thêm chỉ số này. Vui lòng xóa một số chỉ số khác trước.');
-                                            return;
-                                          }
-                                          // Add alert
-                                          setSectionMetrics(prev => ({
-                                            ...prev,
-                                            [sectionId]: [...(prev[sectionId] || []), alert.id]
-                                          }));
-                                        } else {
-                                          // Remove alert
-                                          setSectionMetrics(prev => ({
-                                            ...prev,
-                                            [sectionId]: (prev[sectionId] || []).filter(id => id !== alert.id)
-                                          }));
-                                          setExpandedAlerts(prev => {
-                                            const newSet = new Set(prev);
-                                            newSet.delete(alert.id);
-                                            return newSet;
-                                          });
-                                        }
-                                      }}
-                                      onClick={(e) => e.stopPropagation()}
-                                    />
-                                    <Text 
-                                      style={{ marginLeft: 0, fontSize: 13, flex: 1 }}
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        const checkbox = e.currentTarget.previousSibling?.querySelector('input[type="checkbox"]');
-                                        if (checkbox) {
-                                          checkbox.click();
-                                        }
-                                      }}
-                                    >
-                                      {alert.title}
-                                    </Text>
-                                  </div>
-                                );
-                              })}
-                            </Space>
-                          </div>
-                        ))}
-                      </div>
-                    )
-                  }
-                ]}
-              />
+                                    {alert.title}
+                                  </Text>
+                                </div>
+                              );
+                            })}
+                          </Space>
+                        </div>
+                      ))}
+                    </div>
+                  )
+                }
+              ]}
+            />
           </Modal>
         </>
       );
@@ -3818,7 +3833,7 @@ const HomepageLayout = () => {
           dataSource={contentItems.insights}
           renderItem={(item) => {
             const getIcon = (iconType) => {
-              switch(iconType) {
+              switch (iconType) {
                 case 'chart': return <LineChartOutlined />;
                 case 'bulb': return <BulbOutlined />;
                 case 'book': return <BookOutlined />;
@@ -3826,8 +3841,8 @@ const HomepageLayout = () => {
               }
             };
             return (
-              <List.Item 
-                style={{ 
+              <List.Item
+                style={{
                   padding: '8px 0',
                   display: 'flex',
                   alignItems: 'center',
@@ -3837,17 +3852,17 @@ const HomepageLayout = () => {
                 <List.Item.Meta
                   style={{ flex: 1 }}
                   avatar={
-                    <div style={{ 
-                      width: 24, 
-                      height: 24, 
-                      borderRadius: 6, 
+                    <div style={{
+                      width: 24,
+                      height: 24,
+                      borderRadius: 6,
                       background: `${item.color}15`,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center'
                     }}>
-                      {React.cloneElement(getIcon(item.icon), { 
-                        style: { fontSize: 12, color: item.color } 
+                      {React.cloneElement(getIcon(item.icon), {
+                        style: { fontSize: 12, color: item.color }
                       })}
                     </div>
                   }
@@ -3909,7 +3924,7 @@ const HomepageLayout = () => {
           justifyContent: 'space-between',
           background: '#FAFAFA'
         }}>
-          <div 
+          <div
             style={{ display: 'flex', alignItems: 'center', gap: 4, flex: 1 }}
             onMouseEnter={() => setHoveredSectionTitle(sectionKey)}
             onMouseLeave={() => setHoveredSectionTitle(null)}
@@ -3941,7 +3956,7 @@ const HomepageLayout = () => {
                       e.stopPropagation();
                       setEditingSectionTitle(sectionKey);
                     }}
-                    style={{ 
+                    style={{
                       padding: '0 4px',
                       minWidth: 'auto',
                       height: 'auto',
@@ -3965,7 +3980,7 @@ const HomepageLayout = () => {
                   setCurrentSectionForMetric(sectionId);
                   setMetricOverlayVisible(true);
                 }}
-                style={{ 
+                style={{
                   color: '#1677FF',
                   fontSize: 12
                 }}
@@ -3997,7 +4012,7 @@ const HomepageLayout = () => {
                   setLinkButtonRef(e.currentTarget);
                   setLinkOverlayVisible(true);
                 }}
-                style={{ 
+                style={{
                   color: sectionLinks[sectionType] ? '#1677FF' : '#8c8c8c',
                   fontSize: 12
                 }}
@@ -4019,9 +4034,9 @@ const HomepageLayout = () => {
               onPointerDown={(e) => {
                 e.stopPropagation();
               }}
-              style={{ 
-                color: '#8c8c8c', 
-                zIndex: 1000, 
+              style={{
+                color: '#8c8c8c',
+                zIndex: 1000,
                 position: 'relative',
                 pointerEvents: 'auto'
               }}
@@ -4154,9 +4169,9 @@ const HomepageLayout = () => {
             onPointerDown={(e) => {
               e.stopPropagation();
             }}
-            style={{ 
-              color: '#8c8c8c', 
-              zIndex: 1000, 
+            style={{
+              color: '#8c8c8c',
+              zIndex: 1000,
               position: 'relative',
               pointerEvents: 'auto'
             }}
@@ -4240,320 +4255,320 @@ const HomepageLayout = () => {
           display: 'flex',
           zIndex: 1000
         }}>
-        {/* Left Sidebar - Fixed 240px */}
-        <div style={{
-          width: '240px',
-          background: '#fff',
-          borderRight: '1px solid #E1E3E5',
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden'
-        }}>
-          {/* Header */}
+          {/* Left Sidebar - Fixed 240px */}
           <div style={{
-            padding: '20px 16px',
-            borderBottom: '1px solid #E1E3E5',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            position: 'relative'
-          }}>
-            <Button
-              type="text"
-              icon={<LeftOutlined />}
-              onClick={handleCancelTemplateCreation}
-              style={{ position: 'absolute', left: 12 }}
-            />
-          </div>
-
-          {/* Template name input */}
-          <div style={{ padding: 16, borderBottom: '1px solid #F0F0F0' }}>
-            <Input
-              placeholder="Nhập tên template"
-              value={newTemplateName}
-              onChange={(e) => setNewTemplateName(e.target.value)}
-            />
-          </div>
-
-          {/* Sections List - Only Titles */}
-          <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
-            <Space direction="vertical" style={{ width: '100%' }} size={12}>
-              {/* Section: Báo cáo */}
-              <div
-                style={{
-                  padding: '12px 16px',
-                  border: '1px solid #E1E3E5',
-                  borderRadius: 8,
-                  background: '#fff',
-                  cursor: 'pointer',
-                  transition: 'all 0.2s'
-                }}
-                onClick={() => addSectionToPreview('bao-cao')}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#F5F7FB';
-                  e.currentTarget.style.borderColor = '#1677FF';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = '#fff';
-                  e.currentTarget.style.borderColor = '#E1E3E5';
-                }}
-              >
-                <Text strong style={{ fontSize: 14 }}>Báo cáo</Text>
-              </div>
-
-              {/* Section: Lỗi & Cảnh báo */}
-              <div
-                style={{
-                  padding: '12px 16px',
-                  border: '1px solid #E1E3E5',
-                  borderRadius: 8,
-                  background: '#fff',
-                  cursor: hasAlertSection ? 'not-allowed' : 'pointer',
-                  opacity: hasAlertSection ? 0.5 : 1,
-                  transition: 'all 0.2s',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: 8
-                }}
-                onClick={() => {
-                  if (hasAlertSection) return;
-                  addSectionToPreview('loi-canh-bao');
-                }}
-                onMouseEnter={(e) => {
-                  if (hasAlertSection) return;
-                  e.currentTarget.style.background = '#F5F7FB';
-                  e.currentTarget.style.borderColor = '#1677FF';
-                }}
-                onMouseLeave={(e) => {
-                  if (hasAlertSection) return;
-                  e.currentTarget.style.background = '#fff';
-                  e.currentTarget.style.borderColor = '#E1E3E5';
-                }}
-              >
-                <Text strong style={{ fontSize: 14 }}>Lỗi & Cảnh báo</Text>
-                {hasAlertSection && <Tag color="default">Đã thêm</Tag>}
-              </div>
-
-              {/* Section: Tin tức */}
-              <div
-                style={{
-                  padding: '12px 16px',
-                  border: '1px solid #E1E3E5',
-                  borderRadius: 8,
-                  background: '#fff',
-                  cursor: hasNewsSection ? 'not-allowed' : 'pointer',
-                  opacity: hasNewsSection ? 0.5 : 1,
-                  transition: 'all 0.2s',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  gap: 8
-                }}
-                onClick={() => {
-                  if (hasNewsSection) return;
-                  addSectionToPreview('tin-tuc');
-                }}
-                onMouseEnter={(e) => {
-                  if (hasNewsSection) return;
-                  e.currentTarget.style.background = '#F5F7FB';
-                  e.currentTarget.style.borderColor = '#1677FF';
-                }}
-                onMouseLeave={(e) => {
-                  if (hasNewsSection) return;
-                  e.currentTarget.style.background = '#fff';
-                  e.currentTarget.style.borderColor = '#E1E3E5';
-                }}
-              >
-                <Text strong style={{ fontSize: 14 }}>Tin tức</Text>
-                {hasNewsSection && <Tag color="default">Đã thêm</Tag>}
-              </div>
-            </Space>
-          </div>
-
-          {/* Footer Actions */}
-          <div style={{
-            padding: '16px',
-            borderTop: '1px solid #E1E3E5',
-            display: 'flex',
-            gap: 8
-          }}>
-            <Button onClick={handleCancelTemplateCreation} style={{ flex: 1 }}>
-              Hủy
-            </Button>
-            <Button.Group style={{ flex: 1, display: 'flex' }}>
-              <Button
-                type="primary"
-                onClick={() => {
-                  if (!newTemplateName.trim() && sectionLayout.length === 0) {
-                    message.error('Vui lòng nhập tên template và chọn ít nhất 1 section');
-                    return;
-                  }
-                  if (!newTemplateName.trim()) {
-                    message.error('Vui lòng nhập tên template');
-                    return;
-                  }
-                  if (sectionLayout.length === 0) {
-                    message.error('Vui lòng chọn ít nhất 1 section');
-                    return;
-                  }
-                  handleSaveTemplateFromBuilder(false);
-                }}
-                disabled={!newTemplateName.trim() && sectionLayout.length === 0}
-                style={{ 
-                  flex: 1,
-                  borderTopRightRadius: 0,
-                  borderBottomRightRadius: 0,
-                  borderRight: 'none'
-                }}
-              >
-                Lưu
-              </Button>
-              <Dropdown
-                menu={{
-                  items: [
-                    {
-                      key: 'save-and-use',
-                      label: 'Lưu & Sử dụng',
-                      onClick: () => {
-                        if (!newTemplateName.trim() && sectionLayout.length === 0) {
-                          message.error('Vui lòng nhập tên template và chọn ít nhất 1 section');
-                          return;
-                        }
-                        if (!newTemplateName.trim()) {
-                          message.error('Vui lòng nhập tên template');
-                          return;
-                        }
-                        if (sectionLayout.length === 0) {
-                          message.error('Vui lòng chọn ít nhất 1 section');
-                          return;
-                        }
-                        handleSaveTemplateFromBuilder(true);
-                      }
-                    }
-                  ]
-                }}
-                disabled={!newTemplateName.trim() && sectionLayout.length === 0}
-              >
-                <Button
-                  type="primary"
-                  icon={<ArrowDownOutlined />}
-                  style={{ 
-                    paddingLeft: 12,
-                    paddingRight: 12,
-                    borderTopLeftRadius: 0,
-                    borderBottomLeftRadius: 0,
-                    borderLeft: '1px solid rgba(255, 255, 255, 0.3)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                />
-              </Dropdown>
-            </Button.Group>
-          </div>
-        </div>
-
-        {/* Right Canvas - 75% */}
-        <div style={{
-          flex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          overflow: 'hidden'
-        }}>
-          {/* Canvas Header */}
-          <div style={{
-            padding: '20px 24px',
-            borderBottom: '1px solid #E1E3E5',
+            width: '240px',
             background: '#fff',
+            borderRight: '1px solid #E1E3E5',
             display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center'
+            flexDirection: 'column',
+            overflow: 'hidden'
           }}>
-            <Text strong style={{ fontSize: 16 }}>Xem trước</Text>
-          </div>
-
-          {/* Grid Canvas */}
-          <div 
-            id="grid-canvas-container"
-            style={{
-              flex: 1,
-              padding: '24px',
-              overflow: 'auto',
-              background: '#F5F5F5',
+            {/* Header */}
+            <div style={{
+              padding: '20px 16px',
+              borderBottom: '1px solid #E1E3E5',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               position: 'relative'
-            }}
-          >
-            {/* Grid Cells Background - 12 columns × 24 rows */}
-            <div
-              style={{
-                position: 'absolute',
-                top: 24,
-                left: 24,
-                right: 24,
-                bottom: 24,
-                pointerEvents: 'none',
-                zIndex: 1
-              }}
-            >
-              {(() => {
-                const containerWidth = typeof window !== 'undefined' 
-                  ? Math.floor((window.innerWidth * 0.75 - 48) / 12) * 12 
-                  : 1200;
-                const rowHeight = 30;
-                const colWidth = (containerWidth - (16 * 11)) / 12; // 11 gaps between 12 columns
-                const cellHeight = rowHeight;
-                
-                return Array.from({ length: 12 * 24 }).map((_, index) => {
-                  const col = index % 12;
-                  const row = Math.floor(index / 12);
-                  return (
-                    <div
-                      key={`cell-${col}-${row}`}
-                      style={{
-                        position: 'absolute',
-                        left: col * (colWidth + 16),
-                        top: row * (cellHeight + 16),
-                        width: colWidth,
-                        height: cellHeight,
-                        border: '1px dashed #D9D9D9',
-                        borderRadius: 8,
-                        background: 'transparent'
-                      }}
-                    />
-                  );
-                });
-              })()}
+            }}>
+              <Button
+                type="text"
+                icon={<LeftOutlined />}
+                onClick={handleCancelTemplateCreation}
+                style={{ position: 'absolute', left: 12 }}
+              />
             </div>
 
-            <GridLayout
-              className="layout"
-              layout={sectionLayout}
-              cols={12}
-              rowHeight={30}
-              width={typeof window !== 'undefined' ? Math.floor((window.innerWidth * 0.75 - 48) / 12) * 12 : 1200}
-              onLayoutChange={(layout) => setSectionLayout(layout)}
-              isDraggable={true}
-              isResizable={true}
-              margin={[16, 16]}
-              containerPadding={[0, 0]}
-              compactType={null}
-              preventCollision={true}
-              useCSSTransforms={true}
-              resizeHandles={['se']}
-              minW={3}
-              maxW={12}
-              minH={3}
-              maxH={12}
-            >
-              {sectionLayout.map(item => (
-                <div key={item.i} style={{ position: 'relative', zIndex: 10 }}>
-                  {renderSectionCard(item.i)}
+            {/* Template name input */}
+            <div style={{ padding: 16, borderBottom: '1px solid #F0F0F0' }}>
+              <Input
+                placeholder="Nhập tên template"
+                value={newTemplateName}
+                onChange={(e) => setNewTemplateName(e.target.value)}
+              />
+            </div>
+
+            {/* Sections List - Only Titles */}
+            <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
+              <Space direction="vertical" style={{ width: '100%' }} size={12}>
+                {/* Section: Báo cáo */}
+                <div
+                  style={{
+                    padding: '12px 16px',
+                    border: '1px solid #E1E3E5',
+                    borderRadius: 8,
+                    background: '#fff',
+                    cursor: 'pointer',
+                    transition: 'all 0.2s'
+                  }}
+                  onClick={() => addSectionToPreview('bao-cao')}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = '#F5F7FB';
+                    e.currentTarget.style.borderColor = '#1677FF';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = '#fff';
+                    e.currentTarget.style.borderColor = '#E1E3E5';
+                  }}
+                >
+                  <Text strong style={{ fontSize: 14 }}>Báo cáo</Text>
                 </div>
-              ))}
-            </GridLayout>
+
+                {/* Section: Lỗi & Cảnh báo */}
+                <div
+                  style={{
+                    padding: '12px 16px',
+                    border: '1px solid #E1E3E5',
+                    borderRadius: 8,
+                    background: '#fff',
+                    cursor: hasAlertSection ? 'not-allowed' : 'pointer',
+                    opacity: hasAlertSection ? 0.5 : 1,
+                    transition: 'all 0.2s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 8
+                  }}
+                  onClick={() => {
+                    if (hasAlertSection) return;
+                    addSectionToPreview('loi-canh-bao');
+                  }}
+                  onMouseEnter={(e) => {
+                    if (hasAlertSection) return;
+                    e.currentTarget.style.background = '#F5F7FB';
+                    e.currentTarget.style.borderColor = '#1677FF';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (hasAlertSection) return;
+                    e.currentTarget.style.background = '#fff';
+                    e.currentTarget.style.borderColor = '#E1E3E5';
+                  }}
+                >
+                  <Text strong style={{ fontSize: 14 }}>Lỗi & Cảnh báo</Text>
+                  {hasAlertSection && <Tag color="default">Đã thêm</Tag>}
+                </div>
+
+                {/* Section: Tin tức */}
+                <div
+                  style={{
+                    padding: '12px 16px',
+                    border: '1px solid #E1E3E5',
+                    borderRadius: 8,
+                    background: '#fff',
+                    cursor: hasNewsSection ? 'not-allowed' : 'pointer',
+                    opacity: hasNewsSection ? 0.5 : 1,
+                    transition: 'all 0.2s',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 8
+                  }}
+                  onClick={() => {
+                    if (hasNewsSection) return;
+                    addSectionToPreview('tin-tuc');
+                  }}
+                  onMouseEnter={(e) => {
+                    if (hasNewsSection) return;
+                    e.currentTarget.style.background = '#F5F7FB';
+                    e.currentTarget.style.borderColor = '#1677FF';
+                  }}
+                  onMouseLeave={(e) => {
+                    if (hasNewsSection) return;
+                    e.currentTarget.style.background = '#fff';
+                    e.currentTarget.style.borderColor = '#E1E3E5';
+                  }}
+                >
+                  <Text strong style={{ fontSize: 14 }}>Tin tức</Text>
+                  {hasNewsSection && <Tag color="default">Đã thêm</Tag>}
+                </div>
+              </Space>
+            </div>
+
+            {/* Footer Actions */}
+            <div style={{
+              padding: '16px',
+              borderTop: '1px solid #E1E3E5',
+              display: 'flex',
+              gap: 8
+            }}>
+              <Button onClick={handleCancelTemplateCreation} style={{ flex: 1 }}>
+                Hủy
+              </Button>
+              <Button.Group style={{ flex: 1, display: 'flex' }}>
+                <Button
+                  type="primary"
+                  onClick={() => {
+                    if (!newTemplateName.trim() && sectionLayout.length === 0) {
+                      message.error('Vui lòng nhập tên template và chọn ít nhất 1 section');
+                      return;
+                    }
+                    if (!newTemplateName.trim()) {
+                      message.error('Vui lòng nhập tên template');
+                      return;
+                    }
+                    if (sectionLayout.length === 0) {
+                      message.error('Vui lòng chọn ít nhất 1 section');
+                      return;
+                    }
+                    handleSaveTemplateFromBuilder(false);
+                  }}
+                  disabled={!newTemplateName.trim() && sectionLayout.length === 0}
+                  style={{
+                    flex: 1,
+                    borderTopRightRadius: 0,
+                    borderBottomRightRadius: 0,
+                    borderRight: 'none'
+                  }}
+                >
+                  Lưu
+                </Button>
+                <Dropdown
+                  menu={{
+                    items: [
+                      {
+                        key: 'save-and-use',
+                        label: 'Lưu & Sử dụng',
+                        onClick: () => {
+                          if (!newTemplateName.trim() && sectionLayout.length === 0) {
+                            message.error('Vui lòng nhập tên template và chọn ít nhất 1 section');
+                            return;
+                          }
+                          if (!newTemplateName.trim()) {
+                            message.error('Vui lòng nhập tên template');
+                            return;
+                          }
+                          if (sectionLayout.length === 0) {
+                            message.error('Vui lòng chọn ít nhất 1 section');
+                            return;
+                          }
+                          handleSaveTemplateFromBuilder(true);
+                        }
+                      }
+                    ]
+                  }}
+                  disabled={!newTemplateName.trim() && sectionLayout.length === 0}
+                >
+                  <Button
+                    type="primary"
+                    icon={<ArrowDownOutlined />}
+                    style={{
+                      paddingLeft: 12,
+                      paddingRight: 12,
+                      borderTopLeftRadius: 0,
+                      borderBottomLeftRadius: 0,
+                      borderLeft: '1px solid rgba(255, 255, 255, 0.3)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}
+                  />
+                </Dropdown>
+              </Button.Group>
+            </div>
           </div>
-        </div>
+
+          {/* Right Canvas - 75% */}
+          <div style={{
+            flex: 1,
+            display: 'flex',
+            flexDirection: 'column',
+            overflow: 'hidden'
+          }}>
+            {/* Canvas Header */}
+            <div style={{
+              padding: '20px 24px',
+              borderBottom: '1px solid #E1E3E5',
+              background: '#fff',
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center'
+            }}>
+              <Text strong style={{ fontSize: 16 }}>Xem trước</Text>
+            </div>
+
+            {/* Grid Canvas */}
+            <div
+              id="grid-canvas-container"
+              style={{
+                flex: 1,
+                padding: '24px',
+                overflow: 'auto',
+                background: '#F5F5F5',
+                position: 'relative'
+              }}
+            >
+              {/* Grid Cells Background - 12 columns × 24 rows */}
+              <div
+                style={{
+                  position: 'absolute',
+                  top: 24,
+                  left: 24,
+                  right: 24,
+                  bottom: 24,
+                  pointerEvents: 'none',
+                  zIndex: 1
+                }}
+              >
+                {(() => {
+                  const containerWidth = typeof window !== 'undefined'
+                    ? Math.floor((window.innerWidth * 0.75 - 48) / 12) * 12
+                    : 1200;
+                  const rowHeight = 30;
+                  const colWidth = (containerWidth - (16 * 11)) / 12; // 11 gaps between 12 columns
+                  const cellHeight = rowHeight;
+
+                  return Array.from({ length: 12 * 24 }).map((_, index) => {
+                    const col = index % 12;
+                    const row = Math.floor(index / 12);
+                    return (
+                      <div
+                        key={`cell-${col}-${row}`}
+                        style={{
+                          position: 'absolute',
+                          left: col * (colWidth + 16),
+                          top: row * (cellHeight + 16),
+                          width: colWidth,
+                          height: cellHeight,
+                          border: '1px dashed #D9D9D9',
+                          borderRadius: 8,
+                          background: 'transparent'
+                        }}
+                      />
+                    );
+                  });
+                })()}
+              </div>
+
+              <GridLayout
+                className="layout"
+                layout={sectionLayout}
+                cols={12}
+                rowHeight={30}
+                width={typeof window !== 'undefined' ? Math.floor((window.innerWidth * 0.75 - 48) / 12) * 12 : 1200}
+                onLayoutChange={(layout) => setSectionLayout(layout)}
+                isDraggable={true}
+                isResizable={true}
+                margin={[16, 16]}
+                containerPadding={[0, 0]}
+                compactType={null}
+                preventCollision={true}
+                useCSSTransforms={true}
+                resizeHandles={['se']}
+                minW={3}
+                maxW={12}
+                minH={3}
+                maxH={12}
+              >
+                {sectionLayout.map(item => (
+                  <div key={item.i} style={{ position: 'relative', zIndex: 10 }}>
+                    {renderSectionCard(item.i)}
+                  </div>
+                ))}
+              </GridLayout>
+            </div>
+          </div>
 
         </div>
         {/* Overlay for editing section link */}
@@ -4730,9 +4745,9 @@ const HomepageLayout = () => {
     const includeNews = flags.showGuides !== false;
     return {
       'bao-cao': reports,
-      'loi-canh-bao': includeAlerts ? { 
-        errors: cloneAlerts(alertMetrics.errors.slice(0, 2)), 
-        warnings: cloneAlerts(alertMetrics.warnings.slice(0, 2)) 
+      'loi-canh-bao': includeAlerts ? {
+        errors: cloneAlerts(alertMetrics.errors.slice(0, 2)),
+        warnings: cloneAlerts(alertMetrics.warnings.slice(0, 2))
       } : { errors: [], warnings: [] },
       'tin-tuc': includeNews ? contentItems.insights.slice(0, 3) : []
     };
@@ -4964,13 +4979,13 @@ const HomepageLayout = () => {
   const [editingWorkspaceId, setEditingWorkspaceId] = useState(null);
   const [deleteConfirmVisible, setDeleteConfirmVisible] = useState(false);
   const [workspaceToDelete, setWorkspaceToDelete] = useState(null);
-  
+
   // Workspace groups definition with sub-items
   const workspaceGroups = [
-    { 
-      id: 'Dashboard', 
-      name: 'Dashboard', 
-      icon: <BarChartOutlined />, 
+    {
+      id: 'Dashboard',
+      name: 'Dashboard',
+      icon: <BarChartOutlined />,
       description: 'Chứa các dashboard chỉ số đã tạo sẵn',
       items: [
         { id: 'growth', name: 'Growth', description: 'Dashboard tăng trưởng' },
@@ -4978,22 +4993,22 @@ const HomepageLayout = () => {
         { id: 'accounting', name: 'Kế toán', description: 'Dashboard kế toán' }
       ]
     },
-    { 
-      id: 'Lỗi & Cảnh báo', 
-      name: 'Lỗi & Cảnh báo', 
-      icon: <WarningOutlined />, 
+    {
+      id: 'Lỗi & Cảnh báo',
+      name: 'Lỗi & Cảnh báo',
+      icon: <WarningOutlined />,
       description: 'Chứa các widget/còn số liên quan báo lỗi, cảnh báo cho đơn hàng/sản phẩm/tồn kho',
       items: []
     },
-    { 
-      id: 'Tin tức', 
-      name: 'Tin tức', 
-      icon: <BookOutlined />, 
+    {
+      id: 'Tin tức',
+      name: 'Tin tức',
+      icon: <BookOutlined />,
       description: 'Case study và blog',
       items: []
     }
   ];
-  
+
   // Available metrics for Alerts & Risks
   const alertMetrics = {
     errors: [
@@ -5009,16 +5024,16 @@ const HomepageLayout = () => {
       { id: 'cost-increase', name: 'Chi phí tăng', color: '#FA8C16', value: '15.3', unit: '%' }
     ]
   };
-  
+
   const [selectedAlertMetrics, setSelectedAlertMetrics] = useState({
     errors: [],
     warnings: []
   });
   const [alertMetricsOverlayVisible, setAlertMetricsOverlayVisible] = useState(false);
-  
+
   // Get current workspace
   const selectedWorkspace = workspaces.find(w => w.id === selectedWorkspaceId) || (workspaces.length > 0 ? workspaces[0] : null);
-  
+
   // Get template ID from workspace
   const getTemplateIdFromWorkspace = (workspace) => {
     if (!workspace) return 'default';
@@ -5038,45 +5053,45 @@ const HomepageLayout = () => {
     }
     return 'default';
   };
-  
+
   // Get current template data based on selected workspace
   const currentTemplateId = getTemplateIdFromWorkspace(selectedWorkspace);
   const currentTemplateData = templateData[currentTemplateId] || templateData['default'];
-  
+
   // Use dynamic data
   const currentKpiOverview = currentTemplateData.kpiOverview;
   const currentChartData = currentTemplateData.chartData;
   const currentPieData = currentTemplateData.pieData;
-  
+
   // Get current template
-  const selectedTemplate = templates.length > 0 
+  const selectedTemplate = templates.length > 0
     ? (templates.find(t => t.id === selectedTemplateId) || templates[0])
     : null;
-  
+
   // Get metrics for current template
   const currentMetrics = (selectedTemplate?.metrics || [])
     .map(metricId => allMetricsPool.find(m => m.id === metricId))
     .filter(Boolean);
-  
+
   // Group metrics by domain for modals
   const groupedMetrics = allMetricsPool.reduce((acc, metric) => {
     if (!acc[metric.domain]) acc[metric.domain] = [];
     acc[metric.domain].push(metric);
     return acc;
   }, {});
-  
+
   // Filter metrics by search
-  const filteredMetrics = searchQuery 
+  const filteredMetrics = searchQuery
     ? Object.entries(groupedMetrics).reduce((acc, [domain, metrics]) => {
-        const filtered = metrics.filter(m => 
-          m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          domain.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-        if (filtered.length > 0) acc[domain] = filtered;
-        return acc;
-      }, {})
+      const filtered = metrics.filter(m =>
+        m.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        domain.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      if (filtered.length > 0) acc[domain] = filtered;
+      return acc;
+    }, {})
     : groupedMetrics;
-  
+
   // Save to localStorage whenever templates or selection changes
   const previewGridSnapModifier = useMemo(() => createSnapModifier({
     x: PREVIEW_SLOT_WIDTH + PREVIEW_SLOT_GAP,
@@ -5086,16 +5101,16 @@ const HomepageLayout = () => {
   useEffect(() => {
     localStorage.setItem('ups-metric-templates', JSON.stringify(templates));
   }, [templates]);
-  
+
   useEffect(() => {
     localStorage.setItem('ups-selected-template', selectedTemplateId);
   }, [selectedTemplateId]);
-  
+
   // Persist workspaces to localStorage
   useEffect(() => {
     localStorage.setItem('ups-workspaces', JSON.stringify(workspaces));
   }, [workspaces]);
-  
+
   useEffect(() => {
     localStorage.setItem('ups-selected-workspace', selectedWorkspaceId);
   }, [selectedWorkspaceId]);
@@ -5121,11 +5136,11 @@ const HomepageLayout = () => {
     });
   }, [selectedMetrics, createTemplateModalVisible]);
 
-useEffect(() => {
-  if (!createTemplateModalVisible) {
-    setPreviewBlocks([]);
-  }
-}, [createTemplateModalVisible]);
+  useEffect(() => {
+    if (!createTemplateModalVisible) {
+      setPreviewBlocks([]);
+    }
+  }, [createTemplateModalVisible]);
 
   // Navigation structure for new GA4-style sidebar
   const navigationItems = [
@@ -5143,23 +5158,124 @@ useEffect(() => {
       expandable: true,
       children: [
         { key: 'bao-cao-van-hanh', label: 'Báo cáo vận hành', module: 'home' },
+        { key: 'theo-doi-fullfilment', label: 'Theo dõi Fullfilment', module: 'home' },
         { key: 'bao-cao-dieu-hanh', label: 'Báo cáo điều hành', module: 'home' },
-        { key: 'tai-chinh', label: 'Tài chính', module: 'home' }
+        { key: 'dashboard', label: 'Dashboard', module: 'home' }
       ]
     },
     {
       key: 'van-hanh',
       label: 'Vận hành',
-      icon: <MdShoppingBag />,
+      icon: <MdAssignment />,
       expandable: true,
       children: [
         {
-          key: 'quan-ly-don-hang',
-          label: 'Quản lý đơn hàng',
+          key: 'san-pham',
+          label: 'Sản phẩm',
+          children: [
+            { key: 'them-san-pham', label: 'Thêm sản phẩm', module: 'products' },
+            { key: 'luu-nhap', label: 'Lưu nháp', module: 'products' },
+            { key: 'danh-sach-san-pham', label: 'Danh sách sản phẩm', module: 'products' },
+            { key: 'lien-ket-san-pham', label: 'Liên kết sản phẩm', module: 'products' },
+            { key: 'quan-ly-dong-bo', label: 'Quản lý đồng bộ', module: 'products' },
+            { key: 'lich-su-day-ton', label: 'Lịch sử đẩy tồn', module: 'products' }
+          ]
+        },
+        {
+          key: 'don-hang',
+          label: 'Đơn hàng',
           children: [
             { key: 'danh-sach-don-hang', label: 'Danh sách đơn hàng', module: 'orders' },
             { key: 'xu-ly-hang-loat', label: 'Xử lý hàng loạt', module: 'orders' },
-            { key: 'xu-ly-theo-danh-sach', label: 'Xử lý theo danh sách', module: 'orders' }
+            { key: 'xu-ly-theo-danh-sach', label: 'Xử lý theo danh sách', module: 'orders' },
+            { key: 'xu-ly-tra-hang', label: 'Xử lý trả hàng', module: 'orders' },
+            { key: 'don-hoan', label: 'Đơn hoàn', module: 'orders' },
+            { key: 'phien-ban-giao', label: 'Phiên bàn giao', module: 'orders' },
+            { key: 'quy-tac-tang-qua', label: 'Quy tắc tặng quà', module: 'orders' }
+          ]
+        },
+        {
+          key: 'kho-van',
+          label: 'Kho vận',
+          children: [
+            { key: 'san-pham-kho', label: 'Sản phẩm kho', module: 'inventory' },
+            { key: 'danh-muc-san-pham', label: 'Danh mục sản phẩm', module: 'inventory' },
+            { key: 'ton-kho', label: 'Tồn kho', module: 'inventory' },
+            { key: 'kiem-kho', label: 'Kiểm kho', module: 'inventory' },
+            { key: 'du-tru', label: 'Dự trữ', module: 'inventory' },
+            { key: 'xuat-nhap-kho', label: 'Xuất nhập kho', module: 'inventory' },
+            { key: 'dat-hang', label: 'Đặt hàng', module: 'inventory' },
+            { key: 'chuyen-kho', label: 'Chuyển kho', module: 'inventory' },
+            { key: 'quan-ly-nha-cung-cap', label: 'Quản lý nhà cung cấp', module: 'inventory' },
+            { key: 'danh-sach-kho', label: 'Danh sách kho', module: 'inventory' },
+            { key: 'bao-cao-thay-doi-ton', label: 'Báo cáo thay đổi tồn', module: 'inventory' },
+            { key: 'quan-ly-han-su-dung', label: 'Quản lý hạn sử dụng', module: 'inventory' }
+          ]
+        },
+        {
+          key: 'khach-hang',
+          label: 'Khách hàng',
+          children: [
+            { key: 'danh-sach-khach-hang', label: 'Danh sách khách hàng', module: 'customers' },
+            { key: 'quan-ly-phan-hoi', label: 'Quản lý phản hồi', module: 'customers' },
+            { key: 'danh-gia-tu-dong', label: 'Đánh giá tự động', module: 'customers' },
+            { key: 'tro-chuyen', label: 'Trò chuyện', module: 'customers' }
+          ]
+        },
+        {
+          key: 'khung-anh-mau',
+          label: 'Khung ảnh mẫu',
+          children: [
+            { key: 'danh-sach-khung-anh', label: 'Danh sách khung ảnh', module: 'templates' },
+            { key: 'lap-lich-ap-khung', label: 'Lập lịch áp khung', module: 'templates' }
+          ]
+        },
+        {
+          key: 'marketing',
+          label: 'Marketing',
+          children: [
+            { key: 'chuong-trinh-khuyen-mai-san', label: 'Chương trình khuyến mãi sàn', module: 'marketing' },
+            { key: 'chuong-trinh-khuyen-mai-ups', label: 'Chương trình khuyến mãi UpS', module: 'marketing' },
+            { key: 'canh-bao-vi-pham-gia', label: 'Cảnh báo vi phạm giá', module: 'marketing' }
+          ]
+        },
+        {
+          key: 'tai-chinh',
+          label: 'Tài chính',
+          children: [
+            { key: 'doi-soat', label: 'Đối soát', module: 'finance' },
+            { key: 'ban-hang', label: 'Bán hàng', module: 'finance' },
+            { key: 'chi-phi', label: 'Chi phí', module: 'finance' },
+            { key: 'gia-von-vat', label: 'Giá vốn và VAT', module: 'finance' },
+            { key: 'bao-cao-kinh-doanh', label: 'Báo cáo kinh doanh', module: 'finance' },
+            { key: 'giao-dich-ve-vi', label: 'Giao dịch về ví', module: 'finance' }
+          ]
+        },
+        { key: 'doi-soat-du-lieu-tu-dong', label: 'Đối soát dữ liệu tự động', module: 'auto-reconciliation' },
+        {
+          key: 'affiliate',
+          label: 'Affiliate',
+          children: [
+            { key: 'tao-chien-dich', label: 'Tạo chiến dịch', module: 'affiliate' },
+            { key: 'quan-ly-chien-dich', label: 'Quản lý chiến dịch', module: 'affiliate' }
+          ]
+        },
+        {
+          key: 'loyalty',
+          label: 'Loyalty',
+          children: [
+            { key: 'khach-hang-than-thiet', label: 'Khách hàng thân thiết', module: 'loyalty' },
+            { key: 'danh-sach-chuong-trinh', label: 'Danh sách chương trình', module: 'loyalty' },
+            { key: 'danh-sach-hang-hanh-vien', label: 'Danh sách hạng hành viên', module: 'loyalty' },
+            { key: 'cau-hinh-loyalty', label: 'Cấu hình Loyalty', module: 'loyalty' }
+          ]
+        },
+        {
+          key: 'thanh-toan',
+          label: 'Thanh toán',
+          children: [
+            { key: 'cau-hinh-thanh-toan', label: 'Cấu hình thanh toán', module: 'payment' },
+            { key: 'quan-ly-giao-dich-qua-cong', label: 'Quản lý giao dịch qua cổng', module: 'payment' }
           ]
         }
       ]
@@ -5177,8 +5293,8 @@ useEffect(() => {
     // Check if activeNavItem is a child of any expandable item
     for (const item of navigationItems) {
       if (item.children) {
-        const isDirectChild = item.children.some(child => 
-          child.key === activeNavItem || 
+        const isDirectChild = item.children.some(child =>
+          child.key === activeNavItem ||
           (child.children && child.children.some(nested => nested.key === activeNavItem))
         );
         if (isDirectChild) return true;
@@ -5189,6 +5305,27 @@ useEffect(() => {
 
   // Memoize parent item to show in sub-nav
   const parentItemToShow = useMemo(() => {
+    // Check if Settings is expanded
+    if (expandedSubNav === 'cai-dat') {
+      return {
+        key: 'cai-dat',
+        label: 'Cài đặt',
+        icon: <MdSettings />,
+        expandable: true,
+        children: [
+          { key: 'tai-khoan', label: 'Tài khoản', module: 'settings' },
+          { key: 'gian-hang-ket-noi', label: 'Gian hàng kết nối', module: 'settings' },
+          { key: 'nhan-hang', label: 'Nhãn hàng', module: 'settings' },
+          { key: 'tai-khoan-quang-cao', label: 'Tài khoản quảng cáo', module: 'settings' },
+          { key: 'ton-da-kenh', label: 'Tồn đa kênh', module: 'settings' },
+          { key: 'ket-noi-mo-rong', label: 'Kết nối mở rộng', module: 'settings' },
+          { key: 'thiet-lap-tai-chinh', label: 'Thiết lập tài chính', module: 'settings' },
+          { key: 'trang-thai-hang-hoa', label: 'Trạng thái hàng hóa', module: 'settings' },
+          { key: 'cau-hinh-van-chuyen', label: 'Cấu hình vận chuyển', module: 'settings' }
+        ]
+      };
+    }
+
     if (expandedSubNav) {
       return navigationItems.find(item => item.key === expandedSubNav);
     }
@@ -5200,8 +5337,8 @@ useEffect(() => {
     // Check if activeNavItem is a child of any expandable item
     for (const item of navigationItems) {
       if (item.children) {
-        const isDirectChild = item.children.some(child => 
-          child.key === activeNavItem || 
+        const isDirectChild = item.children.some(child =>
+          child.key === activeNavItem ||
           (child.children && child.children.some(nested => nested.key === activeNavItem))
         );
         if (isDirectChild) return item;
@@ -5212,10 +5349,13 @@ useEffect(() => {
 
   // Memoize main content margin-left
   const mainContentMarginLeft = useMemo(() => {
-    const sidebarWidth = sidebarCollapsed ? 64 : 240;
-    const subNavWidth = isSubNavVisible ? 240 : 0;
+    // Content always starts after the collapsed sidebar width (64px)
+    // If sub-nav is visible, push content by sub-nav width (177px)
+    // L1 hover expansion will still overlay everything
+    const sidebarWidth = 64;
+    const subNavWidth = isSubNavVisible ? 177 : 0;
     return sidebarWidth + subNavWidth;
-  }, [sidebarCollapsed, isSubNavVisible]);
+  }, [isSubNavVisible]);
 
   // Legacy menu items (keeping for compatibility)
   const menuItems = [
@@ -5341,7 +5481,7 @@ useEffect(() => {
       || galleryTemplate?.templateId
       || (templateData[templateId] ? templateId : null);
     const previewData = dataKey ? templateData[dataKey] : null;
-    
+
     if (!previewData) {
       const metricList = templateInState?.metrics || [];
       if (metricList.length === 0) {
@@ -5447,7 +5587,7 @@ useEffect(() => {
               minHeight: 96
             }}>
               {[...Array(6)].map((_, idx) => (
-                <div 
+                <div
                   key={idx}
                   style={{
                     background: idx % 2 === 0 ? '#fff' : '#F2F4FF',
@@ -5471,9 +5611,9 @@ useEffect(() => {
                 transition: 'opacity 0.2s'
               }}
             >
-              <Button 
-                type="primary" 
-                icon={<EyeOutlined />} 
+              <Button
+                type="primary"
+                icon={<EyeOutlined />}
                 onClick={(e) => {
                   e.stopPropagation();
                   handleOpenPreview(template.id, 'settings');
@@ -5507,7 +5647,7 @@ useEffect(() => {
             )}
           </div>
           <div style={{ marginTop: 'auto', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-            <Button 
+            <Button
               type={isActive ? 'primary' : 'default'}
               disabled={isActive}
               onClick={() => handleTemplateCardApply(template.id)}
@@ -5515,19 +5655,17 @@ useEffect(() => {
               {isActive ? 'Đang sử dụng' : 'Áp dụng'}
             </Button>
             {!template.isDefault && (
-              <>
-                <Button icon={<EditOutlined />} onClick={() => handleOpenEditModal(template)}>
-                  Chỉnh sửa
-                </Button>
-                <Button 
-                  icon={<DeleteOutlined />} 
-                  danger 
-                  onClick={() => handleDeleteTemplate(template)}
-                >
-                  Xóa
-                </Button>
-              </>
+              <Button icon={<EditOutlined />} onClick={() => handleOpenEditModal(template)}>
+                Chỉnh sửa
+              </Button>
             )}
+            <Button
+              icon={<DeleteOutlined />}
+              danger
+              onClick={() => handleDeleteTemplate(template)}
+            >
+              Xóa
+            </Button>
           </div>
         </Card>
       </Col>
@@ -5542,9 +5680,9 @@ useEffect(() => {
     const pageSize = 5;
     // Filter templates by search query
     const filteredTemplates = templateSearchQuery.trim()
-      ? templates.filter(t => 
-          t.name.toLowerCase().includes(templateSearchQuery.toLowerCase().trim())
-        )
+      ? templates.filter(t =>
+        t.name.toLowerCase().includes(templateSearchQuery.toLowerCase().trim())
+      )
       : templates;
     const sortedTemplates = [...filteredTemplates].sort((a, b) => {
       if (a.id === selectedTemplateId && b.id !== selectedTemplateId) return -1;
@@ -5584,26 +5722,34 @@ useEffect(() => {
         setSelectedTemplateIds(new Set());
         return;
       }
-      
+
       // Check if any selected template is in use
       const hasTemplateInUse = selectedTemplateIds.has(selectedTemplateId);
-      
-      // If template in use is selected, show warning modal and prevent deletion
+
+      // If template in use is selected, show confirmation with special message
       if (hasTemplateInUse) {
-        Modal.warning({
-          title: 'Không thể xóa template đang sử dụng',
-          content: 'Bạn không thể xóa template đang được sử dụng. Vui lòng bỏ chọn template đang sử dụng và chọn lại.',
-          okText: 'Đã hiểu',
+        Modal.confirm({
+          title: 'Xác nhận xóa template đang sử dụng',
+          content: `Bạn có chắc chắn muốn xóa ${deletableTemplates.length} template đã chọn? Template đang sử dụng sẽ bị xóa và hệ thống sẽ tự động chuyển sang template khác.`,
+          okText: 'Xóa',
+          okType: 'danger',
+          cancelText: 'Hủy',
           onOk: () => {
-            // Auto-deselect the template in use
-            const newSelected = new Set(selectedTemplateIds);
-            newSelected.delete(selectedTemplateId);
-            setSelectedTemplateIds(newSelected);
+            const updatedTemplates = templates.filter(t => !selectedTemplateIds.has(t.id));
+            setTemplates(updatedTemplates);
+            setSelectedTemplateIds(new Set());
+            if (updatedTemplates.length > 0) {
+              setSelectedTemplateId(updatedTemplates[0].id);
+              message.success(`Đã xóa ${deletableTemplates.length} template. Đã chuyển sang template "${updatedTemplates[0].name}"`);
+            } else {
+              setSelectedTemplateId(null);
+              message.success(`Đã xóa ${deletableTemplates.length} template`);
+            }
           }
         });
         return;
       }
-      
+
       // Regular deletion confirmation for templates not in use
       Modal.confirm({
         title: 'Xác nhận xóa',
@@ -5640,9 +5786,7 @@ useEffect(() => {
           handleOpenEditModal(template);
           break;
         case 'delete':
-          if (!template.isDefault) {
-            handleDeleteTemplate(template);
-          }
+          handleDeleteTemplate(template);
           break;
         default:
           break;
@@ -5669,10 +5813,10 @@ useEffect(() => {
       >
         <div style={{ padding: 24 }}>
           {!isEmptyState && selectedCount > 0 && (
-            <div style={{ 
-              marginBottom: 16, 
-              padding: '12px 16px', 
-              background: '#F0F5FF', 
+            <div style={{
+              marginBottom: 16,
+              padding: '12px 16px',
+              background: '#F0F5FF',
               borderRadius: 8,
               display: 'flex',
               justifyContent: 'space-between',
@@ -5681,7 +5825,7 @@ useEffect(() => {
               <Text style={{ color: '#1677FF', fontWeight: 500 }}>
                 Đã chọn {selectedCount} template
               </Text>
-              <Button 
+              <Button
                 danger
                 icon={<DeleteOutlined />}
                 onClick={handleDeleteSelected}
@@ -5718,123 +5862,123 @@ useEffect(() => {
                 alignItems: 'center'
               }}
             >
-            <Checkbox
-              indeterminate={someSelected && !allSelected}
-              checked={allSelected && pagedTemplates.length > 0}
-              onChange={(e) => handleSelectAll(e.target.checked)}
-            />
-            <span style={{ display: 'flex', alignItems: 'center' }}>Tên</span>
-            <span style={{ display: 'flex', alignItems: 'center' }}>Trạng thái</span>
-            <span style={{ display: 'flex', alignItems: 'center' }}>Cập nhật gần nhất</span>
-            <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: 4 }}>
-              Thao tác
-            </span>
-          </div>
+              <Checkbox
+                indeterminate={someSelected && !allSelected}
+                checked={allSelected && pagedTemplates.length > 0}
+                onChange={(e) => handleSelectAll(e.target.checked)}
+              />
+              <span style={{ display: 'flex', alignItems: 'center' }}>Tên</span>
+              <span style={{ display: 'flex', alignItems: 'center' }}>Trạng thái</span>
+              <span style={{ display: 'flex', alignItems: 'center' }}>Cập nhật gần nhất</span>
+              <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: 4 }}>
+                Thao tác
+              </span>
+            </div>
           )}
           {!isEmptyState && (
             <Space direction="vertical" style={{ width: '100%' }} size={12}>
               {pagedTemplates.map((template) => {
-              const isSelected = selectedTemplateIds.has(template.id);
-              return (
-                <div
-                  key={template.id}
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: templateRowLayout,
-                    alignItems: 'center',
-                    padding: '16px 20px',
-                    borderRadius: 14,
-                    border: '1px solid #E1E3E5',
-                    background: isSelected ? 'rgba(22, 119, 255, 0.02)' : '#fff',
-                    boxShadow: '0 8px 24px rgba(15,23,42,0.05)',
-                    gap: 12
-                  }}
-                >
-                  <Checkbox
-                    checked={isSelected}
-                    onChange={(e) => handleSelectTemplate(template.id, e.target.checked)}
-                  />
+                const isSelected = selectedTemplateIds.has(template.id);
+                return (
                   <div
-                    style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 4 }}
-                    onMouseEnter={() => setHoveredTemplateName(template.id)}
-                    onMouseLeave={() => setHoveredTemplateName(null)}
+                    key={template.id}
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: templateRowLayout,
+                      alignItems: 'center',
+                      padding: '16px 20px',
+                      borderRadius: 14,
+                      border: '1px solid #E1E3E5',
+                      background: isSelected ? 'rgba(22, 119, 255, 0.02)' : '#fff',
+                      boxShadow: '0 8px 24px rgba(15,23,42,0.05)',
+                      gap: 12
+                    }}
                   >
-                    {editingTemplateName === template.id ? (
-                      <Input
-                        value={editingTemplateNameValue}
-                        onChange={(e) => {
-                          setEditingTemplateNameValue(e.target.value);
-                        }}
-                        onBlur={() => {
-                          if (editingTemplateNameValue.trim()) {
-                            const updatedTemplates = templates.map(t => 
-                              t.id === template.id ? { ...t, name: editingTemplateNameValue.trim() } : t
-                            );
-                            setTemplates(updatedTemplates);
-                            localStorage.setItem('ups-metric-templates', JSON.stringify(updatedTemplates));
-                          }
-                          setEditingTemplateName(null);
-                          setEditingTemplateNameValue('');
-                        }}
-                        onPressEnter={() => {
-                          if (editingTemplateNameValue.trim()) {
-                            const updatedTemplates = templates.map(t => 
-                              t.id === template.id ? { ...t, name: editingTemplateNameValue.trim() } : t
-                            );
-                            setTemplates(updatedTemplates);
-                            localStorage.setItem('ups-metric-templates', JSON.stringify(updatedTemplates));
-                          }
-                          setEditingTemplateName(null);
-                          setEditingTemplateNameValue('');
-                        }}
-                        autoFocus
-                        onClick={(e) => e.stopPropagation()}
-                        style={{ flex: 1 }}
-                      />
-                    ) : (
-                      <>
-                        <Text strong style={{ fontSize: 15, display: 'inline-block' }}>{template.name}</Text>
-                        {hoveredTemplateName === template.id && (
-                          <Button
-                            type="text"
-                            size="small"
-                            icon={<EditOutlined />}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setEditingTemplateName(template.id);
-                              setEditingTemplateNameValue(template.name);
-                            }}
-                            style={{ 
-                              padding: '0 4px',
-                              minWidth: 'auto',
-                              height: 'auto',
-                              marginLeft: 4,
-                              display: 'inline-flex',
-                              alignItems: 'center'
-                            }}
-                          />
-                        )}
-                      </>
-                    )}
-                  </div>
-                  <div>
-                    <Tag 
-                      color={template.id === selectedTemplateId ? 'green' : 'default'} 
-                      style={{ padding: '0 12px' }}
+                    <Checkbox
+                      checked={isSelected}
+                      onChange={(e) => handleSelectTemplate(template.id, e.target.checked)}
+                    />
+                    <div
+                      style={{ position: 'relative', display: 'flex', alignItems: 'center', gap: 4 }}
+                      onMouseEnter={() => setHoveredTemplateName(template.id)}
+                      onMouseLeave={() => setHoveredTemplateName(null)}
                     >
-                      {template.id === selectedTemplateId ? 'Đang sử dụng' : 'Nháp'}
-                    </Tag>
+                      {editingTemplateName === template.id ? (
+                        <Input
+                          value={editingTemplateNameValue}
+                          onChange={(e) => {
+                            setEditingTemplateNameValue(e.target.value);
+                          }}
+                          onBlur={() => {
+                            if (editingTemplateNameValue.trim()) {
+                              const updatedTemplates = templates.map(t =>
+                                t.id === template.id ? { ...t, name: editingTemplateNameValue.trim() } : t
+                              );
+                              setTemplates(updatedTemplates);
+                              localStorage.setItem('ups-metric-templates', JSON.stringify(updatedTemplates));
+                            }
+                            setEditingTemplateName(null);
+                            setEditingTemplateNameValue('');
+                          }}
+                          onPressEnter={() => {
+                            if (editingTemplateNameValue.trim()) {
+                              const updatedTemplates = templates.map(t =>
+                                t.id === template.id ? { ...t, name: editingTemplateNameValue.trim() } : t
+                              );
+                              setTemplates(updatedTemplates);
+                              localStorage.setItem('ups-metric-templates', JSON.stringify(updatedTemplates));
+                            }
+                            setEditingTemplateName(null);
+                            setEditingTemplateNameValue('');
+                          }}
+                          autoFocus
+                          onClick={(e) => e.stopPropagation()}
+                          style={{ flex: 1 }}
+                        />
+                      ) : (
+                        <>
+                          <Text strong style={{ fontSize: 15, display: 'inline-block' }}>{template.name}</Text>
+                          {hoveredTemplateName === template.id && (
+                            <Button
+                              type="text"
+                              size="small"
+                              icon={<EditOutlined />}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingTemplateName(template.id);
+                                setEditingTemplateNameValue(template.name);
+                              }}
+                              style={{
+                                padding: '0 4px',
+                                minWidth: 'auto',
+                                height: 'auto',
+                                marginLeft: 4,
+                                display: 'inline-flex',
+                                alignItems: 'center'
+                              }}
+                            />
+                          )}
+                        </>
+                      )}
+                    </div>
+                    <div>
+                      <Tag
+                        color={template.id === selectedTemplateId ? 'green' : 'default'}
+                        style={{ padding: '0 12px' }}
+                      >
+                        {template.id === selectedTemplateId ? 'Đang sử dụng' : 'Nháp'}
+                      </Tag>
+                    </div>
+                    <div>
+                      <Text>{template.createdAt || '—'}</Text>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <Dropdown trigger={['click']} placement="bottomRight" menu={buildActionMenu(template)}>
+                        <Button type="text" icon={<EllipsisOutlined />} />
+                      </Dropdown>
+                    </div>
                   </div>
-                  <div>
-                    <Text>{template.createdAt || '—'}</Text>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    <Dropdown trigger={['click']} placement="bottomRight" menu={buildActionMenu(template)}>
-                      <Button type="text" icon={<EllipsisOutlined />} />
-                    </Dropdown>
-                  </div>
-                </div>
-              );
+                );
               })}
               {sortedTemplates.length === 0 && !isEmptyState && (
                 <Empty description="Không tìm thấy template nào" />
@@ -5842,48 +5986,29 @@ useEffect(() => {
             </Space>
           )}
           {isEmptyState && (
-            <div style={{ 
+            <div style={{
               padding: '60px 20px',
               textAlign: 'center',
               width: '100%'
             }}>
-              <Empty 
+              <Empty
                 description={
                   <div>
                     <div style={{ marginBottom: 8, fontSize: 16, color: '#262626' }}>
                       Chưa có template nào
                     </div>
-                    <div style={{ fontSize: 14, color: '#8c8c8c', marginBottom: 24 }}>
+                    <div style={{ fontSize: 14, color: '#8c8c8c' }}>
                       Tạo template mới để bắt đầu quản lý workspace của bạn
                     </div>
                   </div>
                 }
                 image={Empty.PRESENTED_IMAGE_SIMPLE}
-              >
-                <Space size="middle" style={{ marginTop: 24 }}>
-                  <Button 
-                    icon={<AppstoreAddOutlined />} 
-                    onClick={() => setTemplateGalleryVisible(true)}
-                  >
-                    Tạo mới từ template
-                  </Button>
-                  <Button 
-                    type="primary" 
-                    icon={<PlusOutlined />} 
-                    onClick={() => {
-                      resetTemplateBuilder();
-                      setActiveModule('template-create');
-                    }}
-                  >
-                    Tạo
-                  </Button>
-                </Space>
-              </Empty>
+              />
             </div>
           )}
           {!isEmptyState && (
             <div style={{ marginTop: 24, textAlign: 'right' }}>
-              <Pagination 
+              <Pagination
                 current={templateTablePage}
                 pageSize={pageSize}
                 total={sortedTemplates.length}
@@ -5900,7 +6025,7 @@ useEffect(() => {
       </Card>
     );
   };
-  
+
   const userMenu = (
     <Menu
       items={[
@@ -5911,7 +6036,7 @@ useEffect(() => {
       ]}
     />
   );
-  
+
   const notificationMenu = (
     <Menu
       items={[
@@ -5921,15 +6046,15 @@ useEffect(() => {
       ]}
     />
   );
-  
+
   // ========== TEMPLATE CRUD FUNCTIONS ==========
-  
+
   const handleCreateTemplate = (applyImmediately = false) => {
     if (!newTemplateName.trim() || selectedMetrics.length === 0) {
       message.error('Vui lòng nhập tên template và chọn ít nhất 1 metric');
       return;
     }
-    
+
     const newTemplate = {
       id: `custom-${Date.now()}`,
       name: newTemplateName.trim(),
@@ -5941,7 +6066,7 @@ useEffect(() => {
         viewType: block.viewType
       }))
     };
-    
+
     setTemplates([...templates, newTemplate]);
     setCreateTemplateModalVisible(false);
     setNewTemplateName('');
@@ -5955,19 +6080,19 @@ useEffect(() => {
       message.success(`Template "${newTemplate.name}" đã được lưu nháp`);
     }
   };
-  
+
   const handleEditTemplate = (applyImmediately = false) => {
     if (!newTemplateName.trim() || selectedMetrics.length === 0) {
       message.error('Vui lòng nhập tên template và chọn ít nhất 1 metric');
       return;
     }
-    
-    const updatedTemplates = templates.map(t => 
-      t.id === selectedTemplateId 
+
+    const updatedTemplates = templates.map(t =>
+      t.id === selectedTemplateId
         ? { ...t, name: newTemplateName.trim(), metrics: selectedMetrics }
         : t
     );
-    
+
     setTemplates(updatedTemplates);
     setEditTemplateModalVisible(false);
     setNewTemplateName('');
@@ -5979,10 +6104,20 @@ useEffect(() => {
       message.success('Template đã được lưu nháp!');
     }
   };
-  
+
   const handleDeleteTemplate = (templateToDelete = selectedTemplate) => {
     if (!templateToDelete) return;
-    
+
+    // Check if this is the only template left
+    if (templates.length === 1) {
+      Modal.warning({
+        title: 'Không thể xóa',
+        content: 'Không thể xóa template cuối cùng. Vui lòng tạo template mới trước khi xóa template này.',
+        okText: 'Đã hiểu'
+      });
+      return;
+    }
+
     // Special confirmation for template in use
     if (templateToDelete.id === selectedTemplateId) {
       Modal.confirm({
@@ -6005,7 +6140,7 @@ useEffect(() => {
       });
       return;
     }
-    
+
     // Regular confirmation for other templates
     Modal.confirm({
       title: 'Xác nhận xóa',
@@ -6020,7 +6155,7 @@ useEffect(() => {
       }
     });
   };
-  
+
   const handleOpenCreateModal = () => {
     setNewTemplateName('');
     setSelectedMetrics([]);
@@ -6030,7 +6165,7 @@ useEffect(() => {
     setHoveredMetricId(null);
     setCreateTemplateModalVisible(true);
   };
-  
+
   const handleOpenEditModal = (templateToEdit = selectedTemplate) => {
     if (!templateToEdit) return;
     setSelectedTemplateId(templateToEdit.id);
@@ -6039,7 +6174,7 @@ useEffect(() => {
     setSearchQuery('');
     setEditTemplateModalVisible(true);
   };
-  
+
   const handleCloseChildModal = (isCreate) => {
     if (isCreate) {
       setCreateTemplateModalVisible(false);
@@ -6085,23 +6220,23 @@ useEffect(() => {
     setHoveredMetricId(null);
     setCreateTemplateModalVisible(true);
   };
-  
+
   const handleSaveOrder = () => {
-    const updatedTemplates = templates.map(t => 
-      t.id === selectedTemplateId 
+    const updatedTemplates = templates.map(t =>
+      t.id === selectedTemplateId
         ? { ...t, metrics: tempMetricOrder }
         : t
     );
-    
+
     setTemplates(updatedTemplates);
     setIsReorderMode(false);
     setTempMetricOrder([]);
     message.success('Thứ tự metrics đã được lưu!');
   };
-  
+
   const handleDragEnd = (event) => {
     const { active, over } = event;
-    
+
     if (active.id !== over.id) {
       const oldIndex = tempMetricOrder.indexOf(active.id);
       const newIndex = tempMetricOrder.indexOf(over.id);
@@ -6121,7 +6256,7 @@ useEffect(() => {
   };
 
   const handleResizePreview = (blockId, direction) => {
-    setPreviewBlocks((blocks) => 
+    setPreviewBlocks((blocks) =>
       blocks.map(block => {
         if (block.id !== blockId) return block;
         const currentIndex = previewSpanSteps.indexOf(block.span);
@@ -6149,36 +6284,36 @@ useEffect(() => {
   };
 
   const handleToggleMetricSelection = (metricId) => {
-    setSelectedMetrics((metrics) => 
+    setSelectedMetrics((metrics) =>
       metrics.includes(metricId)
         ? metrics.filter(id => id !== metricId)
         : [...metrics, metricId]
     );
   };
-  
+
   const handleStartReorder = () => {
     setTempMetricOrder(selectedTemplate.metrics);
     setIsReorderMode(true);
   };
-  
+
   const handleCancelReorder = () => {
     setIsReorderMode(false);
     setTempMetricOrder([]);
   };
-  
+
   // ========== WORKSPACE MANAGEMENT FUNCTIONS ==========
-  
+
   const handleCreateWorkspace = () => {
     if (!newWorkspaceName.trim()) {
       message.error('Vui lòng nhập tên workspace');
       return;
     }
-    
+
     if (selectedItems.length === 0) {
       message.error('Vui lòng chọn ít nhất một nhóm hoặc mục');
       return;
     }
-    
+
     const newWorkspace = {
       id: `workspace-${Date.now()}`,
       name: newWorkspaceName.trim(),
@@ -6191,7 +6326,7 @@ useEffect(() => {
         showGuides: selectedItems.some(item => item.groupId === 'Tin tức')
       }
     };
-    
+
     setWorkspaces([...workspaces, newWorkspace]);
     setSelectedWorkspaceId(newWorkspace.id);
     setWorkspaceConfigDrawerVisible(false);
@@ -6201,28 +6336,28 @@ useEffect(() => {
     setSelectedAlertMetrics({ errors: [], warnings: [] });
     message.success(`Workspace "${newWorkspace.name}" đã được tạo!`);
   };
-  
+
   const handleEditWorkspace = () => {
     if (!newWorkspaceName.trim() || !editingWorkspaceId) {
       message.error('Vui lòng nhập tên workspace');
       return;
     }
-    
-    const updatedWorkspaces = workspaces.map(w => 
+
+    const updatedWorkspaces = workspaces.map(w =>
       w.id === editingWorkspaceId
-        ? { 
-            ...w, 
-            name: newWorkspaceName.trim(),
-            groups: [selectedGroup],
-            layout: {
-              showDashboard: selectedGroup === 'Dashboard',
-              showAlerts: selectedGroup === 'Alert & Risks',
-              showGuides: selectedGroup === 'Guides / Case studies'
-            }
+        ? {
+          ...w,
+          name: newWorkspaceName.trim(),
+          groups: [selectedGroup],
+          layout: {
+            showDashboard: selectedGroup === 'Dashboard',
+            showAlerts: selectedGroup === 'Alert & Risks',
+            showGuides: selectedGroup === 'Guides / Case studies'
           }
+        }
         : w
     );
-    
+
     setWorkspaces(updatedWorkspaces);
     setWorkspaceEditModalVisible(false);
     setNewWorkspaceName('');
@@ -6230,31 +6365,31 @@ useEffect(() => {
     setEditingWorkspaceId(null);
     message.success('Workspace đã được cập nhật!');
   };
-  
+
   const handleDeleteWorkspace = () => {
     if (!workspaceToDelete) return;
-    
+
     if (workspaceToDelete.isDefault) {
       message.error('Không thể xóa workspace mặc định');
       setDeleteConfirmVisible(false);
       setWorkspaceToDelete(null);
       return;
     }
-    
+
     const updatedWorkspaces = workspaces.filter(w => w.id !== workspaceToDelete.id);
     setWorkspaces(updatedWorkspaces);
-    
+
     // If deleted workspace was selected, switch to default
     if (selectedWorkspaceId === workspaceToDelete.id) {
       const defaultWorkspace = updatedWorkspaces.find(w => w.isDefault) || updatedWorkspaces[0];
       setSelectedWorkspaceId(defaultWorkspace.id);
     }
-    
+
     setDeleteConfirmVisible(false);
     setWorkspaceToDelete(null);
     message.success('Workspace đã được xóa!');
   };
-  
+
   const handleOpenEditWorkspace = (workspace) => {
     if (workspace.isTemplate) {
       message.warning('Không thể chỉnh sửa template mẫu. Vui lòng tạo mới từ template.');
@@ -6266,7 +6401,7 @@ useEffect(() => {
     setSelectedSubItem(null);
     setWorkspaceEditModalVisible(true);
   };
-  
+
   const handleCreateFromTemplate = (template) => {
     const newWorkspace = {
       id: `workspace-${Date.now()}`,
@@ -6282,17 +6417,17 @@ useEffect(() => {
         showGuides: true
       }
     };
-    
+
     setWorkspaces([...workspaces, newWorkspace]);
     setSelectedWorkspaceId(newWorkspace.id);
     message.success(`Đã tạo workspace mới từ template "${template.name}"!`);
   };
-  
+
   const handleOpenDeleteConfirm = (workspace) => {
     setWorkspaceToDelete(workspace);
     setDeleteConfirmVisible(true);
   };
-  
+
   const handleOpenCreateWorkspace = () => {
     setNewWorkspaceName('');
     setSelectedGroup(null);
@@ -6300,7 +6435,7 @@ useEffect(() => {
     setSelectedAlertMetrics({ errors: [], warnings: [] });
     setWorkspaceConfigDrawerVisible(true);
   };
-  
+
   const handleSelectItem = (groupId, itemId = null) => {
     try {
       // For Dashboard, only allow selecting one - remove existing dashboard selection first
@@ -6311,11 +6446,11 @@ useEffect(() => {
           return;
         }
       }
-      
-      const exists = selectedItems.some(item => 
+
+      const exists = selectedItems.some(item =>
         itemId ? (item.groupId === groupId && item.itemId === itemId) : item.groupId === groupId && !item.itemId
       );
-      
+
       if (!exists) {
         setSelectedItems(prev => [...prev, { groupId, itemId }]);
       }
@@ -6324,28 +6459,28 @@ useEffect(() => {
       message.error('Có lỗi xảy ra khi chọn mục');
     }
   };
-  
+
   const hasDashboardSelected = () => {
     return selectedItems.some(item => item.groupId === 'Dashboard' && item.itemId);
   };
-  
+
   const handleRemoveItem = (groupId, itemId = null) => {
-    setSelectedItems(selectedItems.filter(item => 
+    setSelectedItems(selectedItems.filter(item =>
       itemId ? !(item.groupId === groupId && item.itemId === itemId) : item.groupId !== groupId
     ));
-    
+
     // Reset alert metrics if removing Lỗi & Cảnh báo
     if (groupId === 'Lỗi & Cảnh báo') {
       setSelectedAlertMetrics({ errors: [], warnings: [] });
     }
   };
-  
+
   const isItemSelected = (groupId, itemId = null) => {
-    return selectedItems.some(item => 
+    return selectedItems.some(item =>
       itemId ? (item.groupId === groupId && item.itemId === itemId) : item.groupId === groupId && !item.itemId
     );
   };
-  
+
   return (
     <>
       {activeModule === 'template-create' ? (
@@ -6353,2439 +6488,2489 @@ useEffect(() => {
       ) : (
         <Layout style={{ minHeight: '100vh' }}>
           {/* Header */}
-          <Header style={{ 
-        background: '#fff', 
-        padding: '0 24px', 
-        paddingLeft: '24px',
-        display: 'flex', 
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        borderBottom: '1px solid #f0f0f0',
-        position: 'sticky',
-        top: 0,
-        zIndex: 1002,
-        width: '100%',
-        boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-          <img src={logoSvg} alt="UpS Logo" style={{ height: 28 }} />
-          <div style={{ fontSize: 13, color: '#8c8c8c' }}>
-            Bảng điều khiển <span style={{ margin: '0 6px' }}>›</span> {moduleBreadcrumb}
-          </div>
-        </div>
-        
-        <Space size="middle">
-          <Dropdown overlay={notificationMenu} trigger={['click']}>
-            <Badge count={3} size="small">
-              <Button type="text" icon={<BellOutlined style={{ fontSize: 18 }} />} />
-            </Badge>
-          </Dropdown>
-          <Dropdown overlay={userMenu} trigger={['click']}>
-            <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <Avatar style={{ backgroundColor: '#1677FF' }} size="small">
-                D
-              </Avatar>
-              <span style={{ fontWeight: 500 }}>Dat Vu</span>
-            </div>
-          </Dropdown>
-        </Space>
-      </Header>
-      
-      <Layout>
-        {/* GA4-style Sidebar */}
-        {renderSidebarNavigation()}
-        
-        {/* Main Content Area */}
-        <Layout style={{ 
-          background: '#FAFBFB', 
-          marginLeft: mainContentMarginLeft,
-          transition: 'margin-left 0.2s ease'
-        }}>
-          <Content style={{ padding: '24px' }}>
-            {/* Page Header */}
-            <div 
-              style={{ 
-                marginBottom: 20,
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'flex-start',
-                flexWrap: 'wrap',
-                gap: 16
-              }}
-            >
-              {activeModule !== 'home' && (
-                <Title 
-                  level={3} 
-                  style={{ 
-                    marginBottom: 4, 
-                    color: '#2b2b2b',
-                    fontWeight: 600
-                  }}
-                >
-                  {activeModule === 'workspace-settings' ? '' : 'Tạo template mới'}
-                </Title>
-              )}
-              {activeModule === 'workspace-settings' && templates.length > 0 && (
-                <Space size="middle" wrap>
-                  <Button 
-                    icon={<AppstoreAddOutlined />} 
-                    onClick={() => setTemplateGalleryVisible(true)}
-                  >
-                    Tạo mới từ template
-                  </Button>
-                  <Button 
-                    type="primary" 
-                    icon={<PlusOutlined />} 
-                    onClick={() => {
-                      resetTemplateBuilder();
-                      setActiveModule('template-create');
-                    }}
-                  >
-                    Tạo
-                  </Button>
-                </Space>
-              )}
-              {activeModule === 'template-create' && (
-                <Space size="middle" wrap>
-                  <Button 
-                    icon={<LeftOutlined />} 
-                    onClick={handleCancelTemplateCreation}
-                  >
-                    Quay lại danh sách
-                  </Button>
-                </Space>
-              )}
-            </div>
-            
-            {activeModule === 'home' ? (
-            <>
-            {/* Date Period Selector and Customize Action */}
-            <div style={{ 
-              marginBottom: 20,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              gap: 16,
-              flexWrap: 'wrap'
-            }}>
-              <Select
-                value={datePeriod}
-                onChange={setDatePeriod}
-                style={{ width: 150 }}
-                options={[
-                  { label: 'Hôm qua', value: 'yesterday' },
-                  { label: 'Hôm nay', value: 'today' },
-                  { label: 'Tuần này', value: 'thisWeek' },
-                  { label: 'Tháng này', value: 'thisMonth' },
-                  { label: 'Năm nay', value: 'thisYear' }
-                ]}
-              />
-              <Button 
-                type="text"
-                icon={<EditOutlined />}
-                onClick={() => setActiveModule('workspace-settings')}
-                style={{ 
-                  color: '#6D7175',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: 6
-                }}
-              >
-                Tùy chỉnh
-              </Button>
-            </div>
-            
-            <Row gutter={24}>
-              {/* Left Main Column */}
-              <Col xs={24} lg={17}>
-                <Space direction="vertical" size={20} style={{ width: '100%' }}>
-                  {/* Báo cáo kết quả - Customizable với Template System */}
-                  {(selectedWorkspace?.layout?.showDashboard !== false && selectedWorkspace) && (
-                  <Card 
-                    title={<Text strong style={{ fontSize: 16, color: '#2b2b2b' }}>Báo cáo kết quả</Text>}
-                    extra={
-                      isReorderMode ? (
-                        <Space>
-                          <Button 
-                            size="small" 
-                            onClick={handleCancelReorder}
-                          >
-                            Hủy
-                          </Button>
-                          <Button 
-                            size="small"
-                            type="primary"
-                            icon={<SaveOutlined />}
-                            onClick={handleSaveOrder}
-                          >
-                            Lưu sắp xếp
-                          </Button>
-                        </Space>
-                      ) : (() => {
-                        const linkData = selectedTemplate?.sectionLinks?.['bao-cao'];
-                        const linkUrl = typeof linkData === 'object' ? linkData?.url : linkData;
-                        const linkText = typeof linkData === 'object' ? (linkData?.text || 'Xem thêm') : 'Xem thêm';
-                        return (
-                          <Button
-                            type="link"
-                            size="small"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              if (linkUrl) {
-                                window.open(linkUrl, '_blank', 'noopener,noreferrer');
-                              }
-                            }}
-                            style={{ padding: 0 }}
-                            className="xem-them-link"
-                          >
-                            {linkText}
-                          </Button>
-                        );
-                      })()
-                    }
-                    style={{ 
-                      background: '#fff',
-                      border: '1px solid #E1E3E5',
-                      borderRadius: 16,
-                      boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)'
-                    }}
-                  >
-                    {isReorderMode ? (
-                      <DndContext
-                        collisionDetection={closestCenter}
-                        onDragEnd={handleDragEnd}
-                      >
-                        <SortableContext 
-                          items={tempMetricOrder}
-                          strategy={verticalListSortingStrategy}
-                        >
-                          <Row gutter={[12, 12]}>
-                            {tempMetricOrder.map(metricId => {
-                              const metric = allMetricsPool.find(m => m.id === metricId);
-                              return metric ? (
-                                <Col span={8} key={metric.id}>
-                                  <SortableMetricCard metric={metric} isReorderMode={true} />
-                                </Col>
-                              ) : null;
-                            })}
-                          </Row>
-                        </SortableContext>
-                      </DndContext>
-                    ) : (
-                      <Row gutter={[12, 12]}>
-                        {currentMetrics.map((metric, idx) => (
-                          <Col span={8} key={metric.id || idx}>
-                            <KPICard {...metric} title={metric.name} />
-                          </Col>
-                        ))}
-                      </Row>
-                    )}
-                  </Card>
-                  )}
-                  
-                  {/* Báo cáo tiến độ - Customizable */}
-                  {(selectedWorkspace?.layout?.showDashboard !== false && selectedWorkspace) && (
-                  <Card 
-                    title={<Text strong style={{ fontSize: 16, color: '#2b2b2b' }}>Báo cáo tiến độ</Text>}
-                    extra={(() => {
-                      const linkData = selectedTemplate?.sectionLinks?.['bao-cao'];
-                      const linkUrl = typeof linkData === 'object' ? linkData?.url : linkData;
-                      const linkText = typeof linkData === 'object' ? (linkData?.text || 'Xem thêm') : 'Xem thêm';
-                      return (
-                        <Button
-                          type="link"
-                          size="small"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (linkUrl) {
-                              window.open(linkUrl, '_blank', 'noopener,noreferrer');
-                            }
-                          }}
-                          style={{ padding: 0 }}
-                          className="xem-them-link"
-                        >
-                          {linkText}
-                        </Button>
-                      );
-                    })()}
-                    style={{ 
-                      background: '#fff',
-                      border: '1px solid #E1E3E5',
-                      borderRadius: 16,
-                      boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)'
-                    }}
-                  >
-                    <Row gutter={[16, 16]}>
-                      {progressGoals.map((goal, idx) => (
-                        <Col xs={24} md={8} key={idx}>
-                          <div style={{ 
-                            padding: '20px 16px',
-                            background: '#F7F7F7',
-                            borderRadius: 12,
-                            border: 'none'
-                          }}>
-                            <div style={{ fontSize: 13, color: '#6D7175', marginBottom: 8, fontWeight: 500 }}>
-                              {goal.title}
-                            </div>
-                            <div style={{ fontSize: 24, fontWeight: 700, marginBottom: 12, color: '#2b2b2b' }}>
-                              {goal.current} / {goal.target}
-                            </div>
-                            <Progress 
-                              percent={goal.percent} 
-                              strokeColor="#1677FF"
-                              strokeWidth={10}
-                              showInfo={false}
-                            />
-                            <div style={{ 
-                              fontSize: 14, 
-                              color: '#2b2b2b', 
-                              marginTop: 8,
-                              fontWeight: 500
-                            }}>
-                              {goal.percent}% {goal.status}
-                            </div>
-                          </div>
-                        </Col>
-                      ))}
-                    </Row>
-                  </Card>
-                  )}
-                  
-                  {/* Xu hướng Doanh thu */}
-                  {(selectedWorkspace?.layout?.showDashboard !== false && selectedWorkspace) && (
-                  <Card 
-                    title={<Text strong style={{ fontSize: 16, color: '#2b2b2b' }}>Xu hướng Doanh thu</Text>}
-                    style={{ 
-                      background: '#fff',
-                      border: '1px solid #E1E3E5',
-                      borderRadius: 16,
-                      boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)'
-                    }}
-                    extra={
-                      <Radio.Group defaultValue={30} size="small">
-                        <Radio.Button value={7}>7 ngày</Radio.Button>
-                        <Radio.Button value={30}>30 ngày</Radio.Button>
-                        <Radio.Button value={60}>60 ngày</Radio.Button>
-                      </Radio.Group>
-                    }
-                  >
-                    <ResponsiveContainer width="100%" height={300}>
-                      <LineChart data={revenueTrendData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#E1E3E5" />
-                        <XAxis 
-                          dataKey="date" 
-                          stroke="#6D7175"
-                          tick={{ fill: '#6D7175', fontSize: 11 }}
-                        />
-                        <YAxis 
-                          stroke="#6D7175"
-                          tickFormatter={(v) => `₫${v}M`}
-                          tick={{ fill: '#6D7175', fontSize: 11 }}
-                        />
-                        <ChartTooltip 
-                          contentStyle={{
-                            background: '#fff',
-                            border: '1px solid #e5e7eb',
-                            borderRadius: 8,
-                            fontSize: 13
-                          }}
-                          formatter={(value) => [`₫${value}M`, 'Doanh thu']}
-                        />
-                        <RechartLine 
-                          type="monotone" 
-                          dataKey="revenue" 
-                          stroke="#2b2b2b" 
-                          strokeWidth={2}
-                          dot={{ fill: '#2b2b2b', stroke: '#fff', strokeWidth: 2, r: 4 }}
-                          activeDot={{ r: 6 }}
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </Card>
-                  )}
-                  
-                </Space>
-              </Col>
-              
-              {/* Right Sidebar */}
-              <Col xs={24} lg={7}>
-                <Space direction="vertical" size={16} style={{ width: '100%' }}>
-                  {/* Alert & Risks - Tabbed */}
-                  {(selectedWorkspace?.layout?.showAlerts !== false && selectedWorkspace) && (
-                  <Card 
-                    title={<Text strong style={{ fontSize: 14, color: '#2b2b2b' }}>Alert & Risks</Text>}
-                    size="small"
-                    style={{ 
-                      background: '#fff',
-                      border: '1px solid #E1E3E5',
-                      borderRadius: 12,
-                      boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)',
-                      cursor: selectedTemplate?.sectionLinks?.['loi-canh-bao'] ? 'pointer' : 'default'
-                    }}
-                    onClick={() => {
-                      const link = selectedTemplate?.sectionLinks?.['loi-canh-bao'];
-                      if (link) {
-                        window.open(link, '_blank', 'noopener,noreferrer');
-                      }
-                    }}
-                  >
-                    <Tabs 
-                      defaultActiveKey="errors"
-                      size="small"
-                      items={[
-                        {
-                          key: 'errors',
-                          label: (
-                            <Space size={4}>
-                              <ExclamationCircleOutlined style={{ color: '#D72C0D', fontSize: 14 }} />
-                              <span>Lỗi</span>
-                              <Tag 
-                                color="error" 
-                                style={{ 
-                                  fontSize: 11,
-                                  padding: '0 6px',
-                                  background: '#FEF3F2',
-                                  color: '#D72C0D',
-                                  border: '1px solid #FECDD6',
-                                  borderRadius: 10,
-                                  marginLeft: 4
-                                }}
-                              >
-                                {alertsData.errors.length}
-                              </Tag>
-                            </Space>
-                          ),
-                          children: (
-                            <div style={{ 
-                              display: 'flex',
-                              flexDirection: 'column',
-                              gap: 6
-                            }}>
-                              {alertsData.errors.map((alert) => {
-                                const isExpanded = expandedAlerts.has(alert.id);
-                                const guides = alertGuides[alert.id] || [];
-                                return (
-                                  <div key={alert.id}>
-                                    <div
-                                      style={{ 
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        padding: '10px 12px',
-                                        borderRadius: 6,
-                                        background: '#FEF3F2',
-                                        border: 'none',
-                                        transition: 'all 0.2s',
-                                        cursor: 'pointer',
-                                        gap: 8
-                                      }}
-                                      onClick={() => {
-                                        setExpandedAlerts(prev => {
-                                          const newSet = new Set(prev);
-                                          if (newSet.has(alert.id)) {
-                                            newSet.delete(alert.id);
-                                          } else {
-                                            newSet.add(alert.id);
-                                          }
-                                          return newSet;
-                                        });
-                                      }}
-                                      onMouseEnter={(e) => {
-                                        e.currentTarget.style.background = '#FEE4E2';
-                                      }}
-                                      onMouseLeave={(e) => {
-                                        e.currentTarget.style.background = '#FEF3F2';
-                                      }}
-                                    >
-                                      <div style={{ flex: 1, minWidth: 0 }}>
-                                        <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, flexWrap: 'wrap' }}>
-                                          <span style={{ 
-                                            fontSize: 20, 
-                                            fontWeight: 700, 
-                                            color: '#2b2b2b',
-                                            lineHeight: 1
-                                          }}>
-                                            {alert.value || alert.count}
-                                          </span>
-                                          <Text style={{ 
-                                            fontSize: 13, 
-                                            fontWeight: 500,
-                                            color: '#2b2b2b'
-                                          }}>
-                                            {alert.title}
-                                          </Text>
-                                        </div>
-                                      </div>
-                                      {guides.length > 0 && (
-                                        isExpanded ? (
-                                          <DownOutlined 
-                                            style={{ 
-                                              fontSize: 12, 
-                                              color: '#6D7175',
-                                              transition: 'all 0.2s'
-                                            }}
-                                            onMouseEnter={(e) => {
-                                              e.currentTarget.style.color = '#2b2b2b';
-                                              e.currentTarget.style.transform = 'scale(1.1)';
-                                            }}
-                                            onMouseLeave={(e) => {
-                                              e.currentTarget.style.color = '#6D7175';
-                                              e.currentTarget.style.transform = 'scale(1)';
-                                            }}
-                                          />
-                                        ) : (
-                                          <RightOutlined 
-                                            style={{ 
-                                              fontSize: 12, 
-                                              color: '#6D7175',
-                                              transition: 'all 0.2s'
-                                            }}
-                                            onMouseEnter={(e) => {
-                                              e.currentTarget.style.color = '#2b2b2b';
-                                              e.currentTarget.style.transform = 'scale(1.1)';
-                                            }}
-                                            onMouseLeave={(e) => {
-                                              e.currentTarget.style.color = '#6D7175';
-                                              e.currentTarget.style.transform = 'scale(1)';
-                                            }}
-                                          />
-                                        )
-                                      )}
-                                    </div>
-                                    {isExpanded && guides.length > 0 && (
-                                      <div style={{ 
-                                        padding: '12px',
-                                        background: '#FAFAFA',
-                                        borderLeft: '3px solid #D72C0D',
-                                        marginTop: 4,
-                                        borderRadius: '0 0 6px 6px'
-                                      }}>
-                                        <List
-                                          size="small"
-                                          dataSource={guides}
-                                          renderItem={(item) => {
-                                            const getIcon = (type) => {
-                                              return type === 'case-study' ? <LineChartOutlined /> : <BookOutlined />;
-                                            };
-                                            const getColor = (type) => {
-                                              return type === 'case-study' ? '#52C41A' : '#1890FF';
-                                            };
-                                            return (
-                                              <List.Item 
-                                                style={{ padding: '6px 0', cursor: 'pointer' }}
-                                                onClick={() => message.info(`Đang mở: ${item.title}`)}
-                                              >
-                                                <List.Item.Meta
-                                                  avatar={
-                                                    <div style={{ 
-                                                      width: 24, 
-                                                      height: 24, 
-                                                      borderRadius: 6, 
-                                                      background: `${getColor(item.type)}15`,
-                                                      display: 'flex',
-                                                      alignItems: 'center',
-                                                      justifyContent: 'center'
-                                                    }}>
-                                                      {React.cloneElement(getIcon(item.type), { 
-                                                        style: { fontSize: 12, color: getColor(item.type) } 
-                                                      })}
-                                                    </div>
-                                                  }
-                                                  title={<Text style={{ fontSize: 12 }}>{item.title}</Text>}
-                                                  description={
-                                                    <Tag style={{ fontSize: 9, padding: '0 4px' }}>{item.category}</Tag>
-                                                  }
-                                                />
-                                                <ExportOutlined 
-                                                  style={{ 
-                                                    fontSize: 10, 
-                                                    color: '#8c8c8c',
-                                                    transition: 'all 0.2s'
-                                                  }}
-                                                  onMouseEnter={(e) => {
-                                                    e.currentTarget.style.color = '#1677FF';
-                                                    e.currentTarget.style.transform = 'scale(1.1)';
-                                                  }}
-                                                  onMouseLeave={(e) => {
-                                                    e.currentTarget.style.color = '#8c8c8c';
-                                                    e.currentTarget.style.transform = 'scale(1)';
-                                                  }}
-                                                />
-                                              </List.Item>
-                                            );
-                                          }}
-                                        />
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          )
-                        },
-                        {
-                          key: 'warnings',
-                          label: (
-                            <Space size={4}>
-                              <WarningOutlined style={{ color: '#F49342', fontSize: 14 }} />
-                              <span>Cảnh báo</span>
-                              <Tag 
-                                color="warning" 
-                                style={{ 
-                                  fontSize: 11,
-                                  padding: '0 6px',
-                                  background: '#FFF8F1',
-                                  color: '#F49342',
-                                  border: '1px solid #FFE8D7',
-                                  borderRadius: 10,
-                                  marginLeft: 4
-                                }}
-                              >
-                                {alertsData.warnings.length}
-                              </Tag>
-                            </Space>
-                          ),
-                          children: (
-                            <div style={{ 
-                              display: 'flex',
-                              flexDirection: 'column',
-                              gap: 6
-                            }}>
-                              {alertsData.warnings.map((alert) => {
-                                const isExpanded = expandedAlerts.has(alert.id);
-                                const guides = alertGuides[alert.id] || [];
-                                return (
-                                  <div key={alert.id}>
-                                    <div
-                                      style={{ 
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        padding: '10px 12px',
-                                        borderRadius: 6,
-                                        background: '#FFF8F1',
-                                        border: 'none',
-                                        transition: 'all 0.2s',
-                                        cursor: 'pointer',
-                                        gap: 8
-                                      }}
-                                      onClick={() => {
-                                        setExpandedAlerts(prev => {
-                                          const newSet = new Set(prev);
-                                          if (newSet.has(alert.id)) {
-                                            newSet.delete(alert.id);
-                                          } else {
-                                            newSet.add(alert.id);
-                                          }
-                                          return newSet;
-                                        });
-                                      }}
-                                      onMouseEnter={(e) => {
-                                        e.currentTarget.style.background = '#FFE8D7';
-                                      }}
-                                      onMouseLeave={(e) => {
-                                        e.currentTarget.style.background = '#FFF8F1';
-                                      }}
-                                    >
-                                      <div style={{ flex: 1, minWidth: 0 }}>
-                                        <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, flexWrap: 'wrap' }}>
-                                          <span style={{ 
-                                            fontSize: 20, 
-                                            fontWeight: 700, 
-                                            color: '#2b2b2b',
-                                            lineHeight: 1
-                                          }}>
-                                            {alert.value || alert.count}
-                                            {alert.unit === '%' ? '%' : alert.unit ? ` ${alert.unit}` : ''}
-                                          </span>
-                                          <Text style={{ 
-                                            fontSize: 13, 
-                                            fontWeight: 500,
-                                            color: '#2b2b2b'
-                                          }}>
-                                            {alert.title}
-                                          </Text>
-                                        </div>
-                                      </div>
-                                      {guides.length > 0 && (
-                                        isExpanded ? (
-                                          <DownOutlined 
-                                            style={{ 
-                                              fontSize: 12, 
-                                              color: '#6D7175',
-                                              transition: 'all 0.2s'
-                                            }}
-                                            onMouseEnter={(e) => {
-                                              e.currentTarget.style.color = '#2b2b2b';
-                                              e.currentTarget.style.transform = 'scale(1.1)';
-                                            }}
-                                            onMouseLeave={(e) => {
-                                              e.currentTarget.style.color = '#6D7175';
-                                              e.currentTarget.style.transform = 'scale(1)';
-                                            }}
-                                          />
-                                        ) : (
-                                          <RightOutlined 
-                                            style={{ 
-                                              fontSize: 12, 
-                                              color: '#6D7175',
-                                              transition: 'all 0.2s'
-                                            }}
-                                            onMouseEnter={(e) => {
-                                              e.currentTarget.style.color = '#2b2b2b';
-                                              e.currentTarget.style.transform = 'scale(1.1)';
-                                            }}
-                                            onMouseLeave={(e) => {
-                                              e.currentTarget.style.color = '#6D7175';
-                                              e.currentTarget.style.transform = 'scale(1)';
-                                            }}
-                                          />
-                                        )
-                                      )}
-                                    </div>
-                                    {isExpanded && guides.length > 0 && (
-                                      <div style={{ 
-                                        padding: '12px',
-                                        background: '#FAFAFA',
-                                        borderLeft: '3px solid #F49342',
-                                        marginTop: 4,
-                                        borderRadius: '0 0 6px 6px'
-                                      }}>
-                                        <List
-                                          size="small"
-                                          dataSource={guides}
-                                          renderItem={(item) => {
-                                            const getIcon = (type) => {
-                                              return type === 'case-study' ? <LineChartOutlined /> : <BookOutlined />;
-                                            };
-                                            const getColor = (type) => {
-                                              return type === 'case-study' ? '#52C41A' : '#1890FF';
-                                            };
-                                            return (
-                                              <List.Item 
-                                                style={{ padding: '6px 0', cursor: 'pointer' }}
-                                                onClick={() => message.info(`Đang mở: ${item.title}`)}
-                                              >
-                                                <List.Item.Meta
-                                                  avatar={
-                                                    <div style={{ 
-                                                      width: 24, 
-                                                      height: 24, 
-                                                      borderRadius: 6, 
-                                                      background: `${getColor(item.type)}15`,
-                                                      display: 'flex',
-                                                      alignItems: 'center',
-                                                      justifyContent: 'center'
-                                                    }}>
-                                                      {React.cloneElement(getIcon(item.type), { 
-                                                        style: { fontSize: 12, color: getColor(item.type) } 
-                                                      })}
-                                                    </div>
-                                                  }
-                                                  title={<Text style={{ fontSize: 12 }}>{item.title}</Text>}
-                                                  description={
-                                                    <Tag style={{ fontSize: 9, padding: '0 4px' }}>{item.category}</Tag>
-                                                  }
-                                                />
-                                                <ExportOutlined 
-                                                  style={{ 
-                                                    fontSize: 10, 
-                                                    color: '#8c8c8c',
-                                                    transition: 'all 0.2s'
-                                                  }}
-                                                  onMouseEnter={(e) => {
-                                                    e.currentTarget.style.color = '#1677FF';
-                                                    e.currentTarget.style.transform = 'scale(1.1)';
-                                                  }}
-                                                  onMouseLeave={(e) => {
-                                                    e.currentTarget.style.color = '#8c8c8c';
-                                                    e.currentTarget.style.transform = 'scale(1)';
-                                                  }}
-                                                />
-                                              </List.Item>
-                                            );
-                                          }}
-                                        />
-                                      </div>
-                                    )}
-                                  </div>
-                                );
-                              })}
-                            </div>
-                          )
-                        }
-                      ]}
-                    />
-                  </Card>
-                  )}
-                  
-                  {/* Có thể bạn quan tâm - Case Study & Blog Only */}
-                  {(selectedWorkspace?.layout?.showGuides !== false && selectedWorkspace) && (
-                  <Card 
-                    title={<Text strong style={{ fontSize: 14, color: '#2b2b2b' }}>Có thể bạn quan tâm</Text>}
-                    size="small"
-                    extra={
-                      (() => {
-                        const linkData = selectedTemplate?.sectionLinks?.['tin-tuc'];
-                        const linkUrl = typeof linkData === 'object' ? linkData?.url : linkData;
-                        const linkText = typeof linkData === 'object' ? (linkData?.text || 'Xem thêm') : 'Xem thêm';
-                        return linkUrl ? (
-                          <Button
-                            type="link"
-                            size="small"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              window.open(linkUrl, '_blank', 'noopener,noreferrer');
-                            }}
-                            style={{ padding: 0 }}
-                            className="xem-them-link"
-                          >
-                            {linkText}
-                          </Button>
-                        ) : (
-                          <Button 
-                            type="link" 
-                            size="small"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            Tất cả
-                          </Button>
-                        );
-                      })()
-                    }
-                    style={{ 
-                      background: '#fff',
-                      border: '1px solid #E1E3E5',
-                      borderRadius: 12,
-                      boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)'
-                    }}
-                  >
-                    <List
-                      size="small"
-                      dataSource={contentItems.insights}
-                      renderItem={(item) => {
-                        const getIcon = (iconType) => {
-                          switch(iconType) {
-                            case 'chart': return <LineChartOutlined />;
-                            case 'bulb': return <BulbOutlined />;
-                            case 'book': return <BookOutlined />;
-                            default: return <BookOutlined />;
-                          }
-                        };
-                        return (
-                          <List.Item 
-                            style={{ padding: '8px 0', cursor: 'pointer' }}
-                            onClick={() => message.info('Đang mở bài viết...')}
-                          >
-                            <List.Item.Meta
-                              avatar={
-                                <div style={{ 
-                                  width: 32, 
-                                  height: 32, 
-                                  borderRadius: 8, 
-                                  background: `${item.color}15`,
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center'
-                                }}>
-                                  {React.cloneElement(getIcon(item.icon), { 
-                                    style: { fontSize: 16, color: item.color } 
-                                  })}
-                                </div>
-                              }
-                              title={<Text style={{ fontSize: 13 }}>{item.title}</Text>}
-                              description={
-                                <Space>
-                                  <Tag style={{ fontSize: 10, padding: '0 4px' }}>{item.category}</Tag>
-                                  <Text style={{ fontSize: 11, color: '#8c8c8c' }}>{item.date}</Text>
-                                </Space>
-                              }
-                            />
-                            <ExportOutlined 
-                              style={{ 
-                                fontSize: 12, 
-                                color: '#8c8c8c',
-                                transition: 'all 0.2s'
-                              }}
-                              onMouseEnter={(e) => {
-                                e.currentTarget.style.color = '#1677FF';
-                                e.currentTarget.style.transform = 'scale(1.1)';
-                              }}
-                              onMouseLeave={(e) => {
-                                e.currentTarget.style.color = '#8c8c8c';
-                                e.currentTarget.style.transform = 'scale(1)';
-                              }}
-                            />
-                          </List.Item>
-                        );
-                      }}
-                    />
-                  </Card>
-                  )}
-                </Space>
-              </Col>
-            </Row>
-            </>
-            ) : activeModule === 'workspace-settings' ? (
-              renderWorkspaceSettings()
-            ) : activeModule === 'template-create' ? (
-              renderTemplateBuilderScreen()
-            ) : (
-              <div style={{ padding: 64 }}>
-                <Empty description="Module đang được phát triển" image={Empty.PRESENTED_IMAGE_SIMPLE} />
-              </div>
-            )}
-          </Content>
-        </Layout>
-      </Layout>
-      
-
-      {/* Child Modal - Tạo Template Mới */}
-      <Modal
-        title="Tạo template mới"
-        open={createTemplateModalVisible}
-        onCancel={() => handleCloseChildModal(true)}
-        footer={[
-          <Button key="cancel" onClick={() => handleCloseChildModal(true)}>
-            Hủy
-          </Button>,
-          <Button 
-            key="draft" 
-            onClick={() => handleCreateTemplate(false)}
-            disabled={!newTemplateName.trim() || selectedMetrics.length === 0}
-          >
-            Lưu nháp
-          </Button>,
-          <Button 
-            key="save" 
-            type="primary" 
-            onClick={() => handleCreateTemplate(true)}
-            disabled={!newTemplateName.trim() || selectedMetrics.length === 0}
-          >
-            Lưu & Sử dụng ({selectedMetrics.length} metrics)
-          </Button>
-        ]}
-        width={1200}
-        style={{ top: 20 }}
-        bodyStyle={{ maxHeight: '70vh', overflowY: 'auto' }}
-      >
-        <Row gutter={[16, 16]}>
-          <Col xs={24} lg={10}>
-            <Card 
-              bodyStyle={{ padding: 20 }}
-              style={{ height: '100%' }}
-            >
-              <Text strong style={{ display: 'block', marginBottom: 12 }}>
-                Thông tin template
-              </Text>
-              <Input
-                placeholder="Nhập tên template..."
-                value={newTemplateName}
-                onChange={(e) => setNewTemplateName(e.target.value)}
-                size="large"
-                prefix={<EditOutlined />}
-                style={{ marginBottom: 16 }}
-              />
-              <div style={{ 
-                display: 'flex', 
-                justifyContent: 'space-between', 
-                alignItems: 'center',
-                marginBottom: 12
-              }}>
-                <Text type="secondary">
-                  Đang chọn: <strong>{selectedMetrics.length}</strong> metrics
-                </Text>
-                <Button type="link" onClick={() => setSelectedMetrics([])}>
-                  Bỏ chọn
-                </Button>
-              </div>
-              <Input.Search
-                placeholder="Tìm kiếm metrics..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                style={{ marginBottom: 16 }}
-                size="middle"
-                allowClear
-              />
-              <div style={{ maxHeight: '55vh', overflowY: 'auto', paddingRight: 8 }}>
-                {Object.entries(filteredMetrics).map(([domain, metrics]) => {
-                  const selectedCount = metrics.filter(m => selectedMetrics.includes(m.id)).length;
-                  return (
-                    <div key={domain} style={{ marginBottom: 24 }}>
-                      <div style={{ marginBottom: 8 }}>
-                        <Text strong style={{ fontSize: 13 }}>{domain}</Text>
-                        <Space size={8} style={{ marginLeft: 8 }}>
-                          <Tag color="blue">{metrics.length} metrics</Tag>
-                          <Tag color="green">{selectedCount} đã chọn</Tag>
-                        </Space>
-                      </div>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                        {metrics.map(metric => {
-                          const isSelected = selectedMetrics.includes(metric.id);
-                          const isHovered = hoveredMetricId === metric.id;
-                          return (
-                            <div
-                              key={metric.id}
-                              onClick={() => handleToggleMetricSelection(metric.id)}
-                              onMouseEnter={() => setHoveredMetricId(metric.id)}
-                              onMouseLeave={() => setHoveredMetricId((current) => current === metric.id ? null : current)}
-                              style={{
-                                padding: '10px 12px',
-                                borderRadius: 12,
-                                border: isSelected ? '1px solid #1677FF' : '1px solid #E4E6EB',
-                                background: isSelected ? 'rgba(22, 119, 255, 0.08)' : (isHovered ? '#F5F7FB' : '#fff'),
-                                cursor: 'pointer',
-                                display: 'flex',
-                                justifyContent: 'space-between',
-                                alignItems: 'center',
-                                transition: 'all 0.2s',
-                                boxShadow: isHovered ? '0 2px 6px rgba(15,23,42,0.08)' : 'none'
-                              }}
-                            >
-                              <div>
-                                <Text style={{ fontSize: 13, color: '#1E1E1E' }}>{metric.name}</Text>
-                              </div>
-                              {isSelected && (
-                                <Tag color="#1677FF" style={{ margin: 0 }}>
-                                  Đã chọn
-                                </Tag>
-                              )}
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </Card>
-          </Col>
-          <Col xs={24} lg={14}>
-            <Card
-              title="Preview bố cục dashboard"
-              extra={
-                <Space size={12}>
-                  <Tag color="blue">{selectedMetrics.length} metrics</Tag>
-                  <Text type="secondary" style={{ fontSize: 12 }}>
-                    Kéo thả & thay đổi kích thước
-                  </Text>
-                </Space>
-              }
-              bodyStyle={{ padding: 0 }}
-            >
-              <div style={{ position: 'relative', minHeight: 420, padding: 16 }}>
-                <div
-                  style={{ 
-                    position: 'absolute',
-                    inset: 16,
-                    display: 'grid',
-                    gridTemplateColumns: `repeat(auto-fill, minmax(100px, 1fr))`,
-                    gridAutoRows: `${PREVIEW_SLOT_HEIGHT}px`,
-                    gap: PREVIEW_SLOT_GAP,
-                    pointerEvents: 'none',
-                    zIndex: 1,
-                    width: '100%'
-                  }}
-                >
-                  {Array.from({ length: 36 }).map((_, idx) => (
-                    <div 
-                      key={`slot-${idx}`} 
-                      style={{ 
-                        border: '1px dashed #CBD5F5', 
-                        borderRadius: 24, 
-                        background: 'rgba(241, 245, 249, 0.6)',
-                        minWidth: 0
-                      }} 
-                    />
-                  ))}
-                </div>
-                <div style={{ position: 'relative', zIndex: 2 }}>
-                  {previewBlocks.length > 0 ? (
-                    <DndContext
-                      collisionDetection={closestCenter}
-                      onDragEnd={handlePreviewDragEnd}
-                      modifiers={[previewGridSnapModifier]}
-                    >
-                      <SortableContext 
-                        items={previewBlocks.map(block => block.id)} 
-                        strategy={rectSortingStrategy}
-                      >
-                        <div style={{ 
-                          display: 'grid', 
-                          gridTemplateColumns: `repeat(auto-fill, minmax(100px, 1fr))`,
-                          gap: PREVIEW_SLOT_GAP,
-                          width: '100%'
-                        }}>
-                          {previewBlocks.map(block => {
-                            const metric = allMetricsPool.find(m => m.id === block.metricId);
-                            return (
-                              <SortablePreviewBlock
-                                key={block.id}
-                                block={block}
-                                metric={metric}
-                                onResize={handleResizePreview}
-                                onRemove={handleRemovePreviewBlock}
-                                isHovered={hoveredPreviewBlock === block.id}
-                                onHoverChange={(hovering) => {
-                                  setHoveredPreviewBlock(prev => {
-                                    if (hovering) return block.id;
-                                    return prev === block.id ? null : prev;
-                                  });
-                                }}
-                              />
-                            );
-                          })}
-                        </div>
-                      </SortableContext>
-                    </DndContext>
-                  ) : null}
-                </div>
-              </div>
-            </Card>
-          </Col>
-        </Row>
-      </Modal>
-
-      {/* Child Modal - Chỉnh Template */}
-      <Modal
-        title={`Chỉnh sửa: ${selectedTemplate?.name || ''}`}
-        open={editTemplateModalVisible}
-        onCancel={() => handleCloseChildModal(false)}
-        footer={[
-          <Button key="cancel" onClick={() => handleCloseChildModal(false)}>
-            Hủy
-          </Button>,
-          <Button 
-            key="draft" 
-            onClick={() => handleEditTemplate(false)}
-            disabled={!newTemplateName.trim() || selectedMetrics.length === 0}
-          >
-            Lưu nháp
-          </Button>,
-          <Button 
-            key="save" 
-            type="primary" 
-            onClick={() => handleEditTemplate(true)}
-            disabled={!newTemplateName.trim() || selectedMetrics.length === 0}
-          >
-            Lưu & Sử dụng ({selectedMetrics.length} metrics)
-          </Button>
-        ]}
-        width={1000}
-        style={{ top: 20 }}
-        bodyStyle={{ maxHeight: '70vh', overflowY: 'auto' }}
-      >
-        {/* Template Name Input */}
-        <Input
-          placeholder="Tên template..."
-          value={newTemplateName}
-          onChange={(e) => setNewTemplateName(e.target.value)}
-          size="large"
-          prefix={<EditOutlined />}
-          style={{ marginBottom: 16 }}
-        />
-
-        {/* Search Bar */}
-        <Input.Search
-          placeholder="Tìm kiếm metrics..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          style={{ marginBottom: 16 }}
-          size="large"
-          allowClear
-        />
-
-        {/* Metrics by Domain */}
-        <Collapse
-          defaultActiveKey={Object.keys(filteredMetrics)}
-          style={{ marginBottom: 16 }}
-        >
-          {Object.entries(filteredMetrics).map(([domain, metrics]) => (
-            <Collapse.Panel 
-              key={domain} 
-              header={
-                <Space>
-                  <Text strong>{domain}</Text>
-                  <Tag color="blue">{metrics.length} metrics</Tag>
-                  <Tag color="green">
-                    {metrics.filter(m => selectedMetrics.includes(m.id)).length} đã chọn
-                  </Tag>
-                </Space>
-              }
-            >
-              <Row gutter={[8, 8]}>
-                {metrics.map(metric => (
-                  <Col span={12} key={metric.id}>
-                    <Checkbox 
-                      checked={selectedMetrics.includes(metric.id)}
-                      onChange={(e) => {
-                        if (e.target.checked) {
-                          setSelectedMetrics([...selectedMetrics, metric.id]);
-                        } else {
-                          setSelectedMetrics(selectedMetrics.filter(id => id !== metric.id));
-                        }
-                      }}
-                    >
-                      {metric.name}
-                    </Checkbox>
-                  </Col>
-                ))}
-              </Row>
-            </Collapse.Panel>
-          ))}
-        </Collapse>
-      </Modal>
-      
-      {/* Annotation Drawer */}
-      <Drawer
-        title={
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Space>
-              <CommentOutlined />
-              <span>Ghi chú & Annotation</span>
-            </Space>
-            <Button 
-              type="primary" 
-              size="small"
-              icon={<PlusOutlined />}
-              onClick={() => {
-                Modal.confirm({
-                  title: 'Tạo Annotation mới',
-                  width: 600,
-                  content: (
-                    <Form layout="vertical" style={{ marginTop: 16 }}>
-                      <Form.Item label="Ngày">
-                        <DatePicker style={{ width: '100%' }} />
-                      </Form.Item>
-                      <Form.Item label="Tiêu đề">
-                        <Input placeholder="Ví dụ: Flash Sale 11.11" />
-                      </Form.Item>
-                      <Form.Item label="Mô tả">
-                        <TextArea rows={3} placeholder="Mô tả chi tiết về sự kiện..." />
-                      </Form.Item>
-                      <Form.Item label="Tags">
-                        <Select mode="tags" placeholder="marketing, sale, product...">
-                          <Select.Option value="marketing">Marketing</Select.Option>
-                          <Select.Option value="sale">Sale</Select.Option>
-                          <Select.Option value="product">Product</Select.Option>
-                          <Select.Option value="ads">Ads</Select.Option>
-                        </Select>
-                      </Form.Item>
-                    </Form>
-                  ),
-                  onOk: () => {
-                    message.success('Đã tạo annotation mới!');
-                  }
-                });
-              }}
-            >
-              Tạo mới
-            </Button>
-          </div>
-        }
-        placement="right"
-        width={480}
-        open={annotationDrawerVisible}
-        onClose={() => setAnnotationDrawerVisible(false)}
-      >
-        <div style={{ marginBottom: 16 }}>
-          <Text type="secondary" style={{ fontSize: 13 }}>
-            Ghi chú các sự kiện quan trọng để theo dõi ảnh hưởng đến metrics
-          </Text>
-        </div>
-        
-        {annotations.length === 0 ? (
-          <Empty 
-            description="Chưa có annotation nào"
-            image={Empty.PRESENTED_IMAGE_SIMPLE}
-            style={{ marginTop: 60 }}
-          >
-            <Button type="primary" icon={<PlusOutlined />}>
-              Tạo annotation đầu tiên
-            </Button>
-          </Empty>
-        ) : (
-          <Timeline
-            items={annotations.map(ann => ({
-              dot: <CalendarOutlined style={{ fontSize: 16 }} />,
-              children: (
-                <Card 
-                  size="small" 
-                  style={{ marginBottom: 12 }}
-                  hoverable
-                  actions={[
-                    <Tooltip title="Chỉnh sửa" key="edit">
-                      <EditOutlined />
-                    </Tooltip>,
-                    <Tooltip title="Xóa" key="delete">
-                      <DeleteOutlined />
-                    </Tooltip>
-                  ]}
-                >
-                  <div style={{ marginBottom: 8 }}>
-                    <Tag color="blue" icon={<CalendarOutlined />}>
-                      {dayjs(ann.date).format('DD/MM/YYYY')}
-                    </Tag>
-                  </div>
-                  <Title level={5} style={{ marginBottom: 8, marginTop: 0 }}>
-                    {ann.title}
-                  </Title>
-                  <Paragraph 
-                    type="secondary" 
-                    style={{ fontSize: 13, marginBottom: 8 }}
-                    ellipsis={{ rows: 2, expandable: true }}
-                  >
-                    {ann.description}
-                  </Paragraph>
-                  <div>
-                    {ann.tags.map(tag => (
-                      <Tag key={tag} style={{ marginRight: 4 }}>
-                        {tag}
-                      </Tag>
-                    ))}
-                  </div>
-                </Card>
-              )
-            }))}
-          />
-        )}
-      </Drawer>
-      
-      {/* Insights Drawer */}
-      <Drawer
-        title={
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            <BulbOutlined style={{ color: '#faad14' }} />
-            <div>
-              <div style={{ fontSize: 16, fontWeight: 600 }}>Insights & Gợi ý phân tích</div>
-              <div style={{ fontSize: 12, fontWeight: 400, color: '#8c8c8c' }}>
-                Ask Analytics Intelligence
-              </div>
-            </div>
-          </div>
-        }
-        placement="right"
-        width={520}
-        open={insightsDrawerVisible}
-        onClose={() => setInsightsDrawerVisible(false)}
-      >
-        <div style={{ marginBottom: 24 }}>
-          <Input.Search
-            placeholder="Hỏi về dữ liệu của bạn..."
-            size="large"
-            prefix={<SearchOutlined />}
-            onSearch={(value) => message.info(`Đang tìm kiếm: ${value}`)}
-          />
-        </div>
-        
-        {/* Contextual Insights */}
-        <Card 
-          size="small" 
-          style={{ marginBottom: 16, borderLeft: '3px solid #1677FF', background: '#f0f5ff' }}
-        >
-          <Space direction="vertical" size="small" style={{ width: '100%' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-              <ThunderboltOutlined style={{ color: '#1677FF', fontSize: 18 }} />
-              <Text strong style={{ color: '#1677FF' }}>Insight nổi bật</Text>
-            </div>
-            <Title level={5} style={{ margin: '8px 0' }}>
-              GMV tăng 12.5% so với hôm trước
-            </Title>
-            <Paragraph type="secondary" style={{ marginBottom: 8 }}>
-              Doanh thu từ TikTok Shop tăng mạnh nhờ chiến dịch livestream, đóng góp 
-              <Text strong style={{ color: '#52c41a' }}> +₫300M </Text> 
-              vào tổng GMV ngày hôm qua.
-            </Paragraph>
-            <Button type="link" size="small" style={{ padding: 0 }}>
-              Xem chi tiết →
-            </Button>
-          </Space>
-        </Card>
-        
-        <Divider orientation="left" style={{ fontSize: 13 }}>
-          <Text type="secondary">Gợi ý câu hỏi</Text>
-        </Divider>
-        
-        <Collapse
-          defaultActiveKey={['1']}
-          ghost
-          items={[
-            {
-              key: '1',
-              label: <Text strong>📊 Hiệu suất cơ bản</Text>,
-              children: (
-                <Space direction="vertical" style={{ width: '100%' }} size="small">
-                  <Button type="text" style={{ textAlign: 'left', height: 'auto', padding: '8px 12px' }}>
-                    → Kênh nào đang tăng trưởng nhanh nhất?
-                  </Button>
-                  <Button type="text" style={{ textAlign: 'left', height: 'auto', padding: '8px 12px' }}>
-                    → Tại sao ROAS giảm 5.1%?
-                  </Button>
-                  <Button type="text" style={{ textAlign: 'left', height: 'auto', padding: '8px 12px' }}>
-                    → SKU nào bán chạy nhất tuần này?
-                  </Button>
-                </Space>
-              )
-            },
-            {
-              key: '2',
-              label: <Text strong>🎯 Traffic & Acquisition</Text>,
-              children: (
-                <Space direction="vertical" style={{ width: '100%' }} size="small">
-                  <Button type="text" style={{ textAlign: 'left', height: 'auto', padding: '8px 12px' }}>
-                    → Nguồn traffic nào hiệu quả nhất?
-                  </Button>
-                  <Button type="text" style={{ textAlign: 'left', height: 'auto', padding: '8px 12px' }}>
-                    → Chi phí Ads tăng 15.3%, conversion có cải thiện?
-                  </Button>
-                </Space>
-              )
-            },
-            {
-              key: '3',
-              label: <Text strong>🛒 Ecommerce Performance</Text>,
-              children: (
-                <Space direction="vertical" style={{ width: '100%' }} size="small">
-                  <Button type="text" style={{ textAlign: 'left', height: 'auto', padding: '8px 12px' }}>
-                    → Tỷ lệ hủy đơn cao ở kênh nào?
-                  </Button>
-                  <Button type="text" style={{ textAlign: 'left', height: 'auto', padding: '8px 12px' }}>
-                    → AOV tăng 3.8%, do SKU nào đóng góp?
-                  </Button>
-                  <Button type="text" style={{ textAlign: 'left', height: 'auto', padding: '8px 12px' }}>
-                    → So sánh hiệu suất Shopee vs TikTok
-                  </Button>
-                </Space>
-              )
-            },
-            {
-              key: '4',
-              label: <Text strong>👥 Customer Behavior</Text>,
-              children: (
-                <Space direction="vertical" style={{ width: '100%' }} size="small">
-                  <Button type="text" style={{ textAlign: 'left', height: 'auto', padding: '8px 12px' }}>
-                    → Khách hàng mới vs khách quay lại?
-                  </Button>
-                  <Button type="text" style={{ textAlign: 'left', height: 'auto', padding: '8px 12px' }}>
-                    → Retention rate cải thiện thế nào?
-                  </Button>
-                </Space>
-              )
-            }
-          ]}
-        />
-        
-        <Divider />
-        
-        <Alert
-          message="💡 Tips"
-          description="Insights tự động cập nhật dựa trên date range và segments bạn chọn. Đánh dấu insights đã đọc để ẩn khỏi danh sách."
-          type="info"
-          showIcon
-          closable
-        />
-      </Drawer>
-      
-      {/* Workspace Configuration Drawer - Full Screen */}
-      <Drawer
-        title={
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <Text strong style={{ fontSize: 18 }}>Tạo workspace mới</Text>
-            <Space>
-              <Button onClick={() => {
-                setWorkspaceConfigDrawerVisible(false);
-                setNewWorkspaceName('');
-                setSelectedGroup(null);
-                setSelectedItems([]);
-                setSelectedAlertMetrics({ errors: [], warnings: [] });
-              }}>
-                Hủy
-              </Button>
-              <Button 
-                type="primary" 
-                onClick={handleCreateWorkspace}
-                disabled={!newWorkspaceName.trim() || selectedItems.length === 0}
-              >
-                Lưu workspace
-              </Button>
-            </Space>
-          </div>
-        }
-        open={workspaceConfigDrawerVisible}
-        onClose={() => {
-          setWorkspaceConfigDrawerVisible(false);
-          setNewWorkspaceName('');
-          setSelectedGroup(null);
-          setSelectedItems([]);
-          setSelectedAlertMetrics({ errors: [], warnings: [] });
-        }}
-        width="100%"
-        style={{ zIndex: 1001 }}
-        bodyStyle={{ padding: 0, background: '#FAFBFB' }}
-      >
-        <div style={{ display: 'flex', height: 'calc(100vh - 55px)' }}>
-          {/* Left Column - Tree Navigation */}
-          <div style={{ 
-            width: 360, 
-            background: '#fff', 
-            borderRight: '1px solid #E1E3E5',
-            overflowY: 'auto',
-            padding: 24
+          <Header style={{
+            background: '#fff',
+            padding: '0 24px',
+            paddingLeft: '24px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            borderBottom: '1px solid #f0f0f0',
+            position: 'sticky',
+            top: 0,
+            zIndex: 1002,
+            width: '100%',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
           }}>
-            <div style={{ marginBottom: 24 }}>
-              <Input
-                placeholder="Nhập tên workspace..."
-                value={newWorkspaceName}
-                onChange={(e) => setNewWorkspaceName(e.target.value)}
-                size="large"
-                prefix={<EditOutlined />}
-              />
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <img src={logoSvg} alt="UpS Logo" style={{ height: 28 }} />
+              <div style={{ fontSize: 13, color: '#8c8c8c' }}>
+                Bảng điều khiển <span style={{ margin: '0 6px' }}>›</span> {moduleBreadcrumb}
+              </div>
             </div>
-            
-            <Text strong style={{ fontSize: 14, color: '#2b2b2b', display: 'block', marginBottom: 16 }}>
-              Chọn nhóm và mục
-            </Text>
-            
-            <Space direction="vertical" style={{ width: '100%' }} size={8}>
-              {workspaceGroups.map(group => (
-                <div key={group.id} style={{ marginBottom: 8 }}>
-                  {/* Group Header - Only show if group has no items or if group is not selected */}
-                  {(!group.items || group.items.length === 0) && !isItemSelected(group.id) && (
-                    <div
-                      onClick={() => {
-                        setSelectedGroup(group.id);
-                        handleSelectItem(group.id);
-                      }}
+
+            <Space size="middle">
+              <Dropdown overlay={notificationMenu} trigger={['click']}>
+                <Badge count={3} size="small">
+                  <Button type="text" icon={<BellOutlined style={{ fontSize: 18 }} />} />
+                </Badge>
+              </Dropdown>
+              <Dropdown overlay={userMenu} trigger={['click']}>
+                <div style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Avatar style={{ backgroundColor: '#1677FF' }} size="small">
+                    D
+                  </Avatar>
+                  <span style={{ fontWeight: 500 }}>Dat Vu</span>
+                </div>
+              </Dropdown>
+            </Space>
+          </Header>
+
+          <Layout>
+            {/* GA4-style Sidebar */}
+            {renderSidebarNavigation()}
+
+            {/* Main Content Area */}
+            <Layout style={{
+              background: '#FAFBFB',
+              marginLeft: mainContentMarginLeft,
+              transition: 'margin-left 0.2s ease'
+            }}>
+              <Content style={{ padding: '24px' }}>
+                {/* Page Header */}
+                <div
+                  style={{
+                    marginBottom: 20,
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'flex-start',
+                    flexWrap: 'wrap',
+                    gap: 16
+                  }}
+                >
+                  {activeModule !== 'home' && (
+                    <Title
+                      level={3}
                       style={{
-                        padding: '12px 16px',
-                        borderRadius: 8,
-                        border: selectedGroup === group.id ? '1px solid #1677FF' : '1px solid #E4E6EB',
-                        background: selectedGroup === group.id ? 'rgba(22, 119, 255, 0.08)' : '#FAFAFA',
-                        cursor: 'pointer',
-                        transition: 'all 0.2s',
-                        marginBottom: 4
+                        marginBottom: 4,
+                        color: '#2b2b2b',
+                        fontWeight: 600
                       }}
                     >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <span style={{ fontSize: 18, color: selectedGroup === group.id ? '#1677FF' : '#6D7175' }}>
-                          {group.icon}
-                        </span>
-                        <Text strong style={{ fontSize: 14, color: selectedGroup === group.id ? '#1677FF' : '#2b2b2b' }}>
-                          {group.name}
-                        </Text>
-                      </div>
-                    </div>
+                      {activeModule === 'workspace-settings' ? '' : 'Tạo template mới'}
+                    </Title>
                   )}
-                  
-                  {/* Group Header with items - Expandable */}
-                  {group.items && group.items.length > 0 && (
-                    <>
-                      <div
-                        onClick={() => setSelectedGroup(selectedGroup === group.id ? null : group.id)}
-                        style={{
-                          padding: '12px 16px',
-                          borderRadius: 8,
-                          border: selectedGroup === group.id ? '1px solid #1677FF' : '1px solid #E4E6EB',
-                          background: selectedGroup === group.id ? 'rgba(22, 119, 255, 0.08)' : '#FAFAFA',
-                          cursor: 'pointer',
-                          transition: 'all 0.2s',
-                          marginBottom: 4
+                  {activeModule === 'workspace-settings' && (
+                    <Space size="middle" wrap>
+                      <Button
+                        icon={<AppstoreAddOutlined />}
+                        onClick={() => setTemplateGalleryVisible(true)}
+                      >
+                        Tạo mới từ template
+                      </Button>
+                      <Button
+                        type="primary"
+                        icon={<PlusOutlined />}
+                        onClick={() => {
+                          resetTemplateBuilder();
+                          setActiveModule('template-create');
                         }}
                       >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                          <span style={{ fontSize: 18, color: selectedGroup === group.id ? '#1677FF' : '#6D7175' }}>
-                            {group.icon}
-                          </span>
-                          <Text strong style={{ fontSize: 14, color: selectedGroup === group.id ? '#1677FF' : '#2b2b2b' }}>
-                            {group.name}
-                          </Text>
-                        </div>
-                      </div>
-                      
-                      {/* Sub-items - Only show items that are not selected */}
-                      {selectedGroup === group.id && (
-                        <div style={{ marginLeft: 32, marginTop: 8 }}>
-                          {group.items
-                            .filter(item => !isItemSelected(group.id, item.id))
-                            .map(item => {
-                              // For Dashboard, disable if another dashboard is already selected
-                              const isDisabled = group.id === 'Dashboard' && hasDashboardSelected();
-                              
-                              return (
-                                <Tooltip
-                                  key={item.id}
-                                  title={isDisabled ? 'Chỉ có thể chọn một dashboard. Vui lòng xóa dashboard hiện tại trước.' : ''}
-                                  placement="right"
-                                >
-                                  <div
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      if (!isDisabled) {
-                                        handleSelectItem(group.id, item.id);
-                                      }
-                                    }}
-                                    style={{
-                                      padding: '10px 12px',
-                                      borderRadius: 6,
-                                      border: '1px solid #E4E6EB',
-                                      background: isDisabled ? '#F5F5F5' : '#fff',
-                                      cursor: isDisabled ? 'not-allowed' : 'pointer',
-                                      transition: 'all 0.2s',
-                                      marginBottom: 4,
-                                      opacity: isDisabled ? 0.6 : 1
-                                    }}
-                                  >
-                                    <Text style={{ fontSize: 13, color: isDisabled ? '#8c8c8c' : '#2b2b2b' }}>
-                                      {item.name}
-                                    </Text>
-                                    {item.description && (
-                                      <Text type="secondary" style={{ fontSize: 11, display: 'block', marginTop: 4 }}>
-                                        {item.description}
-                                      </Text>
-                                    )}
-                                  </div>
-                                </Tooltip>
-                              );
-                            })}
-                        </div>
-                      )}
-                    </>
+                        Tạo
+                      </Button>
+                    </Space>
+                  )}
+                  {activeModule === 'template-create' && (
+                    <Space size="middle" wrap>
+                      <Button
+                        icon={<LeftOutlined />}
+                        onClick={handleCancelTemplateCreation}
+                      >
+                        Quay lại danh sách
+                      </Button>
+                    </Space>
                   )}
                 </div>
-              ))}
-            </Space>
-          </div>
-          
-          {/* Right Column - Preview */}
-          <div style={{ 
-            flex: 1, 
-            padding: 24,
-            overflowY: 'auto',
-            background: '#FAFBFB'
-          }}>
-            <Text strong style={{ fontSize: 16, display: 'block', marginBottom: 20 }}>
-              Preview workspace: {newWorkspaceName || 'Chưa đặt tên'}
-            </Text>
-            
-            {selectedItems.length === 0 ? (
-              <Empty description="Chưa chọn nhóm hoặc mục nào" image={Empty.PRESENTED_IMAGE_SIMPLE} />
-            ) : (
-              <Row gutter={24}>
-                {/* Left Main Column */}
-                <Col xs={24} lg={17}>
-                  <Space direction="vertical" size={20} style={{ width: '100%' }}>
-                    {/* Dashboard Items */}
-                    {selectedItems
-                      .filter(item => item.groupId === 'Dashboard' && item.itemId)
-                      .map((item, idx) => {
-                        try {
-                          const group = workspaceGroups.find(g => g.id === item.groupId);
-                          const subItem = group?.items?.find(i => i.id === item.itemId);
-                          if (!subItem) return null;
-                          
-                          return (
+
+                {activeModule === 'home' ? (
+                  <>
+                    {/* Date Period Selector and Customize Action */}
+                    <div style={{
+                      marginBottom: 20,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      gap: 16,
+                      flexWrap: 'wrap'
+                    }}>
+                      <Select
+                        value={datePeriod}
+                        onChange={setDatePeriod}
+                        style={{ width: 150 }}
+                        options={[
+                          { label: 'Hôm qua', value: 'yesterday' },
+                          { label: 'Hôm nay', value: 'today' },
+                          { label: 'Tuần này', value: 'thisWeek' },
+                          { label: 'Tháng này', value: 'thisMonth' },
+                          { label: 'Năm nay', value: 'thisYear' }
+                        ]}
+                      />
+                      <Button
+                        type="text"
+                        icon={<EditOutlined />}
+                        onClick={() => setActiveModule('workspace-settings')}
+                        style={{
+                          color: '#6D7175',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: 6
+                        }}
+                      >
+                        Tùy chỉnh
+                      </Button>
+                    </div>
+
+                    <Row gutter={24}>
+                      {/* Left Main Column */}
+                      <Col xs={24} lg={17}>
+                        <Space direction="vertical" size={20} style={{ width: '100%' }}>
+                          {/* Báo cáo kết quả - Customizable với Template System */}
+                          {(selectedWorkspace?.layout?.showDashboard !== false && selectedWorkspace) && (
                             <Card
-                              key={`${item.groupId}-${item.itemId}-${idx}`}
-                              title={
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                  <Text strong style={{ fontSize: 16, color: '#2b2b2b' }}>Báo cáo kết quả - {subItem.name}</Text>
-                                  <Button
-                                    type="text"
-                                    danger
-                                    icon={<DeleteOutlined />}
-                                    size="small"
-                                    onClick={() => handleRemoveItem(item.groupId, item.itemId)}
-                                  />
-                                </div>
+                              title={<Text strong style={{ fontSize: 16, color: '#2b2b2b' }}>Báo cáo kết quả</Text>}
+                              extra={
+                                isReorderMode ? (
+                                  <Space>
+                                    <Button
+                                      size="small"
+                                      onClick={handleCancelReorder}
+                                    >
+                                      Hủy
+                                    </Button>
+                                    <Button
+                                      size="small"
+                                      type="primary"
+                                      icon={<SaveOutlined />}
+                                      onClick={handleSaveOrder}
+                                    >
+                                      Lưu sắp xếp
+                                    </Button>
+                                  </Space>
+                                ) : (() => {
+                                  const linkData = selectedTemplate?.sectionLinks?.['bao-cao'];
+                                  const linkUrl = typeof linkData === 'object' ? linkData?.url : linkData;
+                                  const linkText = typeof linkData === 'object' ? (linkData?.text || 'Xem thêm') : 'Xem thêm';
+                                  return (
+                                    <Button
+                                      type="link"
+                                      size="small"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        if (linkUrl) {
+                                          window.open(linkUrl, '_blank', 'noopener,noreferrer');
+                                        }
+                                      }}
+                                      style={{ padding: 0 }}
+                                      className="xem-them-link"
+                                    >
+                                      {linkText}
+                                    </Button>
+                                  );
+                                })()
                               }
-                              style={{ 
+                              style={{
                                 background: '#fff',
                                 border: '1px solid #E1E3E5',
                                 borderRadius: 16,
                                 boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)'
                               }}
                             >
-                              <Row gutter={[12, 12]}>
-                                {/* KPI Cards */}
-                                {(currentKpiOverview?.col1 || []).map((kpi, i) => (
-                                  <Col span={8} key={`col1-${i}`}>
-                                    <KPICard {...kpi} />
-                                  </Col>
-                                ))}
-                                {(currentKpiOverview?.col2 || []).map((kpi, i) => (
-                                  <Col span={8} key={`col2-${i}`}>
-                                    <KPICard {...kpi} />
-                                  </Col>
-                                ))}
-                                {(currentKpiOverview?.col3 || []).map((kpi, i) => (
-                                  <Col span={8} key={`col3-${i}`}>
-                                    {kpi.breakdown ? (
-                                      <Card size="small" style={{ background: '#F7F7F7', border: 'none', height: '100%' }}>
-                                        <Text strong style={{ fontSize: 13, display: 'block', marginBottom: 12 }}>{kpi.title}</Text>
-                                        <Space direction="vertical" style={{ width: '100%' }} size={8}>
-                                          {(kpi.breakdown || []).map((breakdownItem, breakdownIdx) => (
-                                            <div key={`breakdown-${breakdownIdx}`} style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                              <Text style={{ fontSize: 12 }}>{breakdownItem.label}</Text>
-                                              <Text strong style={{ fontSize: 12 }}>{breakdownItem.value}</Text>
-                                            </div>
-                                          ))}
-                                        </Space>
-                                      </Card>
-                                    ) : (
-                                      <KPICard {...kpi} />
-                                    )}
+                              {isReorderMode ? (
+                                <DndContext
+                                  collisionDetection={closestCenter}
+                                  onDragEnd={handleDragEnd}
+                                >
+                                  <SortableContext
+                                    items={tempMetricOrder}
+                                    strategy={verticalListSortingStrategy}
+                                  >
+                                    <Row gutter={[12, 12]}>
+                                      {tempMetricOrder.map(metricId => {
+                                        const metric = allMetricsPool.find(m => m.id === metricId);
+                                        return metric ? (
+                                          <Col span={8} key={metric.id}>
+                                            <SortableMetricCard metric={metric} isReorderMode={true} />
+                                          </Col>
+                                        ) : null;
+                                      })}
+                                    </Row>
+                                  </SortableContext>
+                                </DndContext>
+                              ) : (
+                                <Row gutter={[12, 12]}>
+                                  {currentMetrics.map((metric, idx) => (
+                                    <Col span={8} key={metric.id || idx}>
+                                      <KPICard {...metric} title={metric.name} />
+                                    </Col>
+                                  ))}
+                                </Row>
+                              )}
+                            </Card>
+                          )}
+
+                          {/* Báo cáo tiến độ - Customizable */}
+                          {(selectedWorkspace?.layout?.showDashboard !== false && selectedWorkspace) && (
+                            <Card
+                              title={<Text strong style={{ fontSize: 16, color: '#2b2b2b' }}>Báo cáo tiến độ</Text>}
+                              extra={(() => {
+                                const linkData = selectedTemplate?.sectionLinks?.['bao-cao'];
+                                const linkUrl = typeof linkData === 'object' ? linkData?.url : linkData;
+                                const linkText = typeof linkData === 'object' ? (linkData?.text || 'Xem thêm') : 'Xem thêm';
+                                return (
+                                  <Button
+                                    type="link"
+                                    size="small"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      if (linkUrl) {
+                                        window.open(linkUrl, '_blank', 'noopener,noreferrer');
+                                      }
+                                    }}
+                                    style={{ padding: 0 }}
+                                    className="xem-them-link"
+                                  >
+                                    {linkText}
+                                  </Button>
+                                );
+                              })()}
+                              style={{
+                                background: '#fff',
+                                border: '1px solid #E1E3E5',
+                                borderRadius: 16,
+                                boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)'
+                              }}
+                            >
+                              <Row gutter={[16, 16]}>
+                                {progressGoals.map((goal, idx) => (
+                                  <Col xs={24} md={8} key={idx}>
+                                    <div style={{
+                                      padding: '20px 16px',
+                                      background: '#F7F7F7',
+                                      borderRadius: 12,
+                                      border: 'none'
+                                    }}>
+                                      <div style={{ fontSize: 13, color: '#6D7175', marginBottom: 8, fontWeight: 500 }}>
+                                        {goal.title}
+                                      </div>
+                                      <div style={{ fontSize: 24, fontWeight: 700, marginBottom: 12, color: '#2b2b2b' }}>
+                                        {goal.current} / {goal.target}
+                                      </div>
+                                      <Progress
+                                        percent={goal.percent}
+                                        strokeColor="#1677FF"
+                                        strokeWidth={10}
+                                        showInfo={false}
+                                      />
+                                      <div style={{
+                                        fontSize: 14,
+                                        color: '#2b2b2b',
+                                        marginTop: 8,
+                                        fontWeight: 500
+                                      }}>
+                                        {goal.percent}% {goal.status}
+                                      </div>
+                                    </div>
                                   </Col>
                                 ))}
                               </Row>
-                              
-                              {/* Charts Row */}
-                              <Row gutter={[12, 12]} style={{ marginTop: 12 }}>
-                                <Col span={12}>
-                                  <Card size="small" title="Xu hướng Doanh thu" style={{ height: 200 }}>
-                                    <ResponsiveContainer width="100%" height={150}>
-                                      <LineChart data={currentChartData || []}>
-                                        <CartesianGrid strokeDasharray="3 3" />
-                                        <XAxis dataKey="name" />
-                                        <YAxis />
-                                        <ChartTooltip />
-                                        <RechartLine type="monotone" dataKey="value" stroke="#1677FF" />
-                                      </LineChart>
-                                    </ResponsiveContainer>
-                                  </Card>
-                                </Col>
-                                <Col span={12}>
-                                  <Card size="small" title="Phân bổ kênh" style={{ height: 200 }}>
-                                    <ResponsiveContainer width="100%" height={150}>
-                                      <PieChart>
-                                        <RechartPie
-                                          data={currentPieData || []}
-                                          cx="50%"
-                                          cy="50%"
-                                          labelLine={false}
-                                          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                                          outerRadius={50}
-                                          fill="#8884d8"
-                                          dataKey="value"
-                                        >
-                                          {(currentPieData || []).map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={['#1677FF', '#52C41A', '#FA8C16'][index % 3]} />
-                                          ))}
-                                        </RechartPie>
-                                        <ChartTooltip />
-                                      </PieChart>
-                                    </ResponsiveContainer>
-                                  </Card>
-                                </Col>
-                              </Row>
                             </Card>
-                          );
-                        } catch (error) {
-                          console.error('Error rendering dashboard preview:', error, item);
-                          return (
-                            <Card key={`error-${idx}`} title="Lỗi hiển thị">
-                              <Text type="danger">Có lỗi xảy ra khi hiển thị dashboard: {error.message}</Text>
+                          )}
+
+                          {/* Xu hướng Doanh thu */}
+                          {(selectedWorkspace?.layout?.showDashboard !== false && selectedWorkspace) && (
+                            <Card
+                              title={<Text strong style={{ fontSize: 16, color: '#2b2b2b' }}>Xu hướng Doanh thu</Text>}
+                              style={{
+                                background: '#fff',
+                                border: '1px solid #E1E3E5',
+                                borderRadius: 16,
+                                boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)'
+                              }}
+                              extra={
+                                <Radio.Group defaultValue={30} size="small">
+                                  <Radio.Button value={7}>7 ngày</Radio.Button>
+                                  <Radio.Button value={30}>30 ngày</Radio.Button>
+                                  <Radio.Button value={60}>60 ngày</Radio.Button>
+                                </Radio.Group>
+                              }
+                            >
+                              <ResponsiveContainer width="100%" height={300}>
+                                <LineChart data={revenueTrendData}>
+                                  <CartesianGrid strokeDasharray="3 3" stroke="#E1E3E5" />
+                                  <XAxis
+                                    dataKey="date"
+                                    stroke="#6D7175"
+                                    tick={{ fill: '#6D7175', fontSize: 11 }}
+                                  />
+                                  <YAxis
+                                    stroke="#6D7175"
+                                    tickFormatter={(v) => `₫${v}M`}
+                                    tick={{ fill: '#6D7175', fontSize: 11 }}
+                                  />
+                                  <ChartTooltip
+                                    contentStyle={{
+                                      background: '#fff',
+                                      border: '1px solid #e5e7eb',
+                                      borderRadius: 8,
+                                      fontSize: 13
+                                    }}
+                                    formatter={(value) => [`₫${value}M`, 'Doanh thu']}
+                                  />
+                                  <RechartLine
+                                    type="monotone"
+                                    dataKey="revenue"
+                                    stroke="#2b2b2b"
+                                    strokeWidth={2}
+                                    dot={{ fill: '#2b2b2b', stroke: '#fff', strokeWidth: 2, r: 4 }}
+                                    activeDot={{ r: 6 }}
+                                  />
+                                </LineChart>
+                              </ResponsiveContainer>
                             </Card>
-                          );
-                        }
-                      })}
-                    
-                    {/* Báo cáo tiến độ - Show if any Dashboard is selected */}
-                    {selectedItems.some(item => item.groupId === 'Dashboard' && item.itemId) && (
-                      <Card 
-                        title={<Text strong style={{ fontSize: 16, color: '#2b2b2b' }}>Báo cáo tiến độ</Text>}
-                        style={{ 
-                          background: '#fff',
-                          border: '1px solid #E1E3E5',
-                          borderRadius: 16,
-                          boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)'
-                        }}
-                      >
-                        <Row gutter={[16, 16]}>
-                          {progressGoals.map((goal, idx) => (
-                            <Col xs={24} md={8} key={idx}>
-                              <div style={{ 
-                                padding: '20px 16px',
-                                background: '#F7F7F7',
-                                borderRadius: 12,
-                                border: 'none'
-                              }}>
-                                <div style={{ fontSize: 13, color: '#6D7175', marginBottom: 8, fontWeight: 500 }}>
-                                  {goal.title}
-                                </div>
-                                <div style={{ fontSize: 24, fontWeight: 700, marginBottom: 12, color: '#2b2b2b' }}>
-                                  {goal.current} / {goal.target}
-                                </div>
-                                <Progress 
-                                  percent={goal.percent} 
-                                  strokeColor="#1677FF"
-                                  strokeWidth={10}
-                                  showInfo={false}
-                                />
-                                <div style={{ 
-                                  fontSize: 14, 
-                                  color: '#2b2b2b', 
-                                  marginTop: 8,
-                                  fontWeight: 500
-                                }}>
-                                  {goal.percent}% {goal.status}
-                                </div>
-                              </div>
-                            </Col>
-                          ))}
-                        </Row>
-                      </Card>
-                    )}
-                  </Space>
-                </Col>
-                
-                {/* Right Sidebar */}
-                <Col xs={24} lg={7}>
-                  <Space direction="vertical" size={16} style={{ width: '100%' }}>
-                    {/* Lỗi & Cảnh báo */}
-                    {selectedItems.some(item => item.groupId === 'Lỗi & Cảnh báo' && !item.itemId) && (
-                      <Card 
-                        title={
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Text strong style={{ fontSize: 14, color: '#2b2b2b' }}>Alert & Risks</Text>
-                            <Button
-                              type="text"
-                              danger
-                              icon={<DeleteOutlined />}
+                          )}
+
+                        </Space>
+                      </Col>
+
+                      {/* Right Sidebar */}
+                      <Col xs={24} lg={7}>
+                        <Space direction="vertical" size={16} style={{ width: '100%' }}>
+                          {/* Alert & Risks - Tabbed */}
+                          {(selectedWorkspace?.layout?.showAlerts !== false && selectedWorkspace) && (
+                            <Card
+                              title={<Text strong style={{ fontSize: 14, color: '#2b2b2b' }}>Alert & Risks</Text>}
                               size="small"
-                              onClick={() => handleRemoveItem('Lỗi & Cảnh báo')}
-                            />
-                          </div>
-                        }
-                        size="small"
-                        style={{ 
-                          background: '#fff',
-                          border: '1px solid #E1E3E5',
-                          borderRadius: 12,
-                          boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)'
-                        }}
-                      >
-                        <Tabs 
-                          defaultActiveKey="errors"
-                          size="small"
-                          items={[
-                            {
-                              key: 'errors',
-                              label: (
-                                <Space size={4}>
-                                  <ExclamationCircleOutlined style={{ color: '#D72C0D', fontSize: 14 }} />
-                                  <span>Lỗi</span>
-                                  {selectedAlertMetrics.errors.length > 0 && (
-                                    <div style={{
-                                      width: 20,
-                                      height: 20,
-                                      borderRadius: '50%',
-                                      background: '#D72C0D',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
-                                      marginLeft: 4
-                                    }}>
-                                      <Text style={{ fontSize: 11, color: '#fff', fontWeight: 600 }}>
-                                        {selectedAlertMetrics.errors.length}
-                                      </Text>
-                                    </div>
-                                  )}
-                                </Space>
-                              ),
-                              children: (
-                                <div style={{ 
-                                  display: 'flex',
-                                  flexDirection: 'column',
-                                  gap: 6
-                                }}>
-                                  {selectedAlertMetrics.errors.length === 0 ? (
-                                    <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                                      <Button 
-                                        size="small" 
-                                        type="primary" 
-                                        icon={<PlusOutlined />}
-                                        onClick={() => setAlertMetricsOverlayVisible(true)}
-                                      >
-                                        Thêm chỉ số
-                                      </Button>
-                                    </div>
-                                  ) : (
-                                    <>
-                                      {selectedAlertMetrics.errors.map(metricId => {
-                                        const metric = alertMetrics.errors.find(m => m.id === metricId);
-                                        return metric ? (
-                                          <div
-                                            key={metricId}
-                                            style={{
-                                              padding: '12px',
-                                              background: '#FEF3F2',
-                                              border: `1px solid ${metric.color}`,
-                                              borderRadius: 8
-                                            }}
-                                          >
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                              <Text style={{ fontSize: 13, color: metric.color }}>
-                                                {metric.name}
-                                              </Text>
-                                              {metric.value && (
-                                                <Text strong style={{ fontSize: 13, color: metric.color }}>
-                                                  {metric.value}{metric.unit}
-                                                </Text>
-                                              )}
-                                            </div>
-                                          </div>
-                                        ) : null;
-                                      })}
-                                      <Button 
-                                        size="small" 
-                                        type="dashed" 
-                                        icon={<PlusOutlined />}
-                                        onClick={() => setAlertMetricsOverlayVisible(true)}
-                                        block
-                                        style={{ marginTop: 8 }}
-                                      >
-                                        Thêm chỉ số
-                                      </Button>
-                                    </>
-                                  )}
-                                </div>
-                              )
-                            },
-                            {
-                              key: 'warnings',
-                              label: (
-                                <Space size={4}>
-                                  <WarningOutlined style={{ color: '#FA8C16', fontSize: 14 }} />
-                                  <span>Cảnh báo</span>
-                                  {selectedAlertMetrics.warnings.length > 0 && (
-                                    <div style={{
-                                      width: 20,
-                                      height: 20,
-                                      borderRadius: '50%',
-                                      background: '#FA8C16',
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'center',
-                                      marginLeft: 4
-                                    }}>
-                                      <Text style={{ fontSize: 11, color: '#fff', fontWeight: 600 }}>
-                                        {selectedAlertMetrics.warnings.length}
-                                      </Text>
-                                    </div>
-                                  )}
-                                </Space>
-                              ),
-                              children: (
-                                <div style={{ 
-                                  display: 'flex',
-                                  flexDirection: 'column',
-                                  gap: 6
-                                }}>
-                                  {selectedAlertMetrics.warnings.length === 0 ? (
-                                    <div style={{ textAlign: 'center', padding: '20px 0' }}>
-                                      <Button 
-                                        size="small" 
-                                        type="primary" 
-                                        icon={<PlusOutlined />}
-                                        onClick={() => setAlertMetricsOverlayVisible(true)}
-                                      >
-                                        Thêm chỉ số
-                                      </Button>
-                                    </div>
-                                  ) : (
-                                    <>
-                                      {selectedAlertMetrics.warnings.map(metricId => {
-                                        const metric = alertMetrics.warnings.find(m => m.id === metricId);
-                                        return metric ? (
-                                          <div
-                                            key={metricId}
-                                            style={{
-                                              padding: '12px',
-                                              background: '#FFF7E6',
-                                              border: `1px solid ${metric.color}`,
-                                              borderRadius: 8
-                                            }}
-                                          >
-                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                              <Text style={{ fontSize: 13, color: metric.color }}>
-                                                {metric.name}
-                                              </Text>
-                                              {metric.value && (
-                                                <Text strong style={{ fontSize: 13, color: metric.color }}>
-                                                  {metric.value}{metric.unit}
-                                                </Text>
-                                              )}
-                                            </div>
-                                          </div>
-                                        ) : null;
-                                      })}
-                                      <Button 
-                                        size="small" 
-                                        type="dashed" 
-                                        icon={<PlusOutlined />}
-                                        onClick={() => setAlertMetricsOverlayVisible(true)}
-                                        block
-                                        style={{ marginTop: 8 }}
-                                      >
-                                        Thêm chỉ số
-                                      </Button>
-                                    </>
-                                  )}
-                                </div>
-                              )
-                            }
-                          ]}
-                        />
-                      </Card>
-                    )}
-                    
-                    {/* Tin tức */}
-                    {selectedItems.some(item => item.groupId === 'Tin tức' && !item.itemId) && (
-                      <Card 
-                        title={
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Text strong style={{ fontSize: 14, color: '#2b2b2b' }}>Có thể bạn quan tâm</Text>
-                            <Space>
-                              <Button type="link" size="small">Tất cả</Button>
-                              <Button
-                                type="text"
-                                danger
-                                icon={<DeleteOutlined />}
+                              style={{
+                                background: '#fff',
+                                border: '1px solid #E1E3E5',
+                                borderRadius: 12,
+                                boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)',
+                                cursor: selectedTemplate?.sectionLinks?.['loi-canh-bao'] ? 'pointer' : 'default'
+                              }}
+                              onClick={() => {
+                                const link = selectedTemplate?.sectionLinks?.['loi-canh-bao'];
+                                if (link) {
+                                  window.open(link, '_blank', 'noopener,noreferrer');
+                                }
+                              }}
+                            >
+                              <Tabs
+                                defaultActiveKey="errors"
                                 size="small"
-                                onClick={() => handleRemoveItem('Tin tức')}
+                                items={[
+                                  {
+                                    key: 'errors',
+                                    label: (
+                                      <Space size={4}>
+                                        <ExclamationCircleOutlined style={{ color: '#D72C0D', fontSize: 14 }} />
+                                        <span>Lỗi</span>
+                                        <Tag
+                                          color="error"
+                                          style={{
+                                            fontSize: 11,
+                                            padding: '0 6px',
+                                            background: '#FEF3F2',
+                                            color: '#D72C0D',
+                                            border: '1px solid #FECDD6',
+                                            borderRadius: 10,
+                                            marginLeft: 4
+                                          }}
+                                        >
+                                          {alertsData.errors.length}
+                                        </Tag>
+                                      </Space>
+                                    ),
+                                    children: (
+                                      <div style={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: 6
+                                      }}>
+                                        {alertsData.errors.map((alert) => {
+                                          const isExpanded = expandedAlerts.has(alert.id);
+                                          const guides = alertGuides[alert.id] || [];
+                                          return (
+                                            <div key={alert.id}>
+                                              <div
+                                                style={{
+                                                  display: 'flex',
+                                                  alignItems: 'center',
+                                                  padding: '10px 12px',
+                                                  borderRadius: 6,
+                                                  background: hoveredAlertId === alert.id ? '#FEE4E2' : '#FEF3F2',
+                                                  border: 'none',
+                                                  transition: 'all 0.2s',
+                                                  cursor: 'pointer',
+                                                  gap: 8
+                                                }}
+                                                onClick={() => {
+                                                  setExpandedAlerts(prev => {
+                                                    const newSet = new Set(prev);
+                                                    if (newSet.has(alert.id)) {
+                                                      newSet.delete(alert.id);
+                                                    } else {
+                                                      newSet.add(alert.id);
+                                                    }
+                                                    return newSet;
+                                                  });
+                                                }}
+                                                onMouseEnter={() => setHoveredAlertId(alert.id)}
+                                                onMouseLeave={() => setHoveredAlertId(null)}
+                                              >
+                                                <div style={{ flex: 1, minWidth: 0 }}>
+                                                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, flexWrap: 'wrap' }}>
+                                                    <span style={{
+                                                      fontSize: 20,
+                                                      fontWeight: 700,
+                                                      color: '#2b2b2b',
+                                                      lineHeight: 1
+                                                    }}>
+                                                      {alert.value || alert.count}
+                                                    </span>
+                                                    <Text style={{
+                                                      fontSize: 13,
+                                                      fontWeight: 500,
+                                                      color: '#2b2b2b'
+                                                    }}>
+                                                      {alert.title}
+                                                    </Text>
+                                                  </div>
+                                                </div>
+                                                {hoveredAlertId === alert.id && (
+                                                  <Tooltip title="Xem thêm">
+                                                    <EyeOutlined
+                                                      style={{
+                                                        fontSize: 14,
+                                                        color: '#6D7175',
+                                                        transition: 'all 0.2s',
+                                                        marginRight: 8
+                                                      }}
+                                                      onClick={(e) => {
+                                                        e.stopPropagation();
+                                                      }}
+                                                      onMouseEnter={(e) => {
+                                                        e.currentTarget.style.color = '#1677FF';
+                                                        e.currentTarget.style.transform = 'scale(1.1)';
+                                                      }}
+                                                      onMouseLeave={(e) => {
+                                                        e.currentTarget.style.color = '#6D7175';
+                                                        e.currentTarget.style.transform = 'scale(1)';
+                                                      }}
+                                                    />
+                                                  </Tooltip>
+                                                )}
+                                                {guides.length > 0 && (
+                                                  (isExpanded || hoveredAlertId === alert.id) ? (
+                                                    isExpanded ? (
+                                                      <DownOutlined
+                                                        style={{
+                                                          fontSize: 12,
+                                                          color: '#6D7175',
+                                                          transition: 'all 0.2s'
+                                                        }}
+                                                        onMouseEnter={(e) => {
+                                                          e.currentTarget.style.color = '#2b2b2b';
+                                                          e.currentTarget.style.transform = 'scale(1.1)';
+                                                        }}
+                                                        onMouseLeave={(e) => {
+                                                          e.currentTarget.style.color = '#6D7175';
+                                                          e.currentTarget.style.transform = 'scale(1)';
+                                                        }}
+                                                      />
+                                                    ) : (
+                                                      <Tooltip title="Hướng dẫn">
+                                                        <BookOutlined
+                                                          style={{
+                                                            fontSize: 12,
+                                                            color: '#6D7175',
+                                                            transition: 'all 0.2s'
+                                                          }}
+                                                          onMouseEnter={(e) => {
+                                                            e.currentTarget.style.color = '#2b2b2b';
+                                                            e.currentTarget.style.transform = 'scale(1.1)';
+                                                          }}
+                                                          onMouseLeave={(e) => {
+                                                            e.currentTarget.style.color = '#6D7175';
+                                                            e.currentTarget.style.transform = 'scale(1)';
+                                                          }}
+                                                        />
+                                                      </Tooltip>
+                                                    )
+                                                  ) : (
+                                                    <div style={{ width: 12 }} />
+                                                  )
+                                                )}
+                                              </div>
+                                              {isExpanded && guides.length > 0 && (
+                                                <div style={{
+                                                  padding: '12px',
+                                                  background: '#FAFAFA',
+                                                  borderLeft: '3px solid #D72C0D',
+                                                  marginTop: 4,
+                                                  borderRadius: '0 0 6px 6px'
+                                                }}>
+                                                  <List
+                                                    size="small"
+                                                    dataSource={guides}
+                                                    renderItem={(item) => {
+                                                      const getIcon = (type) => {
+                                                        return type === 'case-study' ? <LineChartOutlined /> : <BookOutlined />;
+                                                      };
+                                                      const getColor = (type) => {
+                                                        return type === 'case-study' ? '#52C41A' : '#1890FF';
+                                                      };
+                                                      return (
+                                                        <List.Item
+                                                          style={{ padding: '6px 0', cursor: 'pointer' }}
+                                                          onClick={() => message.info(`Đang mở: ${item.title}`)}
+                                                        >
+                                                          <List.Item.Meta
+                                                            avatar={
+                                                              <div style={{
+                                                                width: 24,
+                                                                height: 24,
+                                                                borderRadius: 6,
+                                                                background: `${getColor(item.type)}15`,
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center'
+                                                              }}>
+                                                                {React.cloneElement(getIcon(item.type), {
+                                                                  style: { fontSize: 12, color: getColor(item.type) }
+                                                                })}
+                                                              </div>
+                                                            }
+                                                            title={<Text style={{ fontSize: 12 }}>{item.title}</Text>}
+                                                            description={
+                                                              <Tag style={{ fontSize: 9, padding: '0 4px' }}>{item.category}</Tag>
+                                                            }
+                                                          />
+                                                          <ExportOutlined
+                                                            style={{
+                                                              fontSize: 10,
+                                                              color: '#8c8c8c',
+                                                              transition: 'all 0.2s'
+                                                            }}
+                                                            onMouseEnter={(e) => {
+                                                              e.currentTarget.style.color = '#1677FF';
+                                                              e.currentTarget.style.transform = 'scale(1.1)';
+                                                            }}
+                                                            onMouseLeave={(e) => {
+                                                              e.currentTarget.style.color = '#8c8c8c';
+                                                              e.currentTarget.style.transform = 'scale(1)';
+                                                            }}
+                                                          />
+                                                        </List.Item>
+                                                      );
+                                                    }}
+                                                  />
+                                                </div>
+                                              )}
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    )
+                                  },
+                                  {
+                                    key: 'warnings',
+                                    label: (
+                                      <Space size={4}>
+                                        <WarningOutlined style={{ color: '#F49342', fontSize: 14 }} />
+                                        <span>Cảnh báo</span>
+                                        <Tag
+                                          color="warning"
+                                          style={{
+                                            fontSize: 11,
+                                            padding: '0 6px',
+                                            background: '#FFF8F1',
+                                            color: '#F49342',
+                                            border: '1px solid #FFE8D7',
+                                            borderRadius: 10,
+                                            marginLeft: 4
+                                          }}
+                                        >
+                                          {alertsData.warnings.length}
+                                        </Tag>
+                                      </Space>
+                                    ),
+                                    children: (
+                                      <div style={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: 6
+                                      }}>
+                                        {alertsData.warnings.map((alert) => {
+                                          const isExpanded = expandedAlerts.has(alert.id);
+                                          const guides = alertGuides[alert.id] || [];
+                                          return (
+                                            <div key={alert.id}>
+                                              <div
+                                                style={{
+                                                  display: 'flex',
+                                                  alignItems: 'center',
+                                                  padding: '10px 12px',
+                                                  borderRadius: 6,
+                                                  background: hoveredAlertId === alert.id ? '#FFE8D7' : '#FFF8F1',
+                                                  border: 'none',
+                                                  transition: 'all 0.2s',
+                                                  cursor: 'pointer',
+                                                  gap: 8
+                                                }}
+                                                onClick={() => {
+                                                  setExpandedAlerts(prev => {
+                                                    const newSet = new Set(prev);
+                                                    if (newSet.has(alert.id)) {
+                                                      newSet.delete(alert.id);
+                                                    } else {
+                                                      newSet.add(alert.id);
+                                                    }
+                                                    return newSet;
+                                                  });
+                                                }}
+                                                onMouseEnter={() => setHoveredAlertId(alert.id)}
+                                                onMouseLeave={() => setHoveredAlertId(null)}
+                                              >
+                                                <div style={{ flex: 1, minWidth: 0 }}>
+                                                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, flexWrap: 'wrap' }}>
+                                                    <span style={{
+                                                      fontSize: 20,
+                                                      fontWeight: 700,
+                                                      color: '#2b2b2b',
+                                                      lineHeight: 1
+                                                    }}>
+                                                      {alert.value || alert.count}
+                                                      {alert.unit === '%' ? '%' : alert.unit ? ` ${alert.unit}` : ''}
+                                                    </span>
+                                                    <Text style={{
+                                                      fontSize: 13,
+                                                      fontWeight: 500,
+                                                      color: '#2b2b2b'
+                                                    }}>
+                                                      {alert.title}
+                                                    </Text>
+                                                  </div>
+                                                </div>
+                                                {hoveredAlertId === alert.id && (
+                                                  <Tooltip title="Xem thêm">
+                                                    <EyeOutlined
+                                                      style={{
+                                                        fontSize: 14,
+                                                        color: '#6D7175',
+                                                        transition: 'all 0.2s',
+                                                        marginRight: 8
+                                                      }}
+                                                      onClick={(e) => {
+                                                        e.stopPropagation();
+                                                      }}
+                                                      onMouseEnter={(e) => {
+                                                        e.currentTarget.style.color = '#1677FF';
+                                                        e.currentTarget.style.transform = 'scale(1.1)';
+                                                      }}
+                                                      onMouseLeave={(e) => {
+                                                        e.currentTarget.style.color = '#6D7175';
+                                                        e.currentTarget.style.transform = 'scale(1)';
+                                                      }}
+                                                    />
+                                                  </Tooltip>
+                                                )}
+                                                {guides.length > 0 && (
+                                                  (isExpanded || hoveredAlertId === alert.id) ? (
+                                                    isExpanded ? (
+                                                      <DownOutlined
+                                                        style={{
+                                                          fontSize: 12,
+                                                          color: '#6D7175',
+                                                          transition: 'all 0.2s'
+                                                        }}
+                                                        onMouseEnter={(e) => {
+                                                          e.currentTarget.style.color = '#2b2b2b';
+                                                          e.currentTarget.style.transform = 'scale(1.1)';
+                                                        }}
+                                                        onMouseLeave={(e) => {
+                                                          e.currentTarget.style.color = '#6D7175';
+                                                          e.currentTarget.style.transform = 'scale(1)';
+                                                        }}
+                                                      />
+                                                    ) : (
+                                                      <Tooltip title="Hướng dẫn">
+                                                        <BookOutlined
+                                                          style={{
+                                                            fontSize: 12,
+                                                            color: '#6D7175',
+                                                            transition: 'all 0.2s'
+                                                          }}
+                                                          onMouseEnter={(e) => {
+                                                            e.currentTarget.style.color = '#2b2b2b';
+                                                            e.currentTarget.style.transform = 'scale(1.1)';
+                                                          }}
+                                                          onMouseLeave={(e) => {
+                                                            e.currentTarget.style.color = '#6D7175';
+                                                            e.currentTarget.style.transform = 'scale(1)';
+                                                          }}
+                                                        />
+                                                      </Tooltip>
+                                                    )
+                                                  ) : (
+                                                    <div style={{ width: 12 }} />
+                                                  )
+                                                )}
+                                              </div>
+                                              {isExpanded && guides.length > 0 && (
+                                                <div style={{
+                                                  padding: '12px',
+                                                  background: '#FAFAFA',
+                                                  borderLeft: '3px solid #F49342',
+                                                  marginTop: 4,
+                                                  borderRadius: '0 0 6px 6px'
+                                                }}>
+                                                  <List
+                                                    size="small"
+                                                    dataSource={guides}
+                                                    renderItem={(item) => {
+                                                      const getIcon = (type) => {
+                                                        return type === 'case-study' ? <LineChartOutlined /> : <BookOutlined />;
+                                                      };
+                                                      const getColor = (type) => {
+                                                        return type === 'case-study' ? '#52C41A' : '#1890FF';
+                                                      };
+                                                      return (
+                                                        <List.Item
+                                                          style={{ padding: '6px 0', cursor: 'pointer' }}
+                                                          onClick={() => message.info(`Đang mở: ${item.title}`)}
+                                                        >
+                                                          <List.Item.Meta
+                                                            avatar={
+                                                              <div style={{
+                                                                width: 24,
+                                                                height: 24,
+                                                                borderRadius: 6,
+                                                                background: `${getColor(item.type)}15`,
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                justifyContent: 'center'
+                                                              }}>
+                                                                {React.cloneElement(getIcon(item.type), {
+                                                                  style: { fontSize: 12, color: getColor(item.type) }
+                                                                })}
+                                                              </div>
+                                                            }
+                                                            title={<Text style={{ fontSize: 12 }}>{item.title}</Text>}
+                                                            description={
+                                                              <Tag style={{ fontSize: 9, padding: '0 4px' }}>{item.category}</Tag>
+                                                            }
+                                                          />
+                                                          <ExportOutlined
+                                                            style={{
+                                                              fontSize: 10,
+                                                              color: '#8c8c8c',
+                                                              transition: 'all 0.2s'
+                                                            }}
+                                                            onMouseEnter={(e) => {
+                                                              e.currentTarget.style.color = '#1677FF';
+                                                              e.currentTarget.style.transform = 'scale(1.1)';
+                                                            }}
+                                                            onMouseLeave={(e) => {
+                                                              e.currentTarget.style.color = '#8c8c8c';
+                                                              e.currentTarget.style.transform = 'scale(1)';
+                                                            }}
+                                                          />
+                                                        </List.Item>
+                                                      );
+                                                    }}
+                                                  />
+                                                </div>
+                                              )}
+                                            </div>
+                                          );
+                                        })}
+                                      </div>
+                                    )
+                                  }
+                                ]}
                               />
+                            </Card>
+                          )}
+
+                          {/* Có thể bạn quan tâm - Case Study & Blog Only */}
+                          {(selectedWorkspace?.layout?.showGuides !== false && selectedWorkspace) && (
+                            <Card
+                              title={<Text strong style={{ fontSize: 14, color: '#2b2b2b' }}>Có thể bạn quan tâm</Text>}
+                              size="small"
+                              extra={
+                                (() => {
+                                  const linkData = selectedTemplate?.sectionLinks?.['tin-tuc'];
+                                  const linkUrl = typeof linkData === 'object' ? linkData?.url : linkData;
+                                  const linkText = typeof linkData === 'object' ? (linkData?.text || 'Xem thêm') : 'Xem thêm';
+                                  return linkUrl ? (
+                                    <Button
+                                      type="link"
+                                      size="small"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        window.open(linkUrl, '_blank', 'noopener,noreferrer');
+                                      }}
+                                      style={{ padding: 0 }}
+                                      className="xem-them-link"
+                                    >
+                                      {linkText}
+                                    </Button>
+                                  ) : (
+                                    <Button
+                                      type="link"
+                                      size="small"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      Tất cả
+                                    </Button>
+                                  );
+                                })()
+                              }
+                              style={{
+                                background: '#fff',
+                                border: '1px solid #E1E3E5',
+                                borderRadius: 12,
+                                boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)'
+                              }}
+                            >
+                              <List
+                                size="small"
+                                dataSource={contentItems.insights}
+                                renderItem={(item) => {
+                                  const getIcon = (iconType) => {
+                                    switch (iconType) {
+                                      case 'chart': return <LineChartOutlined />;
+                                      case 'bulb': return <BulbOutlined />;
+                                      case 'book': return <BookOutlined />;
+                                      default: return <BookOutlined />;
+                                    }
+                                  };
+                                  return (
+                                    <List.Item
+                                      style={{ padding: '8px 0', cursor: 'pointer' }}
+                                      onClick={() => message.info('Đang mở bài viết...')}
+                                    >
+                                      <List.Item.Meta
+                                        avatar={
+                                          <div style={{
+                                            width: 32,
+                                            height: 32,
+                                            borderRadius: 8,
+                                            background: `${item.color}15`,
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center'
+                                          }}>
+                                            {React.cloneElement(getIcon(item.icon), {
+                                              style: { fontSize: 16, color: item.color }
+                                            })}
+                                          </div>
+                                        }
+                                        title={<Text style={{ fontSize: 13 }}>{item.title}</Text>}
+                                        description={
+                                          <Space>
+                                            <Tag style={{ fontSize: 10, padding: '0 4px' }}>{item.category}</Tag>
+                                            <Text style={{ fontSize: 11, color: '#8c8c8c' }}>{item.date}</Text>
+                                          </Space>
+                                        }
+                                      />
+                                      <ExportOutlined
+                                        style={{
+                                          fontSize: 12,
+                                          color: '#8c8c8c',
+                                          transition: 'all 0.2s'
+                                        }}
+                                        onMouseEnter={(e) => {
+                                          e.currentTarget.style.color = '#1677FF';
+                                          e.currentTarget.style.transform = 'scale(1.1)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                          e.currentTarget.style.color = '#8c8c8c';
+                                          e.currentTarget.style.transform = 'scale(1)';
+                                        }}
+                                      />
+                                    </List.Item>
+                                  );
+                                }}
+                              />
+                            </Card>
+                          )}
+                        </Space>
+                      </Col>
+                    </Row>
+                  </>
+                ) : activeModule === 'workspace-settings' ? (
+                  renderWorkspaceSettings()
+                ) : activeModule === 'template-create' ? (
+                  renderTemplateBuilderScreen()
+                ) : (
+                  <div style={{ padding: 64 }}>
+                    <Empty description="Module đang được phát triển" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                  </div>
+                )}
+              </Content>
+            </Layout>
+          </Layout>
+
+
+          {/* Child Modal - Tạo Template Mới */}
+          <Modal
+            title="Tạo template mới"
+            open={createTemplateModalVisible}
+            onCancel={() => handleCloseChildModal(true)}
+            footer={[
+              <Button key="cancel" onClick={() => handleCloseChildModal(true)}>
+                Hủy
+              </Button>,
+              <Button
+                key="draft"
+                onClick={() => handleCreateTemplate(false)}
+                disabled={!newTemplateName.trim() || selectedMetrics.length === 0}
+              >
+                Lưu nháp
+              </Button>,
+              <Button
+                key="save"
+                type="primary"
+                onClick={() => handleCreateTemplate(true)}
+                disabled={!newTemplateName.trim() || selectedMetrics.length === 0}
+              >
+                Lưu & Sử dụng ({selectedMetrics.length} metrics)
+              </Button>
+            ]}
+            width={1200}
+            style={{ top: 20 }}
+            bodyStyle={{ maxHeight: '70vh', overflowY: 'auto' }}
+          >
+            <Row gutter={[16, 16]}>
+              <Col xs={24} lg={10}>
+                <Card
+                  bodyStyle={{ padding: 20 }}
+                  style={{ height: '100%' }}
+                >
+                  <Text strong style={{ display: 'block', marginBottom: 12 }}>
+                    Thông tin template
+                  </Text>
+                  <Input
+                    placeholder="Nhập tên template..."
+                    value={newTemplateName}
+                    onChange={(e) => setNewTemplateName(e.target.value)}
+                    size="large"
+                    prefix={<EditOutlined />}
+                    style={{ marginBottom: 16 }}
+                  />
+                  <div style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    marginBottom: 12
+                  }}>
+                    <Text type="secondary">
+                      Đang chọn: <strong>{selectedMetrics.length}</strong> metrics
+                    </Text>
+                    <Button type="link" onClick={() => setSelectedMetrics([])}>
+                      Bỏ chọn
+                    </Button>
+                  </div>
+                  <Input.Search
+                    placeholder="Tìm kiếm metrics..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    style={{ marginBottom: 16 }}
+                    size="middle"
+                    allowClear
+                  />
+                  <div style={{ maxHeight: '55vh', overflowY: 'auto', paddingRight: 8 }}>
+                    {Object.entries(filteredMetrics).map(([domain, metrics]) => {
+                      const selectedCount = metrics.filter(m => selectedMetrics.includes(m.id)).length;
+                      return (
+                        <div key={domain} style={{ marginBottom: 24 }}>
+                          <div style={{ marginBottom: 8 }}>
+                            <Text strong style={{ fontSize: 13 }}>{domain}</Text>
+                            <Space size={8} style={{ marginLeft: 8 }}>
+                              <Tag color="blue">{metrics.length} metrics</Tag>
+                              <Tag color="green">{selectedCount} đã chọn</Tag>
                             </Space>
                           </div>
-                        }
-                        size="small"
-                        style={{ 
-                          background: '#fff',
-                          border: '1px solid #E1E3E5',
-                          borderRadius: 12,
-                          boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)'
-                        }}
-                      >
-                        <List
-                          size="small"
-                          dataSource={contentItems.insights}
-                          renderItem={(item) => {
-                            const getIcon = (iconType) => {
-                              switch(iconType) {
-                                case 'chart': return <LineChartOutlined />;
-                                case 'bulb': return <BulbOutlined />;
-                                case 'book': return <BookOutlined />;
-                                default: return <BookOutlined />;
-                              }
-                            };
-                            return (
-                              <List.Item 
-                                style={{ padding: '8px 0', cursor: 'pointer' }}
-                                onClick={() => message.info('Đang mở bài viết...')}
-                              >
-                                <List.Item.Meta
-                                  avatar={
-                                    <div style={{ 
-                                      width: 32, 
-                                      height: 32, 
-                                      borderRadius: 8, 
-                                      background: `${item.color}15`,
-                                      display: 'flex',
-                                      alignItems: 'center',
-                                      justifyContent: 'center'
-                                    }}>
-                                      {React.cloneElement(getIcon(item.icon), { 
-                                        style: { fontSize: 16, color: item.color } 
-                                      })}
-                                    </div>
-                                  }
-                                  title={<Text style={{ fontSize: 13 }}>{item.title}</Text>}
-                                  description={
-                                    <Space>
-                                      <Tag color={item.color} style={{ fontSize: 11 }}>
-                                        {item.category}
-                                      </Tag>
-                                      <Text type="secondary" style={{ fontSize: 11 }}>
-                                        {item.date}
-                                      </Text>
-                                    </Space>
-                                  }
-                                />
-                              </List.Item>
-                            );
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                            {metrics.map(metric => {
+                              const isSelected = selectedMetrics.includes(metric.id);
+                              const isHovered = hoveredMetricId === metric.id;
+                              return (
+                                <div
+                                  key={metric.id}
+                                  onClick={() => handleToggleMetricSelection(metric.id)}
+                                  onMouseEnter={() => setHoveredMetricId(metric.id)}
+                                  onMouseLeave={() => setHoveredMetricId((current) => current === metric.id ? null : current)}
+                                  style={{
+                                    padding: '10px 12px',
+                                    borderRadius: 12,
+                                    border: isSelected ? '1px solid #1677FF' : '1px solid #E4E6EB',
+                                    background: isSelected ? 'rgba(22, 119, 255, 0.08)' : (isHovered ? '#F5F7FB' : '#fff'),
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center',
+                                    transition: 'all 0.2s',
+                                    boxShadow: isHovered ? '0 2px 6px rgba(15,23,42,0.08)' : 'none'
+                                  }}
+                                >
+                                  <div>
+                                    <Text style={{ fontSize: 13, color: '#1E1E1E' }}>{metric.name}</Text>
+                                  </div>
+                                  {isSelected && (
+                                    <Tag color="#1677FF" style={{ margin: 0 }}>
+                                      Đã chọn
+                                    </Tag>
+                                  )}
+                                </div>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </Card>
+              </Col>
+              <Col xs={24} lg={14}>
+                <Card
+                  title="Preview bố cục dashboard"
+                  extra={
+                    <Space size={12}>
+                      <Tag color="blue">{selectedMetrics.length} metrics</Tag>
+                      <Text type="secondary" style={{ fontSize: 12 }}>
+                        Kéo thả & thay đổi kích thước
+                      </Text>
+                    </Space>
+                  }
+                  bodyStyle={{ padding: 0 }}
+                >
+                  <div style={{ position: 'relative', minHeight: 420, padding: 16 }}>
+                    <div
+                      style={{
+                        position: 'absolute',
+                        inset: 16,
+                        display: 'grid',
+                        gridTemplateColumns: `repeat(auto-fill, minmax(100px, 1fr))`,
+                        gridAutoRows: `${PREVIEW_SLOT_HEIGHT}px`,
+                        gap: PREVIEW_SLOT_GAP,
+                        pointerEvents: 'none',
+                        zIndex: 1,
+                        width: '100%'
+                      }}
+                    >
+                      {Array.from({ length: 36 }).map((_, idx) => (
+                        <div
+                          key={`slot-${idx}`}
+                          style={{
+                            border: '1px dashed #CBD5F5',
+                            borderRadius: 24,
+                            background: 'rgba(241, 245, 249, 0.6)',
+                            minWidth: 0
                           }}
                         />
-                      </Card>
-                    )}
-                  </Space>
-                </Col>
-              </Row>
-            )}
-          </div>
-        </div>
-      </Drawer>
-      
-      {/* Alert Metrics Selection Overlay */}
-      <Modal
-        title="Chọn chỉ số hiển thị"
-        open={alertMetricsOverlayVisible}
-        onCancel={() => setAlertMetricsOverlayVisible(false)}
-        onOk={() => setAlertMetricsOverlayVisible(false)}
-        okText="Xác nhận"
-        cancelText="Hủy"
-        width={600}
-      >
-        <Tabs
-          defaultActiveKey="errors"
-          items={[
-            {
-              key: 'errors',
-              label: (
-                <Space size={4}>
-                  <ExclamationCircleOutlined style={{ color: '#D72C0D' }} />
-                  <span>Lỗi</span>
-                </Space>
-              ),
-              children: (
-                <div style={{ maxHeight: 400, overflowY: 'auto' }}>
-                  <Space direction="vertical" style={{ width: '100%' }} size={12}>
-                    {alertMetrics.errors.map(metric => (
-                      <Checkbox
-                        key={metric.id}
-                        checked={selectedAlertMetrics.errors.includes(metric.id)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedAlertMetrics(prev => ({
-                              ...prev,
-                              errors: [...prev.errors, metric.id]
-                            }));
-                          } else {
-                            setSelectedAlertMetrics(prev => ({
-                              ...prev,
-                              errors: prev.errors.filter(id => id !== metric.id)
-                            }));
-                          }
-                        }}
-                      >
-                        <Text style={{ fontSize: 13, marginLeft: 8 }}>
-                          {metric.name}
-                        </Text>
-                      </Checkbox>
-                    ))}
-                  </Space>
-                </div>
-              )
-            },
-            {
-              key: 'warnings',
-              label: (
-                <Space size={4}>
-                  <WarningOutlined style={{ color: '#FA8C16' }} />
-                  <span>Cảnh báo</span>
-                </Space>
-              ),
-              children: (
-                <div style={{ maxHeight: 400, overflowY: 'auto' }}>
-                  <Space direction="vertical" style={{ width: '100%' }} size={12}>
-                    {alertMetrics.warnings.map(metric => (
-                      <Checkbox
-                        key={metric.id}
-                        checked={selectedAlertMetrics.warnings.includes(metric.id)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setSelectedAlertMetrics(prev => ({
-                              ...prev,
-                              warnings: [...prev.warnings, metric.id]
-                            }));
-                          } else {
-                            setSelectedAlertMetrics(prev => ({
-                              ...prev,
-                              warnings: prev.warnings.filter(id => id !== metric.id)
-                            }));
-                          }
-                        }}
-                      >
-                        <Text style={{ fontSize: 13, marginLeft: 8 }}>
-                          {metric.name}
-                        </Text>
-                      </Checkbox>
-                    ))}
-                  </Space>
-                </div>
-              )
-            }
-          ]}
-        />
-      </Modal>
-      
-      {/* Workspace Edit Modal */}
-      <Modal
-        title="Chỉnh sửa workspace"
-        open={workspaceEditModalVisible}
-        onCancel={() => {
-          setWorkspaceEditModalVisible(false);
-          setNewWorkspaceName('');
-          setSelectedGroup('Dashboard');
-          setEditingWorkspaceId(null);
-        }}
-        footer={[
-          <Button key="cancel" onClick={() => {
-            setWorkspaceEditModalVisible(false);
-            setNewWorkspaceName('');
-            setSelectedGroup('Dashboard');
-            setEditingWorkspaceId(null);
-          }}>
-            Hủy
-          </Button>,
-          <Button 
-            key="save" 
-            type="primary" 
-            onClick={handleEditWorkspace}
-            disabled={!newWorkspaceName.trim()}
-          >
-            Lưu thay đổi
-          </Button>
-        ]}
-        width={1200}
-        style={{ top: 20 }}
-        bodyStyle={{ maxHeight: '70vh', overflowY: 'auto' }}
-      >
-        <Row gutter={[24, 24]}>
-          {/* Left Column - Groups Navigation */}
-          <Col xs={24} lg={8}>
-            <Card 
-              title="Chọn nhóm"
-              bodyStyle={{ padding: 16 }}
-            >
-              <Space direction="vertical" style={{ width: '100%' }} size={12}>
-                {workspaceGroups.map(group => (
-                  <div
-                    key={group.id}
-                    onClick={() => setSelectedGroup(group.id)}
-                    style={{
-                      padding: '16px',
-                      borderRadius: 12,
-                      border: selectedGroup === group.id ? '2px solid #1677FF' : '1px solid #E4E6EB',
-                      background: selectedGroup === group.id ? 'rgba(22, 119, 255, 0.08)' : '#fff',
-                      cursor: 'pointer',
-                      transition: 'all 0.2s'
-                    }}
-                  >
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-                      <span style={{ fontSize: 20, color: selectedGroup === group.id ? '#1677FF' : '#6D7175' }}>
-                        {group.icon}
-                      </span>
-                      <Text strong style={{ fontSize: 14, color: selectedGroup === group.id ? '#1677FF' : '#2b2b2b' }}>
-                        {group.name}
-                      </Text>
+                      ))}
                     </div>
-                    <Text type="secondary" style={{ fontSize: 12, display: 'block', marginLeft: 32 }}>
-                      {group.description}
-                    </Text>
+                    <div style={{ position: 'relative', zIndex: 2 }}>
+                      {previewBlocks.length > 0 ? (
+                        <DndContext
+                          collisionDetection={closestCenter}
+                          onDragEnd={handlePreviewDragEnd}
+                          modifiers={[previewGridSnapModifier]}
+                        >
+                          <SortableContext
+                            items={previewBlocks.map(block => block.id)}
+                            strategy={rectSortingStrategy}
+                          >
+                            <div style={{
+                              display: 'grid',
+                              gridTemplateColumns: `repeat(auto-fill, minmax(100px, 1fr))`,
+                              gap: PREVIEW_SLOT_GAP,
+                              width: '100%'
+                            }}>
+                              {previewBlocks.map(block => {
+                                const metric = allMetricsPool.find(m => m.id === block.metricId);
+                                return (
+                                  <SortablePreviewBlock
+                                    key={block.id}
+                                    block={block}
+                                    metric={metric}
+                                    onResize={handleResizePreview}
+                                    onRemove={handleRemovePreviewBlock}
+                                    isHovered={hoveredPreviewBlock === block.id}
+                                    onHoverChange={(hovering) => {
+                                      setHoveredPreviewBlock(prev => {
+                                        if (hovering) return block.id;
+                                        return prev === block.id ? null : prev;
+                                      });
+                                    }}
+                                  />
+                                );
+                              })}
+                            </div>
+                          </SortableContext>
+                        </DndContext>
+                      ) : null}
+                    </div>
                   </div>
-                ))}
+                </Card>
+              </Col>
+            </Row>
+          </Modal>
+
+          {/* Child Modal - Chỉnh Template */}
+          <Modal
+            title={`Chỉnh sửa: ${selectedTemplate?.name || ''}`}
+            open={editTemplateModalVisible}
+            onCancel={() => handleCloseChildModal(false)}
+            footer={[
+              <Button key="cancel" onClick={() => handleCloseChildModal(false)}>
+                Hủy
+              </Button>,
+              <Button
+                key="draft"
+                onClick={() => handleEditTemplate(false)}
+                disabled={!newTemplateName.trim() || selectedMetrics.length === 0}
+              >
+                Lưu nháp
+              </Button>,
+              <Button
+                key="save"
+                type="primary"
+                onClick={() => handleEditTemplate(true)}
+                disabled={!newTemplateName.trim() || selectedMetrics.length === 0}
+              >
+                Lưu & Sử dụng ({selectedMetrics.length} metrics)
+              </Button>
+            ]}
+            width={1000}
+            style={{ top: 20 }}
+            bodyStyle={{ maxHeight: '70vh', overflowY: 'auto' }}
+          >
+            {/* Template Name Input */}
+            <Input
+              placeholder="Tên template..."
+              value={newTemplateName}
+              onChange={(e) => setNewTemplateName(e.target.value)}
+              size="large"
+              prefix={<EditOutlined />}
+              style={{ marginBottom: 16 }}
+            />
+
+            {/* Search Bar */}
+            <Input.Search
+              placeholder="Tìm kiếm metrics..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              style={{ marginBottom: 16 }}
+              size="large"
+              allowClear
+            />
+
+            {/* Metrics by Domain */}
+            <Collapse
+              defaultActiveKey={Object.keys(filteredMetrics)}
+              style={{ marginBottom: 16 }}
+            >
+              {Object.entries(filteredMetrics).map(([domain, metrics]) => (
+                <Collapse.Panel
+                  key={domain}
+                  header={
+                    <Space>
+                      <Text strong>{domain}</Text>
+                      <Tag color="blue">{metrics.length} metrics</Tag>
+                      <Tag color="green">
+                        {metrics.filter(m => selectedMetrics.includes(m.id)).length} đã chọn
+                      </Tag>
+                    </Space>
+                  }
+                >
+                  <Row gutter={[8, 8]}>
+                    {metrics.map(metric => (
+                      <Col span={12} key={metric.id}>
+                        <Checkbox
+                          checked={selectedMetrics.includes(metric.id)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setSelectedMetrics([...selectedMetrics, metric.id]);
+                            } else {
+                              setSelectedMetrics(selectedMetrics.filter(id => id !== metric.id));
+                            }
+                          }}
+                        >
+                          {metric.name}
+                        </Checkbox>
+                      </Col>
+                    ))}
+                  </Row>
+                </Collapse.Panel>
+              ))}
+            </Collapse>
+          </Modal>
+
+          {/* Annotation Drawer */}
+          <Drawer
+            title={
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Space>
+                  <CommentOutlined />
+                  <span>Ghi chú & Annotation</span>
+                </Space>
+                <Button
+                  type="primary"
+                  size="small"
+                  icon={<PlusOutlined />}
+                  onClick={() => {
+                    Modal.confirm({
+                      title: 'Tạo Annotation mới',
+                      width: 600,
+                      content: (
+                        <Form layout="vertical" style={{ marginTop: 16 }}>
+                          <Form.Item label="Ngày">
+                            <DatePicker style={{ width: '100%' }} />
+                          </Form.Item>
+                          <Form.Item label="Tiêu đề">
+                            <Input placeholder="Ví dụ: Flash Sale 11.11" />
+                          </Form.Item>
+                          <Form.Item label="Mô tả">
+                            <TextArea rows={3} placeholder="Mô tả chi tiết về sự kiện..." />
+                          </Form.Item>
+                          <Form.Item label="Tags">
+                            <Select mode="tags" placeholder="marketing, sale, product...">
+                              <Select.Option value="marketing">Marketing</Select.Option>
+                              <Select.Option value="sale">Sale</Select.Option>
+                              <Select.Option value="product">Product</Select.Option>
+                              <Select.Option value="ads">Ads</Select.Option>
+                            </Select>
+                          </Form.Item>
+                        </Form>
+                      ),
+                      onOk: () => {
+                        message.success('Đã tạo annotation mới!');
+                      }
+                    });
+                  }}
+                >
+                  Tạo mới
+                </Button>
+              </div>
+            }
+            placement="right"
+            width={480}
+            open={annotationDrawerVisible}
+            onClose={() => setAnnotationDrawerVisible(false)}
+          >
+            <div style={{ marginBottom: 16 }}>
+              <Text type="secondary" style={{ fontSize: 13 }}>
+                Ghi chú các sự kiện quan trọng để theo dõi ảnh hưởng đến metrics
+              </Text>
+            </div>
+
+            {annotations.length === 0 ? (
+              <Empty
+                description="Chưa có annotation nào"
+                image={Empty.PRESENTED_IMAGE_SIMPLE}
+                style={{ marginTop: 60 }}
+              >
+                <Button type="primary" icon={<PlusOutlined />}>
+                  Tạo annotation đầu tiên
+                </Button>
+              </Empty>
+            ) : (
+              <Timeline
+                items={annotations.map(ann => ({
+                  dot: <CalendarOutlined style={{ fontSize: 16 }} />,
+                  children: (
+                    <Card
+                      size="small"
+                      style={{ marginBottom: 12 }}
+                      hoverable
+                      actions={[
+                        <Tooltip title="Chỉnh sửa" key="edit">
+                          <EditOutlined />
+                        </Tooltip>,
+                        <Tooltip title="Xóa" key="delete">
+                          <DeleteOutlined />
+                        </Tooltip>
+                      ]}
+                    >
+                      <div style={{ marginBottom: 8 }}>
+                        <Tag color="blue" icon={<CalendarOutlined />}>
+                          {dayjs(ann.date).format('DD/MM/YYYY')}
+                        </Tag>
+                      </div>
+                      <Title level={5} style={{ marginBottom: 8, marginTop: 0 }}>
+                        {ann.title}
+                      </Title>
+                      <Paragraph
+                        type="secondary"
+                        style={{ fontSize: 13, marginBottom: 8 }}
+                        ellipsis={{ rows: 2, expandable: true }}
+                      >
+                        {ann.description}
+                      </Paragraph>
+                      <div>
+                        {ann.tags.map(tag => (
+                          <Tag key={tag} style={{ marginRight: 4 }}>
+                            {tag}
+                          </Tag>
+                        ))}
+                      </div>
+                    </Card>
+                  )
+                }))}
+              />
+            )}
+          </Drawer>
+
+          {/* Insights Drawer */}
+          <Drawer
+            title={
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <BulbOutlined style={{ color: '#faad14' }} />
+                <div>
+                  <div style={{ fontSize: 16, fontWeight: 600 }}>Insights & Gợi ý phân tích</div>
+                  <div style={{ fontSize: 12, fontWeight: 400, color: '#8c8c8c' }}>
+                    Ask Analytics Intelligence
+                  </div>
+                </div>
+              </div>
+            }
+            placement="right"
+            width={520}
+            open={insightsDrawerVisible}
+            onClose={() => setInsightsDrawerVisible(false)}
+          >
+            <div style={{ marginBottom: 24 }}>
+              <Input.Search
+                placeholder="Hỏi về dữ liệu của bạn..."
+                size="large"
+                prefix={<SearchOutlined />}
+                onSearch={(value) => message.info(`Đang tìm kiếm: ${value}`)}
+              />
+            </div>
+
+            {/* Contextual Insights */}
+            <Card
+              size="small"
+              style={{ marginBottom: 16, borderLeft: '3px solid #1677FF', background: '#f0f5ff' }}
+            >
+              <Space direction="vertical" size="small" style={{ width: '100%' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <ThunderboltOutlined style={{ color: '#1677FF', fontSize: 18 }} />
+                  <Text strong style={{ color: '#1677FF' }}>Insight nổi bật</Text>
+                </div>
+                <Title level={5} style={{ margin: '8px 0' }}>
+                  GMV tăng 12.5% so với hôm trước
+                </Title>
+                <Paragraph type="secondary" style={{ marginBottom: 8 }}>
+                  Doanh thu từ TikTok Shop tăng mạnh nhờ chiến dịch livestream, đóng góp
+                  <Text strong style={{ color: '#52c41a' }}> +₫300M </Text>
+                  vào tổng GMV ngày hôm qua.
+                </Paragraph>
+                <Button type="link" size="small" style={{ padding: 0 }}>
+                  Xem chi tiết →
+                </Button>
               </Space>
             </Card>
-          </Col>
-          
-          {/* Right Column - Preview */}
-          <Col xs={24} lg={16}>
-            <Card
-              title="Preview workspace"
-              bodyStyle={{ padding: 24 }}
-            >
-              <div style={{ marginBottom: 16 }}>
-                <Input
-                  placeholder="Nhập tên workspace..."
-                  value={newWorkspaceName}
-                  onChange={(e) => setNewWorkspaceName(e.target.value)}
-                  size="large"
-                  prefix={<EditOutlined />}
-                />
-              </div>
-              
-              <div style={{ 
-                border: '1px dashed #D9D9D9', 
-                borderRadius: 8, 
-                padding: 24,
-                background: '#FAFAFA',
-                minHeight: 300
-              }}>
-                <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 16 }}>
-                  Workspace: {newWorkspaceName || 'Chưa đặt tên'}
-                </Text>
-                <Divider style={{ margin: '16px 0' }} />
-                
-                {selectedGroup === 'Dashboard' && (
-                  <div>
-                    <Text type="secondary" style={{ fontSize: 13, display: 'block', marginBottom: 12 }}>
-                      ✓ Dashboard - Hiển thị các dashboard chỉ số
-                    </Text>
-                    <div style={{ 
-                      background: '#fff', 
-                      border: '1px solid #E4E6EB', 
-                      borderRadius: 8, 
-                      padding: 16,
-                      marginTop: 12
-                    }}>
-                      <Text style={{ fontSize: 12, color: '#8c8c8c' }}>
-                        Section "Báo cáo kết quả" sẽ được hiển thị
-                      </Text>
-                    </div>
-                  </div>
-                )}
-                
-                {selectedGroup === 'Alert & Risks' && (
-                  <div>
-                    <Text type="secondary" style={{ fontSize: 13, display: 'block', marginBottom: 12 }}>
-                      ✓ Alert & Risks - Hiển thị các widget cảnh báo
-                    </Text>
-                    <div style={{ 
-                      background: '#fff', 
-                      border: '1px solid #E4E6EB', 
-                      borderRadius: 8, 
-                      padding: 16,
-                      marginTop: 12
-                    }}>
-                      <Text style={{ fontSize: 12, color: '#8c8c8c' }}>
-                        Section "Alert & Risks" sẽ được hiển thị
-                      </Text>
-                    </div>
-                  </div>
-                )}
-                
-                {selectedGroup === 'Guides / Case studies' && (
-                  <div>
-                    <Text type="secondary" style={{ fontSize: 13, display: 'block', marginBottom: 12 }}>
-                      ✓ Guides / Case studies - Hiển thị hướng dẫn và case study
-                    </Text>
-                    <div style={{ 
-                      background: '#fff', 
-                      border: '1px solid #E4E6EB', 
-                      borderRadius: 8, 
-                      padding: 16,
-                      marginTop: 12
-                    }}>
-                      <Text style={{ fontSize: 12, color: '#8c8c8c' }}>
-                        Section "Có thể bạn quan tâm" sẽ được hiển thị
-                      </Text>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </Card>
-          </Col>
-        </Row>
-      </Modal>
 
-      {/* Template Gallery Modal */}
-      <Modal
-        title="Template mẫu"
-        open={templateGalleryVisible}
-        onCancel={() => setTemplateGalleryVisible(false)}
-        footer={null}
-        width={960}
-      >
-        <Row gutter={[16, 16]}>
-          {templateWorkspaces.map(template => (
-            <Col xs={24} md={12} key={template.id}>
-              <Card
-                hoverable
-                style={{
-                  borderRadius: 16,
-                  border: '1px solid #E1E3E5',
-                  boxShadow: '0 8px 24px rgba(15,23,42,0.08)'
-                }}
-              >
-                <Space direction="vertical" size={8} style={{ width: '100%' }}>
-                  <Title level={4} style={{ margin: 0 }}>{template.name}</Title>
-                  <Space>
-                      <Button 
-                        icon={<EyeOutlined />} 
-                        onClick={() => handleOpenPreview(template.templateId || template.id, 'gallery')}
-                      >
-                        Xem trước
+            <Divider orientation="left" style={{ fontSize: 13 }}>
+              <Text type="secondary">Gợi ý câu hỏi</Text>
+            </Divider>
+
+            <Collapse
+              defaultActiveKey={['1']}
+              ghost
+              items={[
+                {
+                  key: '1',
+                  label: <Text strong>📊 Hiệu suất cơ bản</Text>,
+                  children: (
+                    <Space direction="vertical" style={{ width: '100%' }} size="small">
+                      <Button type="text" style={{ textAlign: 'left', height: 'auto', padding: '8px 12px' }}>
+                        → Kênh nào đang tăng trưởng nhanh nhất?
                       </Button>
-                      <Button 
-                        type="primary" 
-                        icon={<PlusOutlined />} 
-                        onClick={() => {
-                          handleCreateFromTemplate(template);
-                          setTemplateGalleryVisible(false);
-                        }}
-                      >
-                        Sử dụng
+                      <Button type="text" style={{ textAlign: 'left', height: 'auto', padding: '8px 12px' }}>
+                        → Tại sao ROAS giảm 5.1%?
+                      </Button>
+                      <Button type="text" style={{ textAlign: 'left', height: 'auto', padding: '8px 12px' }}>
+                        → SKU nào bán chạy nhất tuần này?
                       </Button>
                     </Space>
+                  )
+                },
+                {
+                  key: '2',
+                  label: <Text strong>🎯 Traffic & Acquisition</Text>,
+                  children: (
+                    <Space direction="vertical" style={{ width: '100%' }} size="small">
+                      <Button type="text" style={{ textAlign: 'left', height: 'auto', padding: '8px 12px' }}>
+                        → Nguồn traffic nào hiệu quả nhất?
+                      </Button>
+                      <Button type="text" style={{ textAlign: 'left', height: 'auto', padding: '8px 12px' }}>
+                        → Chi phí Ads tăng 15.3%, conversion có cải thiện?
+                      </Button>
+                    </Space>
+                  )
+                },
+                {
+                  key: '3',
+                  label: <Text strong>🛒 Ecommerce Performance</Text>,
+                  children: (
+                    <Space direction="vertical" style={{ width: '100%' }} size="small">
+                      <Button type="text" style={{ textAlign: 'left', height: 'auto', padding: '8px 12px' }}>
+                        → Tỷ lệ hủy đơn cao ở kênh nào?
+                      </Button>
+                      <Button type="text" style={{ textAlign: 'left', height: 'auto', padding: '8px 12px' }}>
+                        → AOV tăng 3.8%, do SKU nào đóng góp?
+                      </Button>
+                      <Button type="text" style={{ textAlign: 'left', height: 'auto', padding: '8px 12px' }}>
+                        → So sánh hiệu suất Shopee vs TikTok
+                      </Button>
+                    </Space>
+                  )
+                },
+                {
+                  key: '4',
+                  label: <Text strong>👥 Customer Behavior</Text>,
+                  children: (
+                    <Space direction="vertical" style={{ width: '100%' }} size="small">
+                      <Button type="text" style={{ textAlign: 'left', height: 'auto', padding: '8px 12px' }}>
+                        → Khách hàng mới vs khách quay lại?
+                      </Button>
+                      <Button type="text" style={{ textAlign: 'left', height: 'auto', padding: '8px 12px' }}>
+                        → Retention rate cải thiện thế nào?
+                      </Button>
+                    </Space>
+                  )
+                }
+              ]}
+            />
+
+            <Divider />
+
+            <Alert
+              message="💡 Tips"
+              description="Insights tự động cập nhật dựa trên date range và segments bạn chọn. Đánh dấu insights đã đọc để ẩn khỏi danh sách."
+              type="info"
+              showIcon
+              closable
+            />
+          </Drawer>
+
+          {/* Workspace Configuration Drawer - Full Screen */}
+          <Drawer
+            title={
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Text strong style={{ fontSize: 18 }}>Tạo workspace mới</Text>
+                <Space>
+                  <Button onClick={() => {
+                    setWorkspaceConfigDrawerVisible(false);
+                    setNewWorkspaceName('');
+                    setSelectedGroup(null);
+                    setSelectedItems([]);
+                    setSelectedAlertMetrics({ errors: [], warnings: [] });
+                  }}>
+                    Hủy
+                  </Button>
+                  <Button
+                    type="primary"
+                    onClick={handleCreateWorkspace}
+                    disabled={!newWorkspaceName.trim() || selectedItems.length === 0}
+                  >
+                    Lưu workspace
+                  </Button>
+                </Space>
+              </div>
+            }
+            open={workspaceConfigDrawerVisible}
+            onClose={() => {
+              setWorkspaceConfigDrawerVisible(false);
+              setNewWorkspaceName('');
+              setSelectedGroup(null);
+              setSelectedItems([]);
+              setSelectedAlertMetrics({ errors: [], warnings: [] });
+            }}
+            width="100%"
+            style={{ zIndex: 1001 }}
+            bodyStyle={{ padding: 0, background: '#FAFBFB' }}
+          >
+            <div style={{ display: 'flex', height: 'calc(100vh - 55px)' }}>
+              {/* Left Column - Tree Navigation */}
+              <div style={{
+                width: 360,
+                background: '#fff',
+                borderRight: '1px solid #E1E3E5',
+                overflowY: 'auto',
+                padding: 24
+              }}>
+                <div style={{ marginBottom: 24 }}>
+                  <Input
+                    placeholder="Nhập tên workspace..."
+                    value={newWorkspaceName}
+                    onChange={(e) => setNewWorkspaceName(e.target.value)}
+                    size="large"
+                    prefix={<EditOutlined />}
+                  />
+                </div>
+
+                <Text strong style={{ fontSize: 14, color: '#2b2b2b', display: 'block', marginBottom: 16 }}>
+                  Chọn nhóm và mục
+                </Text>
+
+                <Space direction="vertical" style={{ width: '100%' }} size={8}>
+                  {workspaceGroups.map(group => (
+                    <div key={group.id} style={{ marginBottom: 8 }}>
+                      {/* Group Header - Only show if group has no items or if group is not selected */}
+                      {(!group.items || group.items.length === 0) && !isItemSelected(group.id) && (
+                        <div
+                          onClick={() => {
+                            setSelectedGroup(group.id);
+                            handleSelectItem(group.id);
+                          }}
+                          style={{
+                            padding: '12px 16px',
+                            borderRadius: 8,
+                            border: selectedGroup === group.id ? '1px solid #1677FF' : '1px solid #E4E6EB',
+                            background: selectedGroup === group.id ? 'rgba(22, 119, 255, 0.08)' : '#FAFAFA',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s',
+                            marginBottom: 4
+                          }}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                            <span style={{ fontSize: 18, color: selectedGroup === group.id ? '#1677FF' : '#6D7175' }}>
+                              {group.icon}
+                            </span>
+                            <Text strong style={{ fontSize: 14, color: selectedGroup === group.id ? '#1677FF' : '#2b2b2b' }}>
+                              {group.name}
+                            </Text>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Group Header with items - Expandable */}
+                      {group.items && group.items.length > 0 && (
+                        <>
+                          <div
+                            onClick={() => setSelectedGroup(selectedGroup === group.id ? null : group.id)}
+                            style={{
+                              padding: '12px 16px',
+                              borderRadius: 8,
+                              border: selectedGroup === group.id ? '1px solid #1677FF' : '1px solid #E4E6EB',
+                              background: selectedGroup === group.id ? 'rgba(22, 119, 255, 0.08)' : '#FAFAFA',
+                              cursor: 'pointer',
+                              transition: 'all 0.2s',
+                              marginBottom: 4
+                            }}
+                          >
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                              <span style={{ fontSize: 18, color: selectedGroup === group.id ? '#1677FF' : '#6D7175' }}>
+                                {group.icon}
+                              </span>
+                              <Text strong style={{ fontSize: 14, color: selectedGroup === group.id ? '#1677FF' : '#2b2b2b' }}>
+                                {group.name}
+                              </Text>
+                            </div>
+                          </div>
+
+                          {/* Sub-items - Only show items that are not selected */}
+                          {selectedGroup === group.id && (
+                            <div style={{ marginLeft: 32, marginTop: 8 }}>
+                              {group.items
+                                .filter(item => !isItemSelected(group.id, item.id))
+                                .map(item => {
+                                  // For Dashboard, disable if another dashboard is already selected
+                                  const isDisabled = group.id === 'Dashboard' && hasDashboardSelected();
+
+                                  return (
+                                    <Tooltip
+                                      key={item.id}
+                                      title={isDisabled ? 'Chỉ có thể chọn một dashboard. Vui lòng xóa dashboard hiện tại trước.' : ''}
+                                      placement="right"
+                                    >
+                                      <div
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          if (!isDisabled) {
+                                            handleSelectItem(group.id, item.id);
+                                          }
+                                        }}
+                                        style={{
+                                          padding: '10px 12px',
+                                          borderRadius: 6,
+                                          border: '1px solid #E4E6EB',
+                                          background: isDisabled ? '#F5F5F5' : '#fff',
+                                          cursor: isDisabled ? 'not-allowed' : 'pointer',
+                                          transition: 'all 0.2s',
+                                          marginBottom: 4,
+                                          opacity: isDisabled ? 0.6 : 1
+                                        }}
+                                      >
+                                        <Text style={{ fontSize: 13, color: isDisabled ? '#8c8c8c' : '#2b2b2b' }}>
+                                          {item.name}
+                                        </Text>
+                                        {item.description && (
+                                          <Text type="secondary" style={{ fontSize: 11, display: 'block', marginTop: 4 }}>
+                                            {item.description}
+                                          </Text>
+                                        )}
+                                      </div>
+                                    </Tooltip>
+                                  );
+                                })}
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  ))}
+                </Space>
+              </div>
+
+              {/* Right Column - Preview */}
+              <div style={{
+                flex: 1,
+                padding: 24,
+                overflowY: 'auto',
+                background: '#FAFBFB'
+              }}>
+                <Text strong style={{ fontSize: 16, display: 'block', marginBottom: 20 }}>
+                  Preview workspace: {newWorkspaceName || 'Chưa đặt tên'}
+                </Text>
+
+                {selectedItems.length === 0 ? (
+                  <Empty description="Chưa chọn nhóm hoặc mục nào" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                ) : (
+                  <Row gutter={24}>
+                    {/* Left Main Column */}
+                    <Col xs={24} lg={17}>
+                      <Space direction="vertical" size={20} style={{ width: '100%' }}>
+                        {/* Dashboard Items */}
+                        {selectedItems
+                          .filter(item => item.groupId === 'Dashboard' && item.itemId)
+                          .map((item, idx) => {
+                            try {
+                              const group = workspaceGroups.find(g => g.id === item.groupId);
+                              const subItem = group?.items?.find(i => i.id === item.itemId);
+                              if (!subItem) return null;
+
+                              return (
+                                <Card
+                                  key={`${item.groupId}-${item.itemId}-${idx}`}
+                                  title={
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                      <Text strong style={{ fontSize: 16, color: '#2b2b2b' }}>Báo cáo kết quả - {subItem.name}</Text>
+                                      <Button
+                                        type="text"
+                                        danger
+                                        icon={<DeleteOutlined />}
+                                        size="small"
+                                        onClick={() => handleRemoveItem(item.groupId, item.itemId)}
+                                      />
+                                    </div>
+                                  }
+                                  style={{
+                                    background: '#fff',
+                                    border: '1px solid #E1E3E5',
+                                    borderRadius: 16,
+                                    boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)'
+                                  }}
+                                >
+                                  <Row gutter={[12, 12]}>
+                                    {/* KPI Cards */}
+                                    {(currentKpiOverview?.col1 || []).map((kpi, i) => (
+                                      <Col span={8} key={`col1-${i}`}>
+                                        <KPICard {...kpi} />
+                                      </Col>
+                                    ))}
+                                    {(currentKpiOverview?.col2 || []).map((kpi, i) => (
+                                      <Col span={8} key={`col2-${i}`}>
+                                        <KPICard {...kpi} />
+                                      </Col>
+                                    ))}
+                                    {(currentKpiOverview?.col3 || []).map((kpi, i) => (
+                                      <Col span={8} key={`col3-${i}`}>
+                                        {kpi.breakdown ? (
+                                          <Card size="small" style={{ background: '#F7F7F7', border: 'none', height: '100%' }}>
+                                            <Text strong style={{ fontSize: 13, display: 'block', marginBottom: 12 }}>{kpi.title}</Text>
+                                            <Space direction="vertical" style={{ width: '100%' }} size={8}>
+                                              {(kpi.breakdown || []).map((breakdownItem, breakdownIdx) => (
+                                                <div key={`breakdown-${breakdownIdx}`} style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                  <Text style={{ fontSize: 12 }}>{breakdownItem.label}</Text>
+                                                  <Text strong style={{ fontSize: 12 }}>{breakdownItem.value}</Text>
+                                                </div>
+                                              ))}
+                                            </Space>
+                                          </Card>
+                                        ) : (
+                                          <KPICard {...kpi} />
+                                        )}
+                                      </Col>
+                                    ))}
+                                  </Row>
+
+                                  {/* Charts Row */}
+                                  <Row gutter={[12, 12]} style={{ marginTop: 12 }}>
+                                    <Col span={12}>
+                                      <Card size="small" title="Xu hướng Doanh thu" style={{ height: 200 }}>
+                                        <ResponsiveContainer width="100%" height={150}>
+                                          <LineChart data={currentChartData || []}>
+                                            <CartesianGrid strokeDasharray="3 3" />
+                                            <XAxis dataKey="name" />
+                                            <YAxis />
+                                            <ChartTooltip />
+                                            <RechartLine type="monotone" dataKey="value" stroke="#1677FF" />
+                                          </LineChart>
+                                        </ResponsiveContainer>
+                                      </Card>
+                                    </Col>
+                                    <Col span={12}>
+                                      <Card size="small" title="Phân bổ kênh" style={{ height: 200 }}>
+                                        <ResponsiveContainer width="100%" height={150}>
+                                          <PieChart>
+                                            <RechartPie
+                                              data={currentPieData || []}
+                                              cx="50%"
+                                              cy="50%"
+                                              labelLine={false}
+                                              label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                              outerRadius={50}
+                                              fill="#8884d8"
+                                              dataKey="value"
+                                            >
+                                              {(currentPieData || []).map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={['#1677FF', '#52C41A', '#FA8C16'][index % 3]} />
+                                              ))}
+                                            </RechartPie>
+                                            <ChartTooltip />
+                                          </PieChart>
+                                        </ResponsiveContainer>
+                                      </Card>
+                                    </Col>
+                                  </Row>
+                                </Card>
+                              );
+                            } catch (error) {
+                              console.error('Error rendering dashboard preview:', error, item);
+                              return (
+                                <Card key={`error-${idx}`} title="Lỗi hiển thị">
+                                  <Text type="danger">Có lỗi xảy ra khi hiển thị dashboard: {error.message}</Text>
+                                </Card>
+                              );
+                            }
+                          })}
+
+                        {/* Báo cáo tiến độ - Show if any Dashboard is selected */}
+                        {selectedItems.some(item => item.groupId === 'Dashboard' && item.itemId) && (
+                          <Card
+                            title={<Text strong style={{ fontSize: 16, color: '#2b2b2b' }}>Báo cáo tiến độ</Text>}
+                            style={{
+                              background: '#fff',
+                              border: '1px solid #E1E3E5',
+                              borderRadius: 16,
+                              boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)'
+                            }}
+                          >
+                            <Row gutter={[16, 16]}>
+                              {progressGoals.map((goal, idx) => (
+                                <Col xs={24} md={8} key={idx}>
+                                  <div style={{
+                                    padding: '20px 16px',
+                                    background: '#F7F7F7',
+                                    borderRadius: 12,
+                                    border: 'none'
+                                  }}>
+                                    <div style={{ fontSize: 13, color: '#6D7175', marginBottom: 8, fontWeight: 500 }}>
+                                      {goal.title}
+                                    </div>
+                                    <div style={{ fontSize: 24, fontWeight: 700, marginBottom: 12, color: '#2b2b2b' }}>
+                                      {goal.current} / {goal.target}
+                                    </div>
+                                    <Progress
+                                      percent={goal.percent}
+                                      strokeColor="#1677FF"
+                                      strokeWidth={10}
+                                      showInfo={false}
+                                    />
+                                    <div style={{
+                                      fontSize: 14,
+                                      color: '#2b2b2b',
+                                      marginTop: 8,
+                                      fontWeight: 500
+                                    }}>
+                                      {goal.percent}% {goal.status}
+                                    </div>
+                                  </div>
+                                </Col>
+                              ))}
+                            </Row>
+                          </Card>
+                        )}
+                      </Space>
+                    </Col>
+
+                    {/* Right Sidebar */}
+                    <Col xs={24} lg={7}>
+                      <Space direction="vertical" size={16} style={{ width: '100%' }}>
+                        {/* Lỗi & Cảnh báo */}
+                        {selectedItems.some(item => item.groupId === 'Lỗi & Cảnh báo' && !item.itemId) && (
+                          <Card
+                            title={
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Text strong style={{ fontSize: 14, color: '#2b2b2b' }}>Alert & Risks</Text>
+                                <Button
+                                  type="text"
+                                  danger
+                                  icon={<DeleteOutlined />}
+                                  size="small"
+                                  onClick={() => handleRemoveItem('Lỗi & Cảnh báo')}
+                                />
+                              </div>
+                            }
+                            size="small"
+                            style={{
+                              background: '#fff',
+                              border: '1px solid #E1E3E5',
+                              borderRadius: 12,
+                              boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)'
+                            }}
+                          >
+                            <Tabs
+                              defaultActiveKey="errors"
+                              size="small"
+                              items={[
+                                {
+                                  key: 'errors',
+                                  label: (
+                                    <Space size={4}>
+                                      <ExclamationCircleOutlined style={{ color: '#D72C0D', fontSize: 14 }} />
+                                      <span>Lỗi</span>
+                                      {selectedAlertMetrics.errors.length > 0 && (
+                                        <div style={{
+                                          width: 20,
+                                          height: 20,
+                                          borderRadius: '50%',
+                                          background: '#D72C0D',
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                          marginLeft: 4
+                                        }}>
+                                          <Text style={{ fontSize: 11, color: '#fff', fontWeight: 600 }}>
+                                            {selectedAlertMetrics.errors.length}
+                                          </Text>
+                                        </div>
+                                      )}
+                                    </Space>
+                                  ),
+                                  children: (
+                                    <div style={{
+                                      display: 'flex',
+                                      flexDirection: 'column',
+                                      gap: 6
+                                    }}>
+                                      {selectedAlertMetrics.errors.length === 0 ? (
+                                        <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                                          <Button
+                                            size="small"
+                                            type="primary"
+                                            icon={<PlusOutlined />}
+                                            onClick={() => setAlertMetricsOverlayVisible(true)}
+                                          >
+                                            Thêm chỉ số
+                                          </Button>
+                                        </div>
+                                      ) : (
+                                        <>
+                                          {selectedAlertMetrics.errors.map(metricId => {
+                                            const metric = alertMetrics.errors.find(m => m.id === metricId);
+                                            return metric ? (
+                                              <div
+                                                key={metricId}
+                                                style={{
+                                                  padding: '12px',
+                                                  background: '#FEF3F2',
+                                                  border: `1px solid ${metric.color}`,
+                                                  borderRadius: 8
+                                                }}
+                                              >
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                  <Text style={{ fontSize: 13, color: metric.color }}>
+                                                    {metric.name}
+                                                  </Text>
+                                                  {metric.value && (
+                                                    <Text strong style={{ fontSize: 13, color: metric.color }}>
+                                                      {metric.value}{metric.unit}
+                                                    </Text>
+                                                  )}
+                                                </div>
+                                              </div>
+                                            ) : null;
+                                          })}
+                                          <Button
+                                            size="small"
+                                            type="dashed"
+                                            icon={<PlusOutlined />}
+                                            onClick={() => setAlertMetricsOverlayVisible(true)}
+                                            block
+                                            style={{ marginTop: 8 }}
+                                          >
+                                            Thêm chỉ số
+                                          </Button>
+                                        </>
+                                      )}
+                                    </div>
+                                  )
+                                },
+                                {
+                                  key: 'warnings',
+                                  label: (
+                                    <Space size={4}>
+                                      <WarningOutlined style={{ color: '#FA8C16', fontSize: 14 }} />
+                                      <span>Cảnh báo</span>
+                                      {selectedAlertMetrics.warnings.length > 0 && (
+                                        <div style={{
+                                          width: 20,
+                                          height: 20,
+                                          borderRadius: '50%',
+                                          background: '#FA8C16',
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                          marginLeft: 4
+                                        }}>
+                                          <Text style={{ fontSize: 11, color: '#fff', fontWeight: 600 }}>
+                                            {selectedAlertMetrics.warnings.length}
+                                          </Text>
+                                        </div>
+                                      )}
+                                    </Space>
+                                  ),
+                                  children: (
+                                    <div style={{
+                                      display: 'flex',
+                                      flexDirection: 'column',
+                                      gap: 6
+                                    }}>
+                                      {selectedAlertMetrics.warnings.length === 0 ? (
+                                        <div style={{ textAlign: 'center', padding: '20px 0' }}>
+                                          <Button
+                                            size="small"
+                                            type="primary"
+                                            icon={<PlusOutlined />}
+                                            onClick={() => setAlertMetricsOverlayVisible(true)}
+                                          >
+                                            Thêm chỉ số
+                                          </Button>
+                                        </div>
+                                      ) : (
+                                        <>
+                                          {selectedAlertMetrics.warnings.map(metricId => {
+                                            const metric = alertMetrics.warnings.find(m => m.id === metricId);
+                                            return metric ? (
+                                              <div
+                                                key={metricId}
+                                                style={{
+                                                  padding: '12px',
+                                                  background: '#FFF7E6',
+                                                  border: `1px solid ${metric.color}`,
+                                                  borderRadius: 8
+                                                }}
+                                              >
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                  <Text style={{ fontSize: 13, color: metric.color }}>
+                                                    {metric.name}
+                                                  </Text>
+                                                  {metric.value && (
+                                                    <Text strong style={{ fontSize: 13, color: metric.color }}>
+                                                      {metric.value}{metric.unit}
+                                                    </Text>
+                                                  )}
+                                                </div>
+                                              </div>
+                                            ) : null;
+                                          })}
+                                          <Button
+                                            size="small"
+                                            type="dashed"
+                                            icon={<PlusOutlined />}
+                                            onClick={() => setAlertMetricsOverlayVisible(true)}
+                                            block
+                                            style={{ marginTop: 8 }}
+                                          >
+                                            Thêm chỉ số
+                                          </Button>
+                                        </>
+                                      )}
+                                    </div>
+                                  )
+                                }
+                              ]}
+                            />
+                          </Card>
+                        )}
+
+                        {/* Tin tức */}
+                        {selectedItems.some(item => item.groupId === 'Tin tức' && !item.itemId) && (
+                          <Card
+                            title={
+                              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <Text strong style={{ fontSize: 14, color: '#2b2b2b' }}>Có thể bạn quan tâm</Text>
+                                <Space>
+                                  <Button type="link" size="small">Tất cả</Button>
+                                  <Button
+                                    type="text"
+                                    danger
+                                    icon={<DeleteOutlined />}
+                                    size="small"
+                                    onClick={() => handleRemoveItem('Tin tức')}
+                                  />
+                                </Space>
+                              </div>
+                            }
+                            size="small"
+                            style={{
+                              background: '#fff',
+                              border: '1px solid #E1E3E5',
+                              borderRadius: 12,
+                              boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)'
+                            }}
+                          >
+                            <List
+                              size="small"
+                              dataSource={contentItems.insights}
+                              renderItem={(item) => {
+                                const getIcon = (iconType) => {
+                                  switch (iconType) {
+                                    case 'chart': return <LineChartOutlined />;
+                                    case 'bulb': return <BulbOutlined />;
+                                    case 'book': return <BookOutlined />;
+                                    default: return <BookOutlined />;
+                                  }
+                                };
+                                return (
+                                  <List.Item
+                                    style={{ padding: '8px 0', cursor: 'pointer' }}
+                                    onClick={() => message.info('Đang mở bài viết...')}
+                                  >
+                                    <List.Item.Meta
+                                      avatar={
+                                        <div style={{
+                                          width: 32,
+                                          height: 32,
+                                          borderRadius: 8,
+                                          background: `${item.color}15`,
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          justifyContent: 'center'
+                                        }}>
+                                          {React.cloneElement(getIcon(item.icon), {
+                                            style: { fontSize: 16, color: item.color }
+                                          })}
+                                        </div>
+                                      }
+                                      title={<Text style={{ fontSize: 13 }}>{item.title}</Text>}
+                                      description={
+                                        <Space>
+                                          <Tag color={item.color} style={{ fontSize: 11 }}>
+                                            {item.category}
+                                          </Tag>
+                                          <Text type="secondary" style={{ fontSize: 11 }}>
+                                            {item.date}
+                                          </Text>
+                                        </Space>
+                                      }
+                                    />
+                                  </List.Item>
+                                );
+                              }}
+                            />
+                          </Card>
+                        )}
+                      </Space>
+                    </Col>
+                  </Row>
+                )}
+              </div>
+            </div>
+          </Drawer>
+
+          {/* Alert Metrics Selection Overlay */}
+          <Modal
+            title="Chọn chỉ số hiển thị"
+            open={alertMetricsOverlayVisible}
+            onCancel={() => setAlertMetricsOverlayVisible(false)}
+            onOk={() => setAlertMetricsOverlayVisible(false)}
+            okText="Xác nhận"
+            cancelText="Hủy"
+            width={600}
+          >
+            <Tabs
+              defaultActiveKey="errors"
+              items={[
+                {
+                  key: 'errors',
+                  label: (
+                    <Space size={4}>
+                      <ExclamationCircleOutlined style={{ color: '#D72C0D' }} />
+                      <span>Lỗi</span>
+                    </Space>
+                  ),
+                  children: (
+                    <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+                      <Space direction="vertical" style={{ width: '100%' }} size={12}>
+                        {alertMetrics.errors.map(metric => (
+                          <Checkbox
+                            key={metric.id}
+                            checked={selectedAlertMetrics.errors.includes(metric.id)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedAlertMetrics(prev => ({
+                                  ...prev,
+                                  errors: [...prev.errors, metric.id]
+                                }));
+                              } else {
+                                setSelectedAlertMetrics(prev => ({
+                                  ...prev,
+                                  errors: prev.errors.filter(id => id !== metric.id)
+                                }));
+                              }
+                            }}
+                          >
+                            <Text style={{ fontSize: 13, marginLeft: 8 }}>
+                              {metric.name}
+                            </Text>
+                          </Checkbox>
+                        ))}
+                      </Space>
+                    </div>
+                  )
+                },
+                {
+                  key: 'warnings',
+                  label: (
+                    <Space size={4}>
+                      <WarningOutlined style={{ color: '#FA8C16' }} />
+                      <span>Cảnh báo</span>
+                    </Space>
+                  ),
+                  children: (
+                    <div style={{ maxHeight: 400, overflowY: 'auto' }}>
+                      <Space direction="vertical" style={{ width: '100%' }} size={12}>
+                        {alertMetrics.warnings.map(metric => (
+                          <Checkbox
+                            key={metric.id}
+                            checked={selectedAlertMetrics.warnings.includes(metric.id)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setSelectedAlertMetrics(prev => ({
+                                  ...prev,
+                                  warnings: [...prev.warnings, metric.id]
+                                }));
+                              } else {
+                                setSelectedAlertMetrics(prev => ({
+                                  ...prev,
+                                  warnings: prev.warnings.filter(id => id !== metric.id)
+                                }));
+                              }
+                            }}
+                          >
+                            <Text style={{ fontSize: 13, marginLeft: 8 }}>
+                              {metric.name}
+                            </Text>
+                          </Checkbox>
+                        ))}
+                      </Space>
+                    </div>
+                  )
+                }
+              ]}
+            />
+          </Modal>
+
+          {/* Workspace Edit Modal */}
+          <Modal
+            title="Chỉnh sửa workspace"
+            open={workspaceEditModalVisible}
+            onCancel={() => {
+              setWorkspaceEditModalVisible(false);
+              setNewWorkspaceName('');
+              setSelectedGroup('Dashboard');
+              setEditingWorkspaceId(null);
+            }}
+            footer={[
+              <Button key="cancel" onClick={() => {
+                setWorkspaceEditModalVisible(false);
+                setNewWorkspaceName('');
+                setSelectedGroup('Dashboard');
+                setEditingWorkspaceId(null);
+              }}>
+                Hủy
+              </Button>,
+              <Button
+                key="save"
+                type="primary"
+                onClick={handleEditWorkspace}
+                disabled={!newWorkspaceName.trim()}
+              >
+                Lưu thay đổi
+              </Button>
+            ]}
+            width={1200}
+            style={{ top: 20 }}
+            bodyStyle={{ maxHeight: '70vh', overflowY: 'auto' }}
+          >
+            <Row gutter={[24, 24]}>
+              {/* Left Column - Groups Navigation */}
+              <Col xs={24} lg={8}>
+                <Card
+                  title="Chọn nhóm"
+                  bodyStyle={{ padding: 16 }}
+                >
+                  <Space direction="vertical" style={{ width: '100%' }} size={12}>
+                    {workspaceGroups.map(group => (
+                      <div
+                        key={group.id}
+                        onClick={() => setSelectedGroup(group.id)}
+                        style={{
+                          padding: '16px',
+                          borderRadius: 12,
+                          border: selectedGroup === group.id ? '2px solid #1677FF' : '1px solid #E4E6EB',
+                          background: selectedGroup === group.id ? 'rgba(22, 119, 255, 0.08)' : '#fff',
+                          cursor: 'pointer',
+                          transition: 'all 0.2s'
+                        }}
+                      >
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                          <span style={{ fontSize: 20, color: selectedGroup === group.id ? '#1677FF' : '#6D7175' }}>
+                            {group.icon}
+                          </span>
+                          <Text strong style={{ fontSize: 14, color: selectedGroup === group.id ? '#1677FF' : '#2b2b2b' }}>
+                            {group.name}
+                          </Text>
+                        </div>
+                        <Text type="secondary" style={{ fontSize: 12, display: 'block', marginLeft: 32 }}>
+                          {group.description}
+                        </Text>
+                      </div>
+                    ))}
                   </Space>
                 </Card>
               </Col>
-            ))}
-          </Row>
-      </Modal>
 
-      {/* Template Preview Modal */}
-      <Modal
-        title={previewModalTitle ? `Xem trước: ${previewModalTitle}` : 'Xem trước template'}
-        open={previewTemplateModalVisible}
-        onCancel={handleClosePreview}
-        footer={[
-          <Button key="back" onClick={handleClosePreview}>
-            Quay lại
-          </Button>,
-          <Button key="customize" onClick={handleCustomizePreviewTemplate}>
-            Tùy chỉnh
-          </Button>,
-          <Button key="apply" type="primary" onClick={handleUsePreviewTemplate}>
-            {previewContext === 'gallery' ? 'Sử dụng' : 'Áp dụng'}
-          </Button>
-        ]}
-        width={960}
-      >
-        {previewTemplateId ? renderTemplatePreviewContent(previewTemplateId) : <Empty description="Chưa chọn template" />}
-      </Modal>
-      
-      {/* Template Apply Confirmation Modal */}
-      <Modal
-        title="Xác nhận áp dụng template"
-        open={templateApplyConfirmVisible}
-        onOk={handleConfirmTemplateApply}
-        onCancel={handleCancelTemplateApply}
-        okText="Áp dụng"
-        cancelText="Hủy"
-        okButtonProps={{ type: 'primary' }}
-      >
-        <Text>
-          Template này sẽ thay thế template hiện tại đang sử dụng trên Homepage.
-        </Text>
-        <div style={{ marginTop: 16 }}>
-          <Checkbox
-            checked={confirmDontShowAgain}
-            onChange={(e) => setConfirmDontShowAgain(e.target.checked)}
+              {/* Right Column - Preview */}
+              <Col xs={24} lg={16}>
+                <Card
+                  title="Preview workspace"
+                  bodyStyle={{ padding: 24 }}
+                >
+                  <div style={{ marginBottom: 16 }}>
+                    <Input
+                      placeholder="Nhập tên workspace..."
+                      value={newWorkspaceName}
+                      onChange={(e) => setNewWorkspaceName(e.target.value)}
+                      size="large"
+                      prefix={<EditOutlined />}
+                    />
+                  </div>
+
+                  <div style={{
+                    border: '1px dashed #D9D9D9',
+                    borderRadius: 8,
+                    padding: 24,
+                    background: '#FAFAFA',
+                    minHeight: 300
+                  }}>
+                    <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 16 }}>
+                      Workspace: {newWorkspaceName || 'Chưa đặt tên'}
+                    </Text>
+                    <Divider style={{ margin: '16px 0' }} />
+
+                    {selectedGroup === 'Dashboard' && (
+                      <div>
+                        <Text type="secondary" style={{ fontSize: 13, display: 'block', marginBottom: 12 }}>
+                          ✓ Dashboard - Hiển thị các dashboard chỉ số
+                        </Text>
+                        <div style={{
+                          background: '#fff',
+                          border: '1px solid #E4E6EB',
+                          borderRadius: 8,
+                          padding: 16,
+                          marginTop: 12
+                        }}>
+                          <Text style={{ fontSize: 12, color: '#8c8c8c' }}>
+                            Section "Báo cáo kết quả" sẽ được hiển thị
+                          </Text>
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedGroup === 'Alert & Risks' && (
+                      <div>
+                        <Text type="secondary" style={{ fontSize: 13, display: 'block', marginBottom: 12 }}>
+                          ✓ Alert & Risks - Hiển thị các widget cảnh báo
+                        </Text>
+                        <div style={{
+                          background: '#fff',
+                          border: '1px solid #E4E6EB',
+                          borderRadius: 8,
+                          padding: 16,
+                          marginTop: 12
+                        }}>
+                          <Text style={{ fontSize: 12, color: '#8c8c8c' }}>
+                            Section "Alert & Risks" sẽ được hiển thị
+                          </Text>
+                        </div>
+                      </div>
+                    )}
+
+                    {selectedGroup === 'Guides / Case studies' && (
+                      <div>
+                        <Text type="secondary" style={{ fontSize: 13, display: 'block', marginBottom: 12 }}>
+                          ✓ Guides / Case studies - Hiển thị hướng dẫn và case study
+                        </Text>
+                        <div style={{
+                          background: '#fff',
+                          border: '1px solid #E4E6EB',
+                          borderRadius: 8,
+                          padding: 16,
+                          marginTop: 12
+                        }}>
+                          <Text style={{ fontSize: 12, color: '#8c8c8c' }}>
+                            Section "Có thể bạn quan tâm" sẽ được hiển thị
+                          </Text>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </Card>
+              </Col>
+            </Row>
+          </Modal>
+
+          {/* Template Gallery Modal */}
+          <Modal
+            title="Template mẫu"
+            open={templateGalleryVisible}
+            onCancel={() => setTemplateGalleryVisible(false)}
+            footer={null}
+            width={960}
           >
-            Không nhắc lại lần sau
-          </Checkbox>
-        </div>
-      </Modal>
+            <Row gutter={[16, 16]}>
+              {templateWorkspaces.map(template => (
+                <Col xs={24} md={12} key={template.id}>
+                  <Card
+                    hoverable
+                    style={{
+                      borderRadius: 16,
+                      border: '1px solid #E1E3E5',
+                      boxShadow: '0 8px 24px rgba(15,23,42,0.08)'
+                    }}
+                  >
+                    <Space direction="vertical" size={8} style={{ width: '100%' }}>
+                      <Title level={4} style={{ margin: 0 }}>{template.name}</Title>
+                      <Space>
+                        <Button
+                          icon={<EyeOutlined />}
+                          onClick={() => handleOpenPreview(template.templateId || template.id, 'gallery')}
+                        >
+                          Xem trước
+                        </Button>
+                        <Button
+                          type="primary"
+                          icon={<PlusOutlined />}
+                          onClick={() => {
+                            handleCreateFromTemplate(template);
+                            setTemplateGalleryVisible(false);
+                          }}
+                        >
+                          Sử dụng
+                        </Button>
+                      </Space>
+                    </Space>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          </Modal>
 
-      {/* Delete Confirmation Modal */}
-      <Modal
-        title="Xóa workspace"
-        open={deleteConfirmVisible}
-        onOk={handleDeleteWorkspace}
-        onCancel={() => {
-          setDeleteConfirmVisible(false);
-          setWorkspaceToDelete(null);
-        }}
-        okText="Xóa"
-        cancelText="Hủy"
-        okButtonProps={{ danger: true }}
-      >
-        <Text>
-          Bạn có chắc chắn muốn xóa workspace <strong>"{workspaceToDelete?.name}"</strong>?
-        </Text>
-        <br />
-        <Text type="danger" style={{ fontSize: 12, display: 'block', marginTop: 8 }}>
-          Hành động này không thể hoàn tác.
-        </Text>
-      </Modal>
+          {/* Template Preview Modal */}
+          <Modal
+            title={previewModalTitle ? `Xem trước: ${previewModalTitle}` : 'Xem trước template'}
+            open={previewTemplateModalVisible}
+            onCancel={handleClosePreview}
+            footer={[
+              <Button key="back" onClick={handleClosePreview}>
+                Quay lại
+              </Button>,
+              <Button key="customize" onClick={handleCustomizePreviewTemplate}>
+                Tùy chỉnh
+              </Button>,
+              <Button key="apply" type="primary" onClick={handleUsePreviewTemplate}>
+                {previewContext === 'gallery' ? 'Sử dụng' : 'Áp dụng'}
+              </Button>
+            ]}
+            width={960}
+          >
+            {previewTemplateId ? renderTemplatePreviewContent(previewTemplateId) : <Empty description="Chưa chọn template" />}
+          </Modal>
+
+          {/* Template Apply Confirmation Modal */}
+          <Modal
+            title="Xác nhận áp dụng template"
+            open={templateApplyConfirmVisible}
+            onOk={handleConfirmTemplateApply}
+            onCancel={handleCancelTemplateApply}
+            okText="Áp dụng"
+            cancelText="Hủy"
+            okButtonProps={{ type: 'primary' }}
+          >
+            <Text>
+              Template này sẽ thay thế template hiện tại đang sử dụng trên Homepage.
+            </Text>
+            <div style={{ marginTop: 16 }}>
+              <Checkbox
+                checked={confirmDontShowAgain}
+                onChange={(e) => setConfirmDontShowAgain(e.target.checked)}
+              >
+                Không nhắc lại lần sau
+              </Checkbox>
+            </div>
+          </Modal>
+
+          {/* Delete Confirmation Modal */}
+          <Modal
+            title="Xóa workspace"
+            open={deleteConfirmVisible}
+            onOk={handleDeleteWorkspace}
+            onCancel={() => {
+              setDeleteConfirmVisible(false);
+              setWorkspaceToDelete(null);
+            }}
+            okText="Xóa"
+            cancelText="Hủy"
+            okButtonProps={{ danger: true }}
+          >
+            <Text>
+              Bạn có chắc chắn muốn xóa workspace <strong>"{workspaceToDelete?.name}"</strong>?
+            </Text>
+            <br />
+            <Text type="danger" style={{ fontSize: 12, display: 'block', marginTop: 8 }}>
+              Hành động này không thể hoàn tác.
+            </Text>
+          </Modal>
         </Layout>
       )}
     </>
