@@ -5251,7 +5251,13 @@ const HomepageLayout = () => {
             { key: 'giao-dich-ve-vi', label: 'Giao dịch về ví', module: 'finance' }
           ]
         },
-        { key: 'doi-soat-du-lieu-tu-dong', label: 'Đối soát dữ liệu tự động', module: 'auto-reconciliation' },
+        {
+          key: 'doi-soat-group',
+          label: 'Đối soát',
+          children: [
+            { key: 'doi-soat-du-lieu-tu-dong', label: 'Đối soát dữ liệu tự động', module: 'auto-reconciliation' }
+          ]
+        },
         {
           key: 'affiliate',
           label: 'Affiliate',
