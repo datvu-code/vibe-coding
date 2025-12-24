@@ -26,6 +26,7 @@ import dayjs from 'dayjs';
 import { MdHome, MdShoppingBag, MdBarChart, MdInbox, MdSettings, MdAssignment } from 'react-icons/md';
 import logoSvg from './assets/logo-dark.svg';
 import { DndContext, closestCenter } from '@dnd-kit/core';
+import OrderList from './OrderList';
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { createSnapModifier } from '@dnd-kit/modifiers';
@@ -2406,7 +2407,7 @@ const HomepageLayout = () => {
                         transition: 'all 0.2s'
                       }}
                     >
-                      <TruncatedTooltip title={child.label} placement="top" style={{ flex: 1 }}>
+                      <TruncatedTooltip title={child.label} placement="right" style={{ flex: 1 }}>
                         {child.label}
                       </TruncatedTooltip>
                       <CaretDownOutlined style={{
@@ -2447,7 +2448,7 @@ const HomepageLayout = () => {
                               transition: 'all 0.2s'
                             }}
                           >
-                            <TruncatedTooltip title={nestedChild.label} placement="top">
+                            <TruncatedTooltip title={nestedChild.label} placement="right">
                               {nestedChild.label}
                             </TruncatedTooltip>
                           </div>
@@ -2486,7 +2487,7 @@ const HomepageLayout = () => {
                       transition: 'all 0.2s'
                     }}
                   >
-                    <TruncatedTooltip title={child.label} placement="top">
+                    <TruncatedTooltip title={child.label} placement="right">
                       {child.label}
                     </TruncatedTooltip>
                   </div>
@@ -6542,7 +6543,7 @@ const HomepageLayout = () => {
               marginLeft: mainContentMarginLeft,
               transition: 'margin-left 0.2s ease'
             }}>
-              <Content style={{ padding: '24px' }}>
+              <Content style={{ padding: '24px', height: 'fit-content' }}>
                 {/* Page Header */}
                 <div
                   style={{
@@ -6554,7 +6555,7 @@ const HomepageLayout = () => {
                     gap: 16
                   }}
                 >
-                  {activeModule !== 'home' && (
+                  {activeModule !== 'home' && activeModule !== 'orders' && activeModule !== 'danh-sach-don-hang' && (
                     <Title
                       level={3}
                       style={{
@@ -7415,6 +7416,8 @@ const HomepageLayout = () => {
                       </Col>
                     </Row>
                   </>
+                ) : activeModule === 'orders' || activeModule === 'danh-sach-don-hang' ? (
+                  <OrderList />
                 ) : activeModule === 'workspace-settings' ? (
                   renderWorkspaceSettings()
                 ) : activeModule === 'template-create' ? (
