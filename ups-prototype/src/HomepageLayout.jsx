@@ -5197,7 +5197,7 @@ const HomepageLayout = () => {
         },
         {
           key: 'kho-van',
-          label: 'Kho vận',
+          label: 'Kho',
           children: [
             { key: 'san-pham-kho', label: 'Sản phẩm kho', module: 'inventory' },
             { key: 'danh-muc-san-pham', label: 'Danh mục sản phẩm', module: 'inventory' },

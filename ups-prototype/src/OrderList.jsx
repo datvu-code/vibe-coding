@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
     Card, Tabs, Button, Input, Space, Tag, Typography, Checkbox,
     Dropdown, Menu, Pagination, Badge, Alert, Row, Col, Tooltip, Select,
-    Drawer, Divider, DatePicker, Radio, Popover, Modal
+    Drawer, Divider, DatePicker, Radio, Popover, Modal, Spin, Upload,
+    Switch, InputNumber, Form, Collapse
 } from 'antd';
 import {
     FilterOutlined, ReloadOutlined, DownOutlined, CopyOutlined,
@@ -10,25 +11,425 @@ import {
     CheckCircleOutlined, HistoryOutlined, LeftOutlined,
     RightOutlined, DoubleRightOutlined, EditOutlined, DeleteOutlined,
     PrinterOutlined, FileTextOutlined, GiftOutlined, BookOutlined,
-    LinkOutlined, TagsOutlined, SearchOutlined, SortAscendingOutlined
+    LinkOutlined, TagsOutlined, SearchOutlined, SortAscendingOutlined,
+    PlusOutlined, UploadOutlined, CaretUpOutlined, CloseOutlined,
+    ExportOutlined, DownloadOutlined, SettingOutlined
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
 const { Option } = Select;
+const { TextArea } = Input;
+const { Panel } = Collapse;
+
+// Create Order Screen Component
+const CreateOrderScreen = ({ onClose }) => {
+    return (
+        <div style={{ 
+            maxWidth: 1400, 
+            margin: '0 auto',
+            padding: '24px'
+        }}>
+                {/* Header */}
+                <div style={{ 
+                    marginBottom: 24,
+                    paddingBottom: 16,
+                    borderBottom: '1px solid #F0F0F0'
+                }}>
+                    <Text style={{ fontSize: 14, fontWeight: 600 }}>Tạo đơn hàng</Text>
+                </div>
+
+                <Form layout="vertical">
+                    {/* Thông tin khách hàng */}
+                    <Card 
+                        title={<Text style={{ fontSize: 14 }}>Thông tin khách hàng</Text>}
+                        style={{ marginBottom: 16 }}
+                        bodyStyle={{ padding: '16px' }}
+                    >
+                        <Input
+                            placeholder="Tìm thông tin khách hàng (tên, số điện thoại, mã khách hàng, email, mã tham chiếu)"
+                            prefix={<SearchOutlined />}
+                            style={{ fontSize: 14 }}
+                        />
+                    </Card>
+
+                    <Row gutter={16}>
+                        {/* Left Column - Thông tin sản phẩm */}
+                        <Col span={16}>
+                            <Card 
+                                title={<Text style={{ fontSize: 14 }}>Thông tin sản phẩm</Text>}
+                                style={{ marginBottom: 16 }}
+                                bodyStyle={{ padding: '16px' }}
+                            >
+                                {/* Product Selection Fields */}
+                                <Row gutter={16} style={{ marginBottom: 16 }}>
+                                    <Col span={8}>
+                                        <Form.Item label={<Text style={{ fontSize: 14 }}>Kênh bán *</Text>} required>
+                                            <Select placeholder="Chọn kênh bán" style={{ fontSize: 14 }}>
+                                                <Option value="shopee">Shopee</Option>
+                                                <Option value="tiktok">TikTok</Option>
+                                                <Option value="haravan">Haravan</Option>
+                                                <Option value="lazada">Lazada</Option>
+                                            </Select>
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={8}>
+                                        <Form.Item label={<Text style={{ fontSize: 14 }}>Gian hàng *</Text>} required>
+                                            <Select placeholder="Chọn gian hàng" style={{ fontSize: 14 }}>
+                                                <Option value="shop1">Shop 1</Option>
+                                                <Option value="shop2">Shop 2</Option>
+                                            </Select>
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={8}>
+                                        <Form.Item label={<Text style={{ fontSize: 14 }}>Kho xử lý *</Text>} required>
+                                            <Select placeholder="Chọn kho xử lý" style={{ fontSize: 14 }}>
+                                                <Option value="warehouse1">Kho 1</Option>
+                                                <Option value="warehouse2">Kho 2</Option>
+                                            </Select>
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+
+                                {/* Radio buttons for warehouse allocation */}
+                                <Radio.Group defaultValue="assign" style={{ marginBottom: 16 }}>
+                                    <Radio value="auto" style={{ fontSize: 14 }}>Tự động điều phối</Radio>
+                                    <Radio value="assign" style={{ fontSize: 14 }}>Chỉ định</Radio>
+                                </Radio.Group>
+
+                                {/* Action Buttons */}
+                                <Space style={{ marginBottom: 16 }}>
+                                    <Button icon={<GiftOutlined />} style={{ fontSize: 14 }}>Thêm quà</Button>
+                                    <Button type="primary" icon={<PlusOutlined />} style={{ background: '#FF5722', borderColor: '#FF5722', fontSize: 14 }}>
+                                        Thêm sản phẩm
+                                    </Button>
+                                </Space>
+
+                                {/* Empty Product State */}
+                                <div style={{
+                                    border: '1px dashed #D9D9D9',
+                                    borderRadius: 4,
+                                    padding: '60px 20px',
+                                    textAlign: 'center',
+                                    background: '#FAFAFA',
+                                    marginBottom: 16
+                                }}>
+                                    <Space direction="vertical" size={8}>
+                                        <PlusOutlined style={{ fontSize: 32, color: '#BFBFBF' }} />
+                                        <Text type="secondary" style={{ fontSize: 14 }}>Vui lòng chọn Kênh bán, Gian hàng để thêm sản phẩm</Text>
+                                    </Space>
+                                </div>
+
+                                {/* Attachments and Notes */}
+                                <Row gutter={16}>
+                                    <Col span={8}>
+                                        <Form.Item label={<Text style={{ fontSize: 14 }}>Đính kèm</Text>}>
+                                            <Upload>
+                                                <Button icon={<UploadOutlined />} style={{ width: '100%', fontSize: 14 }}>
+                                                    Tải file lên
+                                                </Button>
+                                            </Upload>
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={16}>
+                                        <Form.Item label={<Text style={{ fontSize: 14 }}>Ghi chú</Text>}>
+                                            <Space direction="vertical" style={{ width: '100%' }}>
+                                                <Radio.Group defaultValue="internal" size="small">
+                                                    <Radio.Button value="internal" style={{ fontSize: 14 }}>Nội bộ</Radio.Button>
+                                                    <Radio.Button value="customer" style={{ fontSize: 14 }}>Khách hàng</Radio.Button>
+                                                </Radio.Group>
+                                                <TextArea 
+                                                    placeholder="Nhập ghi chú" 
+                                                    rows={4}
+                                                    showCount
+                                                    maxLength={500}
+                                                    style={{ fontSize: 14 }}
+                                                />
+                                            </Space>
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+
+                                <Form.Item label={<Text style={{ fontSize: 14 }}>Tag</Text>}>
+                                    <Select
+                                        mode="tags"
+                                        placeholder="Nhập tag"
+                                        style={{ width: '100%', fontSize: 14 }}
+                                    />
+                                </Form.Item>
+                            </Card>
+                        </Col>
+
+                        {/* Right Column - Product Summary & Order Info */}
+                        <Col span={8}>
+                            {/* Product Summary */}
+                            <Card 
+                                title={<Text style={{ fontSize: 14 }}>Tóm tắt</Text>}
+                                style={{ marginBottom: 16 }}
+                                bodyStyle={{ padding: '16px' }}
+                            >
+                                <Space direction="vertical" style={{ width: '100%' }} size={12}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                        <Text style={{ fontSize: 14 }}>Số lượng hàng hoá:</Text>
+                                        <Text strong style={{ fontSize: 14 }}>0</Text>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                        <Text style={{ fontSize: 14 }}>Tổng tiền hàng hoá:</Text>
+                                        <Text strong style={{ fontSize: 14 }}>0₫</Text>
+                                    </div>
+                                    
+                                    <Collapse ghost>
+                                        <Panel header={<Text style={{ fontSize: 14 }}>Tổng giảm giá</Text>} key="1">
+                                            <Space direction="vertical" style={{ width: '100%' }} size={8}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                    <Text style={{ fontSize: 14 }}>Giảm giá sản phẩm:</Text>
+                                                    <Text style={{ fontSize: 14 }}>0₫</Text>
+                                                </div>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <Text style={{ fontSize: 14 }}>Mã giảm giá:</Text>
+                                                    <Space>
+                                                        <InputNumber size="small" style={{ width: 80, fontSize: 14 }} addonAfter="%" />
+                                                        <InputNumber size="small" style={{ width: 80, fontSize: 14 }} />
+                                                    </Space>
+                                                </div>
+                                            </Space>
+                                        </Panel>
+                                    </Collapse>
+
+                                    <Collapse ghost>
+                                        <Panel header={<Text style={{ fontSize: 14 }}>Phí vận chuyển phải trả</Text>} key="2">
+                                            <Space direction="vertical" style={{ width: '100%' }} size={8}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <Space>
+                                                        <Text style={{ fontSize: 14 }}>Phí vận chuyển NBH hỗ trợ:</Text>
+                                                        <InfoCircleOutlined style={{ fontSize: 12, color: '#8C8C8C' }} />
+                                                    </Space>
+                                                    <Space>
+                                                        <InputNumber size="small" style={{ width: 80, fontSize: 14 }} addonAfter="%" />
+                                                        <InputNumber size="small" style={{ width: 80, fontSize: 14 }} />
+                                                    </Space>
+                                                </div>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <Space>
+                                                        <Text style={{ fontSize: 14 }}>Phí vận chuyển báo khách:</Text>
+                                                        <InfoCircleOutlined style={{ fontSize: 12, color: '#8C8C8C' }} />
+                                                    </Space>
+                                                    <InputNumber size="small" style={{ width: 100, fontSize: 14 }} />
+                                                </div>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                    <Text style={{ fontSize: 14 }}>Phí vận chuyển ĐVVC:</Text>
+                                                    <Text style={{ fontSize: 14 }}>0₫</Text>
+                                                </div>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                    <Space>
+                                                        <Text style={{ fontSize: 14 }}>Chênh lệch phí vận chuyển:</Text>
+                                                        <InfoCircleOutlined style={{ fontSize: 12, color: '#8C8C8C' }} />
+                                                    </Space>
+                                                    <Text style={{ fontSize: 14 }}>0₫</Text>
+                                                </div>
+                                            </Space>
+                                        </Panel>
+                                    </Collapse>
+
+                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                        <Text style={{ fontSize: 14 }}>Xu đã sử dụng:</Text>
+                                        <Text style={{ fontSize: 14 }}>0₫</Text>
+                                    </div>
+
+                                    <Collapse ghost>
+                                        <Panel header={<Text style={{ fontSize: 14 }}>Điểm khách hàng thân thiết</Text>} key="3">
+                                            <Space direction="vertical" style={{ width: '100%' }} size={8}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                    <Text style={{ fontSize: 14 }}>Điểm quy đổi:</Text>
+                                                    <Text style={{ fontSize: 14 }}>0 (0₫)</Text>
+                                                </div>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                    <Text style={{ fontSize: 14 }}>Điểm tích luỹ:</Text>
+                                                    <Text style={{ fontSize: 14 }}>+0</Text>
+                                                </div>
+                                            </Space>
+                                        </Panel>
+                                    </Collapse>
+
+                                    <Divider style={{ margin: '12px 0' }} />
+
+                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                        <Text strong style={{ fontSize: 14 }}>Tổng tiền phải trả:</Text>
+                                        <Text strong style={{ fontSize: 14, color: '#EF5941' }}>0₫</Text>
+                                    </div>
+                                </Space>
+                            </Card>
+
+                            {/* Order Information */}
+                            <Card 
+                                title={<Text style={{ fontSize: 14 }}>Thông tin đơn hàng</Text>}
+                                bodyStyle={{ padding: '16px' }}
+                            >
+                                <Space direction="vertical" style={{ width: '100%' }} size={16}>
+                                    <Form.Item>
+                                        <Checkbox style={{ fontSize: 14 }}>Đơn sản phẩm gửi KOC, KOL</Checkbox>
+                                    </Form.Item>
+
+                                    <Form.Item label={<Text style={{ fontSize: 14 }}>Nhân viên bán hàng</Text>}>
+                                        <Input
+                                            defaultValue="daothingoc9@gmail.com"
+                                            suffix={<CloseOutlined style={{ fontSize: 12, cursor: 'pointer' }} />}
+                                            addonAfter={<InfoCircleOutlined style={{ fontSize: 12, color: '#8C8C8C' }} />}
+                                            style={{ fontSize: 14 }}
+                                        />
+                                    </Form.Item>
+
+                                    <Form.Item label={<Text style={{ fontSize: 14 }}>Nhân viên marketing</Text>}>
+                                        <Select placeholder="Chọn nhân viên marketing" style={{ fontSize: 14 }}>
+                                            <Option value="marketing1">Marketing 1</Option>
+                                            <Option value="marketing2">Marketing 2</Option>
+                                        </Select>
+                                    </Form.Item>
+
+                                    <Form.Item label={
+                                        <Space>
+                                            <Text style={{ fontSize: 14 }}>Ngày phát sinh đơn</Text>
+                                            <InfoCircleOutlined style={{ fontSize: 12, color: '#8C8C8C' }} />
+                                        </Space>
+                                    }>
+                                        <Text style={{ fontSize: 14 }}>24/12/2025 14:47</Text>
+                                    </Form.Item>
+
+                                    <Form.Item label={
+                                        <Space>
+                                            <Text style={{ fontSize: 14 }}>Ngày dự kiến bàn giao ĐVVC</Text>
+                                            <InfoCircleOutlined style={{ fontSize: 12, color: '#8C8C8C' }} />
+                                        </Space>
+                                    }>
+                                        <DatePicker style={{ width: '100%', fontSize: 14 }} placeholder="Chọn" />
+                                    </Form.Item>
+
+                                    <Form.Item label={<Text style={{ fontSize: 14 }}>UTM</Text>}>
+                                        <Input placeholder="Nhập link" style={{ fontSize: 14 }} />
+                                    </Form.Item>
+
+                                    <Form.Item label={<Text style={{ fontSize: 14 }}>Mã đơn hàng</Text>}>
+                                        <Radio.Group defaultValue="auto">
+                                            <Radio value="manual" style={{ fontSize: 14 }}>Nhập tay</Radio>
+                                            <Radio value="auto" style={{ fontSize: 14 }}>Hệ thống tự động tạo</Radio>
+                                        </Radio.Group>
+                                    </Form.Item>
+                                </Space>
+                            </Card>
+                        </Col>
+                    </Row>
+
+                    {/* Payment Information */}
+                    <Card 
+                        title={
+                            <Space>
+                                <Text style={{ fontSize: 14 }}>Thông tin thanh toán</Text>
+                                <Button size="small" style={{ background: '#FAFAFA', border: '1px solid #D9D9D9', fontSize: 14 }}>
+                                    Chưa thanh toán
+                                </Button>
+                            </Space>
+                        }
+                        style={{ marginBottom: 16 }}
+                        bodyStyle={{ padding: '16px' }}
+                    >
+                        <Row gutter={16} style={{ marginBottom: 16 }}>
+                            <Col span={8}>
+                                <Text style={{ fontSize: 14 }}>Khách phải trả: <Text strong style={{ fontSize: 14 }}>0₫</Text></Text>
+                            </Col>
+                            <Col span={8}>
+                                <Text style={{ fontSize: 14 }}>Đã thanh toán: <Text strong style={{ fontSize: 14 }}>0₫</Text></Text>
+                            </Col>
+                            <Col span={8}>
+                                <Text style={{ fontSize: 14 }}>Còn phải trả: <Text strong style={{ fontSize: 14 }}>0₫</Text></Text>
+                            </Col>
+                        </Row>
+                        <Text type="secondary" style={{ display: 'block', marginBottom: 12, fontSize: 14 }}>
+                            Chưa có giao dịch thanh toán nào
+                        </Text>
+                        <Button icon={<PlusOutlined />} type="default" style={{ fontSize: 14 }}>
+                            Thêm thanh toán
+                        </Button>
+                    </Card>
+
+                    {/* Shipping Information */}
+                    <Card 
+                        title={
+                            <Space>
+                                <Text style={{ fontSize: 14 }}>Thông tin vận chuyển</Text>
+                                <Button icon={<PlusOutlined />} type="default" style={{ fontSize: 14 }}>
+                                    Thêm vận chuyển
+                                </Button>
+                            </Space>
+                        }
+                        style={{ marginBottom: 16 }}
+                        bodyStyle={{ padding: '16px' }}
+                    >
+                        {/* Shipping content will be added here */}
+                    </Card>
+
+                    {/* Footer Buttons */}
+                    <div style={{ 
+                        display: 'flex', 
+                        justifyContent: 'flex-end', 
+                        gap: 12,
+                        paddingTop: 16,
+                        borderTop: '1px solid #F0F0F0'
+                    }}>
+                        <Button onClick={onClose} style={{ fontSize: 14 }}>
+                            Huỷ bỏ
+                        </Button>
+                        <Button style={{ borderColor: '#FF5722', color: '#FF5722', fontSize: 14 }}>
+                            Lưu nháp
+                        </Button>
+                        <Button type="primary" style={{ background: '#FF5722', borderColor: '#FF5722', fontSize: 14 }}>
+                            Lưu & chốt đơn
+                        </Button>
+                    </div>
+                </Form>
+            </div>
+    );
+};
 
 const OrderList = () => {
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(20);
+    const [totalOrders, setTotalOrders] = useState(50);
     const [orderTypeFilter, setOrderTypeFilter] = useState('platform'); // 'platform', 'manual', 'my-orders', 'pos'
     const [activeStatusTab, setActiveStatusTab] = useState('all');
     const [logisticsDrawerVisible, setLogisticsDrawerVisible] = useState(false);
+
+    // Add/remove blur class when drawer opens/closes
+    useEffect(() => {
+        if (logisticsDrawerVisible) {
+            document.body.classList.add('drawer-open');
+        } else {
+            document.body.classList.remove('drawer-open');
+        }
+        return () => {
+            document.body.classList.remove('drawer-open');
+        };
+    }, [logisticsDrawerVisible]);
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [hoveredOrderId, setHoveredOrderId] = useState(null);
     const [hoveredOrderCardId, setHoveredOrderCardId] = useState(null);
+    const [hoveredSku, setHoveredSku] = useState(null);
+    const [hoveredTrackingNumber, setHoveredTrackingNumber] = useState(null);
+    const [hoveredOrderIdInDrawer, setHoveredOrderIdInDrawer] = useState(null);
     const [expandedGifts, setExpandedGifts] = useState(new Set());
     const [sortOption, setSortOption] = useState(null);
+    const [cardHeight, setCardHeight] = useState(null);
+    const cardRefs = useRef({});
     const [updateInfoModalVisible, setUpdateInfoModalVisible] = useState(false);
     const [hoveredUpdateInfo, setHoveredUpdateInfo] = useState(false);
+    const [exportOption, setExportOption] = useState(null);
+    const [exportShopOption, setExportShopOption] = useState(null);
+    const [exportFileModalVisible, setExportFileModalVisible] = useState(false);
+    const [configModalVisible, setConfigModalVisible] = useState(false);
+    const [selectedColumns, setSelectedColumns] = useState(['Sản phẩm', 'Tổng tiền', 'Người nhận']);
+    const [availableColumns, setAvailableColumns] = useState(['Kho xử lý', 'Xử lý', 'Vận chuyển']);
     const [searchFilterType, setSearchFilterType] = useState('order-code');
+    const [isLoadingManualOrders, setIsLoadingManualOrders] = useState(false);
+    const [createOrderModalVisible, setCreateOrderModalVisible] = useState(false);
 
     // Helper function to generate mock product images
     const getProductImage = (productId, seed = null) => {
@@ -53,8 +454,74 @@ const OrderList = () => {
         default: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2IiBmaWxsPSIjRUY1OTQxIi8+CjxwYXRoIGQ9Ik00IDRIMTJWMTJINFY0WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+'
     };
 
-    // Mock Data with updated structure
-    const orders = [
+    // Generate mock data for a specific page
+    const generateMockOrders = (page, size) => {
+        const channels = ['shopee', 'tiktok', 'haravan', 'lazada', 'tiki'];
+        const statuses = ['packing', 'cancelled', 'completed', 'shipping', 'pending'];
+        const statusLabels = ['Đang đóng gói', 'Đã hủy', 'Hoàn thành', 'Đang giao hàng', 'Chờ duyệt'];
+        const orders = [];
+        
+        for (let i = 0; i < size; i++) {
+            const orderIndex = (page - 1) * size + i;
+            const channel = channels[orderIndex % channels.length];
+            const statusIndex = orderIndex % statuses.length;
+            const orderId = `251007F3DE2EC${orderIndex + 1}`;
+            
+            orders.push({
+                id: orderId,
+                shopName: "Puka's Shop",
+                channel: channel,
+                orderDate: `07/10/2025 ${13 + (i % 12)}:${51 + i}`,
+                status: statuses[statusIndex],
+                statusLabel: statusLabels[statusIndex],
+                products: [
+                    {
+                        id: `PROD${orderIndex}`,
+                        name: `Sản phẩm ${orderIndex + 1} - Mô tả sản phẩm chi tiết`,
+                        sku: `SKU-${orderIndex}-${Date.now()}`,
+                        variant: orderIndex % 2 === 0 ? 'Mặc định' : 'Màu sắc',
+                        quantity: (orderIndex % 3) + 1,
+                        image: getProductImage(`PROD${orderIndex}`),
+                        price: 1000000 + (orderIndex * 100000),
+                        method: orderIndex % 2 === 0 ? 'Cash on Delivery' : 'Thanh toán khi giao hàng'
+                    }
+                ],
+                gifts: orderIndex % 3 === 0 ? [
+                    {
+                        id: `GIFT${orderIndex}`,
+                        name: 'Quà tặng đặc biệt',
+                        sku: `GIFT-${orderIndex}`,
+                        quantity: 1,
+                        image: getGiftImage(`GIFT${orderIndex}`)
+                    }
+                ] : [],
+                totalAmount: 1000000 + (orderIndex * 100000),
+                warehouse: ['Kho thời trang', 'Kho Hà Nội', 'Kho TP.HCM', 'Kho Đà Nẵng'][orderIndex % 4],
+                processing: {
+                    remaining: statusIndex === 0 ? 'Quá hạn' : statusLabels[statusIndex],
+                    shipBefore: '08/10/2025 23:59',
+                    prepareBefore: '08/10/2025 23:59'
+                },
+                shipping: {
+                    carrier: 'SPX Express',
+                    trackingNumber: `SPXVN${orderIndex}${Date.now()}`,
+                    orderId: orderId,
+                    method: 'Vận chuyển tiêu chuẩn'
+                },
+                recipient: {
+                    name: `Người nhận ${orderIndex + 1}`,
+                    address: `Địa chỉ ${orderIndex + 1}, Quận ${(orderIndex % 10) + 1}, TP.HCM`
+                }
+            });
+        }
+        return orders;
+    };
+
+    // Get orders for current page
+    const orders = generateMockOrders(currentPage, pageSize);
+
+    // Mock Data with updated structure (keeping for reference)
+    const originalOrders = [
         {
             id: '251007F3DE2EC1',
             shopName: "Puka's Shop",
@@ -233,9 +700,15 @@ const OrderList = () => {
         }
     ];
 
-    const statusTabs = [
+    // Status tabs - add "Đơn nháp" after "Tất cả" for manual orders
+    const baseStatusTabs = [
         { key: 'all', label: 'Tất cả' },
         { key: 'pending', label: 'Chờ duyệt (12)' },
+    ];
+    
+    const draftTab = { key: 'draft', label: 'Đơn nháp (12)' };
+    
+    const remainingStatusTabs = [
         { key: 'packing', label: 'Đóng gói (12)' },
         { key: 'error', label: 'Xử lý lỗi (12)' },
         { key: 'shipping', label: 'Đang giao hàng (12)' },
@@ -245,21 +718,402 @@ const OrderList = () => {
         { key: 'shipping-info', label: 'Thông tin vận đơn (21)' },
     ];
 
+    const statusTabs = orderTypeFilter === 'manual' 
+        ? [{ key: 'all', label: 'Tất cả' }, draftTab, ...baseStatusTabs.slice(1), ...remainingStatusTabs]
+        : [...baseStatusTabs, ...remainingStatusTabs];
+
     const handleSelectAll = (e) => {
+        const currentPageOrderIds = orders.map(order => order.id);
         if (e.target.checked) {
-            setSelectedRowKeys(orders.map(order => order.id));
+            // Add all orders from current page to selectedRowKeys (cumulative)
+            setSelectedRowKeys([...new Set([...selectedRowKeys, ...currentPageOrderIds])]);
         } else {
-            setSelectedRowKeys([]);
+            // Remove all orders from current page when unchecked
+            setSelectedRowKeys(selectedRowKeys.filter(id => !currentPageOrderIds.includes(id)));
         }
     };
 
     const handleSelectOrder = (orderId, checked) => {
         if (checked) {
-            setSelectedRowKeys([...selectedRowKeys, orderId]);
+            setSelectedRowKeys([...new Set([...selectedRowKeys, orderId])]);
         } else {
             setSelectedRowKeys(selectedRowKeys.filter(id => id !== orderId));
         }
     };
+
+    // Get current page selected orders
+    const currentPageOrderIds = orders.map(order => order.id);
+    const currentPageSelectedCount = currentPageOrderIds.filter(id => selectedRowKeys.includes(id)).length;
+    const isAllCurrentPageSelected = currentPageSelectedCount === orders.length && orders.length > 0;
+    const isIndeterminate = currentPageSelectedCount > 0 && currentPageSelectedCount < orders.length;
+
+    // Calculate card height based on card with gifts
+    useEffect(() => {
+        const updateCardHeight = () => {
+            let maxHeight = 0;
+            let giftCardHeight = null;
+            
+            // Find card with gifts and get its height
+            Object.keys(cardRefs.current).forEach(orderId => {
+                const cardElement = cardRefs.current[orderId];
+                if (cardElement) {
+                    const height = cardElement.offsetHeight;
+                    const order = orders.find(o => o.id === orderId);
+                    if (order && order.gifts && order.gifts.length > 0) {
+                        giftCardHeight = height;
+                    }
+                    if (height > maxHeight) {
+                        maxHeight = height;
+                    }
+                }
+            });
+            
+            // Use gift card height if found, otherwise use max height
+            if (giftCardHeight) {
+                setCardHeight(giftCardHeight);
+            } else if (maxHeight > 0) {
+                setCardHeight(maxHeight);
+            }
+        };
+        
+        // Update height after render
+        const timeoutId = setTimeout(updateCardHeight, 100);
+        
+        // Also update on window resize
+        window.addEventListener('resize', updateCardHeight);
+        
+        return () => {
+            clearTimeout(timeoutId);
+            window.removeEventListener('resize', updateCardHeight);
+        };
+    }, [orders]);
+
+    // Calculate grid columns based on selectedColumns
+    const getGridTemplateColumns = () => {
+        const baseColumns = ['40px']; // Checkbox column
+        selectedColumns.forEach((columnName) => {
+            const widthMap = {
+                'Sản phẩm': '1fr',
+                'Tổng tiền': '180px',
+                'Người nhận': '220px',
+                'Kho xử lý': '150px',
+                'Xử lý': '200px',
+                'Vận chuyển': '250px'
+            };
+            baseColumns.push(widthMap[columnName] || '1fr');
+        });
+        baseColumns.push('220px'); // Column for Thao tác (includes date/status and action dropdown)
+        return baseColumns.join(' ');
+    };
+
+    // Get column width for specific column
+    const getColumnWidth = (columnName) => {
+        const widthMap = {
+            'Sản phẩm': '1fr',
+            'Tổng tiền': '180px',
+            'Người nhận': '220px',
+            'Kho xử lý': '150px',
+            'Xử lý': '200px',
+            'Vận chuyển': '250px'
+        };
+        return widthMap[columnName] || '1fr';
+    };
+
+    // Render column content based on column name
+    const renderColumnContent = (order, columnName) => {
+        switch(columnName) {
+            case 'Sản phẩm':
+                return (
+                    <div style={{ padding: '16px', textAlign: 'left', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'left', width: '100%', alignItems: 'flex-start' }}>
+                            {order.products.map((product, pIndex) => (
+                                <div key={product.id} style={{ display: 'flex', gap: 12, textAlign: 'left', alignItems: 'flex-start', width: '100%' }}>
+                                    <img
+                                        src={product.image}
+                                        alt={product.name}
+                                        style={{ width: 60, height: 60, borderRadius: 4, objectFit: 'cover', flexShrink: 0 }}
+                                    />
+                                    <div style={{ flex: 1, minWidth: 0, textAlign: 'left', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 4, textAlign: 'left', width: '100%' }}>
+                                            <Tooltip title={product.name} placement="top">
+                                                <Text 
+                                                    style={{ 
+                                                        fontSize: 14, 
+                                                        display: 'inline-block', 
+                                                        maxWidth: '200px',
+                                                        overflow: 'hidden',
+                                                        textOverflow: 'ellipsis',
+                                                        whiteSpace: 'nowrap',
+                                                        flex: 1,
+                                                        color: 'rgba(0,0,0,0.88)',
+                                                        textAlign: 'left'
+                                                    }}
+                                                >
+                                                    {product.name}
+                                                </Text>
+                                            </Tooltip>
+                                            <Text style={{ fontSize: 14, whiteSpace: 'nowrap', color: 'rgba(0,0,0,0.88)', textAlign: 'left' }}>
+                                                × {product.quantity}
+                                            </Text>
+                                        </div>
+                                        <div style={{ marginBottom: 4, textAlign: 'left' }}>
+                                            {product.variant && (
+                                                <Text style={{ fontSize: 12, color: 'rgba(0,0,0,0.65)', textAlign: 'left' }}>{product.variant}</Text>
+                                            )}
+                                        </div>
+                                        <div style={{ marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4, textAlign: 'left' }}>
+                                            <Text style={{ fontSize: 12, color: 'rgba(0,0,0,0.65)', textAlign: 'left' }}>SKU: </Text>
+                                            <span
+                                                style={{
+                                                    fontSize: 12,
+                                                    color: hoveredSku === `${order.id}-${product.id}` ? '#1677FF' : 'rgba(0,0,0,0.65)',
+                                                    cursor: 'pointer',
+                                                    textDecoration: hoveredSku === `${order.id}-${product.id}` ? 'underline' : 'none',
+                                                    transition: 'all 0.2s',
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    gap: 4
+                                                }}
+                                                onMouseEnter={() => setHoveredSku(`${order.id}-${product.id}`)}
+                                                onMouseLeave={() => setHoveredSku(null)}
+                                                onClick={() => {
+                                                    navigator.clipboard.writeText(product.sku);
+                                                }}
+                                            >
+                                                {product.sku}
+                                                {hoveredSku === `${order.id}-${product.id}` && (
+                                                    <CopyOutlined style={{ fontSize: 12, color: '#1677FF' }} />
+                                                )}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                            {order.gifts && order.gifts.length > 0 && (
+                                <div style={{ marginTop: 8 }}>
+                                    <Popover
+                                        content={
+                                            <div style={{ minWidth: 300, maxWidth: 400 }}>
+                                                {order.gifts.map((gift, gIndex) => (
+                                                    <div key={gift.id} style={{ 
+                                                        marginBottom: gIndex < order.gifts.length - 1 ? 16 : 0,
+                                                        display: 'flex',
+                                                        gap: 12
+                                                    }}>
+                                                        {gift.image && (
+                                                            <img
+                                                                src={gift.image}
+                                                                alt={gift.name}
+                                                                style={{ width: 40, height: 40, borderRadius: 4, objectFit: 'cover', flexShrink: 0 }}
+                                                            />
+                                                        )}
+                                                        <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
+                                                            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, textAlign: 'left' }}>
+                                                                <Tooltip title={gift.name} placement="top">
+                                                                    <Text 
+                                                                        style={{ 
+                                                                            fontSize: 13, 
+                                                                            display: 'inline-block', 
+                                                                            maxWidth: '200px',
+                                                                            overflow: 'hidden',
+                                                                            textOverflow: 'ellipsis',
+                                                                            whiteSpace: 'nowrap',
+                                                                            flex: 1,
+                                                                            color: 'rgba(0,0,0,0.88)',
+                                                                            textAlign: 'left'
+                                                                        }}
+                                                                    >
+                                                                        {gift.name}
+                                                                    </Text>
+                                                                </Tooltip>
+                                                                <Text style={{ fontSize: 13, whiteSpace: 'nowrap', color: 'rgba(0,0,0,0.88)', textAlign: 'left' }}>
+                                                                    × {gift.quantity}
+                                                                </Text>
+                                                            </div>
+                                                            <div style={{ marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4, textAlign: 'left' }}>
+                                                                <Text style={{ fontSize: 12, color: 'rgba(0,0,0,0.65)', textAlign: 'left' }}>SKU: </Text>
+                                                                <span
+                                                                    style={{
+                                                                        fontSize: 12,
+                                                                        color: hoveredSku === `${order.id}-gift-${gift.id}` ? '#1677FF' : 'rgba(0,0,0,0.65)',
+                                                                        cursor: 'pointer',
+                                                                        textDecoration: hoveredSku === `${order.id}-gift-${gift.id}` ? 'underline' : 'none',
+                                                                        transition: 'all 0.2s',
+                                                                        display: 'inline-flex',
+                                                                        alignItems: 'center',
+                                                                        gap: 4
+                                                                    }}
+                                                                    onMouseEnter={() => setHoveredSku(`${order.id}-gift-${gift.id}`)}
+                                                                    onMouseLeave={() => setHoveredSku(null)}
+                                                                    onClick={() => {
+                                                                        navigator.clipboard.writeText(gift.sku);
+                                                                    }}
+                                                                >
+                                                                    {gift.sku}
+                                                                    {hoveredSku === `${order.id}-gift-${gift.id}` && (
+                                                                        <CopyOutlined style={{ fontSize: 12, color: '#1677FF' }} />
+                                                                    )}
+                                                                </span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        }
+                                        trigger="click"
+                                        placement="right"
+                                    >
+                                        <Tag 
+                                            color="orange" 
+                                            icon={<GiftOutlined />} 
+                                            style={{ 
+                                                margin: 0, 
+                                                cursor: 'pointer',
+                                                userSelect: 'none'
+                                            }}
+                                        >
+                                            Quà tặng ({order.gifts.length}) <DownOutlined style={{ fontSize: 10, marginLeft: 4 }} />
+                                        </Tag>
+                                    </Popover>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                );
+            case 'Tổng tiền':
+                return (
+                    <div style={{ padding: '16px', textAlign: 'left', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                        <div style={{ textAlign: 'left', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                            <Text style={{ fontSize: 14, display: 'block', color: 'rgba(0,0,0,0.88)', marginBottom: 4, textAlign: 'left' }}>
+                                {order.totalAmount.toLocaleString()}₫
+                            </Text>
+                            <Text style={{ fontSize: 12, display: 'block', color: 'rgba(0,0,0,0.65)', textAlign: 'left' }}>
+                                {order.products[0]?.method || 'Thanh toán khi giao hàng'}
+                            </Text>
+                        </div>
+                    </div>
+                );
+            case 'Người nhận':
+                return (
+                    <div style={{ padding: '16px', textAlign: 'left', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                        <div style={{ textAlign: 'left', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                            <Tooltip title={order.recipient.name} placement="top">
+                                <Text 
+                                    style={{ 
+                                        fontSize: 14, 
+                                        display: 'block', 
+                                        marginBottom: 8,
+                                        maxWidth: '100%',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        whiteSpace: 'nowrap',
+                                        color: 'rgba(0,0,0,0.88)',
+                                        textAlign: 'left'
+                                    }}
+                                >
+                                    {order.recipient.name}
+                                </Text>
+                            </Tooltip>
+                            <Tooltip title={order.recipient.address} placement="top">
+                                <Text 
+                                    style={{ 
+                                        fontSize: 14,
+                                        display: 'block',
+                                        maxWidth: '100%',
+                                        overflow: 'hidden',
+                                        textOverflow: 'ellipsis',
+                                        whiteSpace: 'nowrap',
+                                        color: 'rgba(0,0,0,0.65)',
+                                        textAlign: 'left'
+                                    }}
+                                >
+                                    {order.recipient.address}
+                                </Text>
+                            </Tooltip>
+                        </div>
+                    </div>
+                );
+            case 'Kho xử lý':
+                return (
+                    <div style={{ padding: '16px', textAlign: 'left', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                        <div style={{ textAlign: 'left', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                            <Text style={{ fontSize: 14, display: 'block', color: 'rgba(0,0,0,0.88)', textAlign: 'left' }}>
+                                {order.warehouse}
+                            </Text>
+                        </div>
+                    </div>
+                );
+            case 'Xử lý':
+                return (
+                    <div style={{ padding: '16px', textAlign: 'left', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                        <div style={{ textAlign: 'left', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 8 }}>
+                            <div>
+                                <Text style={{ fontSize: 12, display: 'block', color: 'rgba(0,0,0,0.65)', marginBottom: 4, textAlign: 'left' }}>
+                                    Giao trước:
+                                </Text>
+                                <Text style={{ fontSize: 14, display: 'block', color: 'rgba(0,0,0,0.88)', textAlign: 'left' }}>
+                                    {order.processing.shipBefore}
+                                </Text>
+                            </div>
+                            <div>
+                                <Text style={{ fontSize: 12, display: 'block', color: 'rgba(0,0,0,0.65)', marginBottom: 4, textAlign: 'left' }}>
+                                    Chuẩn bị hàng trước:
+                                </Text>
+                                <Text style={{ fontSize: 14, display: 'block', color: 'rgba(0,0,0,0.88)', textAlign: 'left' }}>
+                                    {order.processing.prepareBefore}
+                                </Text>
+                            </div>
+                        </div>
+                    </div>
+                );
+            case 'Vận chuyển':
+                return (
+                    <div style={{ padding: '16px', textAlign: 'left', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                        <div style={{ textAlign: 'left', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 8 }}>
+                            <div>
+                                <Text style={{ fontSize: 12, display: 'block', color: 'rgba(0,0,0,0.65)', marginBottom: 4, textAlign: 'left' }}>
+                                    Hình thức:
+                                </Text>
+                                <Text style={{ fontSize: 14, display: 'block', color: 'rgba(0,0,0,0.88)', textAlign: 'left' }}>
+                                    {order.shipping.method}
+                                </Text>
+                            </div>
+                            <div>
+                                <Text style={{ fontSize: 12, display: 'block', color: 'rgba(0,0,0,0.65)', marginBottom: 4, textAlign: 'left' }}>
+                                    Mã kiện hàng:
+                                </Text>
+                                <Text style={{ fontSize: 14, display: 'block', color: 'rgba(0,0,0,0.88)', textAlign: 'left' }}>
+                                    {order.shipping.orderId}
+                                </Text>
+                            </div>
+                            <div>
+                                <Text style={{ fontSize: 12, display: 'block', color: 'rgba(0,0,0,0.65)', marginBottom: 4, textAlign: 'left' }}>
+                                    Mã vận đơn:
+                                </Text>
+                                <Text style={{ fontSize: 14, display: 'block', color: 'rgba(0,0,0,0.88)', textAlign: 'left' }}>
+                                    {order.shipping.trackingNumber}
+                                </Text>
+                            </div>
+                        </div>
+                    </div>
+                );
+            default:
+                return null;
+        }
+    };
+
+    // Handle loading when switching to manual orders
+    useEffect(() => {
+        if (orderTypeFilter === 'manual') {
+            setIsLoadingManualOrders(true);
+            // Simulate loading time
+            setTimeout(() => {
+                setIsLoadingManualOrders(false);
+            }, 1000);
+        } else {
+            setIsLoadingManualOrders(false);
+        }
+    }, [orderTypeFilter]);
 
     const handleActionMenuClick = (order, action) => {
         if (action === 'logistics-info') {
@@ -350,42 +1204,61 @@ const OrderList = () => {
 
     const { RangePicker } = DatePicker;
 
-    return (
-        <div style={{ minHeight: '100vh' }}>
-            {/* Info Alert */}
-            <Alert
-                message={<Text style={{ fontSize: 14, fontFamily: 'Roboto, sans-serif', fontWeight: 'normal' }}>Các đơn hàng có thời gian hơn 90 ngày sẽ được chuyển vào Lịch sử và không thể xử lý được nữa.</Text>}
-                type="info"
-                showIcon
-                style={{ marginBottom: 20, border: '0.87px solid #91CAFF', background: '#E6F4FF' }}
-            />
+    // If create order screen is open, show it instead of order list
+    if (createOrderModalVisible) {
+        return <CreateOrderScreen onClose={() => setCreateOrderModalVisible(false)} />;
+    }
 
-            {/* Status Tabs */}
-            <div style={{ display: 'flex', gap: 21, marginBottom: 14 }}>
-                {statusTabs.map(tab => (
-                    <button
-                        key={tab.key}
-                        onClick={() => setActiveStatusTab(tab.key)}
-                        style={{
-                            border: 'none',
-                            borderBottom: activeStatusTab === tab.key ? '1.74px solid #EF5941' : 'none',
-                            background: 'transparent',
-                            padding: '10px 0',
-                            cursor: 'pointer',
-                            fontSize: 14,
-                            fontWeight: activeStatusTab === tab.key ? 600 : 400,
-                            color: activeStatusTab === tab.key ? '#EF5941' : 'rgba(0,0,0,0.88)'
-                        }}
+    return (
+        <div style={{ minHeight: '100vh', position: 'relative' }}>
+            {/* Loading Overlay for Manual Orders */}
+            {isLoadingManualOrders && (
+                <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'rgba(255, 255, 255, 0.7)',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    zIndex: 1000
+                }}>
+                    <Spin size="large" />
+            </div>
+            )}
+
+            {/* Export Actions - Above Filter Section */}
+            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: 14 }}>
+                <Space size={14}>
+                    <Button 
+                        style={{ background: 'rgba(0,0,0,0.06)', border: 'none' }}
+                        onClick={() => setUpdateInfoModalVisible(true)}
                     >
-                        {tab.label}
-                    </button>
-                ))}
+                        Lịch sử đơn hàng
+                    </Button>
+                    <Button 
+                        icon={<ExportOutlined />}
+                        style={{ background: 'rgba(0,0,0,0.06)', border: 'none' }}
+                        onClick={() => setExportFileModalVisible(true)}
+                    >
+                        Xuất file
+                    </Button>
+                    <Tooltip title="Lịch sử xuất đơn hàng">
+                        <Button 
+                            icon={<HistoryOutlined />}
+                            style={{ background: 'rgba(0,0,0,0.06)', border: 'none' }}
+                            onClick={() => setUpdateInfoModalVisible(true)}
+                        />
+                    </Tooltip>
+                </Space>
             </div>
 
             {/* First Card - Filter Section */}
             <Card
                 bodyStyle={{ padding: '14px' }}
-                style={{ marginBottom: 14, borderRadius: 3 }}
+                style={{ marginBottom: 14, borderRadius: 8 }}
             >
                 {/* Order Type Filter Row */}
                 <div style={{ marginBottom: 16 }}>
@@ -427,11 +1300,11 @@ const OrderList = () => {
                                     format="HH:mm DD/MM/YYYY"
                                     showTime
                                 />
-                            </div>
+                </div>
                         </Col>
                         <Col span={6}>
                             <div>
-                                <Text style={{ fontSize: 12, display: 'block', marginBottom: 4 }}>Chọn sàn</Text>
+                                <Text style={{ fontSize: 12, display: 'block', marginBottom: 4 }}>Sàn</Text>
                                 <Select
                                     placeholder="Chọn sàn"
                                     style={{ width: '100%' }}
@@ -446,7 +1319,7 @@ const OrderList = () => {
                         </Col>
                         <Col span={6}>
                             <div>
-                                <Text style={{ fontSize: 12, display: 'block', marginBottom: 4 }}>Chọn gian hàng</Text>
+                                <Text style={{ fontSize: 12, display: 'block', marginBottom: 4 }}>Gian hàng</Text>
                                 <Select
                                     placeholder="Chọn gian hàng"
                                     style={{ width: '100%' }}
@@ -454,6 +1327,19 @@ const OrderList = () => {
                                 >
                                     <Option value="shop1">Shop 1</Option>
                                     <Option value="shop2">Shop 2</Option>
+                                </Select>
+                            </div>
+                        </Col>
+                        <Col span={6}>
+                            <div>
+                                <Text style={{ fontSize: 12, display: 'block', marginBottom: 4 }}>Kho</Text>
+                                <Select
+                                    placeholder="Chọn kho"
+                                    style={{ width: '100%' }}
+                                    allowClear
+                                >
+                                    <Option value="warehouse1">Kho 1</Option>
+                                    <Option value="warehouse2">Kho 2</Option>
                                 </Select>
                             </div>
                         </Col>
@@ -485,212 +1371,267 @@ const OrderList = () => {
                             </div>
                         </Col>
                         <Col span={6}>
-                            <div>
-                                <Text style={{ fontSize: 12, display: 'block', marginBottom: 4 }}>Chọn kho</Text>
-                                <Select
-                                    placeholder="Chọn kho"
-                                    style={{ width: '100%' }}
-                                    allowClear
-                                >
-                                    <Option value="warehouse1">Kho 1</Option>
-                                    <Option value="warehouse2">Kho 2</Option>
-                                </Select>
-                            </div>
-                        </Col>
-                        <Col span={6}>
                             <div style={{ display: 'flex', alignItems: 'flex-end', height: '100%' }}>
                                 <Button icon={<FilterOutlined />} style={{ width: '100%' }}>
                                     Lọc đơn hàng nâng cao
-                                </Button>
+                    </Button>
             </div>
                         </Col>
                     </Row>
-
-                {/* Action Buttons */}
-                <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-                    <Space size={14}>
-                        <Dropdown 
-                            menu={{
-                                items: [
-                                    { key: 'bulk-process-1', label: 'Xử lý hàng loạt 1' },
-                                    { key: 'bulk-process-2', label: 'Xử lý hàng loạt 2' }
-                                ]
-                            }}
-                            trigger={['click']}
-                        >
-                            <Button 
-                                style={{ background: 'rgba(0,0,0,0.06)', border: 'none' }}
-                            >
-                                Xử lý hàng loạt <DownOutlined style={{ fontSize: 10, marginLeft: 4 }} />
-                            </Button>
-                        </Dropdown>
-                        <Dropdown 
-                            menu={{
-                                items: [
-                                    { key: 'export-orders-1', label: 'Xuất đơn hàng 1' },
-                                    { key: 'export-orders-2', label: 'Xuất đơn hàng 2' }
-                                ]
-                            }}
-                            trigger={['click']}
-                        >
-                            <Button 
-                                style={{ background: 'rgba(0,0,0,0.06)', border: 'none' }}
-                            >
-                                Xuất đơn hàng <DownOutlined style={{ fontSize: 10, marginLeft: 4 }} />
-                            </Button>
-                        </Dropdown>
-                        <Dropdown 
-                            menu={{
-                                items: [
-                                    { key: 'export-payment-1', label: 'Xuất giao dịch thanh toán 1' },
-                                    { key: 'export-payment-2', label: 'Xuất giao dịch thanh toán 2' }
-                                ]
-                            }}
-                            trigger={['click']}
-                        >
-                            <Button 
-                                style={{ background: 'rgba(0,0,0,0.06)', border: 'none' }}
-                            >
-                                Xuất giao dịch thanh toán <DownOutlined style={{ fontSize: 10, marginLeft: 4 }} />
-                    </Button>
-                        </Dropdown>
-                        <Button icon={<HistoryOutlined />} type="text" />
-                </Space>
-            </div>
             </Card>
 
-            {/* Main Content Card */}
+            {/* Status Tabs and Summary Card */}
             <Card
-                bodyStyle={{ padding: '14px' }}
-                style={{ borderRadius: 3, marginTop: 14 }}
+                bodyStyle={{ padding: 0 }}
+                style={{ marginTop: 14, borderRadius: 8 }}
             >
-                {/* Update Info Bar */}
-                <div style={{ 
-                    padding: '0 0 14px 0', 
-                    borderBottom: '0.87px solid #F0F0F0', 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center',
-                    marginBottom: 7
-                }}>
-                    <Space size={7}>
-                        <Badge status="success" />
-                        <Text 
-                            type="secondary" 
-                            style={{ 
-                                fontSize: 12,
+                {/* Status Tabs */}
+                <div style={{ display: 'flex', gap: 21, padding: '12px 16px', borderBottom: '1px solid #F0F0F0' }}>
+                    {statusTabs.map(tab => (
+                        <button
+                            key={tab.key}
+                            onClick={() => setActiveStatusTab(tab.key)}
+                            style={{
+                                border: 'none',
+                                borderBottom: activeStatusTab === tab.key ? '1.74px solid #EF5941' : 'none',
+                                background: 'transparent',
+                                padding: '10px 0',
                                 cursor: 'pointer',
-                                color: hoveredUpdateInfo ? 'rgba(0,0,0,0.88)' : 'rgba(0,0,0,0.45)',
-                                transition: 'color 0.2s'
+                                fontSize: 14,
+                                fontWeight: activeStatusTab === tab.key ? 600 : 400,
+                                color: activeStatusTab === tab.key ? '#EF5941' : 'rgba(0,0,0,0.88)'
+                            }}
+                        >
+                            {tab.label}
+                        </button>
+                    ))}
+                </div>
+                {/* Select All Header */}
+                <div style={{
+                    padding: '12px 16px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    gap: 16
+                }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+                        <Text style={{ fontSize: 14, color: '#000000A6' }}>
+                            Tổng: {totalOrders} đơn hàng
+                        </Text>
+                        <div
+                            style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: 7,
+                                cursor: 'pointer',
+                                background: hoveredUpdateInfo ? 'rgba(0,0,0,0.06)' : 'transparent',
+                                padding: '4px 8px',
+                                borderRadius: '4px',
+                                transition: 'all 0.2s'
                             }}
                             onMouseEnter={() => setHoveredUpdateInfo(true)}
                             onMouseLeave={() => setHoveredUpdateInfo(false)}
                             onClick={() => setUpdateInfoModalVisible(true)}
                         >
-                            Lần cập nhật gần nhất: 14:02 24/12/2025
-                        </Text>
-                    </Space>
-                    <Dropdown
-                        trigger={['click']}
-                        placement="bottomRight"
-                        dropdownRender={() => (
-                            <div style={{
-                                background: '#fff',
-                                padding: '12px',
-                                borderRadius: '4px',
-                                boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                                minWidth: '250px'
-                            }}>
-                                <Radio.Group
-                                    value={sortOption}
-                                    onChange={(e) => setSortOption(e.target.value)}
-                                    style={{ width: '100%' }}
-                                >
-                                    <Space direction="vertical" style={{ width: '100%' }}>
-                                        <Radio value="order-time-oldest">Thời gian đặt hàng (cũ nhất trước)</Radio>
-                                        <Radio value="order-time-newest">Thời gian đặt hàng (mới nhất trước)</Radio>
-                                        <Radio value="warehouse-time-oldest">Thời gian xuất kho (cũ nhất trước)</Radio>
-                                        <Radio value="warehouse-time-newest">Thời gian xuất kho (mới nhất trước)</Radio>
-                                        <Radio value="delivery-deadline-oldest">Hạn giao hàng (cũ nhất trước)</Radio>
-                                        <Radio value="delivery-deadline-newest">Hạn giao hàng (mới nhất trước)</Radio>
-                                    </Space>
-                                </Radio.Group>
-                </div>
-                        )}
-                    >
-                        <Button size="small" icon={<SortAscendingOutlined />}>
-                            Sắp xếp theo
-                        </Button>
-                    </Dropdown>
-                </div>
-
-                {/* Select All Header */}
-                <div style={{
-                    padding: '12px 16px',
-                    borderBottom: '1px solid #F0F0F0',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 16
-                }}>
-                    <Checkbox
-                        checked={selectedRowKeys.length === orders.length && orders.length > 0}
-                        indeterminate={selectedRowKeys.length > 0 && selectedRowKeys.length < orders.length}
-                        onChange={handleSelectAll}
-                    />
-                    {selectedRowKeys.length > 0 ? (
-                        <>
-                            <Text style={{ fontSize: 14 }}>
-                                Đã chọn <strong>{selectedRowKeys.length}</strong> đơn hàng
+                            <Badge status="success" />
+                            <Text 
+                                type="secondary" 
+                                style={{ 
+                                    fontSize: 14,
+                                    color: hoveredUpdateInfo ? 'rgba(0,0,0,0.88)' : 'rgba(0,0,0,0.45)',
+                                    transition: 'color 0.2s'
+                                }}
+                            >
+                                Lần cập nhật gần nhất: 14:02 24/12/2025
                             </Text>
-                            <Space>
-                                <Button size="small">
-                                    Tải lại
-                                </Button>
-                                <Button size="small">
-                                    Thêm tag
-                                </Button>
-                                <Button size="small">
-                                    Tự động liên kết đơn
-                                </Button>
-                            </Space>
-                        </>
-                    ) : (
-                        <Text style={{ fontSize: 14, color: '#000000A6' }}>
-                            {orders.length} đơn hàng
-                        </Text>
-                    )}
-                </div>
-
-                {/* Card List Container */}
-                <div style={{ marginTop: 14 }}>
-
-                    {/* Order Cards List */}
-                    {orders.map((order, index) => (
-                        <Card
-                            key={order.id}
-                            style={{
-                                marginBottom: 12,
-                                borderRadius: 8,
-                                border: '1px solid #F0F0F0'
-                            }}
-                            bodyStyle={{ padding: 0 }}
+                            <RightOutlined 
+                                style={{ 
+                                    fontSize: 12,
+                                    color: hoveredUpdateInfo ? 'rgba(0,0,0,0.88)' : 'rgba(0,0,0,0.45)',
+                                    transition: 'color 0.2s'
+                                }} 
+                            />
+                        </div>
+                    </div>
+                    <Space size={14}>
+                        <Button 
+                            size="small" 
+                            icon={<SettingOutlined />}
+                            onClick={() => setConfigModalVisible(true)}
+                        />
+                        <Dropdown
+                            trigger={['click']}
+                            placement="bottomRight"
+                            dropdownRender={() => (
+                                <div style={{
+                                    background: '#fff',
+                                    padding: '12px',
+                                    borderRadius: '4px',
+                                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                                    minWidth: '250px'
+                                }}>
+                                    <Radio.Group
+                                        value={sortOption}
+                                        onChange={(e) => setSortOption(e.target.value)}
+                                        style={{ width: '100%' }}
+                                    >
+                                        <Space direction="vertical" style={{ width: '100%' }}>
+                                            <Radio value="order-time-oldest">Thời gian đặt hàng (cũ nhất trước)</Radio>
+                                            <Radio value="order-time-newest">Thời gian đặt hàng (mới nhất trước)</Radio>
+                                            <Radio value="warehouse-time-oldest">Thời gian xuất kho (cũ nhất trước)</Radio>
+                                            <Radio value="warehouse-time-newest">Thời gian xuất kho (mới nhất trước)</Radio>
+                                            <Radio value="delivery-deadline-oldest">Hạn giao hàng (cũ nhất trước)</Radio>
+                                            <Radio value="delivery-deadline-newest">Hạn giao hàng (mới nhất trước)</Radio>
+                    </Space>
+                                    </Radio.Group>
+                    </div>
+                            )}
                         >
-                            {/* Order Header */}
+                            <Button size="small" icon={<SortAscendingOutlined />}>
+                                Sắp xếp theo
+                            </Button>
+                        </Dropdown>
+                        {orderTypeFilter === 'manual' && (
+                            <>
+                                <Dropdown 
+                                    menu={{
+                                        items: [
+                                            { 
+                                                key: 'create-order', 
+                                                label: 'Tạo đơn',
+                                                onClick: () => setCreateOrderModalVisible(true)
+                                            },
+                                            { key: 'upload-order-file', label: 'Tải file đơn hàng' }
+                                        ]
+                                    }}
+                                    trigger={['click']}
+                                >
+                                    <Button 
+                                        size="small"
+                                        style={{ background: 'rgba(0,0,0,0.06)', border: 'none' }}
+                                    >
+                                        Tạo đơn <DownOutlined style={{ fontSize: 10, marginLeft: 4 }} />
+                                    </Button>
+                                </Dropdown>
+                                {(activeStatusTab === 'pending' || activeStatusTab === 'packing') && (
+                                    <Button 
+                                        size="small"
+                                        style={{ background: 'rgba(0,0,0,0.06)', border: 'none' }}
+                                    >
+                                        Tải file vận chuyển
+                                    </Button>
+                                )}
+                            </>
+                        )}
+                    </Space>
+                </div>
+            </Card>
+
+            {/* Main Content Card */}
+            <div
+                style={{ borderRadius: 8, marginTop: 14 }}
+            >
+                {/* Card List Container */}
+                <div style={{ marginTop: 14, position: 'relative' }}>
+                {/* Table Header / Selection Overlay */}
+                {selectedRowKeys.length > 0 ? (
                             <div style={{
                                 display: 'flex',
                                 alignItems: 'center',
-                                justifyContent: 'space-between',
-                                padding: '12px 16px',
-                                background: '#FAFAFA',
-                                borderBottom: '1px solid #F0F0F0'
+                        gap: 16,
+                        padding: '12px 16px',
+                        marginBottom: 0
+                    }}>
+                        <Checkbox
+                            checked={isAllCurrentPageSelected}
+                            indeterminate={isIndeterminate}
+                            onChange={handleSelectAll}
+                        />
+                        <Text style={{ fontSize: 14 }}>
+                            Đã chọn <strong>{selectedRowKeys.length}</strong> đơn hàng
+                        </Text>
+                                    <Space>
+                            <Button size="small">
+                                Tải lại
+                            </Button>
+                            <Button size="small">
+                                Thêm tag
+                            </Button>
+                            <Button size="small">
+                                Tự động liên kết đơn
+                            </Button>
+                                    </Space>
+                    </div>
+                ) : (
+                    <div 
+                                        style={{
+                    display: 'grid',
+                            gridTemplateColumns: getGridTemplateColumns(),
+                            gap: 16,
+                            padding: '12px 0',
+                            marginBottom: 0,
+                            alignItems: 'start'
+                        }}
+                    >
+                        <div style={{ padding: '0 0 0 16px', display: 'flex', alignItems: 'flex-start' }}>
+                            <Checkbox
+                                checked={isAllCurrentPageSelected}
+                                indeterminate={isIndeterminate}
+                                onChange={handleSelectAll}
+                            />
+                        </div>
+                        {selectedColumns.map((columnName) => (
+                            <div key={columnName} style={{ padding: '0 16px', textAlign: 'left', display: 'flex', alignItems: 'flex-start' }}>
+                                <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)', textAlign: 'left' }}>{columnName}</Text>
+                            </div>
+                        ))}
+                        <div style={{ padding: '0 16px', textAlign: 'left', display: 'flex', alignItems: 'flex-start' }}>
+                            <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)', textAlign: 'left' }}>Thao tác</Text>
+                        </div>
+                    </div>
+                )}
+
+                    {/* Order Cards List */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    {orders.map((order, index) => (
+                        <div
+                            key={order.id}
+                            ref={(el) => {
+                                if (el) {
+                                    cardRefs.current[order.id] = el;
+                                } else {
+                                    delete cardRefs.current[order.id];
+                                }
+                            }}
+                            style={{
+                                borderRadius: 8,
+                                border: '1px solid #F0F0F0',
+                                background: '#fff',
+                                overflow: 'hidden',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                ...(cardHeight ? { height: `${cardHeight}px` } : {})
+                            }}
+                        >
+                            {/* Order Header */}
+                            <div style={{
+                                display: 'grid',
+                                gridTemplateColumns: getGridTemplateColumns(),
+                                gap: 16,
+                                padding: '12px 0',
+                                background: '#FFF',
+                                borderBottom: '1px solid #F0F0F0',
+                                alignItems: 'start'
                             }}>
-                                <Space size={16}>
+                                <div style={{ padding: '0 0 0 16px', display: 'flex', alignItems: 'flex-start' }}>
                                     <Checkbox
                                         checked={selectedRowKeys.includes(order.id)}
                                         onChange={(e) => handleSelectOrder(order.id, e.target.checked)}
                                     />
-                                    <Space size={8}>
-                                        <Text style={{ fontSize: 14 }}>Mã đơn hàng: </Text>
+                                </div>
+                                <div style={{ padding: '0 16px', display: 'flex', alignItems: 'flex-start' }}>
+                                    <Space size={8} style={{ textAlign: 'left', alignItems: 'flex-start' }}>
+                                        <Text style={{ fontSize: 14, textAlign: 'left' }}>Mã đơn hàng: </Text>
                                         <span
                                             style={{
                                                 fontSize: 14,
@@ -735,215 +1676,69 @@ const OrderList = () => {
                                             />
                                         </Tooltip>
                                     </Space>
-                                </Space>
-                                <Space size={16}>
-                                    <Text type="secondary" style={{ fontSize: 13 }}>
-                                        {order.orderDate}
-                                    </Text>
-                                    <Tag
-                                        color={order.status === 'cancelled' ? 'error' : order.status === 'completed' ? 'success' : 'processing'}
-                                        style={{ margin: 0 }}
-                                    >
+                                </div>
+                                {selectedColumns.map((columnName, index) => {
+                                    if (index === 0) {
+                                        // First column already has "Mã đơn hàng", skip
+                                        return null;
+                                    }
+                                    return (
+                                        <div key={columnName} style={{ padding: '0 16px', display: 'flex', alignItems: 'flex-start' }}>
+                                            {/* Empty cells for other columns */}
+                                        </div>
+                                    );
+                                })}
+                                <div style={{ padding: '0 16px', display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-end', gap: 8 }}>
+                                    <Space size={16} style={{ alignItems: 'center', flexWrap: 'nowrap' }}>
+                                        <Text type="secondary" style={{ fontSize: 13, textAlign: 'left', whiteSpace: 'nowrap' }}>
+                                            {order.orderDate}
+                                        </Text>
+                                        <Tag
+                                            color={order.status === 'cancelled' ? 'error' : order.status === 'completed' ? 'success' : 'processing'}
+                                            style={{ margin: 0, flexShrink: 0 }}
+                                        >
                                         {order.statusLabel}
                                     </Tag>
                                 </Space>
+                                </div>
                             </div>
 
                             {/* Order Content - Card Layout */}
                             <div 
                                 style={{
                                 display: 'grid',
-                                    gridTemplateColumns: '1fr 200px 250px 180px',
+                                    gridTemplateColumns: getGridTemplateColumns(),
                                     gap: 16,
                                     padding: 0,
-                                    position: 'relative'
+                                    position: 'relative',
+                                    alignItems: 'start'
                                 }}
                             >
-                                {/* Column 1: Sản phẩm */}
-                                <div style={{ padding: '16px' }}>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-                                        {order.products.map((product, pIndex) => (
-                                            <div key={product.id} style={{ display: 'flex', gap: 12 }}>
-                                                <img
-                                                    src={product.image}
-                                                    alt={product.name}
-                                                    style={{ width: 60, height: 60, borderRadius: 4, objectFit: 'cover', flexShrink: 0 }}
-                                                />
-                                                <div style={{ flex: 1, minWidth: 0 }}>
-                                                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                                                        <Tooltip title={product.name} placement="top">
-                                                            <Text 
-                                                                style={{ 
-                                                                    fontSize: 14, 
-                                                                    display: 'inline-block', 
-                                                                    maxWidth: '200px',
-                                                                    overflow: 'hidden',
-                                                                    textOverflow: 'ellipsis',
-                                                                    whiteSpace: 'nowrap',
-                                                                    flex: 1,
-                                                                    color: 'rgba(0,0,0,0.88)'
-                                                                }}
-                                                            >
-                                                                {product.name}
-                                                            </Text>
-                                                        </Tooltip>
-                                                        <Text style={{ fontSize: 14, whiteSpace: 'nowrap', color: 'rgba(0,0,0,0.88)' }}>
-                                                            × {product.quantity}
-                                                        </Text>
-                                                    </div>
-                                                    <div style={{ marginBottom: 4 }}>
-                                                        {product.variant && (
-                                                            <Text style={{ fontSize: 12, color: 'rgba(0,0,0,0.65)' }}>{product.variant}</Text>
-                                                        )}
-                                                    </div>
-                                                    <div style={{ marginBottom: 4 }}>
-                                                        <Text style={{ fontSize: 12, color: 'rgba(0,0,0,0.65)' }}>SKU: {product.sku}</Text>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                        {order.gifts && order.gifts.length > 0 && (
-                                            <div style={{ marginTop: 8 }}>
-                                                <Popover
-                                                    content={
-                                                        <div style={{ minWidth: 300, maxWidth: 400 }}>
-                                                            {order.gifts.map((gift, gIndex) => (
-                                                                <div key={gift.id} style={{ 
-                                                                    marginBottom: gIndex < order.gifts.length - 1 ? 16 : 0,
-                                                                    display: 'flex',
-                                                                    gap: 12
-                                                                }}>
-                                                                    {gift.image && (
-                                                                        <img
-                                                                            src={gift.image}
-                                                                            alt={gift.name}
-                                                                            style={{ width: 40, height: 40, borderRadius: 4, objectFit: 'cover', flexShrink: 0 }}
-                                                                        />
-                                                                    )}
-                                                                    <div style={{ flex: 1, minWidth: 0 }}>
-                                                                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4 }}>
-                                                                            <Text 
-                                                                                style={{ 
-                                                                                    fontSize: 13, 
-                                                                                    display: 'inline-block', 
-                                                                                    maxWidth: '200px',
-                                                                                    overflow: 'hidden',
-                                                                                    textOverflow: 'ellipsis',
-                                                                                    whiteSpace: 'nowrap',
-                                                                                    flex: 1,
-                                                                                    color: 'rgba(0,0,0,0.88)'
-                                                                                }}
-                                                                            >
-                                                                                {gift.name}
-                                                                            </Text>
-                                                                            <Text style={{ fontSize: 13, whiteSpace: 'nowrap', color: 'rgba(0,0,0,0.88)' }}>
-                                                                                × {gift.quantity}
-                                                                            </Text>
-                                                                        </div>
-                                                                        <div style={{ marginBottom: 4 }}>
-                                                                            <Text style={{ fontSize: 12, color: 'rgba(0,0,0,0.65)' }}>SKU: {gift.sku}</Text>
-                                                                        </div>
-                                                                    </div>
-                                                                </div>
-                                                            ))}
-                                                        </div>
-                                                    }
-                                                    trigger="click"
-                                                    placement="right"
-                                                >
-                                                    <Tag 
-                                                        color="orange" 
-                                                        icon={<GiftOutlined />} 
-                                                        style={{ 
-                                                            margin: 0, 
-                                                            cursor: 'pointer',
-                                                            userSelect: 'none'
-                                                        }}
-                                                    >
-                                                        Quà tặng ({order.gifts.length}) <DownOutlined style={{ fontSize: 10, marginLeft: 4 }} />
-                                                    </Tag>
-                                                </Popover>
-                                            </div>
-                                        )}
+                                {/* Empty cell for checkbox column alignment */}
+                                <div style={{ padding: '16px 0 16px 16px' }}></div>
+                                {/* Render columns based on selectedColumns */}
+                                {selectedColumns.map((columnName) => (
+                                    <div key={columnName}>
+                                        {renderColumnContent(order, columnName)}
                                     </div>
-                                </div>
-
-                                {/* Column 2: Tổng tiền */}
-                                <div style={{ padding: '16px' }}>
-                                    <div>
-                                        <Text style={{ fontSize: 14, display: 'block', color: 'rgba(0,0,0,0.88)' }}>
-                                            {order.totalAmount.toLocaleString()}₫
-                                        </Text>
-                                    </div>
-                                </div>
-
-                                {/* Column 3: Người nhận */}
-                                <div style={{ padding: '16px' }}>
-                                <div>
-                                        <Tooltip title={order.recipient.name} placement="top">
-                                            <Text 
-                                                style={{ 
-                                                    fontSize: 14, 
-                                                    display: 'block', 
-                                                    marginBottom: 8,
-                                                    maxWidth: '100%',
-                                                    overflow: 'hidden',
-                                                    textOverflow: 'ellipsis',
-                                                    whiteSpace: 'nowrap',
-                                                    color: 'rgba(0,0,0,0.88)'
-                                                }}
-                                            >
-                                                {order.recipient.name}
-                                            </Text>
-                                        </Tooltip>
-                                        <Tooltip title={order.recipient.address} placement="top">
-                                            <Text 
-                                                style={{ 
-                                                    fontSize: 14,
-                                                    display: 'block',
-                                                    maxWidth: '100%',
-                                                    overflow: 'hidden',
-                                                    textOverflow: 'ellipsis',
-                                                    whiteSpace: 'nowrap',
-                                                    color: 'rgba(0,0,0,0.65)'
-                                                }}
-                                            >
-                                                {order.recipient.address}
-                                            </Text>
-                                        </Tooltip>
-                                </div>
-                                </div>
-
-                                {/* Column 4: Thao tác */}
-                                <div style={{ padding: '16px' }}>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                                        <Button
-                                            type="primary"
-                                            onClick={() => {
-                                                setSelectedOrder(order);
-                                                setLogisticsDrawerVisible(true);
-                                            }}
-                                            style={{ fontSize: 13, width: '100%' }}
-                                        >
-                                            Thông tin kho vận
+                                ))}
+                                {/* Thao tác column */}
+                                <div style={{ padding: '16px', textAlign: 'left', display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start' }}>
+                                    <Dropdown
+                                        menu={getActionMenu(order)}
+                                        trigger={['click']}
+                                        placement="bottomRight"
+                                    >
+                                        <Button type="text" size="small" style={{ padding: '4px 8px' }}>
+                                            Thao tác <DownOutlined style={{ fontSize: 12, marginLeft: 4 }} />
                                         </Button>
-                                        <Dropdown 
-                                            menu={getActionMenu(order)} 
-                                            trigger={['click']}
-                                            placement="bottomRight"
-                                        >
-                                            <Button 
-                                                style={{ fontSize: 13, width: '100%' }}
-                                            >
-                                                Thao tác <DownOutlined style={{ fontSize: 10, marginLeft: 4 }} />
-                                            </Button>
-                                        </Dropdown>
-                                    </div>
+                                    </Dropdown>
                                 </div>
                             </div>
-                        </Card>
+                        </div>
                     ))}
-                </div>
+                    </div>
+                                </div>
 
                 {/* Footer / Pagination */}
                 <div style={{ 
@@ -955,7 +1750,11 @@ const OrderList = () => {
                     marginTop: 0
                 }}>
                     <Select
-                        defaultValue="20"
+                        value={pageSize.toString()}
+                        onChange={(value) => {
+                            setPageSize(parseInt(value));
+                            setCurrentPage(1);
+                        }}
                         style={{ 
                             width: 140, 
                             background: 'transparent',
@@ -969,53 +1768,56 @@ const OrderList = () => {
                     </Select>
 
                     <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                        <Text type="secondary" style={{ fontSize: 12 }}>Tổng: 50</Text>
+                        <Text type="secondary" style={{ fontSize: 12 }}>
+                            Hiển thị {orders.length} / Tổng: {totalOrders} đơn hàng
+                                        </Text>
                         <Space size={7}>
                             <Button 
                                 type="text" 
                                 icon={<LeftOutlined style={{ fontSize: 14 }} />}
                                 style={{ width: 28, height: 28, padding: 0 }}
+                                disabled={currentPage === 1}
+                                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                             />
-                            <Button 
-                                type="text"
-                                style={{ 
-                                    width: 28, 
-                                    height: 28, 
-                                    padding: 0,
-                                    background: '#fff',
-                                    border: '0.87px solid rgba(0,0,0,0.15)',
-                                    color: 'rgba(0,0,0,0.88)',
-                                    fontWeight: 600
-                                }}
-                            >
-                                1
-                            </Button>
-                            <Button 
-                                type="text"
-                                style={{ width: 28, height: 28, padding: 0 }}
-                            >
-                                2
-                            </Button>
-                            <Button 
-                                type="text"
-                                style={{ width: 28, height: 28, padding: 0 }}
-                            >
-                                3
-                        </Button>
+                            {Array.from({ length: Math.min(3, Math.ceil(totalOrders / pageSize)) }, (_, i) => {
+                                const page = i + 1;
+                                return (
+                                    <Button 
+                                        key={page}
+                                        type="text"
+                                        style={{ 
+                                            width: 28, 
+                                            height: 28, 
+                                            padding: 0,
+                                            background: currentPage === page ? '#fff' : 'transparent',
+                                            border: currentPage === page ? '0.87px solid rgba(0,0,0,0.15)' : 'none',
+                                            color: 'rgba(0,0,0,0.88)',
+                                            fontWeight: currentPage === page ? 600 : 400
+                                        }}
+                                        onClick={() => setCurrentPage(page)}
+                                    >
+                                        {page}
+                                    </Button>
+                                );
+                            })}
                             <Button 
                                 type="text" 
                                 icon={<RightOutlined style={{ fontSize: 14 }} />}
                                 style={{ width: 28, height: 28, padding: 0 }}
+                                disabled={currentPage >= Math.ceil(totalOrders / pageSize)}
+                                onClick={() => setCurrentPage(Math.min(Math.ceil(totalOrders / pageSize), currentPage + 1))}
                             />
                             <Button 
                                 type="text" 
                                 icon={<DoubleRightOutlined style={{ fontSize: 12 }} />}
                                 style={{ width: 28, height: 28, padding: 0 }}
+                                disabled={currentPage >= Math.ceil(totalOrders / pageSize)}
+                                onClick={() => setCurrentPage(Math.ceil(totalOrders / pageSize))}
                             />
-                        </Space>
-                    </div>
-                </div>
-            </Card>
+                                        </Space>
+                                    </div>
+                                    </div>
+                                </div>
 
             {/* Update Info Modal */}
             <Modal
@@ -1043,7 +1845,7 @@ const OrderList = () => {
                     </div>
 
                     {/* Shop List */}
-                    <div>
+                                <div>
                         {[
                             { name: 'upbase1', channel: 'shopee', status: '0/0' },
                             { name: 'Puka1', channel: 'haravan', status: '0/0' },
@@ -1083,9 +1885,9 @@ const OrderList = () => {
                                 >
                                     Cập nhật
                                 </Button>
-                            </div>
-                        ))}
-                    </div>
+                        </div>
+                    ))}
+                </div>
                 </div>
             </Modal>
 
@@ -1096,14 +1898,17 @@ const OrderList = () => {
                 width={500}
                 onClose={() => setLogisticsDrawerVisible(false)}
                 open={logisticsDrawerVisible}
+                zIndex={1003}
+                mask={false}
+                style={{ zIndex: 1003 }}
             >
                 {selectedOrder && (
-                    <div>
+                                <div>
                         {/* Kho xử lý */}
                         <div style={{ marginBottom: 24 }}>
                             <Title level={5} style={{ marginBottom: 12 }}>Kho xử lý</Title>
                             <Text style={{ fontSize: 14 }}>{selectedOrder.warehouse}</Text>
-                        </div>
+                                </div>
 
                         <Divider />
 
@@ -1116,7 +1921,7 @@ const OrderList = () => {
                                     <div style={{ marginTop: 4 }}>
                                         <Text style={{ fontSize: 14 }}>{selectedOrder.processing.shipBefore}</Text>
                                     </div>
-                                </div>
+                                    </div>
                                 <div>
                                     <Text type="secondary" style={{ fontSize: 13 }}>Chuẩn bị hàng trước:</Text>
                                     <div style={{ marginTop: 4 }}>
@@ -1124,7 +1929,7 @@ const OrderList = () => {
                                     </div>
                                 </div>
                             </Space>
-                        </div>
+                                </div>
 
                         <Divider />
 
@@ -1136,18 +1941,60 @@ const OrderList = () => {
                                     <Text type="secondary" style={{ fontSize: 13 }}>Hình thức:</Text>
                                     <div style={{ marginTop: 4 }}>
                                         <Text style={{ fontSize: 14 }}>{selectedOrder.shipping.method}</Text>
-                                    </div>
                                 </div>
+                            </div>
                                 <div>
                                     <Text type="secondary" style={{ fontSize: 13 }}>Mã kiện hàng:</Text>
                                     <div style={{ marginTop: 4 }}>
-                                        <Text style={{ fontSize: 14 }}>{selectedOrder.shipping.orderId}</Text>
-                                    </div>
-                                </div>
+                                        <span
+                                            style={{
+                                                fontSize: 14,
+                                                color: hoveredOrderIdInDrawer === 'orderId' ? '#1677FF' : 'rgba(0,0,0,0.88)',
+                                                cursor: 'pointer',
+                                                textDecoration: hoveredOrderIdInDrawer === 'orderId' ? 'underline' : 'none',
+                                                transition: 'all 0.2s',
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                gap: 4
+                                            }}
+                                            onMouseEnter={() => setHoveredOrderIdInDrawer('orderId')}
+                                            onMouseLeave={() => setHoveredOrderIdInDrawer(null)}
+                                            onClick={() => {
+                                                navigator.clipboard.writeText(selectedOrder.shipping.orderId);
+                                            }}
+                                        >
+                                            {selectedOrder.shipping.orderId}
+                                            {hoveredOrderIdInDrawer === 'orderId' && (
+                                                <CopyOutlined style={{ fontSize: 12, color: '#1677FF' }} />
+                                            )}
+                                        </span>
+                        </div>
+                </div>
                                 <div>
                                     <Text type="secondary" style={{ fontSize: 13 }}>Mã vận đơn:</Text>
                                     <div style={{ marginTop: 4 }}>
-                                        <Text style={{ fontSize: 14 }}>{selectedOrder.shipping.trackingNumber}</Text>
+                                        <span
+                                            style={{
+                                                fontSize: 14,
+                                                color: hoveredTrackingNumber === selectedOrder.shipping.trackingNumber ? '#1677FF' : 'rgba(0,0,0,0.88)',
+                                                cursor: 'pointer',
+                                                textDecoration: hoveredTrackingNumber === selectedOrder.shipping.trackingNumber ? 'underline' : 'none',
+                                                transition: 'all 0.2s',
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                gap: 4
+                                            }}
+                                            onMouseEnter={() => setHoveredTrackingNumber(selectedOrder.shipping.trackingNumber)}
+                                            onMouseLeave={() => setHoveredTrackingNumber(null)}
+                                            onClick={() => {
+                                                navigator.clipboard.writeText(selectedOrder.shipping.trackingNumber);
+                                            }}
+                                        >
+                                            {selectedOrder.shipping.trackingNumber}
+                                            {hoveredTrackingNumber === selectedOrder.shipping.trackingNumber && (
+                                                <CopyOutlined style={{ fontSize: 12, color: '#1677FF' }} />
+                                            )}
+                                        </span>
                                     </div>
                                 </div>
                             </Space>
@@ -1155,6 +2002,190 @@ const OrderList = () => {
                     </div>
                 )}
             </Drawer>
+
+            {/* Overlay mask for drawer - darkens background */}
+            {logisticsDrawerVisible && (
+                <div
+                    style={{
+                        position: 'fixed',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        zIndex: 1002,
+                        pointerEvents: 'auto',
+                        background: 'rgba(0, 0, 0, 0.45)',
+                        transition: 'background 0.3s ease'
+                    }}
+                    onClick={() => setLogisticsDrawerVisible(false)}
+                />
+            )}
+
+            {/* Export File Modal */}
+            <Modal
+                title="Xuất file"
+                open={exportFileModalVisible}
+                onCancel={() => {
+                    setExportFileModalVisible(false);
+                    setExportOption(null);
+                    setExportShopOption(null);
+                }}
+                footer={[
+                    <Button key="cancel" onClick={() => {
+                        setExportFileModalVisible(false);
+                        setExportOption(null);
+                        setExportShopOption(null);
+                    }}>
+                        Huỷ
+                    </Button>,
+                    <Button 
+                        key="export" 
+                        type="primary"
+                        disabled={!exportOption}
+                        onClick={() => {
+                            if (exportOption) {
+                                console.log('Export:', exportOption, exportShopOption);
+                                setExportFileModalVisible(false);
+                                setExportOption(null);
+                                setExportShopOption(null);
+                            }
+                        }}
+                    >
+                        Xuất
+                        </Button>
+                ]}
+                width={500}
+            >
+                <div style={{ padding: '8px 0' }}>
+                    <div style={{ marginBottom: 20 }}>
+                        <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 12 }}>
+                            Xuất đơn hàng
+                        </Text>
+                        <Radio.Group
+                            value={exportOption}
+                            onChange={(e) => {
+                                setExportOption(e.target.value);
+                                if (e.target.value !== 'export-orders-filter') {
+                                    setExportShopOption(null);
+                                }
+                            }}
+                            style={{ width: '100%' }}
+                        >
+                            <Space direction="vertical" style={{ width: '100%' }}>
+                                <div>
+                                    <Radio value="export-orders-filter">Theo bộ lọc</Radio>
+                                    {exportOption === 'export-orders-filter' && (
+                                        <div style={{ marginLeft: 24, marginTop: 8 }}>
+                                            <Radio.Group
+                                                value={exportShopOption}
+                                                onChange={(e) => setExportShopOption(e.target.value)}
+                                            >
+                                                <Space direction="vertical">
+                                                    <Radio value="merge-all">Gộp tất cả gian hàng</Radio>
+                                                    <Radio value="separate-shops">Tách từng gian hàng</Radio>
+                                                </Space>
+                                            </Radio.Group>
+                    </div>
+                                    )}
+                </div>
+                                <Radio value="export-orders-custom">Theo tuỳ chỉnh</Radio>
+                            </Space>
+                        </Radio.Group>
+                    </div>
+                    <Divider style={{ margin: '16px 0' }} />
+                    <div>
+                        <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 12 }}>
+                            Xuất giao dịch thanh toán
+                        </Text>
+                        <Radio.Group
+                            value={exportOption}
+                            onChange={(e) => {
+                                setExportOption(e.target.value);
+                                setExportShopOption(null);
+                            }}
+                            style={{ width: '100%' }}
+                        >
+                            <Space direction="vertical" style={{ width: '100%' }}>
+                                <Radio value="export-payment-filter">Theo bộ lọc</Radio>
+                                <Radio value="export-payment-custom">Theo tuỳ chỉnh</Radio>
+                            </Space>
+                        </Radio.Group>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* Config Modal */}
+            <Modal
+                title={<Text strong style={{ fontSize: 16 }}>Cấu hình hiển thị</Text>}
+                open={configModalVisible}
+                onCancel={() => setConfigModalVisible(false)}
+                footer={null}
+                width={600}
+            >
+                <div style={{ display: 'flex', gap: 16, marginTop: 16 }}>
+                    {/* Left Column - Available Columns */}
+                    <div style={{ flex: 1, border: '1px solid #F0F0F0', borderRadius: 4, padding: 12 }}>
+                        <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 12 }}>
+                            Thông tin có sẵn
+                        </Text>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                            {availableColumns.map((column) => (
+                                <Checkbox
+                                    key={column}
+                                    checked={false}
+                                    onChange={(e) => {
+                                        if (e.target.checked && selectedColumns.length < 3) {
+                                            setAvailableColumns(availableColumns.filter(c => c !== column));
+                                            setSelectedColumns([...selectedColumns, column]);
+                                        }
+                                    }}
+                                    disabled={selectedColumns.length >= 3}
+                                >
+                                    <span style={{ color: 'rgba(0,0,0,0.88)' }}>{column}</span>
+                                </Checkbox>
+                            ))}
+                    </div>
+                </div>
+
+                    {/* Right Column - Selected Columns */}
+                    <div style={{ flex: 1, border: '1px solid #F0F0F0', borderRadius: 4, padding: 12 }}>
+                        <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 12 }}>
+                            Thông tin hiển thị (tối đa 3)
+                        </Text>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                            {selectedColumns.map((column) => (
+                                <Checkbox
+                                    key={column}
+                                    checked={true}
+                                    disabled={column === 'Sản phẩm'}
+                                    onChange={(e) => {
+                                        if (!e.target.checked && column !== 'Sản phẩm') {
+                                            setSelectedColumns(selectedColumns.filter(c => c !== column));
+                                            setAvailableColumns([...availableColumns, column]);
+                                        }
+                                    }}
+                                    style={column === 'Sản phẩm' ? { color: 'rgba(0,0,0,0.88)' } : {}}
+                                >
+                                    <span style={{ color: 'rgba(0,0,0,0.88)' }}>{column}</span>
+                                </Checkbox>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 24 }}>
+                    <Button
+                        type="primary"
+                        onClick={() => {
+                            console.log('Selected columns:', selectedColumns);
+                            setConfigModalVisible(false);
+                        }}
+                        style={{ background: '#FF5722', borderColor: '#FF5722', fontSize: 14 }}
+                    >
+                        Lưu
+                    </Button>
+                </div>
+            </Modal>
+
         </div>
     );
 };

@@ -135,4 +135,64 @@
   color: #4096ff !important;
 }
 
+/* Drawer open - blur entire layout except drawer */
+body.drawer-open .ant-layout {
+  filter: blur(4px);
+  transition: filter 0.3s ease;
+  pointer-events: none;
+}
+
+body.drawer-open .ant-layout-header {
+  filter: blur(4px);
+  transition: filter 0.3s ease;
+  pointer-events: none;
+}
+
+body.drawer-open .ant-layout-sider,
+body.drawer-open [class*="sidebar"],
+body.drawer-open [class*="Sidebar"] {
+  filter: blur(4px);
+  transition: filter 0.3s ease;
+  pointer-events: none;
+}
+
+/* Blur the fixed sidebar div */
+body.drawer-open div[style*="position: fixed"][style*="left: 0"][style*="top: 64"] {
+  filter: blur(4px);
+  transition: filter 0.3s ease;
+  pointer-events: none;
+}
+
+/* Blur main content area */
+body.drawer-open .ant-layout-content {
+  filter: blur(4px);
+  transition: filter 0.3s ease;
+  pointer-events: none;
+}
+
+/* Set background color for layout content */
+.ant-layout-content {
+  background: #ECEDF6 !important;
+}
+
+/* Set border radius for card body */
+.ant-card-body {
+  border-radius: 8px !important;
+}
+
+/* Ensure drawer content is above blurred elements and not blurred */
+.ant-drawer-content-wrapper {
+  z-index: 1003 !important;
+  filter: none !important;
+}
+
+.ant-drawer-content {
+  filter: none !important;
+}
+
+.ant-drawer-mask {
+  z-index: 1002 !important;
+  background: rgba(0, 0, 0, 0.45) !important;
+}
+
 
