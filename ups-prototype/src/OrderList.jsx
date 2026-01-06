@@ -13,7 +13,8 @@ import {
     PrinterOutlined, FileTextOutlined, GiftOutlined, BookOutlined,
     LinkOutlined, TagsOutlined, SearchOutlined, SortAscendingOutlined,
     PlusOutlined, UploadOutlined, CaretUpOutlined, CloseOutlined,
-    ExportOutlined, DownloadOutlined, SettingOutlined
+    ExportOutlined, DownloadOutlined, SettingOutlined, UpOutlined,
+    MenuOutlined
 } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
@@ -424,9 +425,10 @@ const OrderList = () => {
     const [exportOption, setExportOption] = useState(null);
     const [exportShopOption, setExportShopOption] = useState(null);
     const [exportFileModalVisible, setExportFileModalVisible] = useState(false);
-    const [configModalVisible, setConfigModalVisible] = useState(false);
+    const [configDrawerVisible, setConfigDrawerVisible] = useState(false);
     const [selectedColumns, setSelectedColumns] = useState(['Sản phẩm', 'Tổng tiền', 'Người nhận']);
     const [availableColumns, setAvailableColumns] = useState(['Kho xử lý', 'Xử lý', 'Vận chuyển']);
+    const [hoveredColumn, setHoveredColumn] = useState(null);
     const [searchFilterType, setSearchFilterType] = useState('order-code');
     const [isLoadingManualOrders, setIsLoadingManualOrders] = useState(false);
     const [createOrderModalVisible, setCreateOrderModalVisible] = useState(false);
@@ -1418,46 +1420,48 @@ const OrderList = () => {
                         <Text style={{ fontSize: 14, color: '#000000A6' }}>
                             Tổng: {totalOrders} đơn hàng
                         </Text>
-                        <div
-                            style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 7,
-                                cursor: 'pointer',
-                                background: hoveredUpdateInfo ? 'rgba(0,0,0,0.06)' : 'transparent',
-                                padding: '4px 8px',
-                                borderRadius: '4px',
-                                transition: 'all 0.2s'
-                            }}
-                            onMouseEnter={() => setHoveredUpdateInfo(true)}
-                            onMouseLeave={() => setHoveredUpdateInfo(false)}
-                            onClick={() => setUpdateInfoModalVisible(true)}
-                        >
-                            <Badge status="success" />
-                            <Text 
-                                type="secondary" 
-                                style={{ 
-                                    fontSize: 14,
-                                    color: hoveredUpdateInfo ? 'rgba(0,0,0,0.88)' : 'rgba(0,0,0,0.45)',
-                                    transition: 'color 0.2s'
+                        {orderTypeFilter !== 'manual' && (
+                            <div
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: 7,
+                                    cursor: 'pointer',
+                                    background: hoveredUpdateInfo ? 'rgba(0,0,0,0.06)' : 'transparent',
+                                    padding: '4px 8px',
+                                    borderRadius: '4px',
+                                    transition: 'all 0.2s'
                                 }}
+                                onMouseEnter={() => setHoveredUpdateInfo(true)}
+                                onMouseLeave={() => setHoveredUpdateInfo(false)}
+                                onClick={() => setUpdateInfoModalVisible(true)}
                             >
-                                Lần cập nhật gần nhất: 14:02 24/12/2025
-                            </Text>
-                            <RightOutlined 
-                                style={{ 
-                                    fontSize: 12,
-                                    color: hoveredUpdateInfo ? 'rgba(0,0,0,0.88)' : 'rgba(0,0,0,0.45)',
-                                    transition: 'color 0.2s'
-                                }} 
-                            />
-                        </div>
+                                <Badge status="success" />
+                                <Text 
+                                    type="secondary" 
+                                    style={{ 
+                                        fontSize: 14,
+                                        color: hoveredUpdateInfo ? 'rgba(0,0,0,0.88)' : 'rgba(0,0,0,0.45)',
+                                        transition: 'color 0.2s'
+                                    }}
+                                >
+                                    Lần cập nhật gần nhất: 14:02 24/12/2025
+                                </Text>
+                                <RightOutlined 
+                                    style={{ 
+                                        fontSize: 12,
+                                        color: hoveredUpdateInfo ? 'rgba(0,0,0,0.88)' : 'rgba(0,0,0,0.45)',
+                                        transition: 'color 0.2s'
+                                    }} 
+                                />
+                            </div>
+                        )}
                     </div>
                     <Space size={14}>
                         <Button 
                             size="small" 
                             icon={<SettingOutlined />}
-                            onClick={() => setConfigModalVisible(true)}
+                            onClick={() => setConfigDrawerVisible(true)}
                         />
                         <Dropdown
                             trigger={['click']}
@@ -1750,14 +1754,15 @@ const OrderList = () => {
                     marginTop: 0
                 }}>
                     <Select
+                        className="page-size-select"
                         value={pageSize.toString()}
                         onChange={(value) => {
                             setPageSize(parseInt(value));
                             setCurrentPage(1);
                         }}
                         style={{ 
-                            width: 140, 
-                            background: 'transparent',
+                            width: 160, 
+                            background: '#fff',
                             color: 'rgba(0,0,0,0.88)'
                         }}
                         suffixIcon={<DownOutlined style={{ fontSize: 12, color: 'rgba(0,0,0,0.45)' }} />}
@@ -2114,77 +2119,132 @@ const OrderList = () => {
                 </div>
             </Modal>
 
-            {/* Config Modal */}
-            <Modal
+            {/* Config Drawer */}
+            <Drawer
                 title={<Text strong style={{ fontSize: 16 }}>Cấu hình hiển thị</Text>}
-                open={configModalVisible}
-                onCancel={() => setConfigModalVisible(false)}
-                footer={null}
-                width={600}
+                placement="right"
+                open={configDrawerVisible}
+                onClose={() => setConfigDrawerVisible(false)}
+                width={400}
+                footer={
+                    <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <Button
+                            type="primary"
+                            onClick={() => {
+                                console.log('Selected columns:', selectedColumns);
+                                setConfigDrawerVisible(false);
+                            }}
+                            style={{ background: '#FF5722', borderColor: '#FF5722', fontSize: 14 }}
+                        >
+                            Lưu
+                        </Button>
+                    </div>
+                }
             >
-                <div style={{ display: 'flex', gap: 16, marginTop: 16 }}>
-                    {/* Left Column - Available Columns */}
-                    <div style={{ flex: 1, border: '1px solid #F0F0F0', borderRadius: 4, padding: 12 }}>
-                        <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 12 }}>
-                            Thông tin có sẵn
-                        </Text>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                            {availableColumns.map((column) => (
-                                <Checkbox
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {(() => {
+                        const allColumns = [...selectedColumns, ...availableColumns];
+                        const fixedColumns = ['Sản phẩm', 'Tổng tiền', 'Người nhận'];
+                        
+                        const moveColumn = (column, direction) => {
+                            const currentIndex = selectedColumns.indexOf(column);
+                            if (currentIndex === -1) return;
+                            
+                            const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
+                            if (newIndex < 0 || newIndex >= selectedColumns.length) return;
+                            
+                            const newSelectedColumns = [...selectedColumns];
+                            [newSelectedColumns[currentIndex], newSelectedColumns[newIndex]] = 
+                                [newSelectedColumns[newIndex], newSelectedColumns[currentIndex]];
+                            setSelectedColumns(newSelectedColumns);
+                        };
+                        
+                        return allColumns.map((column) => {
+                            const isSelected = selectedColumns.includes(column);
+                            const isFixed = fixedColumns.includes(column);
+                            const selectedIndex = selectedColumns.indexOf(column);
+                            const canMoveUp = isSelected && !isFixed && selectedIndex > 0;
+                            const canMoveDown = isSelected && !isFixed && selectedIndex < selectedColumns.length - 1;
+                            const isHovered = hoveredColumn === column;
+                            
+                            return (
+                                <div
                                     key={column}
-                                    checked={false}
-                                    onChange={(e) => {
-                                        if (e.target.checked && selectedColumns.length < 3) {
-                                            setAvailableColumns(availableColumns.filter(c => c !== column));
-                                            setSelectedColumns([...selectedColumns, column]);
-                                        }
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: 8,
+                                        padding: '8px 12px',
+                                        border: '1px solid #F0F0F0',
+                                        borderRadius: 4,
+                                        position: 'relative'
                                     }}
-                                    disabled={selectedColumns.length >= 3}
+                                    onMouseEnter={() => setHoveredColumn(column)}
+                                    onMouseLeave={() => setHoveredColumn(null)}
                                 >
-                                    <span style={{ color: 'rgba(0,0,0,0.88)' }}>{column}</span>
-                                </Checkbox>
-                            ))}
-                    </div>
+                                    <Checkbox
+                                        checked={isSelected}
+                                        disabled={isFixed}
+                                        onChange={(e) => {
+                                            if (e.target.checked && !isFixed) {
+                                                if (selectedColumns.length < 5) { // max 5 columns (3 fixed + 2 others)
+                                                    setSelectedColumns([...selectedColumns, column]);
+                                                    setAvailableColumns(availableColumns.filter(c => c !== column));
+                                                }
+                                            } else if (!e.target.checked && !isFixed) {
+                                                setSelectedColumns(selectedColumns.filter(c => c !== column));
+                                                setAvailableColumns([...availableColumns, column]);
+                                            }
+                                        }}
+                                    >
+                                        <span style={{ color: 'rgba(0,0,0,0.88)' }}>{column}</span>
+                                    </Checkbox>
+                                    {isSelected && isHovered && (
+                                        <Dropdown
+                                            menu={{
+                                                items: [
+                                                    {
+                                                        key: 'move-up',
+                                                        label: 'Di chuyển lên',
+                                                        icon: <UpOutlined />,
+                                                        disabled: !canMoveUp,
+                                                        onClick: () => moveColumn(column, 'up')
+                                                    },
+                                                    {
+                                                        key: 'move-down',
+                                                        label: 'Di chuyển xuống',
+                                                        icon: <DownOutlined />,
+                                                        disabled: !canMoveDown,
+                                                        onClick: () => moveColumn(column, 'down')
+                                                    }
+                                                ]
+                                            }}
+                                            trigger={['click']}
+                                            placement="bottomRight"
+                                        >
+                                            <Button
+                                                type="text"
+                                                size="small"
+                                                icon={<MenuOutlined />}
+                                                style={{ 
+                                                    marginLeft: 'auto',
+                                                    padding: 0,
+                                                    width: 24,
+                                                    height: 24,
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    color: 'rgba(0,0,0,0.45)'
+                                                }}
+                                            />
+                                        </Dropdown>
+                                    )}
+                                </div>
+                            );
+                        });
+                    })()}
                 </div>
-
-                    {/* Right Column - Selected Columns */}
-                    <div style={{ flex: 1, border: '1px solid #F0F0F0', borderRadius: 4, padding: 12 }}>
-                        <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 12 }}>
-                            Thông tin hiển thị (tối đa 3)
-                        </Text>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                            {selectedColumns.map((column) => (
-                                <Checkbox
-                                    key={column}
-                                    checked={true}
-                                    disabled={column === 'Sản phẩm'}
-                                    onChange={(e) => {
-                                        if (!e.target.checked && column !== 'Sản phẩm') {
-                                            setSelectedColumns(selectedColumns.filter(c => c !== column));
-                                            setAvailableColumns([...availableColumns, column]);
-                                        }
-                                    }}
-                                    style={column === 'Sản phẩm' ? { color: 'rgba(0,0,0,0.88)' } : {}}
-                                >
-                                    <span style={{ color: 'rgba(0,0,0,0.88)' }}>{column}</span>
-                                </Checkbox>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-                <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 24 }}>
-                    <Button
-                        type="primary"
-                        onClick={() => {
-                            console.log('Selected columns:', selectedColumns);
-                            setConfigModalVisible(false);
-                        }}
-                        style={{ background: '#FF5722', borderColor: '#FF5722', fontSize: 14 }}
-                    >
-                        Lưu
-                    </Button>
-                </div>
-            </Modal>
+            </Drawer>
 
         </div>
     );

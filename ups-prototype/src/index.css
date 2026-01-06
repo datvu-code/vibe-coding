@@ -180,6 +180,53 @@ body.drawer-open .ant-layout-content {
   border-radius: 8px !important;
 }
 
+/* Set white background for select component */
+div.ant-select,
+.ant-select,
+.ant-select-single,
+.ant-select-selector,
+.ant-select-single .ant-select-selector {
+  background: #fff !important;
+}
+
+.ant-select-selector {
+  border: 1px solid #D9D9D9 !important;
+  border-radius: 4px !important;
+  background-color: #fff !important;
+}
+
+.ant-select-selector:hover,
+.ant-select:hover .ant-select-selector,
+.ant-select-focused .ant-select-selector,
+.ant-select-focused:hover .ant-select-selector,
+.ant-select-open .ant-select-selector,
+.ant-select-open:hover .ant-select-selector,
+.ant-select-single:hover .ant-select-selector,
+.ant-select-single.ant-select-focused .ant-select-selector {
+  background: #fff !important;
+  background-color: #fff !important;
+}
+
+/* Specific rule for page size select */
+div.ant-select.page-size-select,
+.page-size-select,
+.page-size-select .ant-select-selector,
+.page-size-select.ant-select .ant-select-selector,
+.page-size-select.ant-select-single .ant-select-selector {
+  background: #fff !important;
+  background-color: #fff !important;
+}
+
+.page-size-select.ant-select:hover .ant-select-selector,
+.page-size-select.ant-select-focused .ant-select-selector,
+.page-size-select.ant-select-open .ant-select-selector,
+div.ant-select.page-size-select:hover,
+div.ant-select.page-size-select.ant-select-focused,
+div.ant-select.page-size-select.ant-select-open {
+  background: #fff !important;
+  background-color: #fff !important;
+}
+
 /* Ensure drawer content is above blurred elements and not blurred */
 .ant-drawer-content-wrapper {
   z-index: 1003 !important;
