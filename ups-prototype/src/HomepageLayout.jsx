@@ -27,6 +27,10 @@ import { MdHome, MdShoppingBag, MdBarChart, MdInbox, MdSettings, MdAssignment } 
 import logoSvg from './assets/logo-dark.svg';
 import { DndContext, closestCenter } from '@dnd-kit/core';
 import OrderList from './OrderList';
+import ProcessByList from './ProcessByList';
+import OrderProcessing from './OrderProcessing';
+import ReturnOrderView from './ReturnOrderView';
+import IncomeDashboard from './IncomeDashboard';
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { createSnapModifier } from '@dnd-kit/modifiers';
@@ -1877,10 +1881,22 @@ const HomepageLayout = () => {
       matchedKey = 'trang-chu';
     } else if (activeModule === 'workspace-settings') {
       matchedKey = 'cai-dat';
+    } else if (activeModule === 'dashboard') {
+      matchedKey = 'dashboard';
+      parentKey = 'quan-tri';
     } else if (activeModule === 'orders') {
       matchedKey = 'danh-sach-don-hang';
       parentKey = 'quan-ly-don-hang';
       subParentKey = 'van-hanh';
+    } else if (activeModule === 'danh-sach-don-hang') {
+      matchedKey = 'danh-sach-don-hang';
+      parentKey = 'don-hang';
+    } else if (activeModule === 'xu-ly-hang-loat') {
+      matchedKey = 'xu-ly-hang-loat';
+      parentKey = 'don-hang';
+    } else if (activeModule === 'xu-ly-tra-hang') {
+      matchedKey = 'xu-ly-tra-hang';
+      parentKey = 'don-hang';
     } else {
       // Try to find matching nav item
       const findNavItem = (items, module) => {
@@ -2135,7 +2151,10 @@ const HomepageLayout = () => {
     setExpandedSubNav(parentKey);
     // Collapse sidebar when item is selected
     setSidebarCollapsed(true);
-    if (subItem.module) {
+    // For specific menu items, use their key as activeModule
+    if (subItem.key === 'xu-ly-hang-loat' || subItem.key === 'danh-sach-don-hang' || subItem.key === 'xu-ly-tra-hang' || subItem.key === 'dashboard') {
+      setActiveModule(subItem.key);
+    } else if (subItem.module) {
       setActiveModule(subItem.module);
     }
   }, []);
@@ -2146,7 +2165,10 @@ const HomepageLayout = () => {
     setExpandedSubNav(parentKey);
     // Collapse sidebar when item is selected
     setSidebarCollapsed(true);
-    if (nestedItem.module) {
+    // For specific menu items, use their key as activeModule
+    if (nestedItem.key === 'xu-ly-hang-loat' || nestedItem.key === 'danh-sach-don-hang' || nestedItem.key === 'xu-ly-tra-hang') {
+      setActiveModule(nestedItem.key);
+    } else if (nestedItem.module) {
       setActiveModule(nestedItem.module);
     }
   }, []);
@@ -2425,7 +2447,10 @@ const HomepageLayout = () => {
                             key={nestedChild.key}
                             onClick={() => {
                               setActiveNavItem(nestedChild.key);
-                              if (nestedChild.module) {
+                              // For specific menu items, use their key as activeModule
+                              if (nestedChild.key === 'xu-ly-hang-loat' || nestedChild.key === 'danh-sach-don-hang' || nestedChild.key === 'xu-ly-tra-hang' || nestedChild.key === 'dashboard') {
+                                setActiveModule(nestedChild.key);
+                              } else if (nestedChild.module) {
                                 setActiveModule(nestedChild.module);
                               }
                             }}
@@ -2464,7 +2489,10 @@ const HomepageLayout = () => {
                     key={child.key}
                     onClick={() => {
                       setActiveNavItem(child.key);
-                      if (child.module) {
+                      // For specific menu items, use their key as activeModule
+                      if (child.key === 'xu-ly-hang-loat' || child.key === 'danh-sach-don-hang' || child.key === 'xu-ly-tra-hang' || child.key === 'dashboard') {
+                        setActiveModule(child.key);
+                      } else if (child.module) {
                         setActiveModule(child.module);
                       }
                     }}
@@ -5186,11 +5214,9 @@ const HomepageLayout = () => {
           key: 'don-hang',
           label: 'Đơn hàng',
           children: [
-            { key: 'danh-sach-don-hang', label: 'Danh sách đơn hàng', module: 'orders' },
-            { key: 'xu-ly-hang-loat', label: 'Xử lý hàng loạt', module: 'orders' },
-            { key: 'xu-ly-theo-danh-sach', label: 'Xử lý theo danh sách', module: 'orders' },
-            { key: 'xu-ly-tra-hang', label: 'Xử lý trả hàng', module: 'orders' },
-            { key: 'don-hoan', label: 'Đơn hoàn', module: 'orders' },
+            { key: 'danh-sach-don-hang', label: 'Quản trị đơn hàng', module: 'orders' },
+            { key: 'xu-ly-hang-loat', label: 'Xử lý đơn hàng', module: 'orders' },
+            { key: 'xu-ly-tra-hang', label: 'Trả hàng/Đơn hoàn', module: 'orders' },
             { key: 'phien-ban-giao', label: 'Phiên bàn giao', module: 'orders' },
             { key: 'quy-tac-tang-qua', label: 'Quy tắc tặng quà', module: 'orders' }
           ]
@@ -6545,28 +6571,29 @@ const HomepageLayout = () => {
             }}>
               <Content style={{ padding: '24px', height: 'fit-content' }}>
                 {/* Page Header */}
-                <div
-                  style={{
-                    marginBottom: 20,
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'flex-start',
-                    flexWrap: 'wrap',
-                    gap: 16
-                  }}
-                >
-                  {activeModule !== 'home' && activeModule !== 'orders' && activeModule !== 'danh-sach-don-hang' && (
-                    <Title
-                      level={3}
-                      style={{
-                        marginBottom: 4,
-                        color: '#2b2b2b',
-                        fontWeight: 600
-                      }}
-                    >
-                      {activeModule === 'workspace-settings' ? '' : 'Tạo template mới'}
-                    </Title>
-                  )}
+                {activeModule !== 'xu-ly-hang-loat' && activeModule !== 'xu-ly-tra-hang' && activeModule !== 'dashboard' && (
+                  <div
+                    style={{
+                      marginBottom: 20,
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'flex-start',
+                      flexWrap: 'wrap',
+                      gap: 16
+                    }}
+                  >
+                    {activeModule !== 'home' && activeModule !== 'orders' && activeModule !== 'danh-sach-don-hang' && (
+                      <Title
+                        level={3}
+                        style={{
+                          marginBottom: 4,
+                          color: '#2b2b2b',
+                          fontWeight: 600
+                        }}
+                      >
+                        {activeModule === 'workspace-settings' ? '' : 'Tạo template mới'}
+                      </Title>
+                    )}
                   {activeModule === 'workspace-settings' && (
                     <Space size="middle" wrap>
                       <Button
@@ -6597,7 +6624,8 @@ const HomepageLayout = () => {
                       </Button>
                     </Space>
                   )}
-                </div>
+                  </div>
+                )}
 
                 {activeModule === 'home' ? (
                   <>
@@ -7418,6 +7446,12 @@ const HomepageLayout = () => {
                   </>
                 ) : activeModule === 'orders' || activeModule === 'danh-sach-don-hang' ? (
                   <OrderList />
+                ) : activeModule === 'xu-ly-hang-loat' ? (
+                  <OrderProcessing />
+                ) : activeModule === 'xu-ly-tra-hang' ? (
+                  <ReturnOrderView />
+                ) : activeModule === 'dashboard' ? (
+                  <IncomeDashboard />
                 ) : activeModule === 'workspace-settings' ? (
                   renderWorkspaceSettings()
                 ) : activeModule === 'template-create' ? (

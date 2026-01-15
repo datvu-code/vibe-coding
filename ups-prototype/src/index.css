@@ -172,7 +172,7 @@ body.drawer-open .ant-layout-content {
 
 /* Set background color for layout content */
 .ant-layout-content {
-  background: #ECEDF6 !important;
+  background: #FAFAFA !important;
 }
 
 /* Set border radius for card body */
@@ -242,4 +242,149 @@ div.ant-select.page-size-select.ant-select-open {
   background: rgba(0, 0, 0, 0.45) !important;
 }
 
+/* Guide drawer - position below header */
+.guide-drawer .ant-drawer-content-wrapper {
+  top: 64px !important;
+  height: calc(100vh - 64px) !important;
+}
+
+.guide-drawer .ant-drawer-content {
+  height: 100% !important;
+}
+
+/* Guide drawer split screen */
+.guide-drawer-split .ant-drawer-content-wrapper {
+  top: 64px !important;
+  height: calc(100vh - 64px) !important;
+  width: 300px !important;
+  max-width: 300px !important;
+  position: fixed !important;
+  right: 0 !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  -moz-box-shadow: none !important;
+  transform: none !important;
+  border-left: 1px solid #f0f0f0 !important;
+}
+
+.guide-drawer-split .ant-drawer-content-wrapper::before,
+.guide-drawer-split .ant-drawer-content-wrapper::after {
+  display: none !important;
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  -moz-box-shadow: none !important;
+  content: none !important;
+}
+
+/* Remove any shadow from drawer mask or overlay */
+.guide-drawer-split.ant-drawer-open .ant-drawer-mask {
+  display: none !important;
+}
+
+.guide-drawer-split .ant-drawer-content {
+  height: 100% !important;
+  width: 300px !important;
+  max-width: 300px !important;
+  box-shadow: none !important;
+}
+
+/* Remove all shadows from guide drawer */
+.guide-drawer-split .ant-drawer-wrapper-body {
+  box-shadow: none !important;
+  -webkit-box-shadow: none !important;
+  -moz-box-shadow: none !important;
+}
+
+.guide-drawer-split .ant-drawer-body {
+  padding: 16px 12px !important;
+  overflow-y: auto !important;
+  height: calc(100% - 55px) !important;
+  overflow-x: hidden !important;
+}
+
+.guide-drawer-split .ant-drawer-header {
+  padding: 16px 24px !important;
+  border-bottom: 1px solid #f0f0f0 !important;
+  flex-shrink: 0 !important;
+}
+
+.guide-drawer-split .ant-drawer-content {
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
+
+/* Adjust content margin when guide drawer is open */
+body:has(.guide-drawer-split.ant-drawer-open) .ant-layout-content {
+  margin-right: 300px !important;
+  transition: margin-right 0.3s ease !important;
+}
+
+/* Status tabs horizontal scroll */
+.status-tabs-container {
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+.status-tabs-container button {
+  flex-shrink: 0 !important;
+  white-space: nowrap !important;
+}
+
+/* Highlight actions in guide drawer descriptions */
+.guide-drawer strong,
+.guide-drawer-split strong {
+  font-weight: 600;
+  color: rgba(0,0,0,0.88);
+}
+
+/* Resize Steps icon to 24x24px */
+.ant-steps-item-icon {
+  width: 24px !important;
+  height: 24px !important;
+  line-height: 24px !important;
+  font-size: 12px !important;
+}
+
+.ant-steps-item-icon .anticon {
+  font-size: 12px !important;
+}
+
+/* Fix Steps item wrapper - remove width constraint to prevent text wrapping */
+.ant-steps-item-wrapper {
+  height: 24px !important;
+  font-size: 14px !important;
+}
+
+.ant-steps-item-title {
+  font-size: 14px !important;
+  white-space: nowrap !important;
+}
+
+/* Ensure connector lines are visible between steps */
+.ant-steps-item-tail {
+  display: block !important;
+  visibility: visible !important;
+}
+
+.ant-steps-item-tail::after {
+  display: block !important;
+  visibility: visible !important;
+}
+
+/* Order Processing Tabs - Primary color for active tab */
+.order-processing-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  color: #FF5629 !important;
+  font-weight: 500 !important;
+  font-size: 16px !important;
+}
+
+.order-processing-tabs .ant-tabs-tab .ant-tabs-tab-btn {
+  font-size: 16px !important;
+}
+
+.order-processing-tabs .ant-tabs-ink-bar {
+  background: #FF5629 !important;
+}
 

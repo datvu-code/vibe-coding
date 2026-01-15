@@ -3,7 +3,7 @@ import {
     Card, Tabs, Button, Input, Space, Tag, Typography, Checkbox,
     Dropdown, Menu, Pagination, Badge, Alert, Row, Col, Tooltip, Select,
     Drawer, Divider, DatePicker, Radio, Popover, Modal, Spin, Upload,
-    Switch, InputNumber, Form, Collapse
+    Switch, InputNumber, Form, Collapse, Steps, Progress
 } from 'antd';
 import {
     FilterOutlined, ReloadOutlined, DownOutlined, CopyOutlined,
@@ -390,14 +390,41 @@ const CreateOrderScreen = ({ onClose }) => {
     );
 };
 
-const OrderList = () => {
+const OrderList = ({ 
+    isBatchProcessing = false, 
+    isAbnormalCancellation = false, 
+    isReturnOrderView = false,
+    guideDrawerVisible: externalGuideDrawerVisible,
+    setGuideDrawerVisible: externalSetGuideDrawerVisible,
+    exportFileModalVisible: externalExportFileModalVisible,
+    setExportFileModalVisible: externalSetExportFileModalVisible,
+    updateInfoModalVisible: externalUpdateInfoModalVisible,
+    setUpdateInfoModalVisible: externalSetUpdateInfoModalVisible
+}) => {
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [pageSize, setPageSize] = useState(20);
     const [totalOrders, setTotalOrders] = useState(50);
-    const [orderTypeFilter, setOrderTypeFilter] = useState('platform'); // 'platform', 'manual', 'my-orders', 'pos'
-    const [activeStatusTab, setActiveStatusTab] = useState('all');
+    const [orderTypeFilter, setOrderTypeFilter] = useState(isReturnOrderView ? 'noi-san' : 'platform'); // For return order: 'noi-san', 'ngoai-san'. For normal: 'platform', 'manual', 'my-orders', 'pos'
+    const [activeStatusTab, setActiveStatusTab] = useState(isAbnormalCancellation ? 'all' : 'all');
     const [logisticsDrawerVisible, setLogisticsDrawerVisible] = useState(false);
+    const [internalGuideDrawerVisible, setInternalGuideDrawerVisible] = useState(false);
+    const guideDrawerVisible = externalGuideDrawerVisible !== undefined ? externalGuideDrawerVisible : internalGuideDrawerVisible;
+    const setGuideDrawerVisible = externalSetGuideDrawerVisible || setInternalGuideDrawerVisible;
+    const [activeStep, setActiveStep] = useState(0); // Step 1 is active by default (index 0)
+    const [currentProgressStep, setCurrentProgressStep] = useState(0); // Progress stepper current step
+    
+    // Batch processing states
+    const [batchProcessingStatusTab, setBatchProcessingStatusTab] = useState('cho-dong-goi'); // 'cho-dong-goi', 'dang-dong-goi', 'cho-lay-hang'
+    const [selectedWarehouse, setSelectedWarehouse] = useState('hcm-hoc-mon-02');
+    const [selectedStore, setSelectedStore] = useState('upbeauty-store');
+    const [selectedShippingUnit, setSelectedShippingUnit] = useState('nhanh');
+    const [orderStatusTab, setOrderStatusTab] = useState('don-hop-le'); // 'don-hop-le', 'cho-phan-bo-dvvc', 'loi-san-tmd', 'loi-kho'
+    const [selectedPackages, setSelectedPackages] = useState(0);
+    const [packageTypeFilter, setPackageTypeFilter] = useState(null);
+    const [exportSlipStatus, setExportSlipStatus] = useState(null);
+    const [pickingSlipStatus, setPickingSlipStatus] = useState(null);
+    const [sortBy, setSortBy] = useState('order-time');
 
     // Add/remove blur class when drawer opens/closes
     useEffect(() => {
@@ -410,6 +437,23 @@ const OrderList = () => {
             document.body.classList.remove('drawer-open');
         };
     }, [logisticsDrawerVisible]);
+
+    // Adjust content margin when guide drawer opens (split screen)
+    useEffect(() => {
+        const contentElement = document.querySelector('.ant-layout-content');
+        if (guideDrawerVisible && contentElement) {
+            contentElement.style.marginRight = '300px';
+            contentElement.style.transition = 'margin-right 0.3s ease';
+        } else if (contentElement) {
+            contentElement.style.marginRight = '';
+        }
+        return () => {
+            if (contentElement) {
+                contentElement.style.marginRight = '';
+            }
+        };
+    }, [guideDrawerVisible]);
+    
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [hoveredOrderId, setHoveredOrderId] = useState(null);
     const [hoveredOrderCardId, setHoveredOrderCardId] = useState(null);
@@ -420,17 +464,59 @@ const OrderList = () => {
     const [sortOption, setSortOption] = useState(null);
     const [cardHeight, setCardHeight] = useState(null);
     const cardRefs = useRef({});
-    const [updateInfoModalVisible, setUpdateInfoModalVisible] = useState(false);
+    const [internalUpdateInfoModalVisible, setInternalUpdateInfoModalVisible] = useState(false);
     const [hoveredUpdateInfo, setHoveredUpdateInfo] = useState(false);
     const [exportOption, setExportOption] = useState(null);
     const [exportShopOption, setExportShopOption] = useState(null);
-    const [exportFileModalVisible, setExportFileModalVisible] = useState(false);
+    const [internalExportFileModalVisible, setInternalExportFileModalVisible] = useState(false);
+    
+    const updateInfoModalVisible = externalUpdateInfoModalVisible !== undefined ? externalUpdateInfoModalVisible : internalUpdateInfoModalVisible;
+    const setUpdateInfoModalVisible = externalSetUpdateInfoModalVisible || setInternalUpdateInfoModalVisible;
+    const exportFileModalVisible = externalExportFileModalVisible !== undefined ? externalExportFileModalVisible : internalExportFileModalVisible;
+    const setExportFileModalVisible = externalSetExportFileModalVisible || setInternalExportFileModalVisible;
     const [configDrawerVisible, setConfigDrawerVisible] = useState(false);
     const [selectedColumns, setSelectedColumns] = useState(['Sản phẩm', 'Tổng tiền', 'Người nhận']);
     const [availableColumns, setAvailableColumns] = useState(['Kho xử lý', 'Xử lý', 'Vận chuyển']);
     const [hoveredColumn, setHoveredColumn] = useState(null);
+
+    // Helper function to highlight actions in description
+    const renderDescriptionWithHighlights = (description) => {
+        const actions = [
+            'Đóng gói', 'Chờ đóng gói', 'Chọn', 'Chuẩn bị hàng', 'In vận đơn', 
+            'Sẵn sàng giao', 'phiếu xuất kho', 'Chờ lấy hàng', 'phiếu xuất', 
+            'phiếu bàn giao', 'ĐVVC', 'Đang đóng gói', 'Quản trị đơn hàng',
+            'In phiếu xuất', 'In phiếu bàn giao'
+        ];
+        
+        const highlightText = (text) => {
+            let result = text;
+            actions.forEach(action => {
+                const regex = new RegExp(`(${action})`, 'gi');
+                result = result.replace(regex, '<strong>$1</strong>');
+            });
+            return result;
+        };
+        
+        // Handle array of descriptions (for bullet points)
+        if (Array.isArray(description)) {
+            return (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    {description.map((item, idx) => (
+                        <div key={idx} style={{ display: 'flex', gap: 8 }}>
+                            <span style={{ color: 'rgba(0,0,0,0.65)' }}>-</span>
+                            <span dangerouslySetInnerHTML={{ __html: highlightText(item) }} />
+                        </div>
+                    ))}
+                </div>
+            );
+        }
+        
+        // Handle string description
+        return <span dangerouslySetInnerHTML={{ __html: highlightText(description) }} />;
+    };
     const [searchFilterType, setSearchFilterType] = useState('order-code');
     const [isLoadingManualOrders, setIsLoadingManualOrders] = useState(false);
+    const [isLoadingOrderTypeSwitch, setIsLoadingOrderTypeSwitch] = useState(false);
     const [createOrderModalVisible, setCreateOrderModalVisible] = useState(false);
 
     // Helper function to generate mock product images
@@ -712,17 +798,59 @@ const OrderList = () => {
     
     const remainingStatusTabs = [
         { key: 'packing', label: 'Đóng gói (12)' },
-        { key: 'error', label: 'Xử lý lỗi (12)' },
         { key: 'shipping', label: 'Đang giao hàng (12)' },
         { key: 'completed', label: 'Hoàn thành (12)' },
         { key: 'cancelled', label: 'Hủy (12)' },
+    ];
+
+    // Secondary status tabs group (right side with divider)
+    const secondaryStatusTabs = [
+        { key: 'error', label: 'Xử lý lỗi (12)' },
         { key: 'no-warehouse', label: 'Chưa có kho xử lý (12)' },
         { key: 'shipping-info', label: 'Thông tin vận đơn (21)' },
     ];
 
-    const statusTabs = orderTypeFilter === 'manual' 
-        ? [{ key: 'all', label: 'Tất cả' }, draftTab, ...baseStatusTabs.slice(1), ...remainingStatusTabs]
-        : [...baseStatusTabs, ...remainingStatusTabs];
+    // Status tabs for abnormal cancellation
+    const abnormalCancellationTabs = [
+        { key: 'all', label: 'Tất cả' },
+        { key: 'delivery-failed', label: 'Giao hàng thất bại', count: 75 },
+        { key: 'lost-damaged', label: 'Thất lạc & hư hỏng', count: 0 },
+        { key: 'cancelled-before-carrier', label: 'Huỷ trước khi giao ĐVVC', count: 0 },
+        { key: 'cancelled-while-packing', label: 'Huỷ khi đang đóng gói', count: 85 }
+    ];
+
+    // Status tabs for return order view - Đơn hoàn nội sàn
+    const noiSanReturnTabs = [
+        { key: 'all', label: 'Tất cả' },
+        { key: 'yeu-cau-hoan', label: 'Yêu cầu hoàn' },
+        { key: 'dang-xu-ly', label: 'Đang xử lý' },
+        { key: 'dong-y-hoan', label: 'Đồng ý hoàn' },
+        { key: 'hoan-tien-thanh-cong', label: 'Hoàn tiền thành công' },
+        { key: 'huy-yeu-cau-san', label: 'Huỷ yêu cầu sàn' },
+        { key: 'san-dong-yeu-cau', label: 'Sàn đóng yêu cầu' }
+    ];
+
+    // Status tabs for return order view - Đơn hoàn ngoại sàn
+    const ngoaiSanReturnTabs = [
+        { key: 'all', label: 'Tất cả' },
+        { key: 'yeu-cau-hoan', label: 'Yêu cầu hoàn' },
+        { key: 'dang-xu-ly', label: 'Đang xử lý' },
+        { key: 'dong-y-hoan-1', label: 'Đồng ý hoàn' },
+        { key: 'dong-y-hoan-2', label: 'Đồng ý hoàn' },
+        { key: 'da-hoan-tien', label: 'Đã hoàn tiền' },
+        { key: 'hoan-hang-thanh-cong', label: 'Hoàn hàng thành công' },
+        { key: 'huy-yeu-cau', label: 'Huỷ yêu cầu' }
+    ];
+
+    // For normal order list, combine baseStatusTabs with remainingStatusTabs (excluding secondaryStatusTabs)
+    // secondaryStatusTabs will be rendered separately on the right side with divider
+    const statusTabs = isAbnormalCancellation
+        ? abnormalCancellationTabs
+        : isReturnOrderView
+            ? (orderTypeFilter === 'noi-san' ? noiSanReturnTabs : ngoaiSanReturnTabs)
+            : (orderTypeFilter === 'manual' 
+                ? [{ key: 'all', label: 'Tất cả' }, draftTab, ...baseStatusTabs.slice(1), ...remainingStatusTabs]
+                : [...baseStatusTabs, ...remainingStatusTabs]); // Note: secondaryStatusTabs are rendered separately on the right side
 
     const handleSelectAll = (e) => {
         const currentPageOrderIds = orders.map(order => order.id);
@@ -825,7 +953,7 @@ const OrderList = () => {
     const renderColumnContent = (order, columnName) => {
         switch(columnName) {
             case 'Sản phẩm':
-                return (
+    return (
                     <div style={{ padding: '16px', textAlign: 'left', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'left', width: '100%', alignItems: 'flex-start' }}>
                             {order.products.map((product, pIndex) => (
@@ -1117,6 +1245,19 @@ const OrderList = () => {
         }
     }, [orderTypeFilter]);
 
+    // Handle loading when switching order type in return order view
+    useEffect(() => {
+        if (isReturnOrderView && (orderTypeFilter === 'noi-san' || orderTypeFilter === 'ngoai-san')) {
+            setIsLoadingOrderTypeSwitch(true);
+            // Simulate loading time
+            setTimeout(() => {
+                setIsLoadingOrderTypeSwitch(false);
+            }, 500);
+        } else {
+            setIsLoadingOrderTypeSwitch(false);
+        }
+    }, [orderTypeFilter, isReturnOrderView]);
+
     const handleActionMenuClick = (order, action) => {
         if (action === 'logistics-info') {
             setSelectedOrder(order);
@@ -1228,71 +1369,133 @@ const OrderList = () => {
                     zIndex: 1000
                 }}>
                     <Spin size="large" />
-            </div>
+                </div>
+            )}
+            
+            {/* Loading Overlay for Order Type Switch in Return Order View */}
+            {isLoadingOrderTypeSwitch && (
+                <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    background: 'rgba(255, 255, 255, 0.8)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    zIndex: 1000
+                }}>
+                    <Spin size="large" />
+                </div>
+            )}
+
+            {/* Batch Processing View */}
+            {isBatchProcessing && (
+                <div></div>
             )}
 
             {/* Export Actions - Above Filter Section */}
-            <div style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center', marginBottom: 14 }}>
-                <Space size={14}>
+            {!isBatchProcessing && !isReturnOrderView && (
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
                     <Button 
-                        style={{ background: 'rgba(0,0,0,0.06)', border: 'none' }}
-                        onClick={() => setUpdateInfoModalVisible(true)}
+                        icon={<BookOutlined />}
+                        style={{ 
+                            background: 'transparent', 
+                            border: 'none',
+                            transition: 'background 0.2s'
+                        }}
+                        onMouseEnter={(e) => {
+                            e.currentTarget.style.background = 'rgba(0,0,0,0.06)';
+                        }}
+                        onMouseLeave={(e) => {
+                            e.currentTarget.style.background = 'transparent';
+                        }}
+                        onClick={() => setGuideDrawerVisible(true)}
                     >
-                        Lịch sử đơn hàng
+                        Hướng dẫn
                     </Button>
-                    <Button 
-                        icon={<ExportOutlined />}
-                        style={{ background: 'rgba(0,0,0,0.06)', border: 'none' }}
-                        onClick={() => setExportFileModalVisible(true)}
-                    >
-                        Xuất file
-                    </Button>
-                    <Tooltip title="Lịch sử xuất đơn hàng">
+                    <Space size={14}>
                         <Button 
-                            icon={<HistoryOutlined />}
                             style={{ background: 'rgba(0,0,0,0.06)', border: 'none' }}
                             onClick={() => setUpdateInfoModalVisible(true)}
-                        />
-                    </Tooltip>
+                        >
+                            Lịch sử đơn hàng
+                        </Button>
+                        <Button 
+                            icon={<ExportOutlined />}
+                            style={{ background: 'rgba(0,0,0,0.06)', border: 'none' }}
+                            onClick={() => setExportFileModalVisible(true)}
+                        >
+                            Xuất file
+                        </Button>
+                        <Tooltip title="Lịch sử xuất đơn hàng">
+                            <Button 
+                                icon={<HistoryOutlined />}
+                                style={{ background: 'rgba(0,0,0,0.06)', border: 'none' }}
+                                onClick={() => setUpdateInfoModalVisible(true)}
+                            />
+                        </Tooltip>
                 </Space>
             </div>
+            )}
 
-            {/* First Card - Filter Section */}
-            <Card
-                bodyStyle={{ padding: '14px' }}
-                style={{ marginBottom: 14, borderRadius: 8 }}
-            >
-                {/* Order Type Filter Row */}
-                <div style={{ marginBottom: 16 }}>
-                    <Text style={{ fontSize: 12, display: 'block', marginBottom: 8 }}>Loại đơn</Text>
-                    <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap' }}>
-                        {[
+            {/* Order Type Filter Card - Separate Section with Tabs */}
+            {!isBatchProcessing && (
+                <Card
+                    bodyStyle={{ padding: 0, background: 'transparent' }}
+                    style={{ marginBottom: 14, borderRadius: 8, background: 'transparent', border: 'none' }}
+                >
+                    <div style={{ display: 'flex', gap: 21, padding: '12px 0', flexWrap: 'wrap', alignItems: 'center', position: 'relative' }}>
+                        {(isReturnOrderView ? [
+                            { value: 'noi-san', label: 'Đơn hoàn nội sàn' },
+                            { value: 'ngoai-san', label: 'Đơn hoàn ngoại sàn' }
+                        ] : [
                             { value: 'platform', label: 'Đơn từ sàn' },
                             { value: 'manual', label: 'Đơn thủ công' },
                             { value: 'my-orders', label: 'Đơn của tôi' },
                             { value: 'pos', label: 'Đơn POS' }
-                        ].map((option) => (
-                            <div
-                                key={option.value}
-                                onClick={() => setOrderTypeFilter(option.value)}
-                                style={{
-                                    padding: '8px 16px',
-                                    borderRadius: 4,
-                                    cursor: 'pointer',
-                                    fontSize: 14,
-                                    fontWeight: orderTypeFilter === option.value ? 500 : 400,
-                                    color: orderTypeFilter === option.value ? '#EF5941' : 'rgba(0,0,0,0.88)',
-                                    background: orderTypeFilter === option.value ? '#FFF1F0' : '#FAFAFA',
-                                    border: orderTypeFilter === option.value ? '1px solid #EF5941' : '1px solid #D9D9D9',
-                                    transition: 'all 0.2s'
-                                }}
-                            >
-                                {option.label}
-                            </div>
-                        ))}
+                        ]).map((option) => {
+                            const isActive = orderTypeFilter === option.value;
+                            return (
+                                <button
+                                    key={option.value}
+                                    onClick={() => {
+                                        if (!isLoadingOrderTypeSwitch) {
+                                            setOrderTypeFilter(option.value);
+                                        }
+                                    }}
+                                    disabled={isLoadingOrderTypeSwitch}
+                                    style={{
+                                        border: 'none',
+                                        borderBottom: isActive ? '1.74px solid #EF5941' : 'none',
+                                        background: 'transparent',
+                                        padding: '10px 0',
+                                        cursor: isLoadingOrderTypeSwitch ? 'wait' : 'pointer',
+                                        fontSize: 16,
+                                        fontWeight: isActive ? 600 : 400,
+                                        color: isActive ? '#EF5941' : 'rgba(0,0,0,0.88)',
+                                        opacity: isLoadingOrderTypeSwitch ? 0.6 : 1,
+                                        transition: 'all 0.2s'
+                                    }}
+                                >
+                                    {option.label}
+                                </button>
+                            );
+                        })}
+                        {isLoadingOrderTypeSwitch && (
+                            <Spin size="small" style={{ position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%)' }} />
+                        )}
                     </div>
-                </div>
+                </Card>
+            )}
 
+            {/* Filter Section Card */}
+            {!isBatchProcessing && (
+                <Card
+                    bodyStyle={{ padding: '14px' }}
+                    style={{ marginBottom: 14, borderRadius: 8 }}
+                >
                 <Row gutter={[16, 16]}>
                         <Col span={6}>
                             <div>
@@ -1380,7 +1583,8 @@ const OrderList = () => {
             </div>
                         </Col>
                     </Row>
-            </Card>
+                </Card>
+            )}
 
             {/* Status Tabs and Summary Card */}
             <Card
@@ -1388,25 +1592,94 @@ const OrderList = () => {
                 style={{ marginTop: 14, borderRadius: 8 }}
             >
                 {/* Status Tabs */}
-                <div style={{ display: 'flex', gap: 21, padding: '12px 16px', borderBottom: '1px solid #F0F0F0' }}>
-                    {statusTabs.map(tab => (
-                        <button
-                            key={tab.key}
-                            onClick={() => setActiveStatusTab(tab.key)}
-                            style={{
-                                border: 'none',
-                                borderBottom: activeStatusTab === tab.key ? '1.74px solid #EF5941' : 'none',
-                                background: 'transparent',
-                                padding: '10px 0',
-                                cursor: 'pointer',
-                                fontSize: 14,
-                                fontWeight: activeStatusTab === tab.key ? 600 : 400,
-                                color: activeStatusTab === tab.key ? '#EF5941' : 'rgba(0,0,0,0.88)'
-                            }}
-                        >
-                            {tab.label}
-                        </button>
-                    ))}
+                <div className="status-tabs-container" style={{ 
+                    display: 'flex', 
+                    gap: 21, 
+                    padding: '12px 16px', 
+                    borderBottom: '1px solid #F0F0F0', 
+                    flexWrap: 'wrap',
+                    alignItems: 'center'
+                }}>
+                    {/* Main status tabs (left side) */}
+                    {statusTabs.map(tab => {
+                        const isActive = activeStatusTab === tab.key;
+                        const hasCount = tab.count !== undefined;
+                        
+                        if (isAbnormalCancellation) {
+                            return (
+                                <button
+                                    key={tab.key}
+                                    onClick={() => setActiveStatusTab(tab.key)}
+                                    style={{
+                                        border: 'none',
+                                        borderBottom: isActive ? '1.74px solid #EF5941' : 'none',
+                                        background: 'transparent',
+                                        padding: '10px 0',
+                                        cursor: 'pointer',
+                                        fontSize: 14,
+                                        fontWeight: isActive ? 600 : 400,
+                                        color: isActive ? '#EF5941' : 'rgba(0,0,0,0.88)',
+                                        whiteSpace: 'nowrap'
+                                    }}
+                                >
+                                    {tab.label}{hasCount !== false && tab.count !== undefined ? ` (${tab.count})` : ''}
+                                </button>
+                            );
+                        }
+                        
+                        return (
+                            <button
+                                key={tab.key}
+                                onClick={() => setActiveStatusTab(tab.key)}
+                                style={{
+                                    border: 'none',
+                                    borderBottom: isActive ? '1.74px solid #EF5941' : 'none',
+                                    background: 'transparent',
+                                    padding: '10px 0',
+                                    cursor: 'pointer',
+                                    fontSize: 14,
+                                    fontWeight: isActive ? 600 : 400,
+                                    color: isActive ? '#EF5941' : 'rgba(0,0,0,0.88)'
+                                }}
+                            >
+                                {tab.label}
+                            </button>
+                        );
+                    })}
+                    
+                    {/* Vertical Divider and Secondary Status Tabs (right side) - Only for normal order list */}
+                    {!isAbnormalCancellation && !isReturnOrderView && !isBatchProcessing && (
+                        <>
+                            <div style={{
+                                width: '1px',
+                                height: '20px',
+                                background: '#D9D9D9',
+                                margin: '0 8px',
+                                flexShrink: 0
+                            }} />
+                            {secondaryStatusTabs.map(tab => {
+                                const isActive = activeStatusTab === tab.key;
+                                return (
+                                    <button
+                                        key={tab.key}
+                                        onClick={() => setActiveStatusTab(tab.key)}
+                                        style={{
+                                            border: 'none',
+                                            borderBottom: isActive ? '1.74px solid #EF5941' : 'none',
+                                            background: 'transparent',
+                                            padding: '10px 0',
+                                            cursor: 'pointer',
+                                            fontSize: 14,
+                                            fontWeight: isActive ? 600 : 400,
+                                            color: isActive ? '#EF5941' : 'rgba(0,0,0,0.88)'
+                                        }}
+                                    >
+                                        {tab.label}
+                                    </button>
+                                );
+                            })}
+                        </>
+                    )}
                 </div>
                 {/* Select All Header */}
                 <div style={{
@@ -1436,7 +1709,7 @@ const OrderList = () => {
                                 onMouseLeave={() => setHoveredUpdateInfo(false)}
                                 onClick={() => setUpdateInfoModalVisible(true)}
                             >
-                                <Badge status="success" />
+                        <Badge status="success" />
                                 <Text 
                                     type="secondary" 
                                     style={{ 
@@ -1447,14 +1720,7 @@ const OrderList = () => {
                                 >
                                     Lần cập nhật gần nhất: 14:02 24/12/2025
                                 </Text>
-                                <RightOutlined 
-                                    style={{ 
-                                        fontSize: 12,
-                                        color: hoveredUpdateInfo ? 'rgba(0,0,0,0.88)' : 'rgba(0,0,0,0.45)',
-                                        transition: 'color 0.2s'
-                                    }} 
-                                />
-                            </div>
+                </div>
                         )}
                     </div>
                     <Space size={14}>
@@ -1488,13 +1754,26 @@ const OrderList = () => {
                                             <Radio value="delivery-deadline-newest">Hạn giao hàng (mới nhất trước)</Radio>
                     </Space>
                                     </Radio.Group>
-                    </div>
+                </div>
                             )}
                         >
                             <Button size="small" icon={<SortAscendingOutlined />}>
                                 Sắp xếp theo
                             </Button>
                         </Dropdown>
+                        {orderTypeFilter === 'platform' && (
+                            <Button 
+                                size="small" 
+                                type="primary"
+                                onClick={() => {
+                                    // Navigate to batch processing view
+                                    // This will be handled by parent component or routing
+                                    window.location.href = '#/quan-tri-don-hang/xu-ly-hang-loat';
+                                }}
+                            >
+                                Xử lý hàng loạt
+                            </Button>
+                        )}
                         {orderTypeFilter === 'manual' && (
                             <>
                                 <Dropdown 
@@ -1512,7 +1791,7 @@ const OrderList = () => {
                                 >
                                     <Button 
                                         size="small"
-                                        style={{ background: 'rgba(0,0,0,0.06)', border: 'none' }}
+                                        type="primary"
                                     >
                                         Tạo đơn <DownOutlined style={{ fontSize: 10, marginLeft: 4 }} />
                                     </Button>
@@ -1539,7 +1818,7 @@ const OrderList = () => {
                 <div style={{ marginTop: 14, position: 'relative' }}>
                 {/* Table Header / Selection Overlay */}
                 {selectedRowKeys.length > 0 ? (
-                            <div style={{
+                <div style={{
                                 display: 'flex',
                                 alignItems: 'center',
                         gap: 16,
@@ -1567,6 +1846,7 @@ const OrderList = () => {
                                     </Space>
                     </div>
                 ) : (
+                    <div style={{ overflowX: guideDrawerVisible ? 'auto' : 'visible', overflowY: 'visible' }}>
                     <div 
                                         style={{
                     display: 'grid',
@@ -1574,29 +1854,67 @@ const OrderList = () => {
                             gap: 16,
                             padding: '12px 0',
                             marginBottom: 0,
-                            alignItems: 'start'
+                            alignItems: 'start',
+                            minWidth: guideDrawerVisible ? 'max-content' : 'auto',
+                            background: 'transparent'
                         }}
                     >
-                        <div style={{ padding: '0 0 0 16px', display: 'flex', alignItems: 'flex-start' }}>
+                        <div style={{ 
+                            padding: '0 0 0 16px', 
+                            display: 'flex', 
+                            alignItems: 'flex-start',
+                            position: guideDrawerVisible ? 'sticky' : 'static',
+                            left: guideDrawerVisible ? 0 : 'auto',
+                            background: 'transparent',
+                            zIndex: guideDrawerVisible ? 10 : 1
+                        }}>
                             <Checkbox
                                 checked={isAllCurrentPageSelected}
                                 indeterminate={isIndeterminate}
                                 onChange={handleSelectAll}
                             />
-                        </div>
-                        {selectedColumns.map((columnName) => (
-                            <div key={columnName} style={{ padding: '0 16px', textAlign: 'left', display: 'flex', alignItems: 'flex-start' }}>
+                </div>
+                        {selectedColumns.map((columnName, colIndex) => (
+                            <div 
+                                key={columnName} 
+                                style={{ 
+                                    padding: '0 16px', 
+                                    textAlign: 'left', 
+                                    display: 'flex', 
+                                    alignItems: 'flex-start',
+                                    position: guideDrawerVisible && columnName === 'Sản phẩm' ? 'sticky' : 'static',
+                                    left: guideDrawerVisible && columnName === 'Sản phẩm' ? '40px' : 'auto',
+                                    background: 'transparent',
+                                    zIndex: guideDrawerVisible && columnName === 'Sản phẩm' ? 10 : 1
+                                }}
+                            >
                                 <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)', textAlign: 'left' }}>{columnName}</Text>
                             </div>
                         ))}
-                        <div style={{ padding: '0 16px', textAlign: 'left', display: 'flex', alignItems: 'flex-start' }}>
+                        <div style={{ 
+                            padding: '0 16px', 
+                            textAlign: 'left', 
+                            display: 'flex', 
+                            alignItems: 'flex-start',
+                            position: guideDrawerVisible ? 'sticky' : 'static',
+                            right: guideDrawerVisible ? 0 : 'auto',
+                            background: 'transparent',
+                            zIndex: guideDrawerVisible ? 10 : 1
+                        }}>
                             <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)', textAlign: 'left' }}>Thao tác</Text>
                         </div>
+                    </div>
                     </div>
                 )}
 
                     {/* Order Cards List */}
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    <div style={{ 
+                        display: 'flex', 
+                        flexDirection: 'column', 
+                        gap: 12,
+                        overflowX: guideDrawerVisible ? 'auto' : 'visible',
+                        overflowY: 'visible'
+                    }}>
                     {orders.map((order, index) => (
                         <div
                             key={order.id}
@@ -1625,19 +1943,36 @@ const OrderList = () => {
                                 padding: '12px 0',
                                 background: '#FFF',
                                 borderBottom: '1px solid #F0F0F0',
-                                alignItems: 'start'
+                                alignItems: 'start',
+                                minWidth: guideDrawerVisible ? 'max-content' : 'auto'
                             }}>
-                                <div style={{ padding: '0 0 0 16px', display: 'flex', alignItems: 'flex-start' }}>
+                                <div style={{ 
+                                    padding: '0 0 0 16px', 
+                                display: 'flex',
+                                    alignItems: 'flex-start',
+                                    position: guideDrawerVisible ? 'sticky' : 'static',
+                                    left: guideDrawerVisible ? 0 : 'auto',
+                                    background: 'transparent',
+                                    zIndex: guideDrawerVisible ? 9 : 1
+                                }}>
                                     <Checkbox
                                         checked={selectedRowKeys.includes(order.id)}
                                         onChange={(e) => handleSelectOrder(order.id, e.target.checked)}
                                     />
                                 </div>
-                                <div style={{ padding: '0 16px', display: 'flex', alignItems: 'flex-start' }}>
+                                <div style={{ 
+                                    padding: '0 16px', 
+                                    display: 'flex', 
+                                    alignItems: 'flex-start',
+                                    position: guideDrawerVisible && selectedColumns[0] === 'Sản phẩm' ? 'sticky' : 'static',
+                                    left: guideDrawerVisible && selectedColumns[0] === 'Sản phẩm' ? '40px' : 'auto',
+                                    background: 'transparent',
+                                    zIndex: guideDrawerVisible && selectedColumns[0] === 'Sản phẩm' ? 9 : 1
+                                }}>
                                     <Space size={8} style={{ textAlign: 'left', alignItems: 'flex-start' }}>
                                         <Text style={{ fontSize: 14, textAlign: 'left' }}>Mã đơn hàng: </Text>
                                         <span
-                                            style={{
+                                        style={{
                                                 fontSize: 14,
                                                 color: hoveredOrderId === order.id ? '#1677FF' : 'inherit',
                                                 cursor: 'pointer',
@@ -1692,7 +2027,17 @@ const OrderList = () => {
                                         </div>
                                     );
                                 })}
-                                <div style={{ padding: '0 16px', display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-end', gap: 8 }}>
+                                <div style={{ 
+                                    padding: '0 16px', 
+                                    display: 'flex', 
+                                    alignItems: 'flex-start', 
+                                    justifyContent: 'flex-end', 
+                                    gap: 8,
+                                    position: guideDrawerVisible ? 'sticky' : 'static',
+                                    right: guideDrawerVisible ? 0 : 'auto',
+                                    background: 'transparent',
+                                    zIndex: guideDrawerVisible ? 9 : 1
+                                }}>
                                     <Space size={16} style={{ alignItems: 'center', flexWrap: 'nowrap' }}>
                                         <Text type="secondary" style={{ fontSize: 13, textAlign: 'left', whiteSpace: 'nowrap' }}>
                                             {order.orderDate}
@@ -1715,19 +2060,44 @@ const OrderList = () => {
                                     gap: 16,
                                     padding: 0,
                                     position: 'relative',
-                                    alignItems: 'start'
+                                    alignItems: 'start',
+                                    minWidth: guideDrawerVisible ? 'max-content' : 'auto'
                                 }}
                             >
                                 {/* Empty cell for checkbox column alignment */}
-                                <div style={{ padding: '16px 0 16px 16px' }}></div>
+                                <div style={{ 
+                                    padding: '16px 0 16px 16px',
+                                    position: guideDrawerVisible ? 'sticky' : 'static',
+                                    left: guideDrawerVisible ? 0 : 'auto',
+                                    background: 'transparent',
+                                    zIndex: guideDrawerVisible ? 8 : 1
+                                }}></div>
                                 {/* Render columns based on selectedColumns */}
-                                {selectedColumns.map((columnName) => (
-                                    <div key={columnName}>
+                                {selectedColumns.map((columnName, colIndex) => (
+                                    <div 
+                                        key={columnName}
+                                        style={{
+                                            position: guideDrawerVisible && columnName === 'Sản phẩm' ? 'sticky' : 'static',
+                                            left: guideDrawerVisible && columnName === 'Sản phẩm' ? '40px' : 'auto',
+                                            background: 'transparent',
+                                            zIndex: guideDrawerVisible && columnName === 'Sản phẩm' ? 8 : 1
+                                        }}
+                                    >
                                         {renderColumnContent(order, columnName)}
                                     </div>
                                 ))}
                                 {/* Thao tác column */}
-                                <div style={{ padding: '16px', textAlign: 'left', display: 'flex', alignItems: 'flex-start', justifyContent: 'flex-start' }}>
+                                <div style={{ 
+                                    padding: '16px', 
+                                    textAlign: 'left', 
+                                    display: 'flex', 
+                                    alignItems: 'flex-start', 
+                                    justifyContent: 'flex-start',
+                                    position: guideDrawerVisible ? 'sticky' : 'static',
+                                    right: guideDrawerVisible ? 0 : 'auto',
+                                    background: 'transparent',
+                                    zIndex: guideDrawerVisible ? 8 : 1
+                                }}>
                                     <Dropdown
                                         menu={getActionMenu(order)}
                                         trigger={['click']}
@@ -2057,7 +2427,7 @@ const OrderList = () => {
                         }}
                     >
                         Xuất
-                        </Button>
+                                    </Button>
                 ]}
                 width={500}
             >
@@ -2090,13 +2460,13 @@ const OrderList = () => {
                                                     <Radio value="separate-shops">Tách từng gian hàng</Radio>
                                                 </Space>
                                             </Radio.Group>
-                    </div>
+                                </div>
                                     )}
-                </div>
+                            </div>
                                 <Radio value="export-orders-custom">Theo tuỳ chỉnh</Radio>
                             </Space>
                         </Radio.Group>
-                    </div>
+                        </div>
                     <Divider style={{ margin: '16px 0' }} />
                     <div>
                         <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 12 }}>
@@ -2115,7 +2485,7 @@ const OrderList = () => {
                                 <Radio value="export-payment-custom">Theo tuỳ chỉnh</Radio>
                             </Space>
                         </Radio.Group>
-                    </div>
+                </div>
                 </div>
             </Modal>
 
@@ -2237,12 +2607,158 @@ const OrderList = () => {
                                                     color: 'rgba(0,0,0,0.45)'
                                                 }}
                                             />
-                                        </Dropdown>
+                    </Dropdown>
                                     )}
                                 </div>
                             );
                         });
                     })()}
+                </div>
+            </Drawer>
+
+            {/* Guide Drawer - Split Screen */}
+            <Drawer
+                title={<Text strong style={{ fontSize: 14 }}>Hướng dẫn xử lý đơn hàng</Text>}
+                placement="right"
+                open={guideDrawerVisible}
+                onClose={() => setGuideDrawerVisible(false)}
+                width={300}
+                mask={false}
+                zIndex={1001}
+                className="guide-drawer-split"
+                drawerStyle={{
+                    top: 64,
+                    height: 'calc(100vh - 64px)',
+                    width: '300px',
+                    maxWidth: '300px',
+                    paddingTop: 0,
+                    position: 'fixed',
+                    right: 0
+                }}
+                contentWrapperStyle={{
+                    top: 64,
+                    height: 'calc(100vh - 64px)',
+                    width: '300px',
+                    maxWidth: '300px',
+                    position: 'fixed',
+                    right: 0
+                }}
+            >
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '0 12px', overflowY: 'auto', height: '100%' }}>
+                    {/* Progress Bar */}
+                    <div style={{ marginBottom: 8 }}>
+                        <Progress 
+                            percent={Math.round(((activeStep + 1) / 7) * 100)} 
+                            showInfo={true}
+                            strokeColor="#1677FF"
+                            size="small"
+                        />
+                    </div>
+                    {[
+                        {
+                            title: 'Chuẩn bị hàng',
+                            description: [
+                                'Tại màn Quản trị đơn hàng → Click Đóng gói → Chọn Chờ đóng gói.',
+                                'Nhấp Chọn → Nhấn Chuẩn bị hàng →',
+                                'Hệ thống sẽ load Chuẩn bị hàng → Đơn được chuyển sang trạng thái Đang đóng gói.'
+                            ]
+                        },
+                        {
+                            title: 'In vận đơn',
+                            description: 'Khi đơn ở trạng thái Đang đóng gói, nhấn Chọn → chọn In vận đơn, thao tác in đơn và gói hàng.'
+                        },
+                        {
+                            title: 'Gom hàng',
+                            description: 'Tập hợp và sắp xếp sản phẩm của cùng một đơn hàng. Đảm bảo đã gom đầy đủ trước khi đóng gói.'
+                        },
+                        {
+                            title: 'Đóng hàng',
+                            description: 'Đóng gói vào thùng/hộp phù hợp, dán vận đơn. Đảm bảo đóng gói chắc chắn, an toàn.'
+                        },
+                        {
+                            title: 'Sẵn sàng giao',
+                            description: [
+                                'Sau khi đơn gói hàng, nhấn Chọn → Sẵn sàng giao',
+                                'Hệ thống sẽ tự động tạo phiếu xuất kho, trừ tồn kho thực tế và đơn hàng sẽ được chuyển sang trạng thái Chờ lấy hàng.'
+                            ]
+                        },
+                        {
+                            title: 'Chia đơn theo ĐVVC',
+                            description: 'Khi đơn hàng ở trạng thái Chờ lấy hàng, thực hiện In phiếu xuất (nếu cần) và In phiếu bàn giao để bàn giao cho ĐVVC.'
+                        },
+                        {
+                            title: 'Bàn giao cho ĐVVC',
+                            description: 'Bàn giao đơn hàng đã phân loại cho đơn vị vận chuyển. Đối soát số lượng và ký xác nhận.'
+                        }
+                    ].map((step, index) => {
+                        const isActive = activeStep === index;
+                        return (
+                            <div 
+                                key={index} 
+                                style={{ 
+                                    paddingBottom: 12, 
+                                    borderBottom: index < 6 ? '1px solid #F0F0F0' : 'none',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s'
+                                }}
+                                onClick={() => setActiveStep(index)}
+                            >
+                                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                    <div style={{
+                                        width: 18,
+                                        height: 18,
+                                        borderRadius: '50%',
+                                        background: isActive ? '#1677FF' : 'rgba(0,0,0,0.25)',
+                                        color: '#fff',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        fontSize: 10,
+                                        fontWeight: 600,
+                                        flexShrink: 0,
+                                        transition: 'background 0.2s'
+                                    }}>
+                                        {index + 1}
+                                    </div>
+                                    <div style={{ flex: 1, minWidth: 0, wordWrap: 'break-word', overflowWrap: 'break-word' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: isActive ? 8 : 0 }}>
+                                            <Text strong style={{ 
+                                                fontSize: 13, 
+                                                color: isActive ? 'rgba(0,0,0,0.88)' : 'rgba(0,0,0,0.65)',
+                                                transition: 'color 0.2s',
+                                                wordWrap: 'break-word',
+                                                overflowWrap: 'break-word',
+                                                lineHeight: '18px'
+                                            }}>
+                                                {step.title}
+                                            </Text>
+                                            {(step.title === 'Gom hàng' || step.title === 'Đóng hàng' || step.title === 'Chia đơn theo ĐVVC' || step.title === 'Bàn giao cho ĐVVC') && (
+                                                <Tooltip title="Thao tác này sẽ được thực hiện ngoài UpS" placement="top">
+                                                    <InfoCircleOutlined style={{ 
+                                                        fontSize: 12, 
+                                                        color: 'rgba(0,0,0,0.45)',
+                                                        cursor: 'help',
+                                                        flexShrink: 0
+                                                    }} />
+                                                </Tooltip>
+                                            )}
+                                        </div>
+                                        {isActive && (
+                                            <div style={{ 
+                                                fontSize: 12, 
+                                                color: 'rgba(0,0,0,0.65)', 
+                                                lineHeight: 1.6,
+                                                wordWrap: 'break-word',
+                                                overflowWrap: 'break-word'
+                                            }}>
+                                                {renderDescriptionWithHighlights(step.description)}
+                </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
                 </div>
             </Drawer>
 
