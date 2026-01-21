@@ -542,6 +542,22 @@ const OrderList = ({
         default: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTYiIGhlaWdodD0iMTYiIHZpZXdCb3g9IjAgMCAxNiAxNiIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHJlY3Qgd2lkdGg9IjE2IiBoZWlnaHQ9IjE2IiBmaWxsPSIjRUY1OTQxIi8+CjxwYXRoIGQ9Ik00IDRIMTJWMTJINFY0WiIgZmlsbD0id2hpdGUiLz4KPC9zdmc+'
     };
 
+    const getChannelMeta = (channelKey) => {
+        const key = (channelKey || '').toLowerCase();
+        const labelMap = {
+            shopee: 'Shopee',
+            tiktok: 'TikTok Shop',
+            lazada: 'Lazada',
+            tiki: 'Tiki',
+            haravan: 'Haravan'
+        };
+        return {
+            key,
+            platformLabel: labelMap[key] || 'Kênh bán',
+            logo: channelLogos[key] || channelLogos.default
+        };
+    };
+
     // Generate mock data for a specific page
     const generateMockOrders = (page, size) => {
         const channels = ['shopee', 'tiktok', 'haravan', 'lazada', 'tiki'];
@@ -1271,6 +1287,11 @@ const OrderList = ({
     const getActionMenu = (order) => ({
         items: [
             {
+                key: 'detail',
+                label: 'Chi tiết',
+                onClick: () => handleActionMenuClick(order, 'detail')
+            },
+            {
                 key: 'update-shipping',
                 label: 'Cập nhật vận đơn',
                 onClick: () => handleActionMenuClick(order, 'update-shipping')
@@ -1369,7 +1390,7 @@ const OrderList = ({
                     zIndex: 1000
                 }}>
                     <Spin size="large" />
-                </div>
+            </div>
             )}
             
             {/* Loading Overlay for Order Type Switch in Return Order View */}
@@ -1403,13 +1424,15 @@ const OrderList = ({
                         style={{ 
                             background: 'transparent', 
                             border: 'none',
-                            transition: 'background 0.2s'
+                            padding: 0,
+                            color: '#1677ff',
+                            transition: 'all 0.2s'
                         }}
                         onMouseEnter={(e) => {
-                            e.currentTarget.style.background = 'rgba(0,0,0,0.06)';
+                            e.currentTarget.style.opacity = '0.8';
                         }}
                         onMouseLeave={(e) => {
-                            e.currentTarget.style.background = 'transparent';
+                            e.currentTarget.style.opacity = '1';
                         }}
                         onClick={() => setGuideDrawerVisible(true)}
                     >
@@ -1442,7 +1465,7 @@ const OrderList = ({
 
             {/* Order Type Filter Card - Separate Section with Tabs */}
             {!isBatchProcessing && (
-                <Card
+            <Card
                     bodyStyle={{ padding: 0, background: 'transparent' }}
                     style={{ marginBottom: 14, borderRadius: 8, background: 'transparent', border: 'none' }}
                 >
@@ -1486,7 +1509,7 @@ const OrderList = ({
                         {isLoadingOrderTypeSwitch && (
                             <Spin size="small" style={{ position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%)' }} />
                         )}
-                    </div>
+                </div>
                 </Card>
             )}
 
@@ -1586,20 +1609,27 @@ const OrderList = ({
                 </Card>
             )}
 
-            {/* Status Tabs and Summary Card */}
+            {/* Status Tabs and Summary Card - Sticky Container */}
             <Card
+                className="status-tabs-sticky-card"
                 bodyStyle={{ padding: 0 }}
-                style={{ marginTop: 14, borderRadius: 8 }}
+                style={{ 
+                    marginTop: 14,
+                    borderRadius: 8,
+                    backgroundColor: '#fff',
+                    border: '1px solid #F0F0F0'
+                }}
             >
                 {/* Status Tabs */}
-                <div className="status-tabs-container" style={{ 
-                    display: 'flex', 
-                    gap: 21, 
-                    padding: '12px 16px', 
-                    borderBottom: '1px solid #F0F0F0', 
-                    flexWrap: 'wrap',
-                    alignItems: 'center'
-                }}>
+                    <div className="status-tabs-container" style={{ 
+                        display: 'flex', 
+                        gap: 21, 
+                        padding: '12px 16px', 
+                    borderBottom: '1px solid #F0F0F0',
+                        flexWrap: 'wrap',
+                        alignItems: 'center',
+                        backgroundColor: '#fff'
+                    }}>
                     {/* Main status tabs (left side) */}
                     {statusTabs.map(tab => {
                         const isActive = activeStatusTab === tab.key;
@@ -1684,10 +1714,11 @@ const OrderList = ({
                 {/* Select All Header */}
                 <div style={{
                     padding: '12px 16px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                    gap: 16
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'space-between',
+                    gap: 16,
+                    backgroundColor: '#fff'
                 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
                         <Text style={{ fontSize: 14, color: '#000000A6' }}>
@@ -1752,7 +1783,7 @@ const OrderList = ({
                                             <Radio value="warehouse-time-newest">Thời gian xuất kho (mới nhất trước)</Radio>
                                             <Radio value="delivery-deadline-oldest">Hạn giao hàng (cũ nhất trước)</Radio>
                                             <Radio value="delivery-deadline-newest">Hạn giao hàng (mới nhất trước)</Radio>
-                    </Space>
+                                    </Space>
                                     </Radio.Group>
                 </div>
                             )}
@@ -1806,7 +1837,7 @@ const OrderList = ({
                                 )}
                             </>
                         )}
-                    </Space>
+                                    </Space>
                 </div>
             </Card>
 
@@ -1843,7 +1874,7 @@ const OrderList = ({
                             <Button size="small">
                                 Tự động liên kết đơn
                             </Button>
-                                    </Space>
+                                </Space>
                     </div>
                 ) : (
                     <div style={{ overflowX: guideDrawerVisible ? 'auto' : 'visible', overflowY: 'visible' }}>
@@ -1970,6 +2001,35 @@ const OrderList = ({
                                     zIndex: guideDrawerVisible && selectedColumns[0] === 'Sản phẩm' ? 9 : 1
                                 }}>
                                     <Space size={8} style={{ textAlign: 'left', alignItems: 'flex-start' }}>
+                                        <span
+                                            style={{
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                gap: 6,
+                                                padding: '2px 8px',
+                                                borderRadius: 999,
+                                                background: 'rgba(0,0,0,0.04)',
+                                                lineHeight: 1.2
+                                            }}
+                                        >
+                                            <img
+                                                src={getChannelMeta(order.channel).logo}
+                                                alt={getChannelMeta(order.channel).platformLabel}
+                                                style={{
+                                                    width: 14,
+                                                    height: 14,
+                                                    borderRadius: 3,
+                                                    objectFit: 'contain',
+                                                    background: '#fff'
+                                                }}
+                                            />
+                                            <Text style={{ fontSize: 13, color: 'rgba(0,0,0,0.88)' }}>
+                                                {order.shopName || 'UpBeauty'}
+                                            </Text>
+                                            <Text style={{ fontSize: 13, color: 'rgba(0,0,0,0.45)' }}>
+                                                · {getChannelMeta(order.channel).platformLabel}
+                                            </Text>
+                                        </span>
                                         <Text style={{ fontSize: 14, textAlign: 'left' }}>Mã đơn hàng: </Text>
                                         <span
                                         style={{
@@ -2645,15 +2705,6 @@ const OrderList = ({
                 }}
             >
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '0 12px', overflowY: 'auto', height: '100%' }}>
-                    {/* Progress Bar */}
-                    <div style={{ marginBottom: 8 }}>
-                        <Progress 
-                            percent={Math.round(((activeStep + 1) / 7) * 100)} 
-                            showInfo={true}
-                            strokeColor="#1677FF"
-                            size="small"
-                        />
-                    </div>
                     {[
                         {
                             title: 'Chuẩn bị hàng',
@@ -2719,7 +2770,7 @@ const OrderList = ({
                                         transition: 'background 0.2s'
                                     }}>
                                         {index + 1}
-                                    </div>
+                    </div>
                                     <div style={{ flex: 1, minWidth: 0, wordWrap: 'break-word', overflowWrap: 'break-word' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: isActive ? 8 : 0 }}>
                                             <Text strong style={{ 
@@ -2742,7 +2793,7 @@ const OrderList = ({
                                                     }} />
                                                 </Tooltip>
                                             )}
-                                        </div>
+                </div>
                                         {isActive && (
                                             <div style={{ 
                                                 fontSize: 12, 

@@ -59,13 +59,15 @@ const ReturnOrderView = () => {
                     style={{ 
                         background: 'transparent', 
                         border: 'none',
-                        transition: 'background 0.2s'
+                        padding: 0,
+                        color: '#1677ff',
+                        transition: 'all 0.2s'
                     }}
                     onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'rgba(0,0,0,0.06)';
+                        e.currentTarget.style.opacity = '0.8';
                     }}
                     onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'transparent';
+                        e.currentTarget.style.opacity = '1';
                     }}
                     onClick={() => setGuideDrawerVisible(true)}
                 >

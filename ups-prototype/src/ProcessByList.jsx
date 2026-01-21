@@ -216,13 +216,15 @@ const ProcessByList = () => {
                     style={{ 
                         background: 'transparent', 
                         border: 'none',
-                        transition: 'background 0.2s'
+                        padding: 0,
+                        color: '#1677ff',
+                        transition: 'all 0.2s'
                     }}
                     onMouseEnter={(e) => {
-                        e.currentTarget.style.background = 'rgba(0,0,0,0.06)';
+                        e.currentTarget.style.opacity = '0.8';
                     }}
                     onMouseLeave={(e) => {
-                        e.currentTarget.style.background = 'transparent';
+                        e.currentTarget.style.opacity = '1';
                     }}
                     onClick={() => setGuideDrawerVisible(true)}
                 >
@@ -384,15 +386,6 @@ const ProcessByList = () => {
                 }}
             >
                 <div style={{ display: 'flex', flexDirection: 'column', gap: 12, padding: '0 12px', overflowY: 'auto', height: '100%' }}>
-                    {/* Progress Bar */}
-                    <div style={{ marginBottom: 8 }}>
-                        <Progress 
-                            percent={Math.round(((activeStep + 1) / 5) * 100)} 
-                            showInfo={true}
-                            strokeColor="#1677FF"
-                            size="small"
-                        />
-                    </div>
                     {[
                         {
                             title: 'Tạo danh sách',

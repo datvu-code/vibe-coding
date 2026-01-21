@@ -80,10 +80,20 @@ const BatchProcessingView = () => {
                                         key={warehouse.key}
                                         type="default"
                                         style={{
-                                            background: selectedWarehouse === warehouse.key ? '#fff' : '#FAFAFA',
+                                            background: '#fff',
                                             borderColor: selectedWarehouse === warehouse.key ? '#FF5629' : '#D9D9D9',
-                                            color: selectedWarehouse === warehouse.key ? '#FF5629' : 'rgba(0,0,0,0.88)',
+                                            color: 'rgba(0,0,0,0.88)',
                                             fontSize: 14
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            if (selectedWarehouse !== warehouse.key) {
+                                                e.currentTarget.style.borderColor = '#FF5629';
+                                            }
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            if (selectedWarehouse !== warehouse.key) {
+                                                e.currentTarget.style.borderColor = '#D9D9D9';
+                                            }
                                         }}
                                         onClick={() => setSelectedWarehouse(warehouse.key)}
                                     >
@@ -106,10 +116,20 @@ const BatchProcessingView = () => {
                                         key={store.key}
                                         type="default"
                                         style={{
-                                            background: selectedStore === store.key ? '#fff' : '#FAFAFA',
+                                            background: '#fff',
                                             borderColor: selectedStore === store.key ? '#FF5629' : '#D9D9D9',
-                                            color: selectedStore === store.key ? '#FF5629' : 'rgba(0,0,0,0.88)',
+                                            color: 'rgba(0,0,0,0.88)',
                                             fontSize: 14
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            if (selectedStore !== store.key) {
+                                                e.currentTarget.style.borderColor = '#FF5629';
+                                            }
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            if (selectedStore !== store.key) {
+                                                e.currentTarget.style.borderColor = '#D9D9D9';
+                                            }
                                         }}
                                         onClick={() => setSelectedStore(store.key)}
                                     >
@@ -130,10 +150,20 @@ const BatchProcessingView = () => {
                                         key={unit.key}
                                         type="default"
                                         style={{
-                                            background: selectedShippingUnit === unit.key ? '#fff' : '#FAFAFA',
+                                            background: '#fff',
                                             borderColor: selectedShippingUnit === unit.key ? '#FF5629' : '#D9D9D9',
-                                            color: selectedShippingUnit === unit.key ? '#FF5629' : 'rgba(0,0,0,0.88)',
+                                            color: 'rgba(0,0,0,0.88)',
                                             fontSize: 14
+                                        }}
+                                        onMouseEnter={(e) => {
+                                            if (selectedShippingUnit !== unit.key) {
+                                                e.currentTarget.style.borderColor = '#FF5629';
+                                            }
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            if (selectedShippingUnit !== unit.key) {
+                                                e.currentTarget.style.borderColor = '#D9D9D9';
+                                            }
                                         }}
                                         onClick={() => setSelectedShippingUnit(unit.key)}
                                     >
@@ -321,7 +351,7 @@ const BatchProcessingView = () => {
                         <div>
                             <Text style={{ fontSize: 12, color: 'rgba(0,0,0,0.65)' }}>Số kiện theo bộ lọc: 11</Text>
                         </div>
-                        <Button block style={{ background: '#FFF1F0', borderColor: '#FF5629', color: '#FF5629' }}>
+                        <Button block style={{ background: 'rgba(0,0,0,0.06)', border: 'none', color: 'rgba(0,0,0,0.88)' }}>
                             In phiếu theo bộ lọc
                         </Button>
                     </Space>
@@ -339,7 +369,7 @@ const BatchProcessingView = () => {
                         <div>
                             <Text style={{ fontSize: 12, color: 'rgba(0,0,0,0.65)' }}>Số kiện theo bộ lọc: 11</Text>
                         </div>
-                        <Button block style={{ background: '#FFF1F0', borderColor: '#FF5629', color: '#FF5629' }}>
+                        <Button block style={{ background: 'rgba(0,0,0,0.06)', border: 'none', color: 'rgba(0,0,0,0.88)' }}>
                             Kiểm tra trạng thái theo bộ lọc
                         </Button>
                     </Space>
@@ -360,7 +390,7 @@ const BatchProcessingView = () => {
                         <div>
                             <Text style={{ fontSize: 12, color: 'rgba(0,0,0,0.65)' }}>Số kiện theo bộ lọc: 11</Text>
                         </div>
-                        <Button block style={{ background: '#FFF1F0', borderColor: '#FF5629', color: '#FF5629' }}>
+                        <Button block style={{ background: 'rgba(0,0,0,0.06)', border: 'none', color: 'rgba(0,0,0,0.88)' }}>
                             Chuẩn bị hàng theo bộ lọc
                         </Button>
                     </Space>

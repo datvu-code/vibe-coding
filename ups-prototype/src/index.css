@@ -321,6 +321,26 @@ body:has(.guide-drawer-split.ant-drawer-open) .ant-layout-content {
 }
 
 /* Status tabs horizontal scroll */
+/* Sticky Card for Status Tabs - Only apply to specific card */
+.status-tabs-sticky-card {
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 100 !important;
+  border-radius: 8px !important;
+}
+
+.status-tabs-sticky-card .ant-card-body {
+  border-radius: 8px !important;
+  overflow: hidden;
+}
+
+/* Sync height for ant-space-item in order cards */
+.ant-space-item {
+  height: fit-content;
+  display: flex;
+  align-items: center;
+}
+
 .status-tabs-container {
   overflow-x: auto !important;
   overflow-y: hidden !important;
