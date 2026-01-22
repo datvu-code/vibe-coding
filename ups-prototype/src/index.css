@@ -341,6 +341,30 @@ body:has(.guide-drawer-split.ant-drawer-open) .ant-layout-content {
   align-items: center;
 }
 
+/* Dashboard responsive fixes */
+@media (max-width: 992px) {
+  .dashboard-header {
+    padding: 0 12px !important;
+  }
+
+  .dashboard-breadcrumb {
+    display: none !important;
+  }
+
+  .dashboard-header-actions {
+    gap: 8px !important;
+    width: 100%;
+  }
+
+  .dashboard-header-actions .ant-picker {
+    width: 100% !important;
+  }
+
+  .dashboard-content {
+    padding: 12px !important;
+  }
+}
+
 .status-tabs-container {
   overflow-x: auto !important;
   overflow-y: hidden !important;
@@ -406,5 +430,23 @@ body:has(.guide-drawer-split.ant-drawer-open) .ant-layout-content {
 
 .order-processing-tabs .ant-tabs-ink-bar {
   background: #FF5629 !important;
+}
+
+/* Fix Card width issues in Ant Design v6 */
+.ant-col .ant-card {
+  width: 100% !important;
+  box-sizing: border-box !important;
+}
+
+/* Ensure Card doesn't overflow its container */
+.ant-row .ant-col .ant-card {
+  max-width: 100% !important;
+  min-width: 0 !important;
+}
+
+/* Fix Card body width */
+.ant-col .ant-card .ant-card-body {
+  width: 100% !important;
+  box-sizing: border-box !important;
 }
 

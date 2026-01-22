@@ -693,7 +693,7 @@ const VanHanhCard = () => {
         transition: 'all 0.2s ease',
         minHeight: '280px'
       }}
-      bodyStyle={{ padding: '28px 24px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', minHeight: 0 }}
+      styles={{ body: { padding: '28px 24px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', minHeight: 0 } }}
       hoverable
       onMouseEnter={(e) => {
         e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
@@ -872,7 +872,7 @@ const QuanTriCard = () => {
         transition: 'all 0.2s ease',
         minHeight: '280px'
       }}
-      bodyStyle={{ padding: '28px 24px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', minHeight: 0 }}
+      styles={{ body: { padding: '28px 24px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', minHeight: 0 } }}
       hoverable
       onMouseEnter={(e) => {
         e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
@@ -1053,7 +1053,7 @@ const CaiDatCard = () => {
         transition: 'all 0.2s ease',
         minHeight: '280px'
       }}
-      bodyStyle={{ padding: '28px 24px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', minHeight: 0 }}
+      styles={{ body: { padding: '28px 24px', height: '100%', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start', minHeight: 0 } }}
       hoverable
       onMouseEnter={(e) => {
         e.currentTarget.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
@@ -1227,7 +1227,7 @@ const KPICard = ({ title, value, change, trend, changePrevPeriod, trendPrevPerio
       border: 'none',
       boxShadow: 'none'
     }}
-    bodyStyle={{ padding: '20px 16px' }}
+    styles={{ body: { padding: '20px 16px' } }}
   >
     {breakdown ? (
       <div>
@@ -2977,7 +2977,7 @@ const HomepageLayout = () => {
                           flexDirection: 'column',
                           animation: 'fadeInScale 0.3s ease-out'
                         }}
-                        bodyStyle={{ padding: '16px', flex: 1, display: 'flex', flexDirection: 'column' }}
+                        styles={{ body: { padding: '16px', flex: 1, display: 'flex', flexDirection: 'column' } }}
                         extra={
                           <Space>
                             {(widgetType === 'breakdown' || widgetType === 'time-series') && (
@@ -3211,7 +3211,7 @@ const HomepageLayout = () => {
                 <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 12 }}>
                   {domain}
                 </Text>
-                <Space direction="vertical" style={{ width: '100%' }} size={8}>
+                <Space orientation="vertical" style={{ width: '100%' }} size={8}>
                   {metrics.map(metric => {
                     const isSelected = (sectionMetrics[currentSectionForMetric] || []).includes(metric.id);
                     return (
@@ -3659,7 +3659,7 @@ const HomepageLayout = () => {
                           <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 12 }}>
                             {metric}
                           </Text>
-                          <Space direction="vertical" style={{ width: '100%' }} size={8}>
+                          <Space orientation="vertical" style={{ width: '100%' }} size={8}>
                             {alerts.map(alert => {
                               const isSelected = (sectionMetrics[sectionId] || []).includes(alert.id);
                               return (
@@ -3765,7 +3765,7 @@ const HomepageLayout = () => {
                           <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 12 }}>
                             {metric}
                           </Text>
-                          <Space direction="vertical" style={{ width: '100%' }} size={8}>
+                          <Space orientation="vertical" style={{ width: '100%' }} size={8}>
                             {alerts.map(alert => {
                               const isSelected = (sectionMetrics[sectionId] || []).includes(alert.id);
                               return (
@@ -4321,7 +4321,7 @@ const HomepageLayout = () => {
 
             {/* Sections List - Only Titles */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
-              <Space direction="vertical" style={{ width: '100%' }} size={12}>
+              <Space orientation="vertical" style={{ width: '100%' }} size={12}>
                 {/* Section: Báo cáo */}
                 <div
                   style={{
@@ -5458,7 +5458,7 @@ const HomepageLayout = () => {
       if (templateInState.sections.alert) sections.push('alert');
       if (templateInState.sections.news) sections.push('news');
       return (
-        <Space direction="vertical" style={{ width: '100%' }} size={16}>
+        <Space orientation="vertical" style={{ width: '100%' }} size={16}>
           {sections.map((section, idx) => {
             if (section === 'report') {
               return (
@@ -5607,7 +5607,7 @@ const HomepageLayout = () => {
             position: 'relative',
             overflow: 'hidden'
           }}
-          bodyStyle={{ padding: 24, display: 'flex', flexDirection: 'column', height: '100%' }}
+          styles={{ body: { padding: 24, display: 'flex', flexDirection: 'column', height: '100%' } }}
         >
           <div style={{ position: 'relative', marginBottom: 16 }}>
             <div style={{
@@ -5841,7 +5841,7 @@ const HomepageLayout = () => {
 
     return (
       <Card
-        bodyStyle={{ padding: 0 }}
+        styles={{ body: { padding: 0 } }}
         style={{ borderRadius: 20, border: '1px solid #E1E3E5', boxShadow: '0 20px 40px rgba(15,23,42,0.08)' }}
       >
         <div style={{ padding: 24 }}>
@@ -5909,7 +5909,7 @@ const HomepageLayout = () => {
             </div>
           )}
           {!isEmptyState && (
-            <Space direction="vertical" style={{ width: '100%' }} size={12}>
+            <Space orientation="vertical" style={{ width: '100%' }} size={12}>
               {pagedTemplates.map((template) => {
                 const isSelected = selectedTemplateIds.has(template.id);
                 return (
@@ -6668,7 +6668,7 @@ const HomepageLayout = () => {
                     <Row gutter={24}>
                       {/* Left Main Column */}
                       <Col xs={24} lg={17}>
-                        <Space direction="vertical" size={20} style={{ width: '100%' }}>
+                        <Space orientation="vertical" size={20} style={{ width: '100%' }}>
                           {/* Báo cáo kết quả - Customizable với Template System */}
                           {(selectedWorkspace?.layout?.showDashboard !== false && selectedWorkspace) && (
                             <Card
@@ -6803,7 +6803,7 @@ const HomepageLayout = () => {
                                       <Progress
                                         percent={goal.percent}
                                         strokeColor="#1677FF"
-                                        strokeWidth={10}
+                                        size={10}
                                         showInfo={false}
                                       />
                                       <div style={{
@@ -6879,7 +6879,7 @@ const HomepageLayout = () => {
 
                       {/* Right Sidebar */}
                       <Col xs={24} lg={7}>
-                        <Space direction="vertical" size={16} style={{ width: '100%' }}>
+                        <Space orientation="vertical" size={16} style={{ width: '100%' }}>
                           {/* Alert & Risks - Tabbed */}
                           {(selectedWorkspace?.layout?.showAlerts !== false && selectedWorkspace) && (
                             <Card
@@ -7493,12 +7493,12 @@ const HomepageLayout = () => {
             ]}
             width={1200}
             style={{ top: 20 }}
-            bodyStyle={{ maxHeight: '70vh', overflowY: 'auto' }}
+            styles={{ body: { maxHeight: '70vh', overflowY: 'auto' } }}
           >
             <Row gutter={[16, 16]}>
               <Col xs={24} lg={10}>
                 <Card
-                  bodyStyle={{ padding: 20 }}
+                  styles={{ body: { padding: 20 } }}
                   style={{ height: '100%' }}
                 >
                   <Text strong style={{ display: 'block', marginBottom: 12 }}>
@@ -7597,7 +7597,7 @@ const HomepageLayout = () => {
                       </Text>
                     </Space>
                   }
-                  bodyStyle={{ padding: 0 }}
+                  styles={{ body: { padding: 0 } }}
                 >
                   <div style={{ position: 'relative', minHeight: 420, padding: 16 }}>
                     <div
@@ -7699,7 +7699,7 @@ const HomepageLayout = () => {
             ]}
             width={1000}
             style={{ top: 20 }}
-            bodyStyle={{ maxHeight: '70vh', overflowY: 'auto' }}
+            styles={{ body: { maxHeight: '70vh', overflowY: 'auto' } }}
           >
             {/* Template Name Input */}
             <Input
@@ -7810,7 +7810,7 @@ const HomepageLayout = () => {
               </div>
             }
             placement="right"
-            width={480}
+            size={480}
             open={annotationDrawerVisible}
             onClose={() => setAnnotationDrawerVisible(false)}
           >
@@ -7891,7 +7891,7 @@ const HomepageLayout = () => {
               </div>
             }
             placement="right"
-            width={520}
+            size={520}
             open={insightsDrawerVisible}
             onClose={() => setInsightsDrawerVisible(false)}
           >
@@ -7909,7 +7909,7 @@ const HomepageLayout = () => {
               size="small"
               style={{ marginBottom: 16, borderLeft: '3px solid #1677FF', background: '#f0f5ff' }}
             >
-              <Space direction="vertical" size="small" style={{ width: '100%' }}>
+              <Space orientation="vertical" size="small" style={{ width: '100%' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                   <ThunderboltOutlined style={{ color: '#1677FF', fontSize: 18 }} />
                   <Text strong style={{ color: '#1677FF' }}>Insight nổi bật</Text>
@@ -7940,7 +7940,7 @@ const HomepageLayout = () => {
                   key: '1',
                   label: <Text strong>📊 Hiệu suất cơ bản</Text>,
                   children: (
-                    <Space direction="vertical" style={{ width: '100%' }} size="small">
+                    <Space orientation="vertical" style={{ width: '100%' }} size="small">
                       <Button type="text" style={{ textAlign: 'left', height: 'auto', padding: '8px 12px' }}>
                         → Kênh nào đang tăng trưởng nhanh nhất?
                       </Button>
@@ -7957,7 +7957,7 @@ const HomepageLayout = () => {
                   key: '2',
                   label: <Text strong>🎯 Traffic & Acquisition</Text>,
                   children: (
-                    <Space direction="vertical" style={{ width: '100%' }} size="small">
+                    <Space orientation="vertical" style={{ width: '100%' }} size="small">
                       <Button type="text" style={{ textAlign: 'left', height: 'auto', padding: '8px 12px' }}>
                         → Nguồn traffic nào hiệu quả nhất?
                       </Button>
@@ -7971,7 +7971,7 @@ const HomepageLayout = () => {
                   key: '3',
                   label: <Text strong>🛒 Ecommerce Performance</Text>,
                   children: (
-                    <Space direction="vertical" style={{ width: '100%' }} size="small">
+                    <Space orientation="vertical" style={{ width: '100%' }} size="small">
                       <Button type="text" style={{ textAlign: 'left', height: 'auto', padding: '8px 12px' }}>
                         → Tỷ lệ hủy đơn cao ở kênh nào?
                       </Button>
@@ -7988,7 +7988,7 @@ const HomepageLayout = () => {
                   key: '4',
                   label: <Text strong>👥 Customer Behavior</Text>,
                   children: (
-                    <Space direction="vertical" style={{ width: '100%' }} size="small">
+                    <Space orientation="vertical" style={{ width: '100%' }} size="small">
                       <Button type="text" style={{ textAlign: 'left', height: 'auto', padding: '8px 12px' }}>
                         → Khách hàng mới vs khách quay lại?
                       </Button>
@@ -8045,9 +8045,9 @@ const HomepageLayout = () => {
               setSelectedItems([]);
               setSelectedAlertMetrics({ errors: [], warnings: [] });
             }}
-            width="100%"
-            style={{ zIndex: 1001 }}
-            bodyStyle={{ padding: 0, background: '#FAFBFB' }}
+            size="large"
+            style={{ zIndex: 1001, width: '100%' }}
+            styles={{ body: { padding: 0, background: '#FAFBFB' } }}
           >
             <div style={{ display: 'flex', height: 'calc(100vh - 55px)' }}>
               {/* Left Column - Tree Navigation */}
@@ -8072,7 +8072,7 @@ const HomepageLayout = () => {
                   Chọn nhóm và mục
                 </Text>
 
-                <Space direction="vertical" style={{ width: '100%' }} size={8}>
+                <Space orientation="vertical" style={{ width: '100%' }} size={8}>
                   {workspaceGroups.map(group => (
                     <div key={group.id} style={{ marginBottom: 8 }}>
                       {/* Group Header - Only show if group has no items or if group is not selected */}
@@ -8199,7 +8199,7 @@ const HomepageLayout = () => {
                   <Row gutter={24}>
                     {/* Left Main Column */}
                     <Col xs={24} lg={17}>
-                      <Space direction="vertical" size={20} style={{ width: '100%' }}>
+                      <Space orientation="vertical" size={20} style={{ width: '100%' }}>
                         {/* Dashboard Items */}
                         {selectedItems
                           .filter(item => item.groupId === 'Dashboard' && item.itemId)
@@ -8248,7 +8248,7 @@ const HomepageLayout = () => {
                                         {kpi.breakdown ? (
                                           <Card size="small" style={{ background: '#F7F7F7', border: 'none', height: '100%' }}>
                                             <Text strong style={{ fontSize: 13, display: 'block', marginBottom: 12 }}>{kpi.title}</Text>
-                                            <Space direction="vertical" style={{ width: '100%' }} size={8}>
+                                            <Space orientation="vertical" style={{ width: '100%' }} size={8}>
                                               {(kpi.breakdown || []).map((breakdownItem, breakdownIdx) => (
                                                 <div key={`breakdown-${breakdownIdx}`} style={{ display: 'flex', justifyContent: 'space-between' }}>
                                                   <Text style={{ fontSize: 12 }}>{breakdownItem.label}</Text>
@@ -8344,7 +8344,7 @@ const HomepageLayout = () => {
                                     <Progress
                                       percent={goal.percent}
                                       strokeColor="#1677FF"
-                                      strokeWidth={10}
+                                      size={10}
                                       showInfo={false}
                                     />
                                     <div style={{
@@ -8366,7 +8366,7 @@ const HomepageLayout = () => {
 
                     {/* Right Sidebar */}
                     <Col xs={24} lg={7}>
-                      <Space direction="vertical" size={16} style={{ width: '100%' }}>
+                      <Space orientation="vertical" size={16} style={{ width: '100%' }}>
                         {/* Lỗi & Cảnh báo */}
                         {selectedItems.some(item => item.groupId === 'Lỗi & Cảnh báo' && !item.itemId) && (
                           <Card
@@ -8673,7 +8673,7 @@ const HomepageLayout = () => {
                   ),
                   children: (
                     <div style={{ maxHeight: 400, overflowY: 'auto' }}>
-                      <Space direction="vertical" style={{ width: '100%' }} size={12}>
+                      <Space orientation="vertical" style={{ width: '100%' }} size={12}>
                         {alertMetrics.errors.map(metric => (
                           <Checkbox
                             key={metric.id}
@@ -8711,7 +8711,7 @@ const HomepageLayout = () => {
                   ),
                   children: (
                     <div style={{ maxHeight: 400, overflowY: 'auto' }}>
-                      <Space direction="vertical" style={{ width: '100%' }} size={12}>
+                      <Space orientation="vertical" style={{ width: '100%' }} size={12}>
                         {alertMetrics.warnings.map(metric => (
                           <Checkbox
                             key={metric.id}
@@ -8773,16 +8773,16 @@ const HomepageLayout = () => {
             ]}
             width={1200}
             style={{ top: 20 }}
-            bodyStyle={{ maxHeight: '70vh', overflowY: 'auto' }}
+            styles={{ body: { maxHeight: '70vh', overflowY: 'auto' } }}
           >
             <Row gutter={[24, 24]}>
               {/* Left Column - Groups Navigation */}
               <Col xs={24} lg={8}>
                 <Card
                   title="Chọn nhóm"
-                  bodyStyle={{ padding: 16 }}
+                  styles={{ body: { padding: 16 } }}
                 >
-                  <Space direction="vertical" style={{ width: '100%' }} size={12}>
+                  <Space orientation="vertical" style={{ width: '100%' }} size={12}>
                     {workspaceGroups.map(group => (
                       <div
                         key={group.id}
@@ -8817,7 +8817,7 @@ const HomepageLayout = () => {
               <Col xs={24} lg={16}>
                 <Card
                   title="Preview workspace"
-                  bodyStyle={{ padding: 24 }}
+                  styles={{ body: { padding: 24 } }}
                 >
                   <div style={{ marginBottom: 16 }}>
                     <Input
@@ -8922,7 +8922,7 @@ const HomepageLayout = () => {
                       boxShadow: '0 8px 24px rgba(15,23,42,0.08)'
                     }}
                   >
-                    <Space direction="vertical" size={8} style={{ width: '100%' }}>
+                    <Space orientation="vertical" size={8} style={{ width: '100%' }}>
                       <Title level={4} style={{ margin: 0 }}>{template.name}</Title>
                       <Space>
                         <Button

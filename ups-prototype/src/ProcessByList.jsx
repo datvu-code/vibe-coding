@@ -245,7 +245,7 @@ const ProcessByList = () => {
 
             {/* Filter Section */}
             <Card
-                bodyStyle={{ padding: '16px' }}
+                styles={{ body: { padding: '16px' } }}
                 style={{ marginBottom: 16, borderRadius: 8 }}
             >
                 <Row gutter={[16, 16]}>
@@ -346,7 +346,7 @@ const ProcessByList = () => {
 
             {/* Table */}
             <Card
-                bodyStyle={{ padding: 0 }}
+                styles={{ body: { padding: 0 } }}
                 style={{ borderRadius: 8 }}
             >
                 <Table
@@ -363,7 +363,7 @@ const ProcessByList = () => {
                 placement="right"
                 open={guideDrawerVisible}
                 onClose={() => setGuideDrawerVisible(false)}
-                width={300}
+                size={300}
                 mask={false}
                 zIndex={1001}
                 className="guide-drawer-split"

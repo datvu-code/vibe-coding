@@ -430,7 +430,7 @@ const ProgressGoalsWidget = () => {
   
   return (
     <Card title={<span style={{ fontSize: 16, fontWeight: 600 }}>Báo cáo tiến độ</span>}>
-      <Space direction="vertical" style={{ width: '100%' }} size="large">
+      <Space orientation="vertical" style={{ width: '100%' }} size="large">
         {goals.map((goal, idx) => (
           <div key={idx}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8, alignItems: 'center' }}>
@@ -441,7 +441,6 @@ const ProgressGoalsWidget = () => {
               percent={goal.current} 
               strokeColor={goal.color}
               status={goal.current >= 90 ? 'success' : goal.status}
-              strokeWidth={10}
             />
             <div style={{ fontSize: 12, color: '#8c8c8c', marginTop: 4 }}>
               {goal.current >= 90 ? '✓ Gần đạt mục tiêu!' : goal.current >= 70 ? 'Đang đi đúng hướng' : 'Cần tăng tốc'}
@@ -890,7 +889,7 @@ const CustomizationModal = ({ visible, onClose, activeWidgets, onSave }) => {
             Thêm widget
           </div>
           
-          <Space direction="vertical" style={{ width: '100%' }} size="small">
+          <Space orientation="vertical" style={{ width: '100%' }} size="small">
             {availableWidgetsList
               .filter(w => !widgets.find(aw => aw.id === w.id))
               .map(widget => (
@@ -1002,7 +1001,7 @@ const AnnotationPanel = ({ visible, onClose, dateRange }) => {
         </div>
       }
       placement="right"
-      width={450}
+      size={450}
       onClose={onClose}
       open={visible}
       extra={
@@ -1182,7 +1181,7 @@ const InsightsPanel = ({ visible, onClose }) => {
         </div>
       }
       placement="right"
-      width={500}
+      size={500}
       onClose={onClose}
       open={visible}
     >
@@ -1215,7 +1214,7 @@ const InsightsPanel = ({ visible, onClose }) => {
           </Button>
         </div>
         
-        <Space direction="vertical" style={{ width: '100%' }} size="middle">
+        <Space orientation="vertical" style={{ width: '100%' }} size="middle">
           {filteredInsights.filter(i => !i.read).map(insight => (
             <Card 
               key={insight.id} 
@@ -1376,9 +1375,9 @@ const DashboardEnhanced = () => {
   );
   
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout className="dashboard-enhanced" style={{ minHeight: '100vh' }}>
       {/* Header */}
-      <Header style={{ 
+      <Header className="dashboard-header" style={{ 
         background: '#fff', 
         padding: '0 24px', 
         display: 'flex', 
@@ -1398,17 +1397,17 @@ const DashboardEnhanced = () => {
             style={{ fontSize: 18 }}
           />
           <img src={logoSvg} alt="UpS Logo" style={{ height: 36 }} />
-          <div style={{ fontSize: 13, color: '#8c8c8c', marginLeft: 16 }}>
+          <div className="dashboard-breadcrumb" style={{ fontSize: 13, color: '#8c8c8c', marginLeft: 16 }}>
             Bảng điều khiển <span style={{ margin: '0 6px' }}>›</span> Trang chủ
           </div>
         </div>
         
-        <Space size="middle">
+        <div className="dashboard-header-actions" style={{ display: 'flex', alignItems: 'center', gap: 16, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
           <RangePicker 
             value={dateRange}
             onChange={setDateRange}
             size="middle"
-            style={{ minWidth: 280 }}
+            style={{ minWidth: 0, width: 280, maxWidth: '100%' }}
           />
           <Dropdown overlay={notificationMenu} trigger={['click']}>
             <Badge count={3} size="small">
@@ -1424,7 +1423,7 @@ const DashboardEnhanced = () => {
               <span style={{ fontWeight: 500 }}>Dat Vu</span>
             </div>
           </Dropdown>
-        </Space>
+        </div>
       </Header>
       
       <Layout>
@@ -1433,6 +1432,9 @@ const DashboardEnhanced = () => {
           trigger={null} 
           collapsible 
           collapsed={collapsed}
+          breakpoint="lg"
+          collapsedWidth={0}
+          onBreakpoint={(broken) => setCollapsed(broken)}
           style={{ background: '#fff', borderRight: '1px solid #f0f0f0' }}
           width={220}
         >
@@ -1445,7 +1447,7 @@ const DashboardEnhanced = () => {
         </Sider>
         
         {/* Main Content */}
-        <Layout style={{ padding: '24px', background: '#f5f5f5' }}>
+        <Layout className="dashboard-content" style={{ padding: '24px', background: '#f5f5f5' }}>
           <Content>
             {/* Page Header */}
             <div style={{ marginBottom: 24 }}>

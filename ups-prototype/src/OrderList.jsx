@@ -44,7 +44,7 @@ const CreateOrderScreen = ({ onClose }) => {
                     <Card 
                         title={<Text style={{ fontSize: 14 }}>Thông tin khách hàng</Text>}
                         style={{ marginBottom: 16 }}
-                        bodyStyle={{ padding: '16px' }}
+                        styles={{ body: { padding: '16px' } }}
                     >
                         <Input
                             placeholder="Tìm thông tin khách hàng (tên, số điện thoại, mã khách hàng, email, mã tham chiếu)"
@@ -59,7 +59,7 @@ const CreateOrderScreen = ({ onClose }) => {
                             <Card 
                                 title={<Text style={{ fontSize: 14 }}>Thông tin sản phẩm</Text>}
                                 style={{ marginBottom: 16 }}
-                                bodyStyle={{ padding: '16px' }}
+                                styles={{ body: { padding: '16px' } }}
                             >
                                 {/* Product Selection Fields */}
                                 <Row gutter={16} style={{ marginBottom: 16 }}>
@@ -114,7 +114,7 @@ const CreateOrderScreen = ({ onClose }) => {
                                     background: '#FAFAFA',
                                     marginBottom: 16
                                 }}>
-                                    <Space direction="vertical" size={8}>
+                                    <Space orientation="vertical" size={8}>
                                         <PlusOutlined style={{ fontSize: 32, color: '#BFBFBF' }} />
                                         <Text type="secondary" style={{ fontSize: 14 }}>Vui lòng chọn Kênh bán, Gian hàng để thêm sản phẩm</Text>
                                     </Space>
@@ -133,7 +133,7 @@ const CreateOrderScreen = ({ onClose }) => {
                                     </Col>
                                     <Col span={16}>
                                         <Form.Item label={<Text style={{ fontSize: 14 }}>Ghi chú</Text>}>
-                                            <Space direction="vertical" style={{ width: '100%' }}>
+                                            <Space orientation="vertical" style={{ width: '100%' }}>
                                                 <Radio.Group defaultValue="internal" size="small">
                                                     <Radio.Button value="internal" style={{ fontSize: 14 }}>Nội bộ</Radio.Button>
                                                     <Radio.Button value="customer" style={{ fontSize: 14 }}>Khách hàng</Radio.Button>
@@ -163,12 +163,12 @@ const CreateOrderScreen = ({ onClose }) => {
                         {/* Right Column - Product Summary & Order Info */}
                         <Col span={8}>
                             {/* Product Summary */}
-                            <Card 
+                            <Card
                                 title={<Text style={{ fontSize: 14 }}>Tóm tắt</Text>}
                                 style={{ marginBottom: 16 }}
-                                bodyStyle={{ padding: '16px' }}
+                                styles={{ body: { padding: '16px' } }}
                             >
-                                <Space direction="vertical" style={{ width: '100%' }} size={12}>
+                                <Space orientation="vertical" style={{ width: '100%' }} size={12}>
                                     <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                         <Text style={{ fontSize: 14 }}>Số lượng hàng hoá:</Text>
                                         <Text strong style={{ fontSize: 14 }}>0</Text>
@@ -180,7 +180,7 @@ const CreateOrderScreen = ({ onClose }) => {
                                     
                                     <Collapse ghost>
                                         <Panel header={<Text style={{ fontSize: 14 }}>Tổng giảm giá</Text>} key="1">
-                                            <Space direction="vertical" style={{ width: '100%' }} size={8}>
+                                            <Space orientation="vertical" style={{ width: '100%' }} size={8}>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                                     <Text style={{ fontSize: 14 }}>Giảm giá sản phẩm:</Text>
                                                     <Text style={{ fontSize: 14 }}>0₫</Text>
@@ -198,7 +198,7 @@ const CreateOrderScreen = ({ onClose }) => {
 
                                     <Collapse ghost>
                                         <Panel header={<Text style={{ fontSize: 14 }}>Phí vận chuyển phải trả</Text>} key="2">
-                                            <Space direction="vertical" style={{ width: '100%' }} size={8}>
+                                            <Space orientation="vertical" style={{ width: '100%' }} size={8}>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                                                     <Space>
                                                         <Text style={{ fontSize: 14 }}>Phí vận chuyển NBH hỗ trợ:</Text>
@@ -238,7 +238,7 @@ const CreateOrderScreen = ({ onClose }) => {
 
                                     <Collapse ghost>
                                         <Panel header={<Text style={{ fontSize: 14 }}>Điểm khách hàng thân thiết</Text>} key="3">
-                                            <Space direction="vertical" style={{ width: '100%' }} size={8}>
+                                            <Space orientation="vertical" style={{ width: '100%' }} size={8}>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                                                     <Text style={{ fontSize: 14 }}>Điểm quy đổi:</Text>
                                                     <Text style={{ fontSize: 14 }}>0 (0₫)</Text>
@@ -263,9 +263,9 @@ const CreateOrderScreen = ({ onClose }) => {
                             {/* Order Information */}
                             <Card 
                                 title={<Text style={{ fontSize: 14 }}>Thông tin đơn hàng</Text>}
-                                bodyStyle={{ padding: '16px' }}
+                                styles={{ body: { padding: '16px' } }}
                             >
-                                <Space direction="vertical" style={{ width: '100%' }} size={16}>
+                                <Space orientation="vertical" style={{ width: '100%' }} size={16}>
                                     <Form.Item>
                                         <Checkbox style={{ fontSize: 14 }}>Đơn sản phẩm gửi KOC, KOL</Checkbox>
                                     </Form.Item>
@@ -330,7 +330,7 @@ const CreateOrderScreen = ({ onClose }) => {
                             </Space>
                         }
                         style={{ marginBottom: 16 }}
-                        bodyStyle={{ padding: '16px' }}
+                        styles={{ body: { padding: '16px' } }}
                     >
                         <Row gutter={16} style={{ marginBottom: 16 }}>
                             <Col span={8}>
@@ -362,7 +362,7 @@ const CreateOrderScreen = ({ onClose }) => {
                             </Space>
                         }
                         style={{ marginBottom: 16 }}
-                        bodyStyle={{ padding: '16px' }}
+                        styles={{ body: { padding: '16px' } }}
                     >
                         {/* Shipping content will be added here */}
                     </Card>
@@ -1465,8 +1465,8 @@ const OrderList = ({
 
             {/* Order Type Filter Card - Separate Section with Tabs */}
             {!isBatchProcessing && (
-            <Card
-                    bodyStyle={{ padding: 0, background: 'transparent' }}
+                    <Card
+                    styles={{ body: { padding: 0, background: 'transparent' } }}
                     style={{ marginBottom: 14, borderRadius: 8, background: 'transparent', border: 'none' }}
                 >
                     <div style={{ display: 'flex', gap: 21, padding: '12px 0', flexWrap: 'wrap', alignItems: 'center', position: 'relative' }}>
@@ -1516,7 +1516,7 @@ const OrderList = ({
             {/* Filter Section Card */}
             {!isBatchProcessing && (
                 <Card
-                    bodyStyle={{ padding: '14px' }}
+                    styles={{ body: { padding: '14px' } }}
                     style={{ marginBottom: 14, borderRadius: 8 }}
                 >
                 <Row gutter={[16, 16]}>
@@ -1612,7 +1612,7 @@ const OrderList = ({
             {/* Status Tabs and Summary Card - Sticky Container */}
             <Card
                 className="status-tabs-sticky-card"
-                bodyStyle={{ padding: 0 }}
+                styles={{ body: { padding: 0 } }}
                 style={{ 
                     marginTop: 14,
                     borderRadius: 8,
@@ -1776,7 +1776,7 @@ const OrderList = ({
                                         onChange={(e) => setSortOption(e.target.value)}
                                         style={{ width: '100%' }}
                                     >
-                                        <Space direction="vertical" style={{ width: '100%' }}>
+                                        <Space orientation="vertical" style={{ width: '100%' }}>
                                             <Radio value="order-time-oldest">Thời gian đặt hàng (cũ nhất trước)</Radio>
                                             <Radio value="order-time-newest">Thời gian đặt hàng (mới nhất trước)</Radio>
                                             <Radio value="warehouse-time-oldest">Thời gian xuất kho (cũ nhất trước)</Radio>
@@ -2330,7 +2330,7 @@ const OrderList = ({
             <Drawer
                 title="Thông tin kho vận"
                 placement="right"
-                width={500}
+                size={500}
                 onClose={() => setLogisticsDrawerVisible(false)}
                 open={logisticsDrawerVisible}
                 zIndex={1003}
@@ -2350,7 +2350,7 @@ const OrderList = ({
                         {/* Xử lý */}
                         <div style={{ marginBottom: 24 }}>
                             <Title level={5} style={{ marginBottom: 12 }}>Xử lý</Title>
-                            <Space direction="vertical" size={12} style={{ width: '100%' }}>
+                            <Space orientation="vertical" size={12} style={{ width: '100%' }}>
                                 <div>
                                     <Text type="secondary" style={{ fontSize: 13 }}>Giao trước:</Text>
                                     <div style={{ marginTop: 4 }}>
@@ -2371,7 +2371,7 @@ const OrderList = ({
                         {/* Vận chuyển */}
                         <div>
                             <Title level={5} style={{ marginBottom: 12 }}>Vận chuyển</Title>
-                            <Space direction="vertical" size={12} style={{ width: '100%' }}>
+                            <Space orientation="vertical" size={12} style={{ width: '100%' }}>
                                 <div>
                                     <Text type="secondary" style={{ fontSize: 13 }}>Hình thức:</Text>
                                     <div style={{ marginTop: 4 }}>
@@ -2506,7 +2506,7 @@ const OrderList = ({
                             }}
                             style={{ width: '100%' }}
                         >
-                            <Space direction="vertical" style={{ width: '100%' }}>
+                            <Space orientation="vertical" style={{ width: '100%' }}>
                                 <div>
                                     <Radio value="export-orders-filter">Theo bộ lọc</Radio>
                                     {exportOption === 'export-orders-filter' && (
@@ -2515,7 +2515,7 @@ const OrderList = ({
                                                 value={exportShopOption}
                                                 onChange={(e) => setExportShopOption(e.target.value)}
                                             >
-                                                <Space direction="vertical">
+                                                <Space orientation="vertical">
                                                     <Radio value="merge-all">Gộp tất cả gian hàng</Radio>
                                                     <Radio value="separate-shops">Tách từng gian hàng</Radio>
                                                 </Space>
@@ -2540,7 +2540,7 @@ const OrderList = ({
                             }}
                             style={{ width: '100%' }}
                         >
-                            <Space direction="vertical" style={{ width: '100%' }}>
+                            <Space orientation="vertical" style={{ width: '100%' }}>
                                 <Radio value="export-payment-filter">Theo bộ lọc</Radio>
                                 <Radio value="export-payment-custom">Theo tuỳ chỉnh</Radio>
                             </Space>
@@ -2555,7 +2555,7 @@ const OrderList = ({
                 placement="right"
                 open={configDrawerVisible}
                 onClose={() => setConfigDrawerVisible(false)}
-                width={400}
+                size={400}
                 footer={
                     <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
                         <Button
@@ -2682,7 +2682,7 @@ const OrderList = ({
                 placement="right"
                 open={guideDrawerVisible}
                 onClose={() => setGuideDrawerVisible(false)}
-                width={300}
+                size={300}
                 mask={false}
                 zIndex={1001}
                 className="guide-drawer-split"

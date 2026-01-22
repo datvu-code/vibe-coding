@@ -241,7 +241,7 @@ const ProgressGoalsWidget = () => {
   
   return (
     <Card title="Progress Toward Goals">
-      <Space direction="vertical" style={{ width: '100%' }} size="large">
+      <Space orientation="vertical" style={{ width: '100%' }} size="large">
         {goals.map((goal, idx) => (
           <div key={idx}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
@@ -549,7 +549,7 @@ const AnnotationPanel = ({ visible, onClose, dateRange }) => {
     <Drawer
       title="Annotations Viewer"
       placement="right"
-      width={400}
+      size={400}
       onClose={onClose}
       open={visible}
       extra={
@@ -656,7 +656,7 @@ const InsightsPanel = ({ visible, onClose }) => {
         </div>
       }
       placement="right"
-      width={450}
+      size={450}
       onClose={onClose}
       open={visible}
     >
@@ -668,7 +668,7 @@ const InsightsPanel = ({ visible, onClose }) => {
       
       <div style={{ marginBottom: 24 }}>
         <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 12 }}>Recent Insights</div>
-        <Space direction="vertical" style={{ width: '100%' }} size="middle">
+        <Space orientation="vertical" style={{ width: '100%' }} size="middle">
           {mockInsights.map(insight => (
             <Card 
               key={insight.id} 
@@ -736,7 +736,7 @@ const WidgetLibraryDrawer = ({ visible, onClose, activeWidgets, onToggleWidget }
     <Drawer
       title="Widget Library"
       placement="right"
-      width={500}
+      size={500}
       onClose={onClose}
       open={visible}
     >

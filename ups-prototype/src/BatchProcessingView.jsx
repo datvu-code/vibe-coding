@@ -30,7 +30,7 @@ const BatchProcessingView = () => {
             <div style={{ flex: 1 }}>
                 {/* Filter Section */}
                 <Card
-                    bodyStyle={{ padding: 0 }}
+                    styles={{ body: { padding: 0 } }}
                     style={{ marginBottom: 16, borderRadius: 8 }}
                 >
                     {/* Status Tabs - Inside Card Body, at the top */}
@@ -231,7 +231,7 @@ const BatchProcessingView = () => {
                         <div style={{ marginTop: 16 }}>
                             <Text style={{ fontSize: 12, display: 'block', marginBottom: 8 }}>Loại kiện hàng</Text>
                             <Radio.Group value={packageTypeFilter} onChange={(e) => setPackageTypeFilter(e.target.value)}>
-                                <Space direction="vertical" size={8}>
+                                <Space orientation="vertical" size={8}>
                                     <Radio value="single-qty-1">Sản phẩm đơn lẻ (Số lượng 1)</Radio>
                                     <Radio value="single-qty-many">Sản phẩm đơn lẻ (Số lượng nhiều)</Radio>
                                     <Radio value="multiple-products">Nhiều sản phẩm</Radio>
@@ -300,7 +300,7 @@ const BatchProcessingView = () => {
 
                 {/* Order List - Placeholder for now */}
                 <Card
-                    bodyStyle={{ padding: 0 }}
+                    styles={{ body: { padding: 0 } }}
                     style={{ borderRadius: 8 }}
                 >
                     <div style={{ padding: 24, textAlign: 'center' }}>
@@ -336,10 +336,10 @@ const BatchProcessingView = () => {
             <div style={{ width: 300, flexShrink: 0 }}>
                 <Card
                     title={<Text strong style={{ fontSize: 14 }}>In phiếu hàng loạt</Text>}
-                    bodyStyle={{ padding: '16px' }}
+                    styles={{ body: { padding: '16px' } }}
                     style={{ marginBottom: 16, borderRadius: 8 }}
                 >
-                    <Space direction="vertical" size={12} style={{ width: '100%' }}>
+                    <Space orientation="vertical" size={12} style={{ width: '100%' }}>
                         <Checkbox>In phiếu xuất</Checkbox>
                         <Checkbox>In phiếu nhặt hàng</Checkbox>
                         <div>
@@ -359,10 +359,10 @@ const BatchProcessingView = () => {
 
                 <Card
                     title={<Text strong style={{ fontSize: 14 }}>Xử lý hàng hàng loạt</Text>}
-                    bodyStyle={{ padding: '16px' }}
+                    styles={{ body: { padding: '16px' } }}
                     style={{ marginBottom: 16, borderRadius: 8 }}
                 >
-                    <Space direction="vertical" size={12} style={{ width: '100%' }}>
+                    <Space orientation="vertical" size={12} style={{ width: '100%' }}>
                         <Text style={{ fontSize: 12, color: 'rgba(0,0,0,0.65)' }}>
                             Những đơn hàng đã được tạo vận đơn sẽ được chuyển sang phần Đang đóng gói
                         </Text>
@@ -377,10 +377,10 @@ const BatchProcessingView = () => {
 
                 <Card
                     title={<Text strong style={{ fontSize: 14 }}>Chuẩn bị hàng hàng loạt</Text>}
-                    bodyStyle={{ padding: '16px' }}
+                    styles={{ body: { padding: '16px' } }}
                     style={{ borderRadius: 8 }}
                 >
-                    <Space direction="vertical" size={12} style={{ width: '100%' }}>
+                    <Space orientation="vertical" size={12} style={{ width: '100%' }}>
                         <div>
                             <Text style={{ fontSize: 12, color: 'rgba(0,0,0,0.65)' }}>Kiện hàng đã chọn: {selectedPackages}</Text>
                         </div>
