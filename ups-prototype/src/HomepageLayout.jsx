@@ -29,7 +29,8 @@ import { DndContext, closestCenter } from '@dnd-kit/core';
 import OrderList from './OrderList';
 import ProcessByList from './ProcessByList';
 import OrderProcessing from './OrderProcessing';
-import ReturnOrderView from './ReturnOrderView';
+import ProcessReturnOrderView from './ProcessReturnOrderView';
+import ReturnOrderOnlyView from './ReturnOrderOnlyView';
 import IncomeDashboard from './IncomeDashboard';
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -1894,8 +1895,14 @@ const HomepageLayout = () => {
     } else if (activeModule === 'xu-ly-hang-loat') {
       matchedKey = 'xu-ly-hang-loat';
       parentKey = 'don-hang';
+    } else if (activeModule === 'xu-ly-theo-danh-sach') {
+      matchedKey = 'xu-ly-theo-danh-sach';
+      parentKey = 'don-hang';
     } else if (activeModule === 'xu-ly-tra-hang') {
       matchedKey = 'xu-ly-tra-hang';
+      parentKey = 'don-hang';
+    } else if (activeModule === 'don-hoan') {
+      matchedKey = 'don-hoan';
       parentKey = 'don-hang';
     } else {
       // Try to find matching nav item
@@ -2152,7 +2159,7 @@ const HomepageLayout = () => {
     // Collapse sidebar when item is selected
     setSidebarCollapsed(true);
     // For specific menu items, use their key as activeModule
-    if (subItem.key === 'xu-ly-hang-loat' || subItem.key === 'danh-sach-don-hang' || subItem.key === 'xu-ly-tra-hang' || subItem.key === 'dashboard') {
+    if (subItem.key === 'xu-ly-hang-loat' || subItem.key === 'danh-sach-don-hang' || subItem.key === 'xu-ly-tra-hang' || subItem.key === 'xu-ly-theo-danh-sach' || subItem.key === 'don-hoan' || subItem.key === 'dashboard') {
       setActiveModule(subItem.key);
     } else if (subItem.module) {
       setActiveModule(subItem.module);
@@ -2166,7 +2173,7 @@ const HomepageLayout = () => {
     // Collapse sidebar when item is selected
     setSidebarCollapsed(true);
     // For specific menu items, use their key as activeModule
-    if (nestedItem.key === 'xu-ly-hang-loat' || nestedItem.key === 'danh-sach-don-hang' || nestedItem.key === 'xu-ly-tra-hang') {
+    if (nestedItem.key === 'xu-ly-hang-loat' || nestedItem.key === 'danh-sach-don-hang' || nestedItem.key === 'xu-ly-tra-hang' || nestedItem.key === 'xu-ly-theo-danh-sach' || nestedItem.key === 'don-hoan') {
       setActiveModule(nestedItem.key);
     } else if (nestedItem.module) {
       setActiveModule(nestedItem.module);
@@ -2448,7 +2455,7 @@ const HomepageLayout = () => {
                             onClick={() => {
                               setActiveNavItem(nestedChild.key);
                               // For specific menu items, use their key as activeModule
-                              if (nestedChild.key === 'xu-ly-hang-loat' || nestedChild.key === 'danh-sach-don-hang' || nestedChild.key === 'xu-ly-tra-hang' || nestedChild.key === 'dashboard') {
+                              if (nestedChild.key === 'xu-ly-hang-loat' || nestedChild.key === 'danh-sach-don-hang' || nestedChild.key === 'xu-ly-tra-hang' || nestedChild.key === 'xu-ly-theo-danh-sach' || nestedChild.key === 'don-hoan' || nestedChild.key === 'dashboard') {
                                 setActiveModule(nestedChild.key);
                               } else if (nestedChild.module) {
                                 setActiveModule(nestedChild.module);
@@ -2490,7 +2497,7 @@ const HomepageLayout = () => {
                     onClick={() => {
                       setActiveNavItem(child.key);
                       // For specific menu items, use their key as activeModule
-                      if (child.key === 'xu-ly-hang-loat' || child.key === 'danh-sach-don-hang' || child.key === 'xu-ly-tra-hang' || child.key === 'dashboard') {
+                      if (child.key === 'xu-ly-hang-loat' || child.key === 'danh-sach-don-hang' || child.key === 'xu-ly-tra-hang' || child.key === 'xu-ly-theo-danh-sach' || child.key === 'don-hoan' || child.key === 'dashboard') {
                         setActiveModule(child.key);
                       } else if (child.module) {
                         setActiveModule(child.module);
@@ -5214,9 +5221,11 @@ const HomepageLayout = () => {
           key: 'don-hang',
           label: 'Đơn hàng',
           children: [
-            { key: 'danh-sach-don-hang', label: 'Quản trị đơn hàng', module: 'orders' },
-            { key: 'xu-ly-hang-loat', label: 'Xử lý đơn hàng', module: 'orders' },
-            { key: 'xu-ly-tra-hang', label: 'Trả hàng/Đơn hoàn', module: 'orders' },
+            { key: 'danh-sach-don-hang', label: 'Danh sách đơn hàng', module: 'orders' },
+            { key: 'xu-ly-hang-loat', label: 'Xử lý hàng loạt', module: 'orders' },
+            { key: 'xu-ly-theo-danh-sach', label: 'Xử lý theo danh sách', module: 'orders' },
+            { key: 'xu-ly-tra-hang', label: 'Xử lý trả hàng', module: 'orders' },
+            { key: 'don-hoan', label: 'Đơn hoàn', module: 'orders' },
             { key: 'phien-ban-giao', label: 'Phiên bàn giao', module: 'orders' },
             { key: 'quy-tac-tang-qua', label: 'Quy tắc tặng quà', module: 'orders' }
           ]
@@ -6571,7 +6580,7 @@ const HomepageLayout = () => {
             }}>
               <Content style={{ padding: '24px', height: 'fit-content' }}>
                 {/* Page Header */}
-                {activeModule !== 'xu-ly-hang-loat' && activeModule !== 'xu-ly-tra-hang' && activeModule !== 'dashboard' && (
+                {activeModule !== 'xu-ly-hang-loat' && activeModule !== 'xu-ly-tra-hang' && activeModule !== 'xu-ly-theo-danh-sach' && activeModule !== 'don-hoan' && activeModule !== 'dashboard' && (
                   <div
                     style={{
                       marginBottom: 20,
@@ -7448,8 +7457,12 @@ const HomepageLayout = () => {
                   <OrderList />
                 ) : activeModule === 'xu-ly-hang-loat' ? (
                   <OrderProcessing />
+                ) : activeModule === 'xu-ly-theo-danh-sach' ? (
+                  <ProcessByList />
                 ) : activeModule === 'xu-ly-tra-hang' ? (
-                  <ReturnOrderView />
+                  <ProcessReturnOrderView />
+                ) : activeModule === 'don-hoan' ? (
+                  <ReturnOrderOnlyView />
                 ) : activeModule === 'dashboard' ? (
                   <IncomeDashboard />
                 ) : activeModule === 'workspace-settings' ? (

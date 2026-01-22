@@ -394,6 +394,7 @@ const OrderList = ({
     isBatchProcessing = false, 
     isAbnormalCancellation = false, 
     isReturnOrderView = false,
+    isProcessReturnOrder = false,
     guideDrawerVisible: externalGuideDrawerVisible,
     setGuideDrawerVisible: externalSetGuideDrawerVisible,
     exportFileModalVisible: externalExportFileModalVisible,
@@ -1792,7 +1793,16 @@ const OrderList = ({
                                 Sắp xếp theo
                             </Button>
                         </Dropdown>
-                        {orderTypeFilter === 'platform' && (
+                        {isProcessReturnOrder && (
+                            <Button 
+                                size="small" 
+                                type="primary"
+                                style={{ background: '#FF5629', borderColor: '#FF5629' }}
+                            >
+                                Xử lý hàng loạt
+                            </Button>
+                        )}
+                        {!isProcessReturnOrder && orderTypeFilter === 'platform' && (
                             <Button 
                                 size="small" 
                                 type="primary"
