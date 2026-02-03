@@ -234,8 +234,8 @@ const ProcessByList = () => {
                     type="primary"
                     icon={<PlusOutlined />}
                     style={{
-                        background: '#FF5629',
-                        borderColor: '#FF5629',
+                        background: '#EF5941',
+                        borderColor: '#EF5941',
                         fontSize: 14
                     }}
                 >
@@ -325,7 +325,7 @@ const ProcessByList = () => {
                             style={{
                                 padding: '12px 16px',
                                 cursor: 'pointer',
-                                borderBottom: activeStatusTab === tab.key ? '2px solid #FF5629' : '2px solid transparent',
+                                borderBottom: activeStatusTab === tab.key ? '2px solid #EF5941' : '2px solid transparent',
                                 marginBottom: '-1px',
                                 transition: 'all 0.2s'
                             }}
@@ -334,7 +334,7 @@ const ProcessByList = () => {
                                 style={{
                                     fontSize: 14,
                                     fontWeight: activeStatusTab === tab.key ? 500 : 400,
-                                    color: activeStatusTab === tab.key ? '#FF5629' : 'rgba(0,0,0,0.88)'
+                                    color: activeStatusTab === tab.key ? '#EF5941' : 'rgba(0,0,0,0.88)'
                                 }}
                             >
                                 {tab.label} {tab.count !== null && `(${tab.count})`}

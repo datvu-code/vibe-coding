@@ -47,7 +47,7 @@ const BatchProcessingView = () => {
                                     style={{
                                         padding: '12px 16px',
                                         cursor: 'pointer',
-                                        borderBottom: batchProcessingStatusTab === tab.key ? '2px solid #FF5629' : '2px solid transparent',
+                                        borderBottom: batchProcessingStatusTab === tab.key ? '2px solid #EF5941' : '2px solid transparent',
                                         marginBottom: '-1px',
                                         transition: 'all 0.2s'
                                     }}
@@ -56,7 +56,7 @@ const BatchProcessingView = () => {
                                         style={{
                                             fontSize: 14,
                                             fontWeight: batchProcessingStatusTab === tab.key ? 500 : 400,
-                                            color: batchProcessingStatusTab === tab.key ? '#FF5629' : 'rgba(0,0,0,0.88)'
+                                            color: batchProcessingStatusTab === tab.key ? '#EF5941' : 'rgba(0,0,0,0.88)'
                                         }}
                                     >
                                         {tab.label}
@@ -81,13 +81,13 @@ const BatchProcessingView = () => {
                                         type="default"
                                         style={{
                                             background: '#fff',
-                                            borderColor: selectedWarehouse === warehouse.key ? '#FF5629' : '#D9D9D9',
+                                            borderColor: selectedWarehouse === warehouse.key ? '#EF5941' : '#D9D9D9',
                                             color: 'rgba(0,0,0,0.88)',
                                             fontSize: 14
                                         }}
                                         onMouseEnter={(e) => {
                                             if (selectedWarehouse !== warehouse.key) {
-                                                e.currentTarget.style.borderColor = '#FF5629';
+                                                e.currentTarget.style.borderColor = '#EF5941';
                                             }
                                         }}
                                         onMouseLeave={(e) => {
@@ -117,13 +117,13 @@ const BatchProcessingView = () => {
                                         type="default"
                                         style={{
                                             background: '#fff',
-                                            borderColor: selectedStore === store.key ? '#FF5629' : '#D9D9D9',
+                                            borderColor: selectedStore === store.key ? '#EF5941' : '#D9D9D9',
                                             color: 'rgba(0,0,0,0.88)',
                                             fontSize: 14
                                         }}
                                         onMouseEnter={(e) => {
                                             if (selectedStore !== store.key) {
-                                                e.currentTarget.style.borderColor = '#FF5629';
+                                                e.currentTarget.style.borderColor = '#EF5941';
                                             }
                                         }}
                                         onMouseLeave={(e) => {
@@ -151,13 +151,13 @@ const BatchProcessingView = () => {
                                         type="default"
                                         style={{
                                             background: '#fff',
-                                            borderColor: selectedShippingUnit === unit.key ? '#FF5629' : '#D9D9D9',
+                                            borderColor: selectedShippingUnit === unit.key ? '#EF5941' : '#D9D9D9',
                                             color: 'rgba(0,0,0,0.88)',
                                             fontSize: 14
                                         }}
                                         onMouseEnter={(e) => {
                                             if (selectedShippingUnit !== unit.key) {
-                                                e.currentTarget.style.borderColor = '#FF5629';
+                                                e.currentTarget.style.borderColor = '#EF5941';
                                             }
                                         }}
                                         onMouseLeave={(e) => {
@@ -279,7 +279,7 @@ const BatchProcessingView = () => {
                                 style={{
                                     padding: '12px 16px',
                                     cursor: 'pointer',
-                                    borderBottom: orderStatusTab === tab.key ? '2px solid #FF5629' : '2px solid transparent',
+                                    borderBottom: orderStatusTab === tab.key ? '2px solid #EF5941' : '2px solid transparent',
                                     marginBottom: '-1px',
                                     transition: 'all 0.2s'
                                 }}
@@ -288,7 +288,7 @@ const BatchProcessingView = () => {
                                     style={{
                                         fontSize: 14,
                                         fontWeight: orderStatusTab === tab.key ? 500 : 400,
-                                        color: orderStatusTab === tab.key ? '#FF5629' : 'rgba(0,0,0,0.88)'
+                                        color: orderStatusTab === tab.key ? '#EF5941' : 'rgba(0,0,0,0.88)'
                                     }}
                                 >
                                     {tab.label} ({tab.count})
@@ -345,7 +345,7 @@ const BatchProcessingView = () => {
                         <div>
                             <Text style={{ fontSize: 12, color: 'rgba(0,0,0,0.65)' }}>Kiện hàng đã chọn: {selectedPackages}</Text>
                         </div>
-                        <Button type="primary" block style={{ background: '#FF5629', borderColor: '#FF5629' }}>
+                        <Button type="primary" block style={{ background: '#EF5941', borderColor: '#EF5941' }}>
                             In phiếu
                         </Button>
                         <div>
@@ -384,7 +384,7 @@ const BatchProcessingView = () => {
                         <div>
                             <Text style={{ fontSize: 12, color: 'rgba(0,0,0,0.65)' }}>Kiện hàng đã chọn: {selectedPackages}</Text>
                         </div>
-                        <Button type="primary" block style={{ background: '#FF5629', borderColor: '#FF5629' }}>
+                        <Button type="primary" block style={{ background: '#EF5941', borderColor: '#EF5941' }}>
                             Chuẩn bị hàng
                         </Button>
                         <div>

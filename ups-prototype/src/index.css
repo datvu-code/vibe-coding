@@ -66,6 +66,27 @@
   line-height: 1;
 }
 
+/* Badge count - dark background with white text */
+.ant-badge .ant-badge-count {
+  background: #2B2B2B !important;
+  color: #fff !important;
+  box-shadow: none !important;
+}
+
+/* Table with neutral header */
+.neutral-header-table .ant-table-thead > tr > th {
+  background: #F5F5F5 !important;
+  border-radius: 0 !important;
+}
+
+.neutral-header-table .ant-table-thead > tr > th:first-child {
+  border-start-start-radius: 0 !important;
+}
+
+.neutral-header-table .ant-table-thead > tr > th:last-child {
+  border-start-end-radius: 0 !important;
+}
+
 /* Improved drawer animations */
 .ant-drawer-content-wrapper {
   transition: transform 0.3s cubic-bezier(0.23, 1, 0.32, 1) !important;
@@ -73,7 +94,7 @@
 
 /* Primary button color override */
 :root {
-  --ups-primary: #FF5629;
+  --ups-primary: #EF5941;
   --ups-primary-hover: #ff6b45;
   --ups-primary-active: #e64b21;
 }
@@ -105,7 +126,31 @@
   color: rgba(0, 0, 0, 0.25) !important;
 }
 
-/* Custom primary checkbox color */
+/* Checkbox primary color - Global */
+.ant-checkbox-checked .ant-checkbox-inner {
+  background-color: var(--ups-primary) !important;
+  border-color: var(--ups-primary) !important;
+}
+
+.ant-checkbox:hover .ant-checkbox-inner {
+  border-color: var(--ups-primary) !important;
+}
+
+.ant-checkbox-checked:hover .ant-checkbox-inner {
+  background-color: var(--ups-primary-hover) !important;
+  border-color: var(--ups-primary-hover) !important;
+}
+
+.ant-checkbox-input:focus + .ant-checkbox-inner {
+  border-color: var(--ups-primary) !important;
+  box-shadow: 0 0 0 3px rgba(239, 89, 65, 0.12) !important;
+}
+
+.ant-checkbox-indeterminate .ant-checkbox-inner::after {
+  background-color: var(--ups-primary) !important;
+}
+
+/* Custom primary checkbox color (legacy class) */
 .custom-primary-checkbox .ant-checkbox-checked .ant-checkbox-inner {
   background-color: var(--ups-primary) !important;
   border-color: var(--ups-primary) !important;
@@ -122,6 +167,61 @@
 
 .custom-primary-checkbox .ant-checkbox-input:focus + .ant-checkbox-inner {
   border-color: var(--ups-primary) !important;
+}
+
+/* Switch primary color */
+.ant-switch-checked {
+  background-color: var(--ups-primary) !important;
+}
+
+.ant-switch-checked:hover:not(.ant-switch-disabled) {
+  background-color: var(--ups-primary-hover) !important;
+}
+
+.ant-switch:focus {
+  box-shadow: 0 0 0 2px rgba(239, 89, 65, 0.2) !important;
+}
+
+.ant-switch-checked:focus {
+  box-shadow: 0 0 0 2px rgba(239, 89, 65, 0.2) !important;
+}
+
+/* Radio button primary color */
+.ant-radio-checked .ant-radio-inner {
+  border-color: var(--ups-primary) !important;
+  background-color: var(--ups-primary) !important;
+}
+
+.ant-radio:hover .ant-radio-inner {
+  border-color: var(--ups-primary) !important;
+}
+
+.ant-radio-checked::after {
+  border-color: var(--ups-primary) !important;
+}
+
+.ant-radio-input:focus + .ant-radio-inner {
+  border-color: var(--ups-primary) !important;
+  box-shadow: 0 0 0 3px rgba(239, 89, 65, 0.12) !important;
+}
+
+/* Radio Group button style */
+.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled) {
+  color: var(--ups-primary) !important;
+  border-color: var(--ups-primary) !important;
+}
+
+.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled)::before {
+  background-color: var(--ups-primary) !important;
+}
+
+.ant-radio-button-wrapper-checked:not(.ant-radio-button-wrapper-disabled):hover {
+  color: var(--ups-primary-hover) !important;
+  border-color: var(--ups-primary-hover) !important;
+}
+
+.ant-radio-button-wrapper:hover {
+  color: var(--ups-primary) !important;
 }
 
 /* Xem thêm link color */
@@ -419,7 +519,7 @@ body:has(.guide-drawer-split.ant-drawer-open) .ant-layout-content {
 
 /* Order Processing Tabs - Primary color for active tab */
 .order-processing-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
-  color: #FF5629 !important;
+  color: #EF5941 !important;
   font-weight: 500 !important;
   font-size: 16px !important;
 }
@@ -429,7 +529,7 @@ body:has(.guide-drawer-split.ant-drawer-open) .ant-layout-content {
 }
 
 .order-processing-tabs .ant-tabs-ink-bar {
-  background: #FF5629 !important;
+  background: #EF5941 !important;
 }
 
 /* Fix Card width issues in Ant Design v6 */

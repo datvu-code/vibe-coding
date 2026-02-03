@@ -100,7 +100,7 @@ const CreateOrderScreen = ({ onClose }) => {
                                 {/* Action Buttons */}
                                 <Space style={{ marginBottom: 16 }}>
                                     <Button icon={<GiftOutlined />} style={{ fontSize: 14 }}>Thêm quà</Button>
-                                    <Button type="primary" icon={<PlusOutlined />} style={{ background: '#FF5722', borderColor: '#FF5722', fontSize: 14 }}>
+                                    <Button type="primary" icon={<PlusOutlined />} style={{ background: '#EF5941', borderColor: '#EF5941', fontSize: 14 }}>
                                         Thêm sản phẩm
                                     </Button>
                                 </Space>
@@ -378,10 +378,10 @@ const CreateOrderScreen = ({ onClose }) => {
                         <Button onClick={onClose} style={{ fontSize: 14 }}>
                             Huỷ bỏ
                         </Button>
-                        <Button style={{ borderColor: '#FF5722', color: '#FF5722', fontSize: 14 }}>
+                        <Button style={{ borderColor: '#EF5941', color: '#EF5941', fontSize: 14 }}>
                             Lưu nháp
                         </Button>
-                        <Button type="primary" style={{ background: '#FF5722', borderColor: '#FF5722', fontSize: 14 }}>
+                        <Button type="primary" style={{ background: '#EF5941', borderColor: '#EF5941', fontSize: 14 }}>
                             Lưu & chốt đơn
                         </Button>
                     </div>
@@ -1465,7 +1465,7 @@ const OrderList = ({
             )}
 
             {/* Order Type Filter Card - Separate Section with Tabs */}
-            {!isBatchProcessing && (
+            {!isBatchProcessing && !isProcessReturnOrder && (
                     <Card
                     styles={{ body: { padding: 0, background: 'transparent' } }}
                     style={{ marginBottom: 14, borderRadius: 8, background: 'transparent', border: 'none' }}
@@ -1757,9 +1757,9 @@ const OrderList = ({
                     </div>
                     <Space size={14}>
                         <Button 
-                            size="small" 
                             icon={<SettingOutlined />}
                             onClick={() => setConfigDrawerVisible(true)}
+                            style={{ height: 32 }}
                         />
                         <Dropdown
                             trigger={['click']}
@@ -1789,23 +1789,22 @@ const OrderList = ({
                 </div>
                             )}
                         >
-                            <Button size="small" icon={<SortAscendingOutlined />}>
+                            <Button icon={<SortAscendingOutlined />} style={{ height: 32 }}>
                                 Sắp xếp theo
                             </Button>
                         </Dropdown>
                         {isProcessReturnOrder && (
                             <Button 
-                                size="small" 
                                 type="primary"
-                                style={{ background: '#FF5629', borderColor: '#FF5629' }}
+                                style={{ background: '#EF5941', borderColor: '#EF5941', height: 32 }}
                             >
                                 Xử lý hàng loạt
                             </Button>
                         )}
                         {!isProcessReturnOrder && orderTypeFilter === 'platform' && (
                             <Button 
-                                size="small" 
                                 type="primary"
+                                style={{ height: 32 }}
                                 onClick={() => {
                                     // Navigate to batch processing view
                                     // This will be handled by parent component or routing
@@ -2574,7 +2573,7 @@ const OrderList = ({
                                 console.log('Selected columns:', selectedColumns);
                                 setConfigDrawerVisible(false);
                             }}
-                            style={{ background: '#FF5722', borderColor: '#FF5722', fontSize: 14 }}
+                            style={{ background: '#EF5941', borderColor: '#EF5941', fontSize: 14 }}
                         >
                             Lưu
                         </Button>

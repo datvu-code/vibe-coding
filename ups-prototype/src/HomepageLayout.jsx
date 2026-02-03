@@ -31,7 +31,20 @@ import ProcessByList from './ProcessByList';
 import OrderProcessing from './OrderProcessing';
 import ProcessReturnOrderView from './ProcessReturnOrderView';
 import ReturnOrderOnlyView from './ReturnOrderOnlyView';
+import DeliverySessionView from './DeliverySessionView';
+import GiftRuleView from './GiftRuleView';
+import AddProductView from './AddProductView';
+import DraftProductsView from './DraftProductsView';
+import PlatformProductsView from './PlatformProductsView';
+import ProductLinkingView from './ProductLinkingView';
+import SyncManagementView from './SyncManagementView';
+import StockPushHistoryView from './StockPushHistoryView';
+import CustomerListView from './CustomerListView';
+import ReviewManagementView from './ReviewManagementView';
+import AutoReviewView from './AutoReviewView';
 import IncomeDashboard from './IncomeDashboard';
+import FrameTemplateList from './FrameTemplateList';
+import FrameScheduleManagement from './FrameScheduleManagement';
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { createSnapModifier } from '@dnd-kit/modifiers';
@@ -1904,6 +1917,50 @@ const HomepageLayout = () => {
     } else if (activeModule === 'don-hoan') {
       matchedKey = 'don-hoan';
       parentKey = 'don-hang';
+    } else if (activeModule === 'phien-ban-giao') {
+      matchedKey = 'phien-ban-giao';
+      parentKey = 'don-hang';
+      subParentKey = 'van-hanh';
+    } else if (activeModule === 'quy-tac-tang-qua') {
+      matchedKey = 'quy-tac-tang-qua';
+      parentKey = 'don-hang';
+      subParentKey = 'van-hanh';
+    } else if (activeModule === 'them-san-pham') {
+      matchedKey = 'them-san-pham';
+      parentKey = 'san-pham';
+      subParentKey = 'van-hanh';
+    } else if (activeModule === 'luu-nhap') {
+      matchedKey = 'luu-nhap';
+      parentKey = 'san-pham';
+      subParentKey = 'van-hanh';
+    } else if (activeModule === 'danh-sach-san-pham') {
+      matchedKey = 'danh-sach-san-pham';
+      parentKey = 'san-pham';
+      subParentKey = 'van-hanh';
+    } else if (activeModule === 'lien-ket-san-pham') {
+      matchedKey = 'lien-ket-san-pham';
+      parentKey = 'san-pham';
+      subParentKey = 'van-hanh';
+    } else if (activeModule === 'quan-ly-dong-bo') {
+      matchedKey = 'quan-ly-dong-bo';
+      parentKey = 'san-pham';
+      subParentKey = 'van-hanh';
+    } else if (activeModule === 'lich-su-day-ton') {
+      matchedKey = 'lich-su-day-ton';
+      parentKey = 'san-pham';
+      subParentKey = 'van-hanh';
+    } else if (activeModule === 'danh-sach-khach-hang') {
+      matchedKey = 'danh-sach-khach-hang';
+      parentKey = 'khach-hang';
+      subParentKey = 'van-hanh';
+    } else if (activeModule === 'quan-ly-phan-hoi') {
+      matchedKey = 'quan-ly-phan-hoi';
+      parentKey = 'khach-hang';
+      subParentKey = 'van-hanh';
+    } else if (activeModule === 'danh-gia-tu-dong') {
+      matchedKey = 'danh-gia-tu-dong';
+      parentKey = 'khach-hang';
+      subParentKey = 'van-hanh';
     } else {
       // Try to find matching nav item
       const findNavItem = (items, module) => {
@@ -2159,7 +2216,7 @@ const HomepageLayout = () => {
     // Collapse sidebar when item is selected
     setSidebarCollapsed(true);
     // For specific menu items, use their key as activeModule
-    if (subItem.key === 'xu-ly-hang-loat' || subItem.key === 'danh-sach-don-hang' || subItem.key === 'xu-ly-tra-hang' || subItem.key === 'xu-ly-theo-danh-sach' || subItem.key === 'don-hoan' || subItem.key === 'dashboard') {
+    if (subItem.key === 'xu-ly-hang-loat' || subItem.key === 'danh-sach-don-hang' || subItem.key === 'xu-ly-tra-hang' || subItem.key === 'xu-ly-theo-danh-sach' || subItem.key === 'don-hoan' || subItem.key === 'phien-ban-giao' || subItem.key === 'quy-tac-tang-qua' || subItem.key === 'them-san-pham' || subItem.key === 'luu-nhap' || subItem.key === 'danh-sach-san-pham' || subItem.key === 'lien-ket-san-pham' || subItem.key === 'quan-ly-dong-bo' || subItem.key === 'lich-su-day-ton' || subItem.key === 'danh-sach-khach-hang' || subItem.key === 'quan-ly-phan-hoi' || subItem.key === 'danh-gia-tu-dong' || subItem.key === 'danh-sach-khung-anh' || subItem.key === 'lap-lich-ap-khung' || subItem.key === 'dashboard') {
       setActiveModule(subItem.key);
     } else if (subItem.module) {
       setActiveModule(subItem.module);
@@ -2173,7 +2230,7 @@ const HomepageLayout = () => {
     // Collapse sidebar when item is selected
     setSidebarCollapsed(true);
     // For specific menu items, use their key as activeModule
-    if (nestedItem.key === 'xu-ly-hang-loat' || nestedItem.key === 'danh-sach-don-hang' || nestedItem.key === 'xu-ly-tra-hang' || nestedItem.key === 'xu-ly-theo-danh-sach' || nestedItem.key === 'don-hoan') {
+    if (nestedItem.key === 'xu-ly-hang-loat' || nestedItem.key === 'danh-sach-don-hang' || nestedItem.key === 'xu-ly-tra-hang' || nestedItem.key === 'xu-ly-theo-danh-sach' || nestedItem.key === 'don-hoan' || nestedItem.key === 'phien-ban-giao' || nestedItem.key === 'quy-tac-tang-qua' || nestedItem.key === 'them-san-pham' || nestedItem.key === 'luu-nhap' || nestedItem.key === 'danh-sach-san-pham' || nestedItem.key === 'lien-ket-san-pham' || nestedItem.key === 'quan-ly-dong-bo' || nestedItem.key === 'lich-su-day-ton' || nestedItem.key === 'danh-sach-khach-hang' || nestedItem.key === 'quan-ly-phan-hoi' || nestedItem.key === 'danh-gia-tu-dong' || nestedItem.key === 'danh-sach-khung-anh' || nestedItem.key === 'lap-lich-ap-khung' || nestedItem.key === 'dashboard') {
       setActiveModule(nestedItem.key);
     } else if (nestedItem.module) {
       setActiveModule(nestedItem.module);
@@ -2314,23 +2371,21 @@ const HomepageLayout = () => {
                 : '8px 16px 8px 32px',
               cursor: 'pointer',
               backgroundColor: isActive
-                ? '#E8F0FE'
+                ? '#F5F5F5'
                 : isHovered
-                  ? '#F5F5F5'
+                  ? '#FAFAFA'
                   : 'transparent',
-              borderLeft: isActive ? '3px solid #1677FF' : '3px solid transparent',
+              borderLeft: '3px solid transparent',
               borderTopRightRadius: isActive && level === 0 ? '20px' : 0,
               borderBottomRightRadius: isActive && level === 0 ? '20px' : 0,
               marginRight: isActive && level === 0 ? '8px' : 0,
-              color: isActive ? '#1677FF' : '#202124',
+              color: '#202124',
               fontSize: level === 0 ? 15 : 13,
               fontWeight: level === 0 ? 500 : 400,
               transition: 'all 0.2s',
               position: 'relative',
               justifyContent: isSidebarExpanded ? 'flex-start' : 'center',
-              boxShadow: isActive && level === 0
-                ? '0 4px 12px rgba(22, 119, 255, 0.15), 0 2px 4px rgba(22, 119, 255, 0.1)'
-                : 'none',
+              boxShadow: 'none',
               transform: isActive && level === 0 ? 'translateY(-1px)' : 'translateY(0)',
               whiteSpace: 'nowrap',
               overflow: 'hidden'
@@ -2351,7 +2406,7 @@ const HomepageLayout = () => {
                     fontSize: 28,
                     width: 28,
                     height: 28,
-                    color: isActive ? '#1677FF' : '#5F6368',
+                    color: isActive ? '#EF5941' : '#5F6368',
                     ...item.icon.props?.style
                   }
                 })}
@@ -2455,7 +2510,7 @@ const HomepageLayout = () => {
                             onClick={() => {
                               setActiveNavItem(nestedChild.key);
                               // For specific menu items, use their key as activeModule
-                              if (nestedChild.key === 'xu-ly-hang-loat' || nestedChild.key === 'danh-sach-don-hang' || nestedChild.key === 'xu-ly-tra-hang' || nestedChild.key === 'xu-ly-theo-danh-sach' || nestedChild.key === 'don-hoan' || nestedChild.key === 'dashboard') {
+                              if (nestedChild.key === 'xu-ly-hang-loat' || nestedChild.key === 'danh-sach-don-hang' || nestedChild.key === 'xu-ly-tra-hang' || nestedChild.key === 'xu-ly-theo-danh-sach' || nestedChild.key === 'don-hoan' || nestedChild.key === 'phien-ban-giao' || nestedChild.key === 'quy-tac-tang-qua' || nestedChild.key === 'them-san-pham' || nestedChild.key === 'luu-nhap' || nestedChild.key === 'danh-sach-san-pham' || nestedChild.key === 'lien-ket-san-pham' || nestedChild.key === 'quan-ly-dong-bo' || nestedChild.key === 'lich-su-day-ton' || nestedChild.key === 'danh-sach-khach-hang' || nestedChild.key === 'quan-ly-phan-hoi' || nestedChild.key === 'danh-gia-tu-dong' || nestedChild.key === 'danh-sach-khung-anh' || nestedChild.key === 'lap-lich-ap-khung' || nestedChild.key === 'dashboard') {
                                 setActiveModule(nestedChild.key);
                               } else if (nestedChild.module) {
                                 setActiveModule(nestedChild.module);
@@ -2469,17 +2524,30 @@ const HomepageLayout = () => {
                               padding: '6px 16px 6px 28px',
                               cursor: 'pointer',
                               backgroundColor: activeNavItem === nestedChild.key
-                                ? '#E8F0FE'
+                                ? '#F5F5F5'
                                 : hoveredNavItem === nestedChild.key
-                                  ? '#F5F5F5'
+                                  ? '#FAFAFA'
                                   : 'transparent',
-                              color: activeNavItem === nestedChild.key ? '#1677FF' : '#202124',
+                              color: activeNavItem === nestedChild.key ? '#EF5941' : '#202124',
                               fontSize: 14,
                               fontWeight: 400,
                               borderRadius: 6,
                               transition: 'all 0.2s'
                             }}
                           >
+                            {navKeysWithView.has(nestedChild.key) && (
+                              <span
+                                style={{
+                                  width: 6,
+                                  height: 6,
+                                  borderRadius: '50%',
+                                  background: '#52c41a',
+                                  flexShrink: 0,
+                                  marginRight: 8
+                                }}
+                                title="Đã có màn view"
+                              />
+                            )}
                             <TruncatedTooltip title={nestedChild.label} placement="right">
                               {nestedChild.label}
                             </TruncatedTooltip>
@@ -2497,7 +2565,7 @@ const HomepageLayout = () => {
                     onClick={() => {
                       setActiveNavItem(child.key);
                       // For specific menu items, use their key as activeModule
-                      if (child.key === 'xu-ly-hang-loat' || child.key === 'danh-sach-don-hang' || child.key === 'xu-ly-tra-hang' || child.key === 'xu-ly-theo-danh-sach' || child.key === 'don-hoan' || child.key === 'dashboard') {
+                      if (child.key === 'xu-ly-hang-loat' || child.key === 'danh-sach-don-hang' || child.key === 'xu-ly-tra-hang' || child.key === 'xu-ly-theo-danh-sach' || child.key === 'don-hoan' || child.key === 'phien-ban-giao' || child.key === 'quy-tac-tang-qua' || child.key === 'them-san-pham' || child.key === 'luu-nhap' || child.key === 'danh-sach-san-pham' || child.key === 'lien-ket-san-pham' || child.key === 'quan-ly-dong-bo' || child.key === 'lich-su-day-ton' || child.key === 'danh-sach-khach-hang' || child.key === 'quan-ly-phan-hoi' || child.key === 'danh-gia-tu-dong' || child.key === 'dashboard') {
                         setActiveModule(child.key);
                       } else if (child.module) {
                         setActiveModule(child.module);
@@ -2511,17 +2579,30 @@ const HomepageLayout = () => {
                       padding: '8px 16px',
                       cursor: 'pointer',
                       backgroundColor: activeNavItem === child.key
-                        ? '#E8F0FE'
+                        ? '#F5F5F5'
                         : hoveredNavItem === child.key
-                          ? '#F5F5F5'
+                          ? '#FAFAFA'
                           : 'transparent',
-                      color: activeNavItem === child.key ? '#1677FF' : '#202124',
+                      color: activeNavItem === child.key ? '#EF5941' : '#202124',
                       fontSize: 14,
                       fontWeight: 400,
                       borderRadius: 6,
                       transition: 'all 0.2s'
                     }}
                   >
+                    {navKeysWithView.has(child.key) && (
+                      <span
+                        style={{
+                          width: 6,
+                          height: 6,
+                          borderRadius: '50%',
+                          background: '#52c41a',
+                          flexShrink: 0,
+                          marginRight: 8
+                        }}
+                        title="Đã có màn view"
+                      />
+                    )}
                     <TruncatedTooltip title={child.label} placement="right">
                       {child.label}
                     </TruncatedTooltip>
@@ -3227,7 +3308,7 @@ const HomepageLayout = () => {
                         style={{
                           padding: '10px 12px',
                           borderRadius: 6,
-                          border: isSelected ? '1px solid #FF5629' : '1px solid #E1E3E5',
+                          border: isSelected ? '1px solid #EF5941' : '1px solid #E1E3E5',
                           background: '#fff',
                           cursor: 'pointer',
                           transition: 'all 0.2s',
@@ -3675,7 +3756,7 @@ const HomepageLayout = () => {
                                   style={{
                                     padding: '10px 12px',
                                     borderRadius: 6,
-                                    border: isSelected ? '1px solid #FF5629' : '1px solid #E1E3E5',
+                                    border: isSelected ? '1px solid #EF5941' : '1px solid #E1E3E5',
                                     background: '#fff',
                                     cursor: 'pointer',
                                     transition: 'all 0.2s',
@@ -3781,7 +3862,7 @@ const HomepageLayout = () => {
                                   style={{
                                     padding: '10px 12px',
                                     borderRadius: 6,
-                                    border: isSelected ? '1px solid #FF5629' : '1px solid #E1E3E5',
+                                    border: isSelected ? '1px solid #EF5941' : '1px solid #E1E3E5',
                                     background: '#fff',
                                     cursor: 'pointer',
                                     transition: 'all 0.2s',
@@ -5212,7 +5293,7 @@ const HomepageLayout = () => {
             { key: 'them-san-pham', label: 'Thêm sản phẩm', module: 'products' },
             { key: 'luu-nhap', label: 'Lưu nháp', module: 'products' },
             { key: 'danh-sach-san-pham', label: 'Danh sách sản phẩm', module: 'products' },
-            { key: 'lien-ket-san-pham', label: 'Liên kết sản phẩm', module: 'products' },
+            { key: 'lien-ket-san-pham', label: 'Liên kết', module: 'products' },
             { key: 'quan-ly-dong-bo', label: 'Quản lý đồng bộ', module: 'products' },
             { key: 'lich-su-day-ton', label: 'Lịch sử đẩy tồn', module: 'products' }
           ]
@@ -5323,6 +5404,15 @@ const HomepageLayout = () => {
       ]
     }
   ];
+
+  // L2 nav keys that have a built .jsx view (green dot indicator)
+  const navKeysWithView = useMemo(() => new Set([
+    'them-san-pham', 'luu-nhap', 'danh-sach-san-pham', 'lien-ket-san-pham', 'quan-ly-dong-bo', 'lich-su-day-ton',
+    'danh-sach-don-hang', 'xu-ly-hang-loat', 'xu-ly-theo-danh-sach', 'xu-ly-tra-hang', 'don-hoan', 'phien-ban-giao', 'quy-tac-tang-qua',
+    'danh-sach-khach-hang', 'quan-ly-phan-hoi', 'danh-gia-tu-dong',
+    'danh-sach-khung-anh', 'lap-lich-ap-khung',
+    'dashboard'
+  ]), []);
 
   // Memoize sub-nav visibility calculation
   const isSubNavVisible = useMemo(() => {
@@ -6591,48 +6681,36 @@ const HomepageLayout = () => {
                       gap: 16
                     }}
                   >
-                    {activeModule !== 'home' && activeModule !== 'orders' && activeModule !== 'danh-sach-don-hang' && (
-                      <Title
-                        level={3}
-                        style={{
-                          marginBottom: 4,
-                          color: '#2b2b2b',
-                          fontWeight: 600
-                        }}
-                      >
-                        {activeModule === 'workspace-settings' ? '' : 'Tạo template mới'}
-                      </Title>
+                    {activeModule === 'workspace-settings' && (
+                      <Space size="middle" wrap>
+                        <Button
+                          icon={<AppstoreAddOutlined />}
+                          onClick={() => setTemplateGalleryVisible(true)}
+                        >
+                          Tạo mới từ template
+                        </Button>
+                        <Button
+                          type="primary"
+                          icon={<PlusOutlined />}
+                          onClick={() => {
+                            resetTemplateBuilder();
+                            setActiveModule('template-create');
+                          }}
+                        >
+                          Tạo
+                        </Button>
+                      </Space>
                     )}
-                  {activeModule === 'workspace-settings' && (
-                    <Space size="middle" wrap>
-                      <Button
-                        icon={<AppstoreAddOutlined />}
-                        onClick={() => setTemplateGalleryVisible(true)}
-                      >
-                        Tạo mới từ template
-                      </Button>
-                      <Button
-                        type="primary"
-                        icon={<PlusOutlined />}
-                        onClick={() => {
-                          resetTemplateBuilder();
-                          setActiveModule('template-create');
-                        }}
-                      >
-                        Tạo
-                      </Button>
-                    </Space>
-                  )}
-                  {activeModule === 'template-create' && (
-                    <Space size="middle" wrap>
-                      <Button
-                        icon={<LeftOutlined />}
-                        onClick={handleCancelTemplateCreation}
-                      >
-                        Quay lại danh sách
-                      </Button>
-                    </Space>
-                  )}
+                    {activeModule === 'template-create' && (
+                      <Space size="middle" wrap>
+                        <Button
+                          icon={<LeftOutlined />}
+                          onClick={handleCancelTemplateCreation}
+                        >
+                          Quay lại danh sách
+                        </Button>
+                      </Space>
+                    )}
                   </div>
                 )}
 
@@ -7463,6 +7541,32 @@ const HomepageLayout = () => {
                   <ProcessReturnOrderView />
                 ) : activeModule === 'don-hoan' ? (
                   <ReturnOrderOnlyView />
+                ) : activeModule === 'phien-ban-giao' ? (
+                  <DeliverySessionView />
+                ) : activeModule === 'quy-tac-tang-qua' ? (
+                  <GiftRuleView />
+                ) : activeModule === 'them-san-pham' ? (
+                  <AddProductView />
+                ) : activeModule === 'luu-nhap' ? (
+                  <DraftProductsView />
+                ) : activeModule === 'danh-sach-san-pham' ? (
+                  <ProductLinkingView />
+                ) : activeModule === 'lien-ket-san-pham' ? (
+                  <PlatformProductsView />
+                ) : activeModule === 'quan-ly-dong-bo' ? (
+                  <SyncManagementView />
+                ) : activeModule === 'lich-su-day-ton' ? (
+                  <StockPushHistoryView />
+                ) : activeModule === 'danh-sach-khach-hang' ? (
+                  <CustomerListView />
+                ) : activeModule === 'quan-ly-phan-hoi' ? (
+                  <ReviewManagementView />
+                ) : activeModule === 'danh-gia-tu-dong' ? (
+                  <AutoReviewView />
+                ) : activeModule === 'danh-sach-khung-anh' ? (
+                  <FrameTemplateList />
+                ) : activeModule === 'lap-lich-ap-khung' ? (
+                  <FrameScheduleManagement />
                 ) : activeModule === 'dashboard' ? (
                   <IncomeDashboard />
                 ) : activeModule === 'workspace-settings' ? (
