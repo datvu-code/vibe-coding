@@ -6,6 +6,7 @@ import {
 import {
     DownOutlined, SearchOutlined, SyncOutlined
 } from '@ant-design/icons';
+import PaginationFooter from './PaginationFooter';
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -87,6 +88,9 @@ const SyncManagementView = () => {
     const [selectedStore, setSelectedStore] = useState(null);
     
     const products = generateMockProducts();
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(25);
+    const pageProducts = products.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
     const metrics = [
         { key: 'all', label: 'Tất cả', count: 762, color: '#EF5941' },
@@ -96,10 +100,11 @@ const SyncManagementView = () => {
     ];
 
     const handleSelectAll = (e) => {
+        const pageIds = pageProducts.map(p => p.id);
         if (e.target.checked) {
-            setSelectedRowKeys(products.map(p => p.id));
+            setSelectedRowKeys(prev => [...new Set([...prev, ...pageIds])]);
         } else {
-            setSelectedRowKeys([]);
+            setSelectedRowKeys(prev => prev.filter(id => !pageIds.includes(id)));
         }
     };
 
@@ -119,9 +124,20 @@ const SyncManagementView = () => {
 
     return (
         <div>
-            {/* Status Tabs */}
-            <div style={{ marginBottom: 14 }}>
-                <Space size={24}>
+            {/* Main Card - Tabs, Filter, Table (DraftProductsView pattern) */}
+            <Card
+                styles={{ body: { padding: 0 } }}
+                style={{ borderRadius: 8, backgroundColor: '#fff', border: '1px solid #F0F0F0' }}
+            >
+                {/* Status Tabs */}
+                <div style={{
+                    display: 'flex',
+                    gap: 24,
+                    padding: '12px 16px',
+                    borderBottom: '1px solid #F0F0F0',
+                    flexWrap: 'wrap',
+                    alignItems: 'center'
+                }}>
                     {metrics.map((metric) => {
                         const isActive = selectedMetric === metric.key;
                         return (
@@ -153,64 +169,46 @@ const SyncManagementView = () => {
                             </button>
                         );
                     })}
-                </Space>
-            </div>
+                </div>
 
-            {/* Filter Section */}
-            <Card
-                styles={{ body: { padding: '14px' } }}
-                style={{ marginBottom: 14, borderRadius: 8 }}
-            >
-                <Row gutter={[16, 16]} align="middle">
-                    <Col span={8}>
-                        <Input
-                            placeholder="Tên sản phẩm/SKU"
-                            prefix={<SearchOutlined />}
-                            value={searchText}
-                            onChange={(e) => setSearchText(e.target.value)}
-                            allowClear
-                            style={{ width: '100%' }}
-                        />
-                    </Col>
-                    <Col span={6}>
-                        <Select
-                            placeholder="Gian hàng"
-                            value={selectedStore}
-                            onChange={setSelectedStore}
-                            style={{ width: '100%' }}
-                            allowClear
-                        >
-                            <Option value="upbeauty">UpBeauty Store</Option>
-                            <Option value="upbeautyy">UpBeautyy</Option>
-                        </Select>
-                    </Col>
-                    <Col span={10} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-                        <Button 
-                            type="primary"
-                            icon={<SyncOutlined />}
-                            style={{ 
-                                background: '#EF5941',
-                                borderColor: '#EF5941',
-                                fontSize: 14
-                            }}
-                        >
-                            Đồng bộ
-                        </Button>
-                    </Col>
-                </Row>
-            </Card>
+                {/* Filter Section */}
+                <div style={{ padding: '14px 16px', borderBottom: '1px solid #F0F0F0' }}>
+                    <Row gutter={[16, 16]} align="middle">
+                        <Col span={8}>
+                            <Input
+                                placeholder="Tên sản phẩm/SKU"
+                                prefix={<SearchOutlined />}
+                                value={searchText}
+                                onChange={(e) => setSearchText(e.target.value)}
+                                allowClear
+                                style={{ width: '100%' }}
+                            />
+                        </Col>
+                        <Col span={6}>
+                            <Select
+                                placeholder="Gian hàng"
+                                value={selectedStore}
+                                onChange={setSelectedStore}
+                                style={{ width: '100%' }}
+                                allowClear
+                            >
+                                <Option value="upbeauty">UpBeauty Store</Option>
+                                <Option value="upbeautyy">UpBeautyy</Option>
+                            </Select>
+                        </Col>
+                        <Col span={10} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
+                            <Button
+                                type="primary"
+                                icon={<SyncOutlined />}
+                                style={{ background: '#EF5941', borderColor: '#EF5941', fontSize: 14 }}
+                            >
+                                Đồng bộ
+                            </Button>
+                        </Col>
+                    </Row>
+                </div>
 
-            {/* Table Card */}
-            <Card
-                styles={{ body: { padding: 0 } }}
-                style={{ 
-                    marginTop: 14,
-                    borderRadius: 8,
-                    backgroundColor: '#fff',
-                    border: '1px solid #F0F0F0'
-                }}
-            >
-                {/* Selection Overlay or Table Header */}
+                {/* Selection Overlay or Table */}
                 {selectedRowKeys.length > 0 ? (
                     <div style={{
                         display: 'flex',
@@ -221,52 +219,46 @@ const SyncManagementView = () => {
                         backgroundColor: '#F5F5F5'
                     }}>
                         <Checkbox
-                            checked={selectedRowKeys.length === products.length && products.length > 0}
-                            indeterminate={selectedRowKeys.length > 0 && selectedRowKeys.length < products.length}
+                            checked={pageProducts.length > 0 && pageProducts.every(p => selectedRowKeys.includes(p.id))}
+                            indeterminate={pageProducts.some(p => selectedRowKeys.includes(p.id)) && !pageProducts.every(p => selectedRowKeys.includes(p.id))}
                             onChange={handleSelectAll}
                         />
                         <Text style={{ fontSize: 14 }}>
                             Đã chọn: <strong>{selectedRowKeys.length}</strong> sản phẩm
                         </Text>
-                        <Dropdown
-                            menu={{ items: bulkActionMenuItems }}
-                            trigger={['click']}
-                        >
+                        <Dropdown menu={{ items: bulkActionMenuItems }} trigger={['click']}>
                             <Button size="small">
                                 Thao tác <DownOutlined style={{ fontSize: 10, marginLeft: 4 }} />
                             </Button>
                         </Dropdown>
                     </div>
                 ) : (
-                    <div style={{
-                        display: 'grid',
-                        gridTemplateColumns: '48px 1fr 200px 180px 120px 120px',
-                        gap: 16,
-                        padding: '12px 16px',
-                        background: '#F5F5F5',
-                        borderBottom: '1px solid #F0F0F0',
-                        alignItems: 'center'
-                    }}>
-                        <Checkbox
-                            onChange={handleSelectAll}
-                            checked={selectedRowKeys.length === products.length && products.length > 0}
-                            indeterminate={selectedRowKeys.length > 0 && selectedRowKeys.length < products.length}
-                        />
-                        <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)' }}>Tên sản phẩm</Text>
-                        <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)' }}>Gian hàng</Text>
-                        <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)' }}>Thời gian đồng bộ</Text>
-                        <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)' }}>Trạng thái</Text>
-                        <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)' }}>Thao tác</Text>
-                    </div>
-                )}
+                    <div style={{ overflowX: 'auto' }}>
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: '48px 1fr 200px 180px 120px 120px',
+                            gap: 16,
+                            padding: '12px 16px',
+                            background: '#F5F5F5',
+                            borderBottom: '1px solid #F0F0F0',
+                            alignItems: 'center',
+                            minWidth: 'max-content'
+                        }}>
+                            <Checkbox
+                                onChange={handleSelectAll}
+                                checked={pageProducts.length > 0 && pageProducts.every(p => selectedRowKeys.includes(p.id))}
+                                indeterminate={pageProducts.some(p => selectedRowKeys.includes(p.id)) && !pageProducts.every(p => selectedRowKeys.includes(p.id))}
+                            />
+                            <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)' }}>Tên sản phẩm</Text>
+                            <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)' }}>Gian hàng</Text>
+                            <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)' }}>Thời gian đồng bộ</Text>
+                            <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)' }}>Trạng thái</Text>
+                            <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)' }}>Thao tác</Text>
+                        </div>
 
-                {/* Table Rows */}
-                <div style={{ 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    gap: 0
-                }}>
-                    {products.map((product, index) => {
+                        {/* Table Rows */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                    {pageProducts.map((product, index) => {
                         const channelMeta = getChannelMeta(product.channel);
                         return (
                             <div
@@ -277,7 +269,7 @@ const SyncManagementView = () => {
                                     gap: 16,
                                     padding: '16px',
                                     background: '#fff',
-                                    borderBottom: index < products.length - 1 ? '1px solid #F0F0F0' : 'none',
+                                    borderBottom: index < pageProducts.length - 1 ? '1px solid #F0F0F0' : 'none',
                                     alignItems: 'center',
                                     transition: 'background 0.2s'
                                 }}
@@ -345,12 +337,29 @@ const SyncManagementView = () => {
                                 </Text>
 
                                 {/* Thao tác */}
-                                <div>
-                                    {/* Empty for now, can add actions later */}
-                                </div>
+                                <div />
                             </div>
                         );
                     })}
+                        </div>
+                    </div>
+                )}
+
+                {/* Pagination Footer */}
+                <div style={{ padding: '0 16px 14px' }}>
+                    <PaginationFooter
+                        total={products.length}
+                        currentPage={currentPage}
+                        pageSize={pageSize}
+                        onPageChange={setCurrentPage}
+                        onPageSizeChange={setPageSize}
+                        label="sản phẩm"
+                        pageSizeOptions={[
+                            { value: 25, label: '25 bản ghi/trang' },
+                            { value: 50, label: '50 bản ghi/trang' },
+                            { value: 100, label: '100 bản ghi/trang' }
+                        ]}
+                    />
                 </div>
             </Card>
         </div>

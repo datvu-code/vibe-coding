@@ -6,6 +6,7 @@ import {
     EditOutlined
 } from '@ant-design/icons';
 import { StarFilled } from '@ant-design/icons';
+import PaginationFooter from './PaginationFooter';
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -51,6 +52,8 @@ const AutoReviewView = () => {
     const [activeTab, setActiveTab] = useState('auto-reply');
     const [selectedPlatform, setSelectedPlatform] = useState('all');
     const [settings, setSettings] = useState(generateMockReviewSettings());
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(25);
 
     const tabItems = [
         { key: 'auto-reply', label: <span style={{ fontSize: 14 }}>Thiết lập trả lời đánh giá tự động</span> },
@@ -95,7 +98,29 @@ const AutoReviewView = () => {
                 style={{ marginBottom: 14, borderRadius: 8 }}
             />
 
-            {/* Main Section - Tabs, Filter, Table */}
+            {/* Sàn - above table */}
+            <div style={{ marginBottom: 14 }}>
+                <Space size="middle">
+                    <span style={{ fontSize: 14 }}>Sàn</span>
+                    <Select
+                        value={selectedPlatform}
+                        onChange={setSelectedPlatform}
+                        style={{ width: 150, fontSize: 14 }}
+                    >
+                        {platforms.map((platform) => {
+                            const meta = platform.key !== 'all' ? getChannelMeta(platform.key) : null;
+                            return (
+                                <Option key={platform.key} value={platform.key}>
+                                    {meta && <span style={{ marginRight: 8 }}>{meta.logo}</span>}
+                                    {platform.label}
+                                </Option>
+                            );
+                        })}
+                    </Select>
+                </Space>
+            </div>
+
+            {/* Main Section - Tabs, Table */}
             <Card
                 styles={{ body: { padding: 0 } }}
                 style={{ borderRadius: 8, background: '#fff' }}
@@ -107,28 +132,6 @@ const AutoReviewView = () => {
                         onChange={setActiveTab}
                         items={tabItems}
                     />
-                </div>
-
-                {/* Filter Section */}
-                <div style={{ padding: '14px 16px', borderBottom: '1px solid #F0F0F0' }}>
-                    <Space size="middle">
-                        <span style={{ fontSize: 14 }}>Sàn</span>
-                        <Select
-                            value={selectedPlatform}
-                            onChange={setSelectedPlatform}
-                            style={{ width: 150, fontSize: 14 }}
-                        >
-                            {platforms.map((platform) => {
-                                const meta = platform.key !== 'all' ? getChannelMeta(platform.key) : null;
-                                return (
-                                    <Option key={platform.key} value={platform.key}>
-                                        {meta && <span style={{ marginRight: 8 }}>{meta.logo}</span>}
-                                        {platform.label}
-                                    </Option>
-                                );
-                            })}
-                        </Select>
-                    </Space>
                 </div>
 
                 {/* Table Header */}
@@ -150,12 +153,15 @@ const AutoReviewView = () => {
                 </div>
 
                 {/* Table Rows */}
+                {(() => {
+                    const pageSettings = settings.slice((currentPage - 1) * pageSize, currentPage * pageSize);
+                    return (
                 <div style={{ 
                     display: 'flex', 
                     flexDirection: 'column', 
                     gap: 0
                 }}>
-                    {settings.map((setting, index) => {
+                    {pageSettings.map((setting, index) => {
                         const channelMeta = getChannelMeta(setting.channel);
                         return (
                             <div
@@ -166,7 +172,7 @@ const AutoReviewView = () => {
                                     gap: 16,
                                     padding: '16px',
                                     background: '#fff',
-                                    borderBottom: index < settings.length - 1 ? '1px solid #F0F0F0' : 'none',
+                                    borderBottom: index < pageSettings.length - 1 ? '1px solid #F0F0F0' : 'none',
                                     alignItems: 'center',
                                     transition: 'background 0.2s'
                                 }}
@@ -214,41 +220,24 @@ const AutoReviewView = () => {
                         );
                     })}
                 </div>
+                    );
+                })()}
 
                 {/* Pagination Footer */}
-                <div style={{ 
-                    padding: '14px 16px', 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center',
-                    borderTop: '1px solid #F0F0F0'
-                }}>
-                    <Select
-                        defaultValue="25"
-                        style={{ width: 160 }}
-                    >
-                        <Option value="25">25 bản ghi/trang</Option>
-                        <Option value="50">50 bản ghi/trang</Option>
-                        <Option value="100">100 bản ghi/trang</Option>
-                    </Select>
-
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                        <Text type="secondary" style={{ fontSize: 12 }}>
-                            Hiển thị 1 - 1 của 1
-                        </Text>
-                        <Button 
-                            type="primary"
-                            style={{ 
-                                width: 32, 
-                                height: 32, 
-                                padding: 0,
-                                background: '#EF5941',
-                                borderColor: '#EF5941'
-                            }}
-                        >
-                            1
-                        </Button>
-                    </div>
+                <div style={{ padding: '0 16px 14px' }}>
+                    <PaginationFooter
+                        total={settings.length}
+                        currentPage={currentPage}
+                        pageSize={pageSize}
+                        onPageChange={setCurrentPage}
+                        onPageSizeChange={setPageSize}
+                        label="bản ghi"
+                        pageSizeOptions={[
+                            { value: 25, label: '25 bản ghi/trang' },
+                            { value: 50, label: '50 bản ghi/trang' },
+                            { value: 100, label: '100 bản ghi/trang' }
+                        ]}
+                    />
                 </div>
             </Card>
         </div>

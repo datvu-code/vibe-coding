@@ -6,6 +6,7 @@ import {
     SearchOutlined, DownOutlined, CloseOutlined, PlusOutlined,
     ExclamationCircleOutlined, CheckCircleOutlined, WarningOutlined
 } from '@ant-design/icons';
+import PaginationFooter from './PaginationFooter';
 
 const { Search } = Input;
 const { Option } = Select;
@@ -15,6 +16,8 @@ const FrameScheduleManagement = () => {
     const [selectedStore, setSelectedStore] = useState('all');
     const [searchText, setSearchText] = useState('');
     const [showAlert, setShowAlert] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
 
     // Mock data for schedules
     const mockSchedules = [
@@ -349,16 +352,21 @@ const FrameScheduleManagement = () => {
                 {/* Table */}
                 <Table
                     columns={columns}
-                    dataSource={mockSchedules}
-                    pagination={{
-                        pageSize: 10,
-                        showSizeChanger: true,
-                        showTotal: (total) => `Tổng ${total} lịch`,
-                        style: { fontSize: 14, padding: '16px' }
-                    }}
+                    dataSource={mockSchedules.slice((currentPage - 1) * pageSize, currentPage * pageSize)}
+                    pagination={false}
                     style={{ fontSize: 14 }}
                     className="neutral-header-table"
                 />
+                <div style={{ padding: '0 16px 14px', borderTop: '0.87px solid #F0F0F0' }}>
+                    <PaginationFooter
+                        total={mockSchedules.length}
+                        currentPage={currentPage}
+                        pageSize={pageSize}
+                        onPageChange={setCurrentPage}
+                        onPageSizeChange={setPageSize}
+                        label="lịch"
+                    />
+                </div>
             </Card>
         </div>
     );

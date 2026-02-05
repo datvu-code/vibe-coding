@@ -23,7 +23,7 @@ import {
 } from '@ant-design/icons';
 import { LineChart, Line as RechartLine, BarChart, Bar, PieChart, Pie as RechartPie, AreaChart, Area as RechartArea, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import dayjs from 'dayjs';
-import { MdHome, MdShoppingBag, MdBarChart, MdInbox, MdSettings, MdAssignment } from 'react-icons/md';
+import { MdHome, MdShoppingBag, MdBarChart, MdInbox, MdSettings, MdAssignment, MdPeople, MdStore, MdCampaign } from 'react-icons/md';
 import logoSvg from './assets/logo-dark.svg';
 import { DndContext, closestCenter } from '@dnd-kit/core';
 import OrderList from './OrderList';
@@ -45,6 +45,28 @@ import AutoReviewView from './AutoReviewView';
 import IncomeDashboard from './IncomeDashboard';
 import FrameTemplateList from './FrameTemplateList';
 import FrameScheduleManagement from './FrameScheduleManagement';
+import PlatformPromoView from './PlatformPromoView';
+import UpsPromoView from './UpsPromoView';
+import PriceViolationView from './PriceViolationView';
+import LoyalCustomerView from './LoyalCustomerView';
+import ProgramListView from './ProgramListView';
+import MemberTierView from './MemberTierView';
+import CampaignManagementView from './CampaignManagementView';
+import CreateCampaignView from './CreateCampaignView';
+import PaymentConfigView from './PaymentConfigView';
+import TransactionGatewayView from './TransactionGatewayView';
+import WarehouseProductView from './WarehouseProductView';
+import ProductCategoryView from './ProductCategoryView';
+import InventoryStockView from './InventoryStockView';
+import InventoryCheckView from './InventoryCheckView';
+import ReserveView from './ReserveView';
+import ImportExportView from './ImportExportView';
+import OrderingView from './OrderingView';
+import StockTransferView from './StockTransferView';
+import SupplierManagementView from './SupplierManagementView';
+import WarehouseListView from './WarehouseListView';
+import StockChangeReportView from './StockChangeReportView';
+import ExpirationManagementView from './ExpirationManagementView';
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { createSnapModifier } from '@dnd-kit/modifiers';
@@ -1776,7 +1798,12 @@ const HomepageLayout = () => {
   const [previewBlocks, setPreviewBlocks] = useState([]);
   const [hoveredPreviewBlock, setHoveredPreviewBlock] = useState(null);
   const [hoveredMetricId, setHoveredMetricId] = useState(null);
-  const [activeModule, setActiveModule] = useState('home');
+  // Sync activeModule with URL hash (route): #danh-sach-kho, #bao-cao-thay-doi-ton, etc.
+  const getModuleFromHash = () => {
+    const hash = (typeof window !== 'undefined' && window.location.hash) ? window.location.hash.replace(/^#/, '').trim() : '';
+    return hash || 'home';
+  };
+  const [activeModule, setActiveModule] = useState(() => getModuleFromHash());
   const [datePeriod, setDatePeriod] = useState('today'); // 'yesterday', 'today', 'thisWeek', 'thisMonth', 'thisYear'
   const [createTemplateModalVisible, setCreateTemplateModalVisible] = useState(false);
   const [editTemplateModalVisible, setEditTemplateModalVisible] = useState(false);
@@ -1961,6 +1988,50 @@ const HomepageLayout = () => {
       matchedKey = 'danh-gia-tu-dong';
       parentKey = 'khach-hang';
       subParentKey = 'van-hanh';
+    } else if (activeModule === 'chuong-trinh-khuyen-mai-san') {
+      matchedKey = 'chuong-trinh-khuyen-mai-san';
+      parentKey = 'marketing';
+      subParentKey = 'van-hanh';
+    } else if (activeModule === 'chuong-trinh-khuyen-mai-ups') {
+      matchedKey = 'chuong-trinh-khuyen-mai-ups';
+      parentKey = 'marketing';
+      subParentKey = 'van-hanh';
+    } else if (activeModule === 'canh-bao-vi-pham-gia') {
+      matchedKey = 'canh-bao-vi-pham-gia';
+      parentKey = 'marketing';
+      subParentKey = 'van-hanh';
+    } else if (activeModule === 'khach-hang-than-thiet') {
+      matchedKey = 'khach-hang-than-thiet';
+      parentKey = 'loyalty';
+      subParentKey = 'van-hanh';
+    } else if (activeModule === 'danh-sach-chuong-trinh') {
+      matchedKey = 'danh-sach-chuong-trinh';
+      parentKey = 'loyalty';
+      subParentKey = 'van-hanh';
+    } else if (activeModule === 'danh-sach-hang-hanh-vien') {
+      matchedKey = 'danh-sach-hang-hanh-vien';
+      parentKey = 'loyalty';
+      subParentKey = 'van-hanh';
+    } else if (activeModule === 'tao-chien-dich') {
+      matchedKey = 'tao-chien-dich';
+      parentKey = 'affiliate';
+      subParentKey = 'van-hanh';
+    } else if (activeModule === 'quan-ly-chien-dich') {
+      matchedKey = 'quan-ly-chien-dich';
+      parentKey = 'affiliate';
+      subParentKey = 'van-hanh';
+    } else if (activeModule === 'cau-hinh-thanh-toan') {
+      matchedKey = 'cau-hinh-thanh-toan';
+      parentKey = 'thanh-toan';
+      subParentKey = 'van-hanh';
+    } else if (activeModule === 'quan-ly-giao-dich-qua-cong') {
+      matchedKey = 'quan-ly-giao-dich-qua-cong';
+      parentKey = 'thanh-toan';
+      subParentKey = 'van-hanh';
+    } else if (activeModule === 'san-pham-kho' || activeModule === 'danh-muc-san-pham' || activeModule === 'ton-kho' || activeModule === 'kiem-kho' || activeModule === 'du-tru' || activeModule === 'xuat-nhap-kho' || activeModule === 'dat-hang' || activeModule === 'chuyen-kho' || activeModule === 'quan-ly-nha-cung-cap' || activeModule === 'danh-sach-kho' || activeModule === 'bao-cao-thay-doi-ton' || activeModule === 'quan-ly-han-su-dung') {
+      matchedKey = activeModule;
+      parentKey = 'kho-van';
+      subParentKey = 'van-hanh';
     } else {
       // Try to find matching nav item
       const findNavItem = (items, module) => {
@@ -2002,6 +2073,27 @@ const HomepageLayout = () => {
       setExpandedNavItems(newExpanded);
     }
   }, [activeModule]);
+
+  // Sync URL hash with activeModule (route): update hash when module changes
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const newHash = activeModule === 'home' ? '' : activeModule;
+    const currentHash = (window.location.hash || '').replace(/^#/, '');
+    if (currentHash !== newHash) {
+      window.history.replaceState(null, '', newHash ? `#${newHash}` : window.location.pathname + window.location.search);
+    }
+  }, [activeModule]);
+
+  // Sync activeModule from URL hash on load and when user uses browser back/forward
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const onHashChange = () => {
+      const next = getModuleFromHash();
+      setActiveModule(next);
+    };
+    window.addEventListener('hashchange', onHashChange);
+    return () => window.removeEventListener('hashchange', onHashChange);
+  }, []);
 
   // Update link overlay position when scrolling or resizing
   useEffect(() => {
@@ -2216,7 +2308,7 @@ const HomepageLayout = () => {
     // Collapse sidebar when item is selected
     setSidebarCollapsed(true);
     // For specific menu items, use their key as activeModule
-    if (subItem.key === 'xu-ly-hang-loat' || subItem.key === 'danh-sach-don-hang' || subItem.key === 'xu-ly-tra-hang' || subItem.key === 'xu-ly-theo-danh-sach' || subItem.key === 'don-hoan' || subItem.key === 'phien-ban-giao' || subItem.key === 'quy-tac-tang-qua' || subItem.key === 'them-san-pham' || subItem.key === 'luu-nhap' || subItem.key === 'danh-sach-san-pham' || subItem.key === 'lien-ket-san-pham' || subItem.key === 'quan-ly-dong-bo' || subItem.key === 'lich-su-day-ton' || subItem.key === 'danh-sach-khach-hang' || subItem.key === 'quan-ly-phan-hoi' || subItem.key === 'danh-gia-tu-dong' || subItem.key === 'danh-sach-khung-anh' || subItem.key === 'lap-lich-ap-khung' || subItem.key === 'dashboard') {
+    if (subItem.key === 'xu-ly-hang-loat' || subItem.key === 'danh-sach-don-hang' || subItem.key === 'xu-ly-tra-hang' || subItem.key === 'xu-ly-theo-danh-sach' || subItem.key === 'don-hoan' || subItem.key === 'phien-ban-giao' || subItem.key === 'quy-tac-tang-qua' || subItem.key === 'them-san-pham' || subItem.key === 'luu-nhap' || subItem.key === 'danh-sach-san-pham' || subItem.key === 'lien-ket-san-pham' || subItem.key === 'quan-ly-dong-bo' || subItem.key === 'lich-su-day-ton' || subItem.key === 'danh-sach-khach-hang' || subItem.key === 'quan-ly-phan-hoi' || subItem.key === 'danh-gia-tu-dong' || subItem.key === 'danh-sach-khung-anh' || subItem.key === 'lap-lich-ap-khung' || subItem.key === 'dashboard' || subItem.key === 'chuong-trinh-khuyen-mai-san' || subItem.key === 'chuong-trinh-khuyen-mai-ups' || subItem.key === 'canh-bao-vi-pham-gia' || subItem.key === 'san-pham-kho' || subItem.key === 'danh-muc-san-pham' || subItem.key === 'ton-kho' || subItem.key === 'kiem-kho' || subItem.key === 'du-tru' || subItem.key === 'xuat-nhap-kho' || subItem.key === 'dat-hang' || subItem.key === 'chuyen-kho' || subItem.key === 'quan-ly-nha-cung-cap' || subItem.key === 'danh-sach-kho' || subItem.key === 'bao-cao-thay-doi-ton' || subItem.key === 'quan-ly-han-su-dung') {
       setActiveModule(subItem.key);
     } else if (subItem.module) {
       setActiveModule(subItem.module);
@@ -2230,7 +2322,7 @@ const HomepageLayout = () => {
     // Collapse sidebar when item is selected
     setSidebarCollapsed(true);
     // For specific menu items, use their key as activeModule
-    if (nestedItem.key === 'xu-ly-hang-loat' || nestedItem.key === 'danh-sach-don-hang' || nestedItem.key === 'xu-ly-tra-hang' || nestedItem.key === 'xu-ly-theo-danh-sach' || nestedItem.key === 'don-hoan' || nestedItem.key === 'phien-ban-giao' || nestedItem.key === 'quy-tac-tang-qua' || nestedItem.key === 'them-san-pham' || nestedItem.key === 'luu-nhap' || nestedItem.key === 'danh-sach-san-pham' || nestedItem.key === 'lien-ket-san-pham' || nestedItem.key === 'quan-ly-dong-bo' || nestedItem.key === 'lich-su-day-ton' || nestedItem.key === 'danh-sach-khach-hang' || nestedItem.key === 'quan-ly-phan-hoi' || nestedItem.key === 'danh-gia-tu-dong' || nestedItem.key === 'danh-sach-khung-anh' || nestedItem.key === 'lap-lich-ap-khung' || nestedItem.key === 'dashboard') {
+    if (nestedItem.key === 'xu-ly-hang-loat' || nestedItem.key === 'danh-sach-don-hang' || nestedItem.key === 'xu-ly-tra-hang' || nestedItem.key === 'xu-ly-theo-danh-sach' || nestedItem.key === 'don-hoan' || nestedItem.key === 'phien-ban-giao' || nestedItem.key === 'quy-tac-tang-qua' || nestedItem.key === 'them-san-pham' || nestedItem.key === 'luu-nhap' || nestedItem.key === 'danh-sach-san-pham' || nestedItem.key === 'lien-ket-san-pham' || nestedItem.key === 'quan-ly-dong-bo' || nestedItem.key === 'lich-su-day-ton' || nestedItem.key === 'danh-sach-khach-hang' || nestedItem.key === 'quan-ly-phan-hoi' || nestedItem.key === 'danh-gia-tu-dong' || nestedItem.key === 'danh-sach-khung-anh' || nestedItem.key === 'lap-lich-ap-khung' || nestedItem.key === 'dashboard' || nestedItem.key === 'chuong-trinh-khuyen-mai-san' || nestedItem.key === 'chuong-trinh-khuyen-mai-ups' || nestedItem.key === 'canh-bao-vi-pham-gia' || nestedItem.key === 'khach-hang-than-thiet' || nestedItem.key === 'danh-sach-chuong-trinh' || nestedItem.key === 'danh-sach-hang-hanh-vien' || nestedItem.key === 'tao-chien-dich' || nestedItem.key === 'quan-ly-chien-dich' || nestedItem.key === 'cau-hinh-thanh-toan' || nestedItem.key === 'quan-ly-giao-dich-qua-cong' || nestedItem.key === 'san-pham-kho' || nestedItem.key === 'danh-muc-san-pham' || nestedItem.key === 'ton-kho' || nestedItem.key === 'kiem-kho' || nestedItem.key === 'du-tru' || nestedItem.key === 'xuat-nhap-kho' || nestedItem.key === 'dat-hang' || nestedItem.key === 'chuyen-kho' || nestedItem.key === 'quan-ly-nha-cung-cap' || nestedItem.key === 'danh-sach-kho' || nestedItem.key === 'bao-cao-thay-doi-ton' || nestedItem.key === 'quan-ly-han-su-dung') {
       setActiveModule(nestedItem.key);
     } else if (nestedItem.module) {
       setActiveModule(nestedItem.module);
@@ -2365,9 +2457,9 @@ const HomepageLayout = () => {
             onMouseLeave={() => setHoveredNavItem(null)}
             style={{
               display: 'flex',
-              alignItems: 'center',
+              alignItems: item.helperText ? 'flex-start' : 'center',
               padding: level === 0
-                ? (isSidebarExpanded ? '10px 16px' : '10px 0')
+                ? (isSidebarExpanded ? (item.helperText ? '12px 16px' : '10px 16px') : '10px 0')
                 : '8px 16px 8px 32px',
               cursor: 'pointer',
               backgroundColor: isActive
@@ -2413,16 +2505,38 @@ const HomepageLayout = () => {
               </span>
             )}
             {isSidebarExpanded && (
-              <>
+              <div style={{
+                flex: 1,
+                overflow: 'hidden',
+                minWidth: 0,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2
+              }}>
                 <span style={{
-                  flex: 1,
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap'
+                  whiteSpace: 'nowrap',
+                  fontWeight: 500
                 }}>
                   {item.label}
                 </span>
-              </>
+                {item.helperText && (
+                  <span style={{
+                    fontSize: 12,
+                    color: '#8c8c8c',
+                    lineHeight: 1.3,
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    display: '-webkit-box',
+                    WebkitLineClamp: 2,
+                    WebkitBoxOrient: 'vertical',
+                    whiteSpace: 'normal'
+                  }}>
+                    {item.helperText}
+                  </span>
+                )}
+              </div>
             )}
           </div>
           {/* Remove inline children - they will be shown in sub-nav column */}
@@ -2510,7 +2624,7 @@ const HomepageLayout = () => {
                             onClick={() => {
                               setActiveNavItem(nestedChild.key);
                               // For specific menu items, use their key as activeModule
-                              if (nestedChild.key === 'xu-ly-hang-loat' || nestedChild.key === 'danh-sach-don-hang' || nestedChild.key === 'xu-ly-tra-hang' || nestedChild.key === 'xu-ly-theo-danh-sach' || nestedChild.key === 'don-hoan' || nestedChild.key === 'phien-ban-giao' || nestedChild.key === 'quy-tac-tang-qua' || nestedChild.key === 'them-san-pham' || nestedChild.key === 'luu-nhap' || nestedChild.key === 'danh-sach-san-pham' || nestedChild.key === 'lien-ket-san-pham' || nestedChild.key === 'quan-ly-dong-bo' || nestedChild.key === 'lich-su-day-ton' || nestedChild.key === 'danh-sach-khach-hang' || nestedChild.key === 'quan-ly-phan-hoi' || nestedChild.key === 'danh-gia-tu-dong' || nestedChild.key === 'danh-sach-khung-anh' || nestedChild.key === 'lap-lich-ap-khung' || nestedChild.key === 'dashboard') {
+                              if (nestedChild.key === 'xu-ly-hang-loat' || nestedChild.key === 'danh-sach-don-hang' || nestedChild.key === 'xu-ly-tra-hang' || nestedChild.key === 'xu-ly-theo-danh-sach' || nestedChild.key === 'don-hoan' || nestedChild.key === 'phien-ban-giao' || nestedChild.key === 'quy-tac-tang-qua' || nestedChild.key === 'them-san-pham' || nestedChild.key === 'luu-nhap' || nestedChild.key === 'danh-sach-san-pham' || nestedChild.key === 'lien-ket-san-pham' || nestedChild.key === 'quan-ly-dong-bo' || nestedChild.key === 'lich-su-day-ton' || nestedChild.key === 'danh-sach-khach-hang' || nestedChild.key === 'quan-ly-phan-hoi' || nestedChild.key === 'danh-gia-tu-dong' || nestedChild.key === 'danh-sach-khung-anh' || nestedChild.key === 'lap-lich-ap-khung' || nestedChild.key === 'dashboard' || nestedChild.key === 'chuong-trinh-khuyen-mai-san' || nestedChild.key === 'chuong-trinh-khuyen-mai-ups' || nestedChild.key === 'canh-bao-vi-pham-gia' || nestedChild.key === 'khach-hang-than-thiet' || nestedChild.key === 'danh-sach-chuong-trinh' || nestedChild.key === 'danh-sach-hang-hanh-vien' || nestedChild.key === 'tao-chien-dich' || nestedChild.key === 'quan-ly-chien-dich' || nestedChild.key === 'cau-hinh-thanh-toan' || nestedChild.key === 'quan-ly-giao-dich-qua-cong' || nestedChild.key === 'san-pham-kho' || nestedChild.key === 'danh-muc-san-pham' || nestedChild.key === 'ton-kho' || nestedChild.key === 'kiem-kho' || nestedChild.key === 'du-tru' || nestedChild.key === 'xuat-nhap-kho' || nestedChild.key === 'dat-hang' || nestedChild.key === 'chuyen-kho' || nestedChild.key === 'quan-ly-nha-cung-cap' || nestedChild.key === 'danh-sach-kho' || nestedChild.key === 'bao-cao-thay-doi-ton' || nestedChild.key === 'quan-ly-han-su-dung') {
                                 setActiveModule(nestedChild.key);
                               } else if (nestedChild.module) {
                                 setActiveModule(nestedChild.module);
@@ -2565,7 +2679,7 @@ const HomepageLayout = () => {
                     onClick={() => {
                       setActiveNavItem(child.key);
                       // For specific menu items, use their key as activeModule
-                      if (child.key === 'xu-ly-hang-loat' || child.key === 'danh-sach-don-hang' || child.key === 'xu-ly-tra-hang' || child.key === 'xu-ly-theo-danh-sach' || child.key === 'don-hoan' || child.key === 'phien-ban-giao' || child.key === 'quy-tac-tang-qua' || child.key === 'them-san-pham' || child.key === 'luu-nhap' || child.key === 'danh-sach-san-pham' || child.key === 'lien-ket-san-pham' || child.key === 'quan-ly-dong-bo' || child.key === 'lich-su-day-ton' || child.key === 'danh-sach-khach-hang' || child.key === 'quan-ly-phan-hoi' || child.key === 'danh-gia-tu-dong' || child.key === 'dashboard') {
+                      if (child.key === 'xu-ly-hang-loat' || child.key === 'danh-sach-don-hang' || child.key === 'xu-ly-tra-hang' || child.key === 'xu-ly-theo-danh-sach' || child.key === 'don-hoan' || child.key === 'phien-ban-giao' || child.key === 'quy-tac-tang-qua' || child.key === 'them-san-pham' || child.key === 'luu-nhap' || child.key === 'danh-sach-san-pham' || child.key === 'lien-ket-san-pham' || child.key === 'quan-ly-dong-bo' || child.key === 'lich-su-day-ton' || child.key === 'danh-sach-khach-hang' || child.key === 'quan-ly-phan-hoi' || child.key === 'danh-gia-tu-dong' || child.key === 'dashboard' || child.key === 'chuong-trinh-khuyen-mai-san' || child.key === 'chuong-trinh-khuyen-mai-ups' || child.key === 'canh-bao-vi-pham-gia' || child.key === 'khach-hang-than-thiet' || child.key === 'danh-sach-chuong-trinh' || child.key === 'danh-sach-hang-hanh-vien' || child.key === 'tao-chien-dich' || child.key === 'quan-ly-chien-dich' || child.key === 'cau-hinh-thanh-toan' || child.key === 'quan-ly-giao-dich-qua-cong' || child.key === 'san-pham-kho' || child.key === 'danh-muc-san-pham' || child.key === 'ton-kho' || child.key === 'kiem-kho' || child.key === 'du-tru' || child.key === 'xuat-nhap-kho' || child.key === 'dat-hang' || child.key === 'chuyen-kho' || child.key === 'quan-ly-nha-cung-cap' || child.key === 'danh-sach-kho' || child.key === 'bao-cao-thay-doi-ton' || child.key === 'quan-ly-han-su-dung') {
                         setActiveModule(child.key);
                       } else if (child.module) {
                         setActiveModule(child.module);
@@ -2663,9 +2777,33 @@ const HomepageLayout = () => {
             transition: 'width 0.2s ease'
           }}
         >
-          {/* Main Navigation Items */}
-          <div style={{ flex: 1, paddingTop: 24 }}>
-            {navigationItems.map((item) => renderNavItem(item))}
+          {/* Primary L1: Trang chủ, Quản trị, Vận hành */}
+          <div style={{ paddingTop: 24 }}>
+            {navigationItemsPrimary.map((item) => renderNavItem(item))}
+          </div>
+
+          {/* Spacer - pushes secondary items to bottom */}
+          <div style={{ flex: 1, minHeight: 24 }} />
+
+          {/* Secondary L1: Đối tác, Brands, KOC Hub - in red box area at bottom */}
+          <div style={{
+            borderTop: '1px solid #E1E3E5',
+            paddingTop: 16,
+            paddingBottom: 8
+          }}>
+            {!sidebarCollapsed && (
+              <div style={{
+                padding: '0 16px 12px',
+                fontSize: 12,
+                fontWeight: 600,
+                color: '#8c8c8c',
+                textTransform: 'uppercase',
+                letterSpacing: '0.5px'
+              }}>
+                Mở rộng
+              </div>
+            )}
+            {navigationItemsSecondary.map((item) => renderNavItem(item))}
           </div>
 
           {/* Settings at bottom, separated */}
@@ -5260,7 +5398,7 @@ const HomepageLayout = () => {
   }, [createTemplateModalVisible]);
 
   // Navigation structure for new GA4-style sidebar
-  const navigationItems = [
+  const navigationItemsPrimary = [
     {
       key: 'trang-chu',
       label: 'Trang chủ',
@@ -5405,12 +5543,49 @@ const HomepageLayout = () => {
     }
   ];
 
+  // Secondary L1 items (below primary, separated) - label + helper text
+  const navigationItemsSecondary = [
+    {
+      key: 'doi-tac',
+      label: 'Đối tác',
+      helperText: 'Kết nối và làm việc với các đối tác',
+      icon: <MdPeople />,
+      expandable: false,
+      module: 'partners'
+    },
+    {
+      key: 'brands',
+      label: 'Brands',
+      helperText: 'Không gian quản lý thương hiệu',
+      icon: <MdStore />,
+      expandable: false,
+      module: 'brands'
+    },
+    {
+      key: 'koc-hub',
+      label: 'KOC Hub',
+      helperText: 'Kết nối và triển khai chiến dịch với KOC',
+      icon: <MdCampaign />,
+      expandable: false,
+      module: 'koc-hub'
+    }
+  ];
+
+  // Combined for parentItemToShow / activeNavItem lookups
+  const navigationItems = [...navigationItemsPrimary, ...navigationItemsSecondary];
+
   // L2 nav keys that have a built .jsx view (green dot indicator)
   const navKeysWithView = useMemo(() => new Set([
     'them-san-pham', 'luu-nhap', 'danh-sach-san-pham', 'lien-ket-san-pham', 'quan-ly-dong-bo', 'lich-su-day-ton',
     'danh-sach-don-hang', 'xu-ly-hang-loat', 'xu-ly-theo-danh-sach', 'xu-ly-tra-hang', 'don-hoan', 'phien-ban-giao', 'quy-tac-tang-qua',
     'danh-sach-khach-hang', 'quan-ly-phan-hoi', 'danh-gia-tu-dong',
     'danh-sach-khung-anh', 'lap-lich-ap-khung',
+    'chuong-trinh-khuyen-mai-san', 'chuong-trinh-khuyen-mai-ups', 'canh-bao-vi-pham-gia',
+    'khach-hang-than-thiet', 'danh-sach-chuong-trinh', 'danh-sach-hang-hanh-vien',
+    'tao-chien-dich', 'quan-ly-chien-dich',
+    'cau-hinh-thanh-toan', 'quan-ly-giao-dich-qua-cong',
+    'san-pham-kho', 'danh-muc-san-pham', 'ton-kho', 'kiem-kho', 'du-tru', 'xuat-nhap-kho', 'dat-hang', 'chuyen-kho', 'quan-ly-nha-cung-cap',
+    'danh-sach-kho', 'bao-cao-thay-doi-ton', 'quan-ly-han-su-dung',
     'dashboard'
   ]), []);
 
@@ -7567,6 +7742,50 @@ const HomepageLayout = () => {
                   <FrameTemplateList />
                 ) : activeModule === 'lap-lich-ap-khung' ? (
                   <FrameScheduleManagement />
+                ) : activeModule === 'chuong-trinh-khuyen-mai-san' ? (
+                  <PlatformPromoView />
+                ) : activeModule === 'chuong-trinh-khuyen-mai-ups' ? (
+                  <UpsPromoView />
+                ) : activeModule === 'canh-bao-vi-pham-gia' ? (
+                  <PriceViolationView />
+                ) : activeModule === 'khach-hang-than-thiet' ? (
+                  <LoyalCustomerView />
+                ) : activeModule === 'danh-sach-chuong-trinh' ? (
+                  <ProgramListView />
+                ) : activeModule === 'danh-sach-hang-hanh-vien' ? (
+                  <MemberTierView />
+                ) : activeModule === 'tao-chien-dich' ? (
+                  <CreateCampaignView />
+                ) : activeModule === 'quan-ly-chien-dich' ? (
+                  <CampaignManagementView />
+                ) : activeModule === 'cau-hinh-thanh-toan' ? (
+                  <PaymentConfigView />
+                ) : activeModule === 'quan-ly-giao-dich-qua-cong' ? (
+                  <TransactionGatewayView />
+                ) : activeModule === 'san-pham-kho' ? (
+                  <WarehouseProductView />
+                ) : activeModule === 'danh-muc-san-pham' ? (
+                  <ProductCategoryView />
+                ) : activeModule === 'ton-kho' ? (
+                  <InventoryStockView />
+                ) : activeModule === 'kiem-kho' ? (
+                  <InventoryCheckView />
+                ) : activeModule === 'du-tru' ? (
+                  <ReserveView />
+                ) : activeModule === 'xuat-nhap-kho' ? (
+                  <ImportExportView />
+                ) : activeModule === 'dat-hang' ? (
+                  <OrderingView />
+                ) : activeModule === 'chuyen-kho' ? (
+                  <StockTransferView />
+                ) : activeModule === 'quan-ly-nha-cung-cap' ? (
+                  <SupplierManagementView />
+                ) : activeModule === 'danh-sach-kho' ? (
+                  <WarehouseListView />
+                ) : activeModule === 'bao-cao-thay-doi-ton' ? (
+                  <StockChangeReportView />
+                ) : activeModule === 'quan-ly-han-su-dung' ? (
+                  <ExpirationManagementView />
                 ) : activeModule === 'dashboard' ? (
                   <IncomeDashboard />
                 ) : activeModule === 'workspace-settings' ? (

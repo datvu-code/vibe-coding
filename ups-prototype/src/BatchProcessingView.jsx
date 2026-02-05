@@ -7,6 +7,7 @@ import {
     SearchOutlined, ReloadOutlined, SortAscendingOutlined, InfoCircleOutlined
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import PaginationFooter from './PaginationFooter';
 
 const { Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -23,6 +24,9 @@ const BatchProcessingView = () => {
     const [exportSlipStatus, setExportSlipStatus] = useState(null);
     const [pickingSlipStatus, setPickingSlipStatus] = useState(null);
     const [sortBy, setSortBy] = useState('order-time');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(25);
+    const totalOrders = 11;
 
     return (
         <div style={{ display: 'flex', gap: 16 }}>
@@ -309,26 +313,15 @@ const BatchProcessingView = () => {
                 </Card>
 
                 {/* Pagination */}
-                <div style={{ 
-                    marginTop: 16,
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center'
-                }}>
-                    <Select
-                        defaultValue="25"
-                        style={{ width: 160 }}
-                    >
-                        <Option value="25">25 bản ghi/trang</Option>
-                        <Option value="50">50 bản ghi/trang</Option>
-                        <Option value="100">100 bản ghi/trang</Option>
-                    </Select>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                        <Text type="secondary" style={{ fontSize: 12 }}>
-                            Hiển thị 1 - 11 của 11
-                        </Text>
-                        <Button type="text" style={{ width: 28, height: 28, padding: 0 }}>1</Button>
-                    </div>
+                <div style={{ marginTop: 16, borderTop: '0.87px solid #F0F0F0', paddingTop: 14 }}>
+                    <PaginationFooter
+                        total={totalOrders}
+                        currentPage={currentPage}
+                        pageSize={pageSize}
+                        onPageChange={setCurrentPage}
+                        onPageSizeChange={setPageSize}
+                        label="đơn hàng"
+                    />
                 </div>
             </div>
 

@@ -6,6 +6,7 @@ import {
     SearchOutlined, DownloadOutlined, DeleteOutlined, PlusOutlined,
     InfoCircleOutlined
 } from '@ant-design/icons';
+import PaginationFooter from './PaginationFooter';
 
 const { Search } = Input;
 
@@ -13,6 +14,8 @@ const FrameTemplateList = () => {
     const [activeTab, setActiveTab] = useState('static');
     const [selectedRowKeys, setSelectedRowKeys] = useState([]);
     const [searchText, setSearchText] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
 
     // Mock data for frame templates
     const mockTemplates = [
@@ -217,16 +220,21 @@ const FrameTemplateList = () => {
                 <Table
                     rowSelection={rowSelection}
                     columns={columns}
-                    dataSource={mockTemplates}
-                    pagination={{
-                        pageSize: 10,
-                        showSizeChanger: true,
-                        showTotal: (total) => `Tổng ${total} mẫu`,
-                        style: { fontSize: 14, padding: '16px' }
-                    }}
+                    dataSource={mockTemplates.slice((currentPage - 1) * pageSize, currentPage * pageSize)}
+                    pagination={false}
                     style={{ fontSize: 14 }}
                     className="neutral-header-table"
                 />
+                <div style={{ padding: '0 16px 14px', borderTop: '0.87px solid #F0F0F0' }}>
+                    <PaginationFooter
+                        total={mockTemplates.length}
+                        currentPage={currentPage}
+                        pageSize={pageSize}
+                        onPageChange={setCurrentPage}
+                        onPageSizeChange={setPageSize}
+                        label="mẫu"
+                    />
+                </div>
             </Card>
         </div>
     );

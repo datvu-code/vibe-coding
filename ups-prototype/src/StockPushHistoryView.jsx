@@ -7,6 +7,7 @@ import {
     DownOutlined, SearchOutlined, DeleteOutlined, InfoCircleOutlined
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import PaginationFooter from './PaginationFooter';
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -103,6 +104,9 @@ const StockPushHistoryView = () => {
     const [dateRange, setDateRange] = useState(null);
     
     const pushHistory = generateMockPushHistory();
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(25);
+    const pagePushHistory = pushHistory.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
     const statusTabs = [
         { key: 'all', label: 'Tất cả', count: 5159 },
@@ -111,10 +115,11 @@ const StockPushHistoryView = () => {
     ];
 
     const handleSelectAll = (e) => {
+        const pageIds = pagePushHistory.map(p => p.id);
         if (e.target.checked) {
-            setSelectedRowKeys(pushHistory.map(p => p.id));
+            setSelectedRowKeys(prev => [...new Set([...prev, ...pageIds])]);
         } else {
-            setSelectedRowKeys([]);
+            setSelectedRowKeys(prev => prev.filter(id => !pageIds.includes(id)));
         }
     };
 
@@ -128,88 +133,20 @@ const StockPushHistoryView = () => {
 
     return (
         <div>
-            {/* Filter Section */}
+            {/* Main Card - Tabs, Filter, Table (DraftProductsView pattern) */}
             <Card
-                styles={{ body: { padding: '14px' } }}
-                style={{ marginBottom: 14, borderRadius: 8 }}
+                styles={{ body: { padding: 0 } }}
+                style={{ borderRadius: 8, backgroundColor: '#fff', border: '1px solid #F0F0F0' }}
             >
-                <Row gutter={[16, 16]} align="middle">
-                    <Col span={6}>
-                        <Input
-                            placeholder="Tên sản phẩm, SKU"
-                            prefix={<SearchOutlined />}
-                            value={searchText}
-                            onChange={(e) => setSearchText(e.target.value)}
-                            allowClear
-                            style={{ width: '100%' }}
-                        />
-                    </Col>
-                    <Col span={6}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <Text style={{ fontSize: 14 }}>Gian hàng</Text>
-                            <Select
-                                placeholder="Chọn gian hàng"
-                                value={selectedStore}
-                                onChange={setSelectedStore}
-                                style={{ flex: 1 }}
-                                allowClear
-                            >
-                                <Option value="upbeauty">UpBeauty Store</Option>
-                                <Option value="upbeautyy">UpBeautyy</Option>
-                            </Select>
-                        </div>
-                    </Col>
-                    <Col span={6}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <Text style={{ fontSize: 14 }}>Kho kênh bán</Text>
-                            <Select
-                                value={selectedWarehouse}
-                                onChange={setSelectedWarehouse}
-                                style={{ flex: 1 }}
-                            >
-                                <Option value="all">Tất cả</Option>
-                                <Option value="warehouse1">Kho 1</Option>
-                            </Select>
-                        </div>
-                    </Col>
-                    <Col span={6}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <Text style={{ fontSize: 14 }}>Thời gian đẩy</Text>
-                            <RangePicker
-                                value={dateRange}
-                                onChange={setDateRange}
-                                format="DD/MM/YYYY"
-                                style={{ flex: 1 }}
-                                placeholder={['dd/mm/yyyy', 'dd/mm/yyyy']}
-                            />
-                        </div>
-                    </Col>
-                </Row>
-
-                <Row gutter={[16, 16]} align="middle" style={{ marginTop: 14 }}>
-                    <Col span={12}>
-                        <Text style={{ fontSize: 14 }}>
-                            Đã chọn: <strong>{selectedRowKeys.length}</strong> sản phẩm
-                        </Text>
-                    </Col>
-                    <Col span={12} style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                        <Button 
-                            icon={<DeleteOutlined />}
-                            style={{ 
-                                background: 'rgba(0,0,0,0.06)', 
-                                border: 'none',
-                                fontSize: 14
-                            }}
-                        >
-                            Xóa lịch sử
-                        </Button>
-                    </Col>
-                </Row>
-            </Card>
-
-            {/* Status Tabs */}
-            <div style={{ marginBottom: 14 }}>
-                <Space size={21}>
+                {/* Status Tabs */}
+                <div style={{
+                    display: 'flex',
+                    gap: 21,
+                    padding: '12px 16px',
+                    borderBottom: '1px solid #F0F0F0',
+                    flexWrap: 'wrap',
+                    alignItems: 'center'
+                }}>
                     {statusTabs.map((tab) => {
                         const isActive = activeStatusTab === tab.key;
                         return (
@@ -242,70 +179,143 @@ const StockPushHistoryView = () => {
                             </button>
                         );
                     })}
-                </Space>
-            </div>
-
-            {/* Table Card */}
-            <Card
-                styles={{ body: { padding: 0 } }}
-                style={{ 
-                    marginTop: 14,
-                    borderRadius: 8,
-                    backgroundColor: '#fff',
-                    border: '1px solid #F0F0F0'
-                }}
-            >
-                {/* Table Header */}
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 150px 150px 150px 120px 180px',
-                    gap: 16,
-                    padding: '12px 16px',
-                    background: '#F5F5F5',
-                    borderBottom: '1px solid #F0F0F0',
-                    alignItems: 'center'
-                }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)' }}>Sản phẩm</Text>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                        <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)' }}>Số lượng đẩy tồn</Text>
-                        <InfoCircleOutlined style={{ fontSize: 12, color: 'rgba(0,0,0,0.45)' }} />
-                    </div>
-                    <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)' }}>Kho kênh bán</Text>
-                    <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)' }}>Phương thức đẩy</Text>
-                    <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)' }}>Trạng thái</Text>
-                    <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)' }}>Thời gian đẩy tồn</Text>
                 </div>
 
-                {/* Table Rows */}
-                <div style={{ 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    gap: 0
-                }}>
-                    {pushHistory.map((item, index) => {
+                {/* Filter Section */}
+                <div style={{ padding: '14px 16px', borderBottom: '1px solid #F0F0F0' }}>
+                    <Row gutter={[16, 16]} align="middle">
+                        <Col span={6}>
+                            <Input
+                                placeholder="Tên sản phẩm, SKU"
+                                prefix={<SearchOutlined />}
+                                value={searchText}
+                                onChange={(e) => setSearchText(e.target.value)}
+                                allowClear
+                                style={{ width: '100%' }}
+                            />
+                        </Col>
+                        <Col span={6}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <Text style={{ fontSize: 14 }}>Gian hàng</Text>
+                                <Select
+                                    placeholder="Chọn gian hàng"
+                                    value={selectedStore}
+                                    onChange={setSelectedStore}
+                                    style={{ flex: 1 }}
+                                    allowClear
+                                >
+                                    <Option value="upbeauty">UpBeauty Store</Option>
+                                    <Option value="upbeautyy">UpBeautyy</Option>
+                                </Select>
+                            </div>
+                        </Col>
+                        <Col span={6}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <Text style={{ fontSize: 14 }}>Kho kênh bán</Text>
+                                <Select
+                                    value={selectedWarehouse}
+                                    onChange={setSelectedWarehouse}
+                                    style={{ flex: 1 }}
+                                >
+                                    <Option value="all">Tất cả</Option>
+                                    <Option value="warehouse1">Kho 1</Option>
+                                </Select>
+                            </div>
+                        </Col>
+                        <Col span={6}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <Text style={{ fontSize: 14 }}>Thời gian đẩy</Text>
+                                <RangePicker
+                                    value={dateRange}
+                                    onChange={setDateRange}
+                                    format="DD/MM/YYYY"
+                                    style={{ flex: 1 }}
+                                    placeholder={['dd/mm/yyyy', 'dd/mm/yyyy']}
+                                />
+                            </div>
+                        </Col>
+                    </Row>
+                </div>
+
+                {/* Selection Overlay or Table */}
+                {selectedRowKeys.length > 0 ? (
+                    <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 16,
+                        padding: '12px 16px',
+                        borderBottom: '1px solid #F0F0F0',
+                        backgroundColor: '#F5F5F5'
+                    }}>
+                        <Checkbox
+                            checked={pagePushHistory.length > 0 && pagePushHistory.every(p => selectedRowKeys.includes(p.id))}
+                            indeterminate={pagePushHistory.some(p => selectedRowKeys.includes(p.id)) && !pagePushHistory.every(p => selectedRowKeys.includes(p.id))}
+                            onChange={handleSelectAll}
+                        />
+                        <Text style={{ fontSize: 14 }}>
+                            Đã chọn: <strong>{selectedRowKeys.length}</strong> sản phẩm
+                        </Text>
+                        <Button
+                            icon={<DeleteOutlined />}
+                            style={{ background: 'rgba(0,0,0,0.06)', border: 'none', fontSize: 14 }}
+                        >
+                            Xóa lịch sử
+                        </Button>
+                    </div>
+                ) : (
+                    <div style={{ overflowX: 'auto' }}>
+                        <div style={{
+                            display: 'grid',
+                            gridTemplateColumns: '48px 1fr 150px 150px 150px 120px 180px',
+                            gap: 16,
+                            padding: '12px 16px',
+                            background: '#F5F5F5',
+                            borderBottom: '1px solid #F0F0F0',
+                            alignItems: 'center',
+                            minWidth: 'max-content'
+                        }}>
+                            <Checkbox
+                                onChange={handleSelectAll}
+                                checked={pagePushHistory.length > 0 && pagePushHistory.every(p => selectedRowKeys.includes(p.id))}
+                                indeterminate={pagePushHistory.some(p => selectedRowKeys.includes(p.id)) && !pagePushHistory.every(p => selectedRowKeys.includes(p.id))}
+                            />
+                            <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)' }}>Sản phẩm</Text>
+                            <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)' }}>Số lượng đẩy tồn</Text>
+                            <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)' }}>Kho kênh bán</Text>
+                            <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)' }}>Phương thức đẩy</Text>
+                            <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)' }}>Trạng thái</Text>
+                            <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)' }}>Thời gian đẩy tồn</Text>
+                        </div>
+
+                        {/* Table Rows */}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                    {pagePushHistory.map((item, index) => {
                         const channelMeta = getChannelMeta(item.channel);
                         return (
-                            <div key={item.id}>
-                                <div
-                                    style={{
-                                        display: 'grid',
-                                        gridTemplateColumns: '1fr 150px 150px 150px 120px 180px',
-                                        gap: 16,
-                                        padding: '16px',
-                                        background: '#fff',
-                                        borderBottom: index < pushHistory.length - 1 ? '1px solid #F0F0F0' : 'none',
-                                        alignItems: 'center',
-                                        transition: 'background 0.2s'
-                                    }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.background = '#FAFAFA';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.background = '#fff';
-                                    }}
-                                >
+                            <div
+                                key={item.id}
+                                style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: '48px 1fr 150px 150px 150px 120px 180px',
+                                    gap: 16,
+                                    padding: '16px',
+                                    background: '#fff',
+                                    borderBottom: index < pagePushHistory.length - 1 ? '1px solid #F0F0F0' : 'none',
+                                    alignItems: 'center',
+                                    minWidth: 'max-content',
+                                    transition: 'background 0.2s'
+                                }}
+                                onMouseEnter={(e) => {
+                                    e.currentTarget.style.background = '#FAFAFA';
+                                }}
+                                onMouseLeave={(e) => {
+                                    e.currentTarget.style.background = '#fff';
+                                }}
+                            >
+                                <Checkbox
+                                    checked={selectedRowKeys.includes(item.id)}
+                                    onChange={(e) => handleSelectRow(item.id, e.target.checked)}
+                                />
                                     {/* Sản phẩm */}
                                     <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
                                         <img 
@@ -372,10 +382,28 @@ const StockPushHistoryView = () => {
 
                                     {/* Thời gian đẩy tồn */}
                                     <Text style={{ fontSize: 14 }}>{item.pushTime}</Text>
-                                </div>
                             </div>
                         );
                     })}
+                        </div>
+                    </div>
+                )}
+
+                {/* Pagination Footer */}
+                <div style={{ padding: '0 16px 14px' }}>
+                    <PaginationFooter
+                        total={pushHistory.length}
+                        currentPage={currentPage}
+                        pageSize={pageSize}
+                        onPageChange={setCurrentPage}
+                        onPageSizeChange={setPageSize}
+                        label="bản ghi"
+                        pageSizeOptions={[
+                            { value: 25, label: '25 bản ghi/trang' },
+                            { value: 50, label: '50 bản ghi/trang' },
+                            { value: 100, label: '100 bản ghi/trang' }
+                        ]}
+                    />
                 </div>
             </Card>
         </div>

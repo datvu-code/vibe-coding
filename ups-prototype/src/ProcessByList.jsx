@@ -8,6 +8,7 @@ import {
     PlusOutlined, CloseOutlined, BookOutlined
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import PaginationFooter from './PaginationFooter';
 
 const { Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -21,6 +22,8 @@ const ProcessByList = () => {
     const [activeStatusTab, setActiveStatusTab] = useState('all');
     const [guideDrawerVisible, setGuideDrawerVisible] = useState(false);
     const [activeStep, setActiveStep] = useState(0); // Step 1 is active by default (index 0)
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(20);
 
     // Adjust content margin when guide drawer opens (split screen)
     useEffect(() => {
@@ -107,8 +110,10 @@ const ProcessByList = () => {
         }
     ];
 
+    const statusTabCounts = { new: 0, ready: 0, packing: 4, packed: 48, cancelled: 1 };
+    const totalAll = Object.values(statusTabCounts).reduce((a, b) => a + b, 0);
     const statusTabs = [
-        { key: 'all', label: 'Tất cả', count: null },
+        { key: 'all', label: 'Tất cả', count: totalAll },
         { key: 'new', label: 'Mới', count: 0 },
         { key: 'ready', label: 'Sẵn sàng đóng', count: 0 },
         { key: 'packing', label: 'Đang đóng hàng', count: 4 },
@@ -243,118 +248,139 @@ const ProcessByList = () => {
                 </Button>
             </div>
 
-            {/* Filter Section */}
-            <Card
-                styles={{ body: { padding: '16px' } }}
-                style={{ marginBottom: 16, borderRadius: 8 }}
-            >
-                <Row gutter={[16, 16]}>
-                    <Col span={6}>
-                        <div>
-                            <Text style={{ fontSize: 12, display: 'block', marginBottom: 8 }}>Thời gian</Text>
-                            <RangePicker
-                                value={dateRange}
-                                onChange={(dates) => setDateRange(dates)}
-                                format="DD/MM/YYYY"
-                                style={{ width: '100%' }}
-                            />
-                        </div>
-                    </Col>
-                    <Col span={6}>
-                        <div>
-                            <Text style={{ fontSize: 12, display: 'block', marginBottom: 8 }}>Kho vật lý</Text>
-                            <Select
-                                placeholder="Chọn kho"
-                                value={warehouse}
-                                onChange={setWarehouse}
-                                style={{ width: '100%' }}
-                                allowClear
-                            >
-                                <Option value="warehouse1">Kho 1</Option>
-                                <Option value="warehouse2">Kho 2</Option>
-                            </Select>
-                        </div>
-                    </Col>
-                    <Col span={6}>
-                        <div>
-                            <Text style={{ fontSize: 12, display: 'block', marginBottom: 8 }}>Mã danh sách</Text>
-                            <Input
-                                placeholder="Tìm mã danh sách"
-                                prefix={<SearchOutlined />}
-                                value={listCode}
-                                onChange={(e) => setListCode(e.target.value)}
-                                style={{ fontSize: 14 }}
-                            />
-                        </div>
-                    </Col>
-                    <Col span={6}>
-                        <div>
-                            <Text style={{ fontSize: 12, display: 'block', marginBottom: 8 }}>Loại danh sách</Text>
-                            <Select
-                                placeholder="Chọn loại"
-                                value={listType}
-                                onChange={setListType}
-                                style={{ width: '100%' }}
-                                allowClear
-                            >
-                                <Option value="mixed">Đơn hỗn hợp</Option>
-                                <Option value="single">Đơn đơn lẻ</Option>
-                            </Select>
-                        </div>
-                    </Col>
-                </Row>
-            </Card>
-
-            {/* Summary Line */}
-            <div style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8 }}>
-                <Text style={{ fontSize: 14 }}>
-                    Tổng số lượng kiện hàng đã xử lý theo bộ lọc : <strong>2,584</strong>
-                </Text>
-                <Tooltip title="Thông tin về số lượng kiện hàng">
-                    <InfoCircleOutlined style={{ color: 'rgba(0,0,0,0.45)', fontSize: 14 }} />
-                </Tooltip>
-            </div>
-
-            {/* Status Tabs */}
-            <div style={{ marginBottom: 16, borderBottom: '1px solid #f0f0f0' }}>
-                <Space size={0} style={{ display: 'flex', flexWrap: 'wrap' }}>
-                    {statusTabs.map((tab) => (
-                        <div
-                            key={tab.key}
-                            onClick={() => setActiveStatusTab(tab.key)}
-                            style={{
-                                padding: '12px 16px',
-                                cursor: 'pointer',
-                                borderBottom: activeStatusTab === tab.key ? '2px solid #EF5941' : '2px solid transparent',
-                                marginBottom: '-1px',
-                                transition: 'all 0.2s'
-                            }}
-                        >
-                            <Text
-                                style={{
-                                    fontSize: 14,
-                                    fontWeight: activeStatusTab === tab.key ? 500 : 400,
-                                    color: activeStatusTab === tab.key ? '#EF5941' : 'rgba(0,0,0,0.88)'
-                                }}
-                            >
-                                {tab.label} {tab.count !== null && `(${tab.count})`}
-                            </Text>
-                        </div>
-                    ))}
-                </Space>
-            </div>
-
-            {/* Table */}
+            {/* Main Card: Tabs → Filter → Summary → Table */}
             <Card
                 styles={{ body: { padding: 0 } }}
-                style={{ borderRadius: 8 }}
+                style={{
+                    borderRadius: 8,
+                    backgroundColor: '#fff',
+                    border: '1px solid #F0F0F0'
+                }}
             >
-                <Table
-                    columns={columns}
-                    dataSource={mockData}
-                    pagination={false}
-                    style={{ fontSize: 14 }}
-                />
+                {/* Status Tabs */}
+                <div style={{
+                    display: 'flex',
+                    gap: 21,
+                    padding: '12px 16px',
+                    borderBottom: '1px solid #F0F0F0',
+                    flexWrap: 'wrap',
+                    alignItems: 'center',
+                    backgroundColor: '#fff'
+                }}>
+                    {statusTabs.map((tab) => {
+                        const isActive = activeStatusTab === tab.key;
+                        return (
+                            <button
+                                key={tab.key}
+                                onClick={() => setActiveStatusTab(tab.key)}
+                                style={{
+                                    border: 'none',
+                                    borderBottom: isActive ? '1.74px solid #EF5941' : 'none',
+                                    background: 'transparent',
+                                    padding: '10px 0',
+                                    cursor: 'pointer',
+                                    fontSize: 14,
+                                    fontWeight: isActive ? 600 : 400,
+                                    color: isActive ? '#EF5941' : 'rgba(0,0,0,0.88)',
+                                    transition: 'all 0.2s'
+                                }}
+                            >
+                                {tab.label} ({tab.count})
+                            </button>
+                        );
+                    })}
+                </div>
+
+                {/* Filter Section */}
+                <div style={{ padding: '14px 16px', borderBottom: '1px solid #F0F0F0' }}>
+                    <Row gutter={[16, 16]}>
+                        <Col span={6}>
+                            <div>
+                                <Text style={{ fontSize: 12, display: 'block', marginBottom: 8 }}>Thời gian</Text>
+                                <RangePicker
+                                    value={dateRange}
+                                    onChange={(dates) => setDateRange(dates)}
+                                    format="DD/MM/YYYY"
+                                    style={{ width: '100%' }}
+                                />
+                            </div>
+                        </Col>
+                        <Col span={6}>
+                            <div>
+                                <Text style={{ fontSize: 12, display: 'block', marginBottom: 8 }}>Kho vật lý</Text>
+                                <Select
+                                    placeholder="Chọn kho"
+                                    value={warehouse}
+                                    onChange={setWarehouse}
+                                    style={{ width: '100%' }}
+                                    allowClear
+                                >
+                                    <Option value="warehouse1">Kho 1</Option>
+                                    <Option value="warehouse2">Kho 2</Option>
+                                </Select>
+                            </div>
+                        </Col>
+                        <Col span={6}>
+                            <div>
+                                <Text style={{ fontSize: 12, display: 'block', marginBottom: 8 }}>Mã danh sách</Text>
+                                <Input
+                                    placeholder="Tìm mã danh sách"
+                                    prefix={<SearchOutlined />}
+                                    value={listCode}
+                                    onChange={(e) => setListCode(e.target.value)}
+                                    style={{ fontSize: 14 }}
+                                />
+                            </div>
+                        </Col>
+                        <Col span={6}>
+                            <div>
+                                <Text style={{ fontSize: 12, display: 'block', marginBottom: 8 }}>Loại danh sách</Text>
+                                <Select
+                                    placeholder="Chọn loại"
+                                    value={listType}
+                                    onChange={setListType}
+                                    style={{ width: '100%' }}
+                                    allowClear
+                                >
+                                    <Option value="mixed">Đơn hỗn hợp</Option>
+                                    <Option value="single">Đơn đơn lẻ</Option>
+                                </Select>
+                            </div>
+                        </Col>
+                    </Row>
+                </div>
+
+                {/* Summary Line */}
+                <div style={{ padding: '14px 16px', borderBottom: '1px solid #F0F0F0', display: 'flex', alignItems: 'center', gap: 8 }}>
+                    <Text style={{ fontSize: 14 }}>
+                        Tổng số lượng kiện hàng đã xử lý theo bộ lọc : <strong>2,584</strong>
+                    </Text>
+                    <Tooltip title="Thông tin về số lượng kiện hàng">
+                        <InfoCircleOutlined style={{ color: 'rgba(0,0,0,0.45)', fontSize: 14 }} />
+                    </Tooltip>
+                </div>
+
+                {/* Table */}
+                <div style={{ overflowX: 'auto' }}>
+                    <Table
+                        columns={columns}
+                        dataSource={mockData.slice((currentPage - 1) * pageSize, currentPage * pageSize)}
+                        pagination={false}
+                        style={{ fontSize: 14 }}
+                    />
+                </div>
+
+                {/* Pagination Footer */}
+                <div style={{ padding: '0 16px 14px' }}>
+                    <PaginationFooter
+                        total={mockData.length}
+                        currentPage={currentPage}
+                        pageSize={pageSize}
+                        onPageChange={setCurrentPage}
+                        onPageSizeChange={setPageSize}
+                        label="danh sách"
+                    />
+                </div>
             </Card>
 
             {/* Guide Drawer - Split Screen */}

@@ -6,6 +6,7 @@ import {
 import {
     DownOutlined, SearchOutlined, FilterOutlined
 } from '@ant-design/icons';
+import PaginationFooter from './PaginationFooter';
 
 const { Text } = Typography;
 const { Option } = Select;
@@ -89,8 +90,11 @@ const PlatformProductsView = () => {
     const [searchText, setSearchText] = useState('');
     const [selectedStore, setSelectedStore] = useState(null);
     const [selectedStatus, setSelectedStatus] = useState('all');
-    
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(25);
+
     const products = generateMockProducts();
+    const pageProducts = products.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
     const platforms = [
         { key: 'tiktok', label: 'Tiktok', count: 221 },
@@ -221,57 +225,20 @@ const PlatformProductsView = () => {
                 </Select>
             </div>
 
-            {/* Filter Section */}
+            {/* Main Card - Tabs, Filter, Table (DraftProductsView pattern) */}
             <Card
-                styles={{ body: { padding: '14px' } }}
-                style={{ marginBottom: 14, borderRadius: 8 }}
+                styles={{ body: { padding: 0 } }}
+                style={{ borderRadius: 8, backgroundColor: '#fff', border: '1px solid #F0F0F0' }}
             >
-                <Row gutter={[16, 16]} align="middle">
-                    <Col span={8}>
-                        <Input
-                            placeholder="Tên sản phẩm/SKU"
-                            prefix={<SearchOutlined />}
-                            value={searchText}
-                            onChange={(e) => setSearchText(e.target.value)}
-                            allowClear
-                            style={{ width: '100%' }}
-                        />
-                    </Col>
-                    <Col span={6}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <Text style={{ fontSize: 14 }}>Gian hàng</Text>
-                            <Select
-                                placeholder="Chọn gian hàng"
-                                value={selectedStore}
-                                onChange={setSelectedStore}
-                                style={{ width: 200 }}
-                                allowClear
-                            >
-                                <Option value="all">Tất cả</Option>
-                                <Option value="upbeauty">UpBeauty Store</Option>
-                            </Select>
-                        </div>
-                    </Col>
-                    <Col span={6}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                            <Text style={{ fontSize: 14 }}>Trạng thái của sản phẩm sàn</Text>
-                            <Select
-                                value={selectedStatus}
-                                onChange={setSelectedStatus}
-                                style={{ width: 200 }}
-                            >
-                                <Option value="all">Tất cả</Option>
-                                <Option value="active">Đang hoạt động</Option>
-                                <Option value="hidden">Đã ẩn</Option>
-                            </Select>
-                        </div>
-                    </Col>
-                </Row>
-            </Card>
-
-            {/* Status Tabs */}
-            <div style={{ marginBottom: 14 }}>
-                <Space size={21}>
+                {/* Status Tabs */}
+                <div style={{
+                    display: 'flex',
+                    gap: 21,
+                    padding: '12px 16px',
+                    borderBottom: '1px solid #F0F0F0',
+                    flexWrap: 'wrap',
+                    alignItems: 'center'
+                }}>
                     {statusTabs.map((tab) => {
                         const isActive = activeStatusTab === tab.key;
                         return (
@@ -304,42 +271,74 @@ const PlatformProductsView = () => {
                             </button>
                         );
                     })}
-                </Space>
-            </div>
-
-            {/* Table Card */}
-            <Card
-                styles={{ body: { padding: 0 } }}
-                style={{ 
-                    marginTop: 14,
-                    borderRadius: 8,
-                    backgroundColor: '#fff',
-                    border: '1px solid #F0F0F0'
-                }}
-            >
-                {/* Table Header */}
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 140px 1fr 120px',
-                    gap: 16,
-                    padding: '12px 16px',
-                    background: '#F5F5F5',
-                    borderBottom: '1px solid #F0F0F0',
-                    alignItems: 'center'
-                }}>
-                    <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)' }}>Sản phẩm sàn</Text>
-                    <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)' }}>SKU</Text>
-                    <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)' }}>Sản phẩm kho</Text>
-                    <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)' }}>Thao tác</Text>
                 </div>
 
-                {/* Table Rows */}
-                <div style={{ 
-                    display: 'flex', 
-                    flexDirection: 'column', 
-                    gap: 0
-                }}>
-                    {products.map((product, index) => {
+                {/* Filter Section */}
+                <div style={{ padding: '14px 16px', borderBottom: '1px solid #F0F0F0' }}>
+                    <Row gutter={[16, 16]} align="middle">
+                        <Col span={8}>
+                            <Input
+                                placeholder="Tên sản phẩm/SKU"
+                                prefix={<SearchOutlined />}
+                                value={searchText}
+                                onChange={(e) => setSearchText(e.target.value)}
+                                allowClear
+                                style={{ width: '100%' }}
+                            />
+                        </Col>
+                        <Col span={6}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <Text style={{ fontSize: 14 }}>Gian hàng</Text>
+                                <Select
+                                    placeholder="Chọn gian hàng"
+                                    value={selectedStore}
+                                    onChange={setSelectedStore}
+                                    style={{ width: 200 }}
+                                    allowClear
+                                >
+                                    <Option value="all">Tất cả</Option>
+                                    <Option value="upbeauty">UpBeauty Store</Option>
+                                </Select>
+                            </div>
+                        </Col>
+                        <Col span={6}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                                <Text style={{ fontSize: 14 }}>Trạng thái của sản phẩm sàn</Text>
+                                <Select
+                                    value={selectedStatus}
+                                    onChange={setSelectedStatus}
+                                    style={{ width: 200 }}
+                                >
+                                    <Option value="all">Tất cả</Option>
+                                    <Option value="active">Đang hoạt động</Option>
+                                    <Option value="hidden">Đã ẩn</Option>
+                                </Select>
+                            </div>
+                        </Col>
+                    </Row>
+                </div>
+
+                {/* Table */}
+                <div style={{ overflowX: 'auto' }}>
+                    <div style={{
+                        display: 'grid',
+                        gridTemplateColumns: '1fr 140px 1fr 120px',
+                        gap: 16,
+                        padding: '12px 16px',
+                        background: '#F5F5F5',
+                        borderBottom: '1px solid #F0F0F0',
+                        alignItems: 'center',
+                        minWidth: 'max-content'
+                    }}>
+                        <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)' }}>Sản phẩm sàn</Text>
+                        <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)' }}>SKU</Text>
+                        <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)' }}>Sản phẩm kho</Text>
+                        <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)' }}>Thao tác</Text>
+                    </div>
+
+                    {/* Table Rows */}
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                    {pageProducts.map((product, index) => {
                         const channelMeta = getChannelMeta(product.channel);
                         return (
                             <div
@@ -350,7 +349,7 @@ const PlatformProductsView = () => {
                                     gap: 16,
                                     padding: '16px',
                                     background: '#fff',
-                                    borderBottom: index < products.length - 1 ? '1px solid #F0F0F0' : 'none',
+                                    borderBottom: index < pageProducts.length - 1 ? '1px solid #F0F0F0' : 'none',
                                     alignItems: 'center',
                                     transition: 'background 0.2s'
                                 }}
@@ -452,6 +451,24 @@ const PlatformProductsView = () => {
                             </div>
                         );
                     })}
+                    </div>
+                </div>
+
+                {/* Pagination Footer */}
+                <div style={{ padding: '0 16px 14px' }}>
+                    <PaginationFooter
+                        total={products.length}
+                        currentPage={currentPage}
+                        pageSize={pageSize}
+                        onPageChange={setCurrentPage}
+                        onPageSizeChange={setPageSize}
+                        label="sản phẩm"
+                        pageSizeOptions={[
+                            { value: 25, label: '25 bản ghi/trang' },
+                            { value: 50, label: '50 bản ghi/trang' },
+                            { value: 100, label: '100 bản ghi/trang' }
+                        ]}
+                    />
                 </div>
             </Card>
         </div>

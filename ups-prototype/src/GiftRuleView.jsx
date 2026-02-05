@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import {
-    Card, Button, Input, Space, Tag, Typography, Select,
-    Dropdown, DatePicker, Row, Col, Badge, InputNumber, Tabs, Table
+    Card, Button, Input, Space, Typography, Select,
+    Dropdown, DatePicker, Row, Col, Table
 } from 'antd';
 import {
     DownOutlined, SearchOutlined, CalendarOutlined, PlusOutlined
 } from '@ant-design/icons';
 import dayjs from 'dayjs';
+import PaginationFooter from './PaginationFooter';
 
 const { Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -101,40 +102,14 @@ const GiftRuleView = () => {
     const [selectedPlatform, setSelectedPlatform] = useState('all');
     const [selectedRuleType, setSelectedRuleType] = useState('all');
     const [searchText, setSearchText] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
+    const [pageSize, setPageSize] = useState(10);
 
-    const tabItems = [
-        {
-            key: 'all',
-            label: (
-                <span style={{ fontSize: 14 }}>
-                    Tất cả <Badge count={9} style={{ marginLeft: 8 }} />
-                </span>
-            )
-        },
-        {
-            key: 'upcoming',
-            label: (
-                <span style={{ fontSize: 14 }}>
-                    Sắp diễn ra <Badge count={0} style={{ marginLeft: 8 }} />
-                </span>
-            )
-        },
-        {
-            key: 'ongoing',
-            label: (
-                <span style={{ fontSize: 14 }}>
-                    Đang diễn ra <Badge count={0} style={{ marginLeft: 8 }} />
-                </span>
-            )
-        },
-        {
-            key: 'completed',
-            label: (
-                <span style={{ fontSize: 14 }}>
-                    Đã kết thúc <Badge count={9} style={{ marginLeft: 8 }} />
-                </span>
-            )
-        }
+    const statusTabs = [
+        { key: 'all', label: 'Tất cả', count: 9 },
+        { key: 'upcoming', label: 'Sắp diễn ra', count: 0 },
+        { key: 'ongoing', label: 'Đang diễn ra', count: 0 },
+        { key: 'completed', label: 'Đã kết thúc', count: 9 }
     ];
 
     const getStatusDisplay = (status, statusText) => {
@@ -287,15 +262,40 @@ const GiftRuleView = () => {
             {/* Main Section - Tabs, Filter, Table */}
             <Card
                 styles={{ body: { padding: 0 } }}
-                style={{ borderRadius: 8, background: '#fff' }}
+                style={{ borderRadius: 8, border: '1px solid #F0F0F0', background: '#fff' }}
             >
-                {/* Tabs */}
-                <div style={{ padding: '0 16px' }} className="order-processing-tabs">
-                    <Tabs
-                        activeKey={activeStatusTab}
-                        onChange={setActiveStatusTab}
-                        items={tabItems}
-                    />
+                {/* Status Tabs - custom buttons, label (count) */}
+                <div style={{
+                    display: 'flex',
+                    gap: 21,
+                    padding: '12px 16px',
+                    borderBottom: '1px solid #F0F0F0',
+                    flexWrap: 'wrap',
+                    alignItems: 'center',
+                    backgroundColor: '#fff'
+                }}>
+                    {statusTabs.map((tab) => {
+                        const isActive = activeStatusTab === tab.key;
+                        return (
+                            <button
+                                key={tab.key}
+                                onClick={() => setActiveStatusTab(tab.key)}
+                                style={{
+                                    border: 'none',
+                                    borderBottom: isActive ? '1.74px solid #EF5941' : 'none',
+                                    background: 'transparent',
+                                    padding: '10px 0',
+                                    cursor: 'pointer',
+                                    fontSize: 14,
+                                    fontWeight: isActive ? 600 : 400,
+                                    color: isActive ? '#EF5941' : 'rgba(0,0,0,0.88)',
+                                    transition: 'all 0.2s'
+                                }}
+                            >
+                                {tab.label} ({tab.count})
+                            </button>
+                        );
+                    })}
                 </div>
 
                 {/* Filter Section */}
@@ -357,17 +357,27 @@ const GiftRuleView = () => {
                 {/* Table */}
                 <Table
                     columns={columns}
-                    dataSource={rules}
+                    dataSource={rules.slice((currentPage - 1) * pageSize, currentPage * pageSize)}
                     rowKey="id"
-                    pagination={{
-                        pageSize: 10,
-                        showSizeChanger: true,
-                        showTotal: (total) => `Tổng ${total} quy tắc`,
-                        style: { fontSize: 14, padding: '16px' }
-                    }}
+                    pagination={false}
                     style={{ fontSize: 14 }}
                     className="neutral-header-table"
                 />
+                <div style={{ padding: '0 16px 14px', borderTop: '0.87px solid #F0F0F0' }}>
+                    <PaginationFooter
+                        total={rules.length}
+                        currentPage={currentPage}
+                        pageSize={pageSize}
+                        onPageChange={setCurrentPage}
+                        onPageSizeChange={setPageSize}
+                        label="quy tắc"
+                        pageSizeOptions={[
+                            { value: 10, label: '10 bản ghi/trang' },
+                            { value: 20, label: '20 bản ghi/trang' },
+                            { value: 50, label: '50 bản ghi/trang' }
+                        ]}
+                    />
+                </div>
             </Card>
         </div>
     );
