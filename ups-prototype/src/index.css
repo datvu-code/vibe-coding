@@ -10,6 +10,15 @@
   font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
+/* Placeholder font size 14px for all inputs */
+.ant-input::placeholder,
+.ant-input::-webkit-input-placeholder,
+.ant-select-selection-placeholder,
+.ant-picker-input input::placeholder,
+.ant-picker-input input::-webkit-input-placeholder {
+  font-size: 14px !important;
+}
+
 /* Custom scrollbar */
 ::-webkit-scrollbar {
   width: 8px;

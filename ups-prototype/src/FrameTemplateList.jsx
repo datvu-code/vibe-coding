@@ -176,44 +176,46 @@ const FrameTemplateList = () => {
                 </Button>
             </div>
 
-            {/* Main Section - Tabs, Filter, Table */}
+            {/* Filter Section - on top of table */}
+            <Card
+                styles={{ body: { padding: '14px 16px' } }}
+                style={{ borderRadius: 8, background: '#fff', marginBottom: 14 }}
+            >
+                <Space size="middle">
+                    <span style={{ fontSize: 14 }}>Tên khung ảnh mẫu</span>
+                    <Search
+                        placeholder="Tìm kiếm"
+                        allowClear
+                        onSearch={handleSearch}
+                        style={{ width: 250, fontSize: 14 }}
+                    />
+                    {selectedRowKeys.length > 0 && (
+                        <>
+                            <span style={{ fontSize: 14, marginLeft: 16 }}>
+                                Đã chọn {selectedRowKeys.length}
+                            </span>
+                            <Button
+                                onClick={handleBulkDelete}
+                                style={{ fontSize: 14 }}
+                            >
+                                Xóa hàng loạt
+                            </Button>
+                        </>
+                    )}
+                </Space>
+            </Card>
+
+            {/* Table Section - Tabs + Table */}
             <Card
                 styles={{ body: { padding: 0 } }}
                 style={{ borderRadius: 8, background: '#fff' }}
             >
-                {/* Tabs */}
                 <div style={{ padding: '0 16px' }} className="order-processing-tabs">
                     <Tabs
                         activeKey={activeTab}
                         onChange={setActiveTab}
                         items={tabItems}
                     />
-                </div>
-
-                {/* Filter Section */}
-                <div style={{ padding: '14px 16px', borderBottom: '1px solid #F0F0F0' }}>
-                    <Space size="middle">
-                        <span style={{ fontSize: 14 }}>Tên khung ảnh mẫu</span>
-                        <Search
-                            placeholder="Tìm kiếm"
-                            allowClear
-                            onSearch={handleSearch}
-                            style={{ width: 250, fontSize: 14 }}
-                        />
-                        {selectedRowKeys.length > 0 && (
-                            <>
-                                <span style={{ fontSize: 14, marginLeft: 16 }}>
-                                    Đã chọn {selectedRowKeys.length}
-                                </span>
-                                <Button
-                                    onClick={handleBulkDelete}
-                                    style={{ fontSize: 14 }}
-                                >
-                                    Xóa hàng loạt
-                                </Button>
-                            </>
-                        )}
-                    </Space>
                 </div>
 
                 {/* Table */}

@@ -57,24 +57,29 @@ const StockTransferView = () => {
                 </Button>
             </div>
 
-            {/* Main Section - Card: Tabs, Filter, Table (FrameScheduleManagement pattern) */}
+            {/* Filter Section - on top of table */}
+            <Card
+                styles={{ body: { padding: '14px 16px' } }}
+                style={{ borderRadius: 8, background: '#fff', marginBottom: 14 }}
+            >
+                <Space direction="vertical" style={{ width: '100%' }} size="middle">
+                    <Space wrap>
+                        <span style={{ fontSize: 14 }}>Thời gian tạo phiếu</span>
+                        <RangePicker value={dateRange} onChange={setDateRange} style={{ width: 320, fontSize: 14 }} />
+                        <Select placeholder="Kho chuyển" style={{ width: 140, fontSize: 14 }} suffixIcon={<DownOutlined />}><Option value="all">Tất cả</Option></Select>
+                        <Select placeholder="Kho nhận" style={{ width: 140, fontSize: 14 }} suffixIcon={<DownOutlined />}><Option value="all">Tất cả</Option></Select>
+                    </Space>
+                    <Space wrap>
+                        <Input placeholder="Theo mã phiếu chuyển kho" prefix={<SearchOutlined />} style={{ width: 260, fontSize: 14 }} />
+                        <Select placeholder="Chọn nhân quản lý" style={{ width: 180, fontSize: 14 }} suffixIcon={<DownOutlined />} />
+                    </Space>
+                </Space>
+            </Card>
+
+            {/* Table Section - Tabs + Table */}
             <Card styles={{ body: { padding: 0 } }} style={{ borderRadius: 8, background: '#fff' }}>
                 <div style={{ padding: '0 16px' }} className="order-processing-tabs">
                     <Tabs activeKey={activeTab} onChange={setActiveTab} items={tabItems} />
-                </div>
-                <div style={{ padding: '14px 16px', borderBottom: '1px solid #F0F0F0' }}>
-                    <Space direction="vertical" style={{ width: '100%' }} size="middle">
-                        <Space wrap>
-                            <span style={{ fontSize: 14 }}>Thời gian tạo phiếu</span>
-                            <RangePicker value={dateRange} onChange={setDateRange} style={{ width: 320, fontSize: 14 }} />
-                            <Select placeholder="Kho chuyển" style={{ width: 140, fontSize: 14 }} suffixIcon={<DownOutlined />}><Option value="all">Tất cả</Option></Select>
-                            <Select placeholder="Kho nhận" style={{ width: 140, fontSize: 14 }} suffixIcon={<DownOutlined />}><Option value="all">Tất cả</Option></Select>
-                        </Space>
-                        <Space wrap>
-                            <Input placeholder="Theo mã phiếu chuyển kho" prefix={<SearchOutlined />} style={{ width: 260, fontSize: 14 }} />
-                            <Select placeholder="Chọn nhân quản lý" style={{ width: 180, fontSize: 14 }} suffixIcon={<DownOutlined />} />
-                        </Space>
-                    </Space>
                 </div>
                 <Table
                     columns={columns}

@@ -462,6 +462,7 @@ const OrderList = ({
     const [hoveredTrackingNumber, setHoveredTrackingNumber] = useState(null);
     const [hoveredOrderIdInDrawer, setHoveredOrderIdInDrawer] = useState(null);
     const [expandedGifts, setExpandedGifts] = useState(new Set());
+    const [expandedProductOrderIds, setExpandedProductOrderIds] = useState(new Set());
     const [sortOption, setSortOption] = useState(null);
     const [cardHeight, setCardHeight] = useState(null);
     const cardRefs = useRef({});
@@ -523,14 +524,13 @@ const OrderList = ({
     // Helper function to generate mock product images
     const getProductImage = (productId, seed = null) => {
         const imageId = seed || productId || Math.floor(Math.random() * 1000);
-        return `https://picsum.photos/seed/${imageId}/60/60`;
+        return `https://picsum.photos/seed/${imageId}/44/44`;
     };
 
     // Helper function to generate mock gift images (orange-ish tint)
     const getGiftImage = (giftId, seed = null) => {
         const imageId = seed || giftId || Math.floor(Math.random() * 1000);
-        // Using Unsplash with orange/gift keywords for gift items
-        return `https://source.unsplash.com/60x60/?gift,present&sig=${imageId}`;
+        return `https://source.unsplash.com/44x44/?gift,present&sig=${imageId}`;
     };
 
     // Channel logos mapping - using real logos from CDN
@@ -579,23 +579,25 @@ const OrderList = ({
                 orderDate: `07/10/2025 ${13 + (i % 12)}:${51 + i}`,
                 status: statuses[statusIndex],
                 statusLabel: statusLabels[statusIndex],
-                products: [
-                    {
-                        id: `PROD${orderIndex}`,
-                        name: `Sản phẩm ${orderIndex + 1} - Mô tả sản phẩm chi tiết`,
-                        sku: `SKU-${orderIndex}-${Date.now()}`,
-                        variant: orderIndex % 2 === 0 ? 'Mặc định' : 'Màu sắc',
+                products: (() => {
+                    const count = orderIndex === 0 ? 5 : (orderIndex % 4 === 0 ? 3 : (orderIndex % 3 === 0 ? 2 : 1));
+                    return Array.from({ length: count }, (_, j) => ({
+                        id: `PROD${orderIndex}-${j}`,
+                        name: `Sản phẩm ${orderIndex + 1}.${j + 1} - Mô tả sản phẩm chi tiết`,
+                        sku: `SKU-${orderIndex}-${j}-${Date.now()}`,
+                        variant: j % 2 === 0 ? 'Mặc định' : 'Màu sắc',
                         quantity: (orderIndex % 3) + 1,
-                        image: getProductImage(`PROD${orderIndex}`),
+                        image: getProductImage(`PROD${orderIndex}-${j}`),
                         price: 1000000 + (orderIndex * 100000),
                         method: orderIndex % 2 === 0 ? 'Cash on Delivery' : 'Thanh toán khi giao hàng'
-                    }
-                ],
-                gifts: orderIndex % 3 === 0 ? [
+                    }));
+                })(),
+                gifts: (orderIndex % 3 === 0 || orderIndex % 4 === 1) ? [
                     {
                         id: `GIFT${orderIndex}`,
                         name: 'Quà tặng đặc biệt',
                         sku: `GIFT-${orderIndex}`,
+                        variant: 'Phiên bản quà',
                         quantity: 1,
                         image: getGiftImage(`GIFT${orderIndex}`)
                     }
@@ -651,6 +653,7 @@ const OrderList = ({
                     id: 'GIFT001',
                     name: 'Quà tặng đặc biệt',
                     sku: 'GIFT-001',
+                    variant: 'Màu: Đỏ',
                     quantity: 1,
                     image: getGiftImage('GIFT001')
                 },
@@ -658,6 +661,7 @@ const OrderList = ({
                     id: 'GIFT002',
                     name: 'Quà tặng khuyến mãi',
                     sku: 'GIFT-002',
+                    variant: 'Size: M',
                     quantity: 2,
                     image: getGiftImage('GIFT002')
                 }
@@ -743,6 +747,7 @@ const OrderList = ({
                     id: 'GIFT002',
                     name: 'Quà tặng khuyến mãi',
                     sku: 'GIFT-002',
+                    variant: 'Size: M',
                     quantity: 1,
                     image: getGiftImage('GIFT002')
                 }
@@ -940,7 +945,7 @@ const OrderList = ({
         const baseColumns = ['40px']; // Checkbox column
         selectedColumns.forEach((columnName) => {
             const widthMap = {
-                'Sản phẩm': '1fr',
+                'Sản phẩm': 'minmax(320px, 1fr)',
                 'Tổng tiền': '180px',
                 'Người nhận': '220px',
                 'Kho xử lý': '150px',
@@ -956,7 +961,7 @@ const OrderList = ({
     // Get column width for specific column
     const getColumnWidth = (columnName) => {
         const widthMap = {
-            'Sản phẩm': '1fr',
+            'Sản phẩm': 'minmax(320px, 1fr)',
             'Tổng tiền': '180px',
             'Người nhận': '220px',
             'Kho xử lý': '150px',
@@ -969,75 +974,18 @@ const OrderList = ({
     // Render column content based on column name
     const renderColumnContent = (order, columnName) => {
         switch(columnName) {
-            case 'Sản phẩm':
-    return (
-                    <div style={{ padding: '16px', textAlign: 'left', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, textAlign: 'left', width: '100%', alignItems: 'flex-start' }}>
-                            {order.products.map((product, pIndex) => (
-                                <div key={product.id} style={{ display: 'flex', gap: 12, textAlign: 'left', alignItems: 'flex-start', width: '100%' }}>
-                                    <img
-                                        src={product.image}
-                                        alt={product.name}
-                                        style={{ width: 60, height: 60, borderRadius: 4, objectFit: 'cover', flexShrink: 0 }}
-                                    />
-                                    <div style={{ flex: 1, minWidth: 0, textAlign: 'left', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
-                                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, marginBottom: 4, textAlign: 'left', width: '100%' }}>
-                                            <Tooltip title={product.name} placement="top">
-                                                <Text 
-                                                    style={{ 
-                                                        fontSize: 14, 
-                                                        display: 'inline-block', 
-                                                        maxWidth: '200px',
-                                                        overflow: 'hidden',
-                                                        textOverflow: 'ellipsis',
-                                                        whiteSpace: 'nowrap',
-                                                        flex: 1,
-                                                        color: 'rgba(0,0,0,0.88)',
-                                                        textAlign: 'left'
-                                                    }}
-                                                >
-                                                    {product.name}
-                                                </Text>
-                                            </Tooltip>
-                                            <Text style={{ fontSize: 14, whiteSpace: 'nowrap', color: 'rgba(0,0,0,0.88)', textAlign: 'left' }}>
-                                                × {product.quantity}
-                                            </Text>
-                                        </div>
-                                        <div style={{ marginBottom: 4, textAlign: 'left' }}>
-                                            {product.variant && (
-                                                <Text style={{ fontSize: 12, color: 'rgba(0,0,0,0.65)', textAlign: 'left' }}>{product.variant}</Text>
-                                            )}
-                                        </div>
-                                        <div style={{ marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4, textAlign: 'left' }}>
-                                            <Text style={{ fontSize: 12, color: 'rgba(0,0,0,0.65)', textAlign: 'left' }}>SKU: </Text>
-                                            <span
-                                                style={{
-                                                    fontSize: 12,
-                                                    color: hoveredSku === `${order.id}-${product.id}` ? '#1677FF' : 'rgba(0,0,0,0.65)',
-                                                    cursor: 'pointer',
-                                                    textDecoration: hoveredSku === `${order.id}-${product.id}` ? 'underline' : 'none',
-                                                    transition: 'all 0.2s',
-                                                    display: 'inline-flex',
-                                                    alignItems: 'center',
-                                                    gap: 4
-                                                }}
-                                                onMouseEnter={() => setHoveredSku(`${order.id}-${product.id}`)}
-                                                onMouseLeave={() => setHoveredSku(null)}
-                                                onClick={() => {
-                                                    navigator.clipboard.writeText(product.sku);
-                                                }}
-                                            >
-                                                {product.sku}
-                                                {hoveredSku === `${order.id}-${product.id}` && (
-                                                    <CopyOutlined style={{ fontSize: 12, color: '#1677FF' }} />
-                                                )}
-                                            </span>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))}
+            case 'Sản phẩm': {
+                const isExpanded = expandedProductOrderIds.has(order.id);
+                const visibleProducts = order.products.length > 2 && !isExpanded
+                    ? order.products.slice(0, 2)
+                    : order.products;
+                const remainingCount = order.products.length - 2;
+                return (
+                    <div style={{ padding: '12px 16px 16px', textAlign: 'left', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', minWidth: 0, overflow: 'visible' }}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 16, textAlign: 'left', width: '100%', minWidth: 0, alignItems: 'flex-start' }}>
+                            {/* Quà tặng tag - trên cùng, trước danh sách sản phẩm */}
                             {order.gifts && order.gifts.length > 0 && (
-                                <div style={{ marginTop: 8 }}>
+                                <div style={{ marginBottom: 4 }}>
                                     <Popover
                                         content={
                                             <div style={{ minWidth: 300, maxWidth: 400 }}>
@@ -1051,7 +999,7 @@ const OrderList = ({
                                                             <img
                                                                 src={gift.image}
                                                                 alt={gift.name}
-                                                                style={{ width: 40, height: 40, borderRadius: 4, objectFit: 'cover', flexShrink: 0 }}
+                                                                style={{ width: 44, height: 44, borderRadius: 4, objectFit: 'cover', flexShrink: 0 }}
                                                             />
                                                         )}
                                                         <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
@@ -1077,6 +1025,11 @@ const OrderList = ({
                                                                     × {gift.quantity}
                                                                 </Text>
                                                             </div>
+                                                            {gift.variant && (
+                                                                <div style={{ marginBottom: 4, textAlign: 'left' }}>
+                                                                    <Text style={{ fontSize: 12, color: 'rgba(0,0,0,0.65)', textAlign: 'left' }}>{gift.variant}</Text>
+                                                                </div>
+                                                            )}
                                                             <div style={{ marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4, textAlign: 'left' }}>
                                                                 <Text style={{ fontSize: 12, color: 'rgba(0,0,0,0.65)', textAlign: 'left' }}>SKU: </Text>
                                                                 <span
@@ -1124,9 +1077,96 @@ const OrderList = ({
                                     </Popover>
                                 </div>
                             )}
+                            {visibleProducts.map((product, pIndex) => (
+                                <div key={product.id} style={{ display: 'flex', gap: 12, textAlign: 'left', alignItems: 'flex-start', width: '100%', minWidth: 0 }}>
+
+                                    <img
+                                        src={product.image}
+                                        alt={product.name}
+                                        style={{ width: 44, height: 44, borderRadius: 4, objectFit: 'cover', flexShrink: 0 }}
+                                    />
+                                    <div style={{ flex: 1, minWidth: 0, textAlign: 'left', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 2 }}>
+                                        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, textAlign: 'left', width: '100%', flexWrap: 'wrap' }}>
+                                            <Tooltip title={product.name} placement="top">
+                                                <Text 
+                                                    style={{ 
+                                                        fontSize: 14, 
+                                                        display: 'inline-block', 
+                                                        maxWidth: '100%',
+                                                        overflow: 'hidden',
+                                                        textOverflow: 'ellipsis',
+                                                        whiteSpace: 'nowrap',
+                                                        flex: '1 1 auto',
+                                                        color: 'rgba(0,0,0,0.88)',
+                                                        textAlign: 'left'
+                                                    }}
+                                                >
+                                                    {product.name}
+                                                </Text>
+                                            </Tooltip>
+                                            <Text style={{ fontSize: 14, whiteSpace: 'nowrap', color: 'rgba(0,0,0,0.88)', textAlign: 'left', flexShrink: 0 }}>
+                                                × {product.quantity}
+                                            </Text>
+                                        </div>
+                                        {product.variant && (
+                                            <Text style={{ fontSize: 12, color: 'rgba(0,0,0,0.65)', textAlign: 'left' }}>{product.variant}</Text>
+                                        )}
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, textAlign: 'left', flexWrap: 'wrap' }}>
+                                            <Text style={{ fontSize: 12, color: 'rgba(0,0,0,0.65)', flexShrink: 0, textAlign: 'left' }}>SKU: </Text>
+                                            <span
+                                                style={{
+                                                    fontSize: 12,
+                                                    color: hoveredSku === `${order.id}-${product.id}` ? '#1677FF' : 'rgba(0,0,0,0.65)',
+                                                    cursor: 'pointer',
+                                                    textDecoration: hoveredSku === `${order.id}-${product.id}` ? 'underline' : 'none',
+                                                    transition: 'all 0.2s',
+                                                    display: 'inline-flex',
+                                                    alignItems: 'center',
+                                                    gap: 4,
+                                                    wordBreak: 'break-all',
+                                                    maxWidth: '100%'
+                                                }}
+                                                onMouseEnter={() => setHoveredSku(`${order.id}-${product.id}`)}
+                                                onMouseLeave={() => setHoveredSku(null)}
+                                                onClick={() => {
+                                                    if (product.sku) navigator.clipboard.writeText(product.sku);
+                                                }}
+                                            >
+                                                {product.sku || '—'}
+                                                {product.sku && hoveredSku === `${order.id}-${product.id}` && (
+                                                    <CopyOutlined style={{ fontSize: 12, color: '#1677FF', flexShrink: 0 }} />
+                                                )}
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
+                            {order.products.length > 2 && (
+                                <button
+                                    type="button"
+                                    onClick={() => setExpandedProductOrderIds(prev => {
+                                        const next = new Set(prev);
+                                        if (next.has(order.id)) next.delete(order.id);
+                                        else next.add(order.id);
+                                        return next;
+                                    })}
+                                    style={{
+                                        padding: 0,
+                                        border: 'none',
+                                        background: 'none',
+                                        color: '#1677FF',
+                                        fontSize: 12,
+                                        cursor: 'pointer',
+                                        textAlign: 'left'
+                                    }}
+                                >
+                                    {isExpanded ? 'Thu gọn' : `Xem thêm (${remainingCount})`}
+                                </button>
+                            )}
                         </div>
                     </div>
                 );
+            }
             case 'Tổng tiền':
                 return (
                     <div style={{ padding: '16px', textAlign: 'left', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
@@ -2149,7 +2189,9 @@ const OrderList = ({
                                             position: guideDrawerVisible && columnName === 'Sản phẩm' ? 'sticky' : 'static',
                                             left: guideDrawerVisible && columnName === 'Sản phẩm' ? '40px' : 'auto',
                                             background: 'transparent',
-                                            zIndex: guideDrawerVisible && columnName === 'Sản phẩm' ? 8 : 1
+                                            zIndex: guideDrawerVisible && columnName === 'Sản phẩm' ? 8 : 1,
+                                            minWidth: columnName === 'Sản phẩm' ? 320 : undefined,
+                                            overflow: columnName === 'Sản phẩm' ? 'visible' : undefined
                                         }}
                                     >
                                         {renderColumnContent(order, columnName)}

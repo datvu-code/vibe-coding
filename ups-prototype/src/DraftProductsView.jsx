@@ -180,11 +180,93 @@ const DraftProductsView = () => {
                 </Select>
             </div>
 
-            {/* Status Tabs and Table Card */}
+            {/* Filter Section - on top of table */}
+            <Card
+                styles={{ body: { padding: '14px 16px' } }}
+                style={{ 
+                    marginTop: 14,
+                    borderRadius: 8,
+                    backgroundColor: '#fff',
+                    border: '1px solid #F0F0F0',
+                    marginBottom: 14
+                }}
+            >
+                <Row gutter={[16, 16]} align="top">
+                    <Col span={4}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                            <Text style={{ fontSize: 14, lineHeight: '22px' }}>Nhập tags</Text>
+                            <Select
+                                placeholder="Nhập tags"
+                                value={selectedTags}
+                                onChange={setSelectedTags}
+                                style={{ width: '100%', fontSize: 14 }}
+                                allowClear
+                                mode="multiple"
+                            >
+                                <Option value="tag1">Tag 1</Option>
+                                <Option value="tag2">Tag 2</Option>
+                            </Select>
+                        </div>
+                    </Col>
+                    <Col span={4}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                            <Text style={{ fontSize: 14, lineHeight: '22px' }}>Ảnh gốc</Text>
+                            <Select
+                                value={selectedImageType}
+                                onChange={setSelectedImageType}
+                                style={{ width: '100%', fontSize: 14 }}
+                            >
+                                <Option value="all">Tất cả</Option>
+                                <Option value="origin">Ảnh gốc</Option>
+                            </Select>
+                        </div>
+                    </Col>
+                    <Col span={8}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                            <Text style={{ fontSize: 14, lineHeight: '22px' }}>Tên sản phẩm/SKU</Text>
+                            <Input
+                                placeholder="Tên sản phẩm/SKU"
+                                prefix={<SearchOutlined />}
+                                value={searchText}
+                                onChange={(e) => setSearchText(e.target.value)}
+                                allowClear
+                                style={{ width: '100%', fontSize: 14 }}
+                            />
+                        </div>
+                    </Col>
+                    <Col span={4}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                            <Text style={{ fontSize: 14, lineHeight: '22px' }}>Gian hàng</Text>
+                            <Select
+                                placeholder="Chọn gian hàng"
+                                value={selectedStore}
+                                onChange={setSelectedStore}
+                                style={{ width: '100%', fontSize: 14 }}
+                                allowClear
+                            >
+                                <Option value="upbeauty">UpBeauty Store</Option>
+                                <Option value="upbase">UpBase Beauty</Option>
+                            </Select>
+                        </div>
+                    </Col>
+                    <Col span={4}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                            <div style={{ height: 22 }}></div>
+                            <Button
+                                icon={<FilterOutlined />}
+                                style={{ fontSize: 14 }}
+                            >
+                                Lọc sản phẩm nâng cao
+                            </Button>
+                        </div>
+                    </Col>
+                </Row>
+            </Card>
+
+            {/* Table Section - Tabs + Table */}
             <Card
                 styles={{ body: { padding: 0 } }}
                 style={{ 
-                    marginTop: 14,
                     borderRadius: 8,
                     backgroundColor: '#fff',
                     border: '1px solid #F0F0F0'
@@ -234,80 +316,6 @@ const DraftProductsView = () => {
                             </button>
                         );
                     })}
-                </div>
-
-                {/* Filter Section (moved below tabs) */}
-                <div style={{ padding: '14px 16px', borderBottom: '1px solid #F0F0F0' }}>
-                    <Row gutter={[16, 16]} align="top">
-                        <Col span={4}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                <Text style={{ fontSize: 14, lineHeight: '22px' }}>Nhập tags</Text>
-                                <Select
-                                    placeholder="Nhập tags"
-                                    value={selectedTags}
-                                    onChange={setSelectedTags}
-                                    style={{ width: '100%' }}
-                                    allowClear
-                                    mode="multiple"
-                                >
-                                    <Option value="tag1">Tag 1</Option>
-                                    <Option value="tag2">Tag 2</Option>
-                                </Select>
-                            </div>
-                        </Col>
-                        <Col span={4}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                <Text style={{ fontSize: 14, lineHeight: '22px' }}>Ảnh gốc</Text>
-                                <Select
-                                    value={selectedImageType}
-                                    onChange={setSelectedImageType}
-                                    style={{ width: '100%' }}
-                                >
-                                    <Option value="all">Tất cả</Option>
-                                    <Option value="origin">Ảnh gốc</Option>
-                                </Select>
-                            </div>
-                        </Col>
-                        <Col span={8}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                <Text style={{ fontSize: 14, lineHeight: '22px' }}>Tên sản phẩm/SKU</Text>
-                                <Input
-                                    placeholder="Tên sản phẩm/SKU"
-                                    prefix={<SearchOutlined />}
-                                    value={searchText}
-                                    onChange={(e) => setSearchText(e.target.value)}
-                                    allowClear
-                                    style={{ width: '100%' }}
-                                />
-                            </div>
-                        </Col>
-                        <Col span={4}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                <Text style={{ fontSize: 14, lineHeight: '22px' }}>Gian hàng</Text>
-                                <Select
-                                    placeholder="Chọn gian hàng"
-                                    value={selectedStore}
-                                    onChange={setSelectedStore}
-                                    style={{ width: '100%' }}
-                                    allowClear
-                                >
-                                    <Option value="upbeauty">UpBeauty Store</Option>
-                                    <Option value="upbase">UpBase Beauty</Option>
-                                </Select>
-                            </div>
-                        </Col>
-                        <Col span={4}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                <div style={{ height: 22 }}></div>
-                                <Button
-                                    icon={<FilterOutlined />}
-                                    style={{ fontSize: 14 }}
-                                >
-                                    Lọc sản phẩm nâng cao
-                                </Button>
-                            </div>
-                        </Col>
-                    </Row>
                 </div>
 
                 {/* Selection Overlay or Table Header */}

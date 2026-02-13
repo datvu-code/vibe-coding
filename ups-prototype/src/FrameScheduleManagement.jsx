@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-    Card, Alert, Input, Button, Table, Space, Tag, Dropdown, Select, Tabs, Badge
+    Card, Alert, Input, Button, Table, Space, Tag, Dropdown, Select, Tabs
 } from 'antd';
 import {
     SearchOutlined, DownOutlined, CloseOutlined, PlusOutlined,
@@ -226,46 +226,11 @@ const FrameScheduleManagement = () => {
     ];
 
     const tabItems = [
-        {
-            key: 'all',
-            label: (
-                <span style={{ fontSize: 14 }}>
-                    Tất cả <Badge count={88} style={{ backgroundColor: '#8C8C8C', marginLeft: 8 }} />
-                </span>
-            )
-        },
-        {
-            key: 'waiting',
-            label: (
-                <span style={{ fontSize: 14 }}>
-                    Chờ áp khung <Badge count={0} style={{ backgroundColor: '#8C8C8C', marginLeft: 8 }} />
-                </span>
-            )
-        },
-        {
-            key: 'applying',
-            label: (
-                <span style={{ fontSize: 14 }}>
-                    Đang áp khung <Badge count={10} style={{ backgroundColor: '#FA8C16', marginLeft: 8 }} />
-                </span>
-            )
-        },
-        {
-            key: 'completed',
-            label: (
-                <span style={{ fontSize: 14 }}>
-                    Kết thúc <Badge count={78} style={{ backgroundColor: '#52C41A', marginLeft: 8 }} />
-                </span>
-            )
-        },
-        {
-            key: 'error',
-            label: (
-                <span style={{ fontSize: 14 }}>
-                    Áp & gỡ khung bị lỗi <Badge count={26} style={{ backgroundColor: '#FF4D4F', marginLeft: 8 }} />
-                </span>
-            )
-        }
+        { key: 'all', label: <span style={{ fontSize: 14 }}>Tất cả (88)</span> },
+        { key: 'waiting', label: <span style={{ fontSize: 14 }}>Chờ áp khung (0)</span> },
+        { key: 'applying', label: <span style={{ fontSize: 14 }}>Đang áp khung (10)</span> },
+        { key: 'completed', label: <span style={{ fontSize: 14 }}>Kết thúc (78)</span> },
+        { key: 'error', label: <span style={{ fontSize: 14 }}>Áp & gỡ khung bị lỗi (26)</span> }
     ];
 
     return (
@@ -310,7 +275,35 @@ const FrameScheduleManagement = () => {
                 </Button>
             </div>
 
-            {/* Main Section - Tabs, Filter, Table */}
+            {/* Filter Section - on top of table */}
+            <Card
+                styles={{ body: { padding: '14px 16px' } }}
+                style={{ borderRadius: 8, background: '#fff', marginBottom: 14 }}
+            >
+                <Space size="middle">
+                    <span style={{ fontSize: 14 }}>Gian hàng</span>
+                    <Select
+                        value={selectedStore}
+                        onChange={setSelectedStore}
+                        style={{ width: 200, fontSize: 14 }}
+                        suffixIcon={<DownOutlined />}
+                    >
+                        <Option value="all">Tất cả</Option>
+                        <Option value="upbeauty">UpBeauty</Option>
+                        <Option value="upbeauty-store">UpBeauty Store</Option>
+                    </Select>
+
+                    <span style={{ fontSize: 14, marginLeft: 16 }}>Tên lịch</span>
+                    <Search
+                        placeholder="Tìm kiếm"
+                        allowClear
+                        onSearch={setSearchText}
+                        style={{ width: 250, fontSize: 14 }}
+                    />
+                </Space>
+            </Card>
+
+            {/* Table Section - Tabs + Table */}
             <Card
                 styles={{ body: { padding: 0 } }}
                 style={{ borderRadius: 8, background: '#fff' }}
@@ -322,31 +315,6 @@ const FrameScheduleManagement = () => {
                         onChange={setActiveTab}
                         items={tabItems}
                     />
-                </div>
-
-                {/* Filter Section */}
-                <div style={{ padding: '14px 16px', borderBottom: '1px solid #F0F0F0' }}>
-                    <Space size="middle">
-                        <span style={{ fontSize: 14 }}>Gian hàng</span>
-                        <Select
-                            value={selectedStore}
-                            onChange={setSelectedStore}
-                            style={{ width: 200, fontSize: 14 }}
-                            suffixIcon={<DownOutlined />}
-                        >
-                            <Option value="all">Tất cả</Option>
-                            <Option value="upbeauty">UpBeauty</Option>
-                            <Option value="upbeauty-store">UpBeauty Store</Option>
-                        </Select>
-
-                        <span style={{ fontSize: 14, marginLeft: 16 }}>Tên lịch</span>
-                        <Search
-                            placeholder="Tìm kiếm"
-                            allowClear
-                            onSearch={setSearchText}
-                            style={{ width: 250, fontSize: 14 }}
-                        />
-                    </Space>
                 </div>
 
                 {/* Table */}

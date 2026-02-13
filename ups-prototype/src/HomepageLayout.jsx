@@ -67,6 +67,25 @@ import SupplierManagementView from './SupplierManagementView';
 import WarehouseListView from './WarehouseListView';
 import StockChangeReportView from './StockChangeReportView';
 import ExpirationManagementView from './ExpirationManagementView';
+import ReconciliationView from './ReconciliationView';
+import SalesView from './SalesView';
+import CostView from './CostView';
+import CostPriceVatView from './CostPriceVatView';
+import BusinessReportView from './BusinessReportView';
+import WalletTransactionView from './WalletTransactionView';
+import CoinManagementView from './CoinManagementView';
+import OperationalReportView from './OperationalReportView';
+import FulfillmentTrackingView from './FulfillmentTrackingView';
+import ExecutiveReportView from './ExecutiveReportView';
+import AutoReconciliationView from './AutoReconciliationView';
+import SettingsAccountView from './SettingsAccountView';
+import SettingsStoreManagementView from './SettingsStoreManagementView';
+import SettingsBrandListView from './SettingsBrandListView';
+import SettingsAdAccountView from './SettingsAdAccountView';
+import SettingsMultiChannelInventoryView from './SettingsMultiChannelInventoryView';
+import SettingsFinanceView from './SettingsFinanceView';
+import SettingsProductStatusView from './SettingsProductStatusView';
+import SettingsShippingView from './SettingsShippingView';
 import { SortableContext, arrayMove, useSortable, verticalListSortingStrategy, rectSortingStrategy } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { createSnapModifier } from '@dnd-kit/modifiers';
@@ -1922,6 +1941,9 @@ const HomepageLayout = () => {
       matchedKey = 'trang-chu';
     } else if (activeModule === 'workspace-settings') {
       matchedKey = 'cai-dat';
+    } else if (['tai-khoan', 'quan-ly-gian-hang', 'quan-ly-nhan-hang', 'tai-khoan-quang-cao', 'xu-ly-ton-da-kenh', 'cai-dat-tai-chinh', 'cau-hinh-trang-thai-hang-hoa', 'cau-hinh-van-chuyen'].includes(activeModule)) {
+      matchedKey = activeModule;
+      parentKey = 'cai-dat';
     } else if (activeModule === 'dashboard') {
       matchedKey = 'dashboard';
       parentKey = 'quan-tri';
@@ -2069,6 +2091,10 @@ const HomepageLayout = () => {
         newExpanded.add(subParentKey);
         // Auto-show sub-nav for parent
         setExpandedSubNav(subParentKey);
+      }
+      // When a Cài đặt child is active, show Cài đặt sub-nav
+      if (parentKey === 'cai-dat') {
+        setExpandedSubNav('cai-dat');
       }
       setExpandedNavItems(newExpanded);
     }
@@ -2308,7 +2334,7 @@ const HomepageLayout = () => {
     // Collapse sidebar when item is selected
     setSidebarCollapsed(true);
     // For specific menu items, use their key as activeModule
-    if (subItem.key === 'xu-ly-hang-loat' || subItem.key === 'danh-sach-don-hang' || subItem.key === 'xu-ly-tra-hang' || subItem.key === 'xu-ly-theo-danh-sach' || subItem.key === 'don-hoan' || subItem.key === 'phien-ban-giao' || subItem.key === 'quy-tac-tang-qua' || subItem.key === 'them-san-pham' || subItem.key === 'luu-nhap' || subItem.key === 'danh-sach-san-pham' || subItem.key === 'lien-ket-san-pham' || subItem.key === 'quan-ly-dong-bo' || subItem.key === 'lich-su-day-ton' || subItem.key === 'danh-sach-khach-hang' || subItem.key === 'quan-ly-phan-hoi' || subItem.key === 'danh-gia-tu-dong' || subItem.key === 'danh-sach-khung-anh' || subItem.key === 'lap-lich-ap-khung' || subItem.key === 'dashboard' || subItem.key === 'chuong-trinh-khuyen-mai-san' || subItem.key === 'chuong-trinh-khuyen-mai-ups' || subItem.key === 'canh-bao-vi-pham-gia' || subItem.key === 'san-pham-kho' || subItem.key === 'danh-muc-san-pham' || subItem.key === 'ton-kho' || subItem.key === 'kiem-kho' || subItem.key === 'du-tru' || subItem.key === 'xuat-nhap-kho' || subItem.key === 'dat-hang' || subItem.key === 'chuyen-kho' || subItem.key === 'quan-ly-nha-cung-cap' || subItem.key === 'danh-sach-kho' || subItem.key === 'bao-cao-thay-doi-ton' || subItem.key === 'quan-ly-han-su-dung') {
+    if (subItem.key === 'tai-khoan' || subItem.key === 'quan-ly-gian-hang' || subItem.key === 'quan-ly-nhan-hang' || subItem.key === 'tai-khoan-quang-cao' || subItem.key === 'xu-ly-ton-da-kenh' || subItem.key === 'cai-dat-tai-chinh' || subItem.key === 'cau-hinh-trang-thai-hang-hoa' || subItem.key === 'cau-hinh-van-chuyen' || subItem.key === 'xu-ly-hang-loat' || subItem.key === 'danh-sach-don-hang' || subItem.key === 'xu-ly-tra-hang' || subItem.key === 'xu-ly-theo-danh-sach' || subItem.key === 'don-hoan' || subItem.key === 'phien-ban-giao' || subItem.key === 'quy-tac-tang-qua' || subItem.key === 'them-san-pham' || subItem.key === 'luu-nhap' || subItem.key === 'danh-sach-san-pham' || subItem.key === 'lien-ket-san-pham' || subItem.key === 'quan-ly-dong-bo' || subItem.key === 'lich-su-day-ton' || subItem.key === 'danh-sach-khach-hang' || subItem.key === 'quan-ly-phan-hoi' || subItem.key === 'danh-gia-tu-dong' || subItem.key === 'danh-sach-khung-anh' || subItem.key === 'lap-lich-ap-khung' || subItem.key === 'dashboard' || subItem.key === 'chuong-trinh-khuyen-mai-san' || subItem.key === 'chuong-trinh-khuyen-mai-ups' || subItem.key === 'canh-bao-vi-pham-gia' || subItem.key === 'san-pham-kho' || subItem.key === 'danh-muc-san-pham' || subItem.key === 'ton-kho' || subItem.key === 'kiem-kho' || subItem.key === 'du-tru' || subItem.key === 'xuat-nhap-kho' || subItem.key === 'dat-hang' || subItem.key === 'chuyen-kho' || subItem.key === 'quan-ly-nha-cung-cap' || subItem.key === 'danh-sach-kho' || subItem.key === 'bao-cao-thay-doi-ton' || subItem.key === 'quan-ly-han-su-dung' || subItem.key === 'doi-soat' || subItem.key === 'ban-hang' || subItem.key === 'chi-phi' || subItem.key === 'gia-von-vat' || subItem.key === 'bao-cao-kinh-doanh' || subItem.key === 'giao-dich-ve-vi' || subItem.key === 'quan-ly-xu' || subItem.key === 'bao-cao-van-hanh' || subItem.key === 'theo-doi-fullfilment' || subItem.key === 'bao-cao-dieu-hanh' || subItem.key === 'doi-soat-du-lieu-tu-dong') {
       setActiveModule(subItem.key);
     } else if (subItem.module) {
       setActiveModule(subItem.module);
@@ -2322,7 +2348,7 @@ const HomepageLayout = () => {
     // Collapse sidebar when item is selected
     setSidebarCollapsed(true);
     // For specific menu items, use their key as activeModule
-    if (nestedItem.key === 'xu-ly-hang-loat' || nestedItem.key === 'danh-sach-don-hang' || nestedItem.key === 'xu-ly-tra-hang' || nestedItem.key === 'xu-ly-theo-danh-sach' || nestedItem.key === 'don-hoan' || nestedItem.key === 'phien-ban-giao' || nestedItem.key === 'quy-tac-tang-qua' || nestedItem.key === 'them-san-pham' || nestedItem.key === 'luu-nhap' || nestedItem.key === 'danh-sach-san-pham' || nestedItem.key === 'lien-ket-san-pham' || nestedItem.key === 'quan-ly-dong-bo' || nestedItem.key === 'lich-su-day-ton' || nestedItem.key === 'danh-sach-khach-hang' || nestedItem.key === 'quan-ly-phan-hoi' || nestedItem.key === 'danh-gia-tu-dong' || nestedItem.key === 'danh-sach-khung-anh' || nestedItem.key === 'lap-lich-ap-khung' || nestedItem.key === 'dashboard' || nestedItem.key === 'chuong-trinh-khuyen-mai-san' || nestedItem.key === 'chuong-trinh-khuyen-mai-ups' || nestedItem.key === 'canh-bao-vi-pham-gia' || nestedItem.key === 'khach-hang-than-thiet' || nestedItem.key === 'danh-sach-chuong-trinh' || nestedItem.key === 'danh-sach-hang-hanh-vien' || nestedItem.key === 'tao-chien-dich' || nestedItem.key === 'quan-ly-chien-dich' || nestedItem.key === 'cau-hinh-thanh-toan' || nestedItem.key === 'quan-ly-giao-dich-qua-cong' || nestedItem.key === 'san-pham-kho' || nestedItem.key === 'danh-muc-san-pham' || nestedItem.key === 'ton-kho' || nestedItem.key === 'kiem-kho' || nestedItem.key === 'du-tru' || nestedItem.key === 'xuat-nhap-kho' || nestedItem.key === 'dat-hang' || nestedItem.key === 'chuyen-kho' || nestedItem.key === 'quan-ly-nha-cung-cap' || nestedItem.key === 'danh-sach-kho' || nestedItem.key === 'bao-cao-thay-doi-ton' || nestedItem.key === 'quan-ly-han-su-dung') {
+    if (nestedItem.key === 'tai-khoan' || nestedItem.key === 'quan-ly-gian-hang' || nestedItem.key === 'quan-ly-nhan-hang' || nestedItem.key === 'tai-khoan-quang-cao' || nestedItem.key === 'xu-ly-ton-da-kenh' || nestedItem.key === 'cai-dat-tai-chinh' || nestedItem.key === 'cau-hinh-trang-thai-hang-hoa' || nestedItem.key === 'cau-hinh-van-chuyen' || nestedItem.key === 'xu-ly-hang-loat' || nestedItem.key === 'danh-sach-don-hang' || nestedItem.key === 'xu-ly-tra-hang' || nestedItem.key === 'xu-ly-theo-danh-sach' || nestedItem.key === 'don-hoan' || nestedItem.key === 'phien-ban-giao' || nestedItem.key === 'quy-tac-tang-qua' || nestedItem.key === 'them-san-pham' || nestedItem.key === 'luu-nhap' || nestedItem.key === 'danh-sach-san-pham' || nestedItem.key === 'lien-ket-san-pham' || nestedItem.key === 'quan-ly-dong-bo' || nestedItem.key === 'lich-su-day-ton' || nestedItem.key === 'danh-sach-khach-hang' || nestedItem.key === 'quan-ly-phan-hoi' || nestedItem.key === 'danh-gia-tu-dong' || nestedItem.key === 'danh-sach-khung-anh' || nestedItem.key === 'lap-lich-ap-khung' || nestedItem.key === 'dashboard' || nestedItem.key === 'chuong-trinh-khuyen-mai-san' || nestedItem.key === 'chuong-trinh-khuyen-mai-ups' || nestedItem.key === 'canh-bao-vi-pham-gia' || nestedItem.key === 'khach-hang-than-thiet' || nestedItem.key === 'danh-sach-chuong-trinh' || nestedItem.key === 'danh-sach-hang-hanh-vien' || nestedItem.key === 'tao-chien-dich' || nestedItem.key === 'quan-ly-chien-dich' || nestedItem.key === 'cau-hinh-thanh-toan' || nestedItem.key === 'quan-ly-giao-dich-qua-cong' || nestedItem.key === 'san-pham-kho' || nestedItem.key === 'danh-muc-san-pham' || nestedItem.key === 'ton-kho' || nestedItem.key === 'kiem-kho' || nestedItem.key === 'du-tru' || nestedItem.key === 'xuat-nhap-kho' || nestedItem.key === 'dat-hang' || nestedItem.key === 'chuyen-kho' || nestedItem.key === 'quan-ly-nha-cung-cap' || nestedItem.key === 'danh-sach-kho' || nestedItem.key === 'bao-cao-thay-doi-ton' || nestedItem.key === 'quan-ly-han-su-dung' || nestedItem.key === 'doi-soat' || nestedItem.key === 'ban-hang' || nestedItem.key === 'chi-phi' || nestedItem.key === 'gia-von-vat' || nestedItem.key === 'bao-cao-kinh-doanh' || nestedItem.key === 'giao-dich-ve-vi' || nestedItem.key === 'quan-ly-xu' || nestedItem.key === 'bao-cao-van-hanh' || nestedItem.key === 'theo-doi-fullfilment' || nestedItem.key === 'bao-cao-dieu-hanh' || nestedItem.key === 'doi-soat-du-lieu-tu-dong') {
       setActiveModule(nestedItem.key);
     } else if (nestedItem.module) {
       setActiveModule(nestedItem.module);
@@ -2624,7 +2650,7 @@ const HomepageLayout = () => {
                             onClick={() => {
                               setActiveNavItem(nestedChild.key);
                               // For specific menu items, use their key as activeModule
-                              if (nestedChild.key === 'xu-ly-hang-loat' || nestedChild.key === 'danh-sach-don-hang' || nestedChild.key === 'xu-ly-tra-hang' || nestedChild.key === 'xu-ly-theo-danh-sach' || nestedChild.key === 'don-hoan' || nestedChild.key === 'phien-ban-giao' || nestedChild.key === 'quy-tac-tang-qua' || nestedChild.key === 'them-san-pham' || nestedChild.key === 'luu-nhap' || nestedChild.key === 'danh-sach-san-pham' || nestedChild.key === 'lien-ket-san-pham' || nestedChild.key === 'quan-ly-dong-bo' || nestedChild.key === 'lich-su-day-ton' || nestedChild.key === 'danh-sach-khach-hang' || nestedChild.key === 'quan-ly-phan-hoi' || nestedChild.key === 'danh-gia-tu-dong' || nestedChild.key === 'danh-sach-khung-anh' || nestedChild.key === 'lap-lich-ap-khung' || nestedChild.key === 'dashboard' || nestedChild.key === 'chuong-trinh-khuyen-mai-san' || nestedChild.key === 'chuong-trinh-khuyen-mai-ups' || nestedChild.key === 'canh-bao-vi-pham-gia' || nestedChild.key === 'khach-hang-than-thiet' || nestedChild.key === 'danh-sach-chuong-trinh' || nestedChild.key === 'danh-sach-hang-hanh-vien' || nestedChild.key === 'tao-chien-dich' || nestedChild.key === 'quan-ly-chien-dich' || nestedChild.key === 'cau-hinh-thanh-toan' || nestedChild.key === 'quan-ly-giao-dich-qua-cong' || nestedChild.key === 'san-pham-kho' || nestedChild.key === 'danh-muc-san-pham' || nestedChild.key === 'ton-kho' || nestedChild.key === 'kiem-kho' || nestedChild.key === 'du-tru' || nestedChild.key === 'xuat-nhap-kho' || nestedChild.key === 'dat-hang' || nestedChild.key === 'chuyen-kho' || nestedChild.key === 'quan-ly-nha-cung-cap' || nestedChild.key === 'danh-sach-kho' || nestedChild.key === 'bao-cao-thay-doi-ton' || nestedChild.key === 'quan-ly-han-su-dung') {
+                              if (nestedChild.key === 'xu-ly-hang-loat' || nestedChild.key === 'danh-sach-don-hang' || nestedChild.key === 'xu-ly-tra-hang' || nestedChild.key === 'xu-ly-theo-danh-sach' || nestedChild.key === 'don-hoan' || nestedChild.key === 'phien-ban-giao' || nestedChild.key === 'quy-tac-tang-qua' || nestedChild.key === 'them-san-pham' || nestedChild.key === 'luu-nhap' || nestedChild.key === 'danh-sach-san-pham' || nestedChild.key === 'lien-ket-san-pham' || nestedChild.key === 'quan-ly-dong-bo' || nestedChild.key === 'lich-su-day-ton' || nestedChild.key === 'danh-sach-khach-hang' || nestedChild.key === 'quan-ly-phan-hoi' || nestedChild.key === 'danh-gia-tu-dong' || nestedChild.key === 'danh-sach-khung-anh' || nestedChild.key === 'lap-lich-ap-khung' || nestedChild.key === 'dashboard' || nestedChild.key === 'chuong-trinh-khuyen-mai-san' || nestedChild.key === 'chuong-trinh-khuyen-mai-ups' || nestedChild.key === 'canh-bao-vi-pham-gia' || nestedChild.key === 'khach-hang-than-thiet' || nestedChild.key === 'danh-sach-chuong-trinh' || nestedChild.key === 'danh-sach-hang-hanh-vien' || nestedChild.key === 'tao-chien-dich' || nestedChild.key === 'quan-ly-chien-dich' || nestedChild.key === 'cau-hinh-thanh-toan' || nestedChild.key === 'quan-ly-giao-dich-qua-cong' || nestedChild.key === 'san-pham-kho' || nestedChild.key === 'danh-muc-san-pham' || nestedChild.key === 'ton-kho' || nestedChild.key === 'kiem-kho' || nestedChild.key === 'du-tru' || nestedChild.key === 'xuat-nhap-kho' || nestedChild.key === 'dat-hang' || nestedChild.key === 'chuyen-kho' || nestedChild.key === 'quan-ly-nha-cung-cap' || nestedChild.key === 'danh-sach-kho' || nestedChild.key === 'bao-cao-thay-doi-ton' || nestedChild.key === 'quan-ly-han-su-dung' || nestedChild.key === 'doi-soat' || nestedChild.key === 'ban-hang' || nestedChild.key === 'chi-phi' || nestedChild.key === 'gia-von-vat' || nestedChild.key === 'bao-cao-kinh-doanh' || nestedChild.key === 'giao-dich-ve-vi' || nestedChild.key === 'quan-ly-xu' || nestedChild.key === 'bao-cao-van-hanh' || nestedChild.key === 'theo-doi-fullfilment' || nestedChild.key === 'bao-cao-dieu-hanh' || nestedChild.key === 'doi-soat-du-lieu-tu-dong') {
                                 setActiveModule(nestedChild.key);
                               } else if (nestedChild.module) {
                                 setActiveModule(nestedChild.module);
@@ -2679,7 +2705,7 @@ const HomepageLayout = () => {
                     onClick={() => {
                       setActiveNavItem(child.key);
                       // For specific menu items, use their key as activeModule
-                      if (child.key === 'xu-ly-hang-loat' || child.key === 'danh-sach-don-hang' || child.key === 'xu-ly-tra-hang' || child.key === 'xu-ly-theo-danh-sach' || child.key === 'don-hoan' || child.key === 'phien-ban-giao' || child.key === 'quy-tac-tang-qua' || child.key === 'them-san-pham' || child.key === 'luu-nhap' || child.key === 'danh-sach-san-pham' || child.key === 'lien-ket-san-pham' || child.key === 'quan-ly-dong-bo' || child.key === 'lich-su-day-ton' || child.key === 'danh-sach-khach-hang' || child.key === 'quan-ly-phan-hoi' || child.key === 'danh-gia-tu-dong' || child.key === 'dashboard' || child.key === 'chuong-trinh-khuyen-mai-san' || child.key === 'chuong-trinh-khuyen-mai-ups' || child.key === 'canh-bao-vi-pham-gia' || child.key === 'khach-hang-than-thiet' || child.key === 'danh-sach-chuong-trinh' || child.key === 'danh-sach-hang-hanh-vien' || child.key === 'tao-chien-dich' || child.key === 'quan-ly-chien-dich' || child.key === 'cau-hinh-thanh-toan' || child.key === 'quan-ly-giao-dich-qua-cong' || child.key === 'san-pham-kho' || child.key === 'danh-muc-san-pham' || child.key === 'ton-kho' || child.key === 'kiem-kho' || child.key === 'du-tru' || child.key === 'xuat-nhap-kho' || child.key === 'dat-hang' || child.key === 'chuyen-kho' || child.key === 'quan-ly-nha-cung-cap' || child.key === 'danh-sach-kho' || child.key === 'bao-cao-thay-doi-ton' || child.key === 'quan-ly-han-su-dung') {
+                      if (child.key === 'tai-khoan' || child.key === 'quan-ly-gian-hang' || child.key === 'quan-ly-nhan-hang' || child.key === 'tai-khoan-quang-cao' || child.key === 'xu-ly-ton-da-kenh' || child.key === 'cai-dat-tai-chinh' || child.key === 'cau-hinh-trang-thai-hang-hoa' || child.key === 'cau-hinh-van-chuyen' || child.key === 'xu-ly-hang-loat' || child.key === 'danh-sach-don-hang' || child.key === 'xu-ly-tra-hang' || child.key === 'xu-ly-theo-danh-sach' || child.key === 'don-hoan' || child.key === 'phien-ban-giao' || child.key === 'quy-tac-tang-qua' || child.key === 'them-san-pham' || child.key === 'luu-nhap' || child.key === 'danh-sach-san-pham' || child.key === 'lien-ket-san-pham' || child.key === 'quan-ly-dong-bo' || child.key === 'lich-su-day-ton' || child.key === 'danh-sach-khach-hang' || child.key === 'quan-ly-phan-hoi' || child.key === 'danh-gia-tu-dong' || child.key === 'dashboard' || child.key === 'chuong-trinh-khuyen-mai-san' || child.key === 'chuong-trinh-khuyen-mai-ups' || child.key === 'canh-bao-vi-pham-gia' || child.key === 'khach-hang-than-thiet' || child.key === 'danh-sach-chuong-trinh' || child.key === 'danh-sach-hang-hanh-vien' || child.key === 'tao-chien-dich' || child.key === 'quan-ly-chien-dich' || child.key === 'cau-hinh-thanh-toan' || child.key === 'quan-ly-giao-dich-qua-cong' || child.key === 'san-pham-kho' || child.key === 'danh-muc-san-pham' || child.key === 'ton-kho' || child.key === 'kiem-kho' || child.key === 'du-tru' || child.key === 'xuat-nhap-kho' || child.key === 'dat-hang' || child.key === 'chuyen-kho' || child.key === 'quan-ly-nha-cung-cap' || child.key === 'danh-sach-kho' || child.key === 'bao-cao-thay-doi-ton' || child.key === 'quan-ly-han-su-dung' || child.key === 'doi-soat' || child.key === 'ban-hang' || child.key === 'chi-phi' || child.key === 'gia-von-vat' || child.key === 'bao-cao-kinh-doanh' || child.key === 'giao-dich-ve-vi' || child.key === 'quan-ly-xu' || child.key === 'bao-cao-van-hanh' || child.key === 'theo-doi-fullfilment' || child.key === 'bao-cao-dieu-hanh' || child.key === 'doi-soat-du-lieu-tu-dong') {
                         setActiveModule(child.key);
                       } else if (child.module) {
                         setActiveModule(child.module);
@@ -2737,13 +2763,12 @@ const HomepageLayout = () => {
       expandable: true,
       children: [
         { key: 'tai-khoan', label: 'Tài khoản', module: 'settings' },
-        { key: 'gian-hang-ket-noi', label: 'Gian hàng kết nối', module: 'settings' },
-        { key: 'nhan-hang', label: 'Nhãn hàng', module: 'settings' },
+        { key: 'quan-ly-gian-hang', label: 'Quản lý gian hàng', module: 'settings' },
+        { key: 'quan-ly-nhan-hang', label: 'Quản lý nhãn hàng', module: 'settings' },
         { key: 'tai-khoan-quang-cao', label: 'Tài khoản quảng cáo', module: 'settings' },
-        { key: 'ton-da-kenh', label: 'Tồn đa kênh', module: 'settings' },
-        { key: 'ket-noi-mo-rong', label: 'Kết nối mở rộng', module: 'settings' },
-        { key: 'thiet-lap-tai-chinh', label: 'Thiết lập tài chính', module: 'settings' },
-        { key: 'trang-thai-hang-hoa', label: 'Trạng thái hàng hóa', module: 'settings' },
+        { key: 'xu-ly-ton-da-kenh', label: 'Xử lý tồn đa kênh', module: 'settings' },
+        { key: 'cai-dat-tai-chinh', label: 'Cài đặt tài chính', module: 'settings' },
+        { key: 'cau-hinh-trang-thai-hang-hoa', label: 'Cấu hình trạng thái hàng hoá', module: 'settings' },
         { key: 'cau-hinh-van-chuyen', label: 'Cấu hình vận chuyển', module: 'settings' }
       ]
     };
@@ -5503,7 +5528,8 @@ const HomepageLayout = () => {
             { key: 'chi-phi', label: 'Chi phí', module: 'finance' },
             { key: 'gia-von-vat', label: 'Giá vốn và VAT', module: 'finance' },
             { key: 'bao-cao-kinh-doanh', label: 'Báo cáo kinh doanh', module: 'finance' },
-            { key: 'giao-dich-ve-vi', label: 'Giao dịch về ví', module: 'finance' }
+            { key: 'giao-dich-ve-vi', label: 'Giao dịch về ví', module: 'finance' },
+            { key: 'quan-ly-xu', label: 'Quản lý xu', module: 'finance' }
           ]
         },
         {
@@ -5576,6 +5602,7 @@ const HomepageLayout = () => {
 
   // L2 nav keys that have a built .jsx view (green dot indicator)
   const navKeysWithView = useMemo(() => new Set([
+    'tai-khoan', 'quan-ly-gian-hang', 'quan-ly-nhan-hang', 'tai-khoan-quang-cao', 'xu-ly-ton-da-kenh', 'cai-dat-tai-chinh', 'cau-hinh-trang-thai-hang-hoa', 'cau-hinh-van-chuyen',
     'them-san-pham', 'luu-nhap', 'danh-sach-san-pham', 'lien-ket-san-pham', 'quan-ly-dong-bo', 'lich-su-day-ton',
     'danh-sach-don-hang', 'xu-ly-hang-loat', 'xu-ly-theo-danh-sach', 'xu-ly-tra-hang', 'don-hoan', 'phien-ban-giao', 'quy-tac-tang-qua',
     'danh-sach-khach-hang', 'quan-ly-phan-hoi', 'danh-gia-tu-dong',
@@ -5586,6 +5613,9 @@ const HomepageLayout = () => {
     'cau-hinh-thanh-toan', 'quan-ly-giao-dich-qua-cong',
     'san-pham-kho', 'danh-muc-san-pham', 'ton-kho', 'kiem-kho', 'du-tru', 'xuat-nhap-kho', 'dat-hang', 'chuyen-kho', 'quan-ly-nha-cung-cap',
     'danh-sach-kho', 'bao-cao-thay-doi-ton', 'quan-ly-han-su-dung',
+    'doi-soat', 'ban-hang', 'chi-phi', 'gia-von-vat', 'bao-cao-kinh-doanh', 'giao-dich-ve-vi', 'quan-ly-xu',
+    'bao-cao-van-hanh', 'theo-doi-fullfilment', 'bao-cao-dieu-hanh',
+    'doi-soat-du-lieu-tu-dong',
     'dashboard'
   ]), []);
 
@@ -5621,13 +5651,12 @@ const HomepageLayout = () => {
         expandable: true,
         children: [
           { key: 'tai-khoan', label: 'Tài khoản', module: 'settings' },
-          { key: 'gian-hang-ket-noi', label: 'Gian hàng kết nối', module: 'settings' },
-          { key: 'nhan-hang', label: 'Nhãn hàng', module: 'settings' },
+          { key: 'quan-ly-gian-hang', label: 'Quản lý gian hàng', module: 'settings' },
+          { key: 'quan-ly-nhan-hang', label: 'Quản lý nhãn hàng', module: 'settings' },
           { key: 'tai-khoan-quang-cao', label: 'Tài khoản quảng cáo', module: 'settings' },
-          { key: 'ton-da-kenh', label: 'Tồn đa kênh', module: 'settings' },
-          { key: 'ket-noi-mo-rong', label: 'Kết nối mở rộng', module: 'settings' },
-          { key: 'thiet-lap-tai-chinh', label: 'Thiết lập tài chính', module: 'settings' },
-          { key: 'trang-thai-hang-hoa', label: 'Trạng thái hàng hóa', module: 'settings' },
+          { key: 'xu-ly-ton-da-kenh', label: 'Xử lý tồn đa kênh', module: 'settings' },
+          { key: 'cai-dat-tai-chinh', label: 'Cài đặt tài chính', module: 'settings' },
+          { key: 'cau-hinh-trang-thai-hang-hoa', label: 'Cấu hình trạng thái hàng hoá', module: 'settings' },
           { key: 'cau-hinh-van-chuyen', label: 'Cấu hình vận chuyển', module: 'settings' }
         ]
       };
@@ -7786,8 +7815,46 @@ const HomepageLayout = () => {
                   <StockChangeReportView />
                 ) : activeModule === 'quan-ly-han-su-dung' ? (
                   <ExpirationManagementView />
+                ) : activeModule === 'doi-soat' ? (
+                  <ReconciliationView />
+                ) : activeModule === 'ban-hang' ? (
+                  <SalesView />
+                ) : activeModule === 'chi-phi' ? (
+                  <CostView />
+                ) : activeModule === 'gia-von-vat' ? (
+                  <CostPriceVatView />
+                ) : activeModule === 'bao-cao-kinh-doanh' ? (
+                  <BusinessReportView />
+                ) : activeModule === 'giao-dich-ve-vi' ? (
+                  <WalletTransactionView />
+                ) : activeModule === 'quan-ly-xu' ? (
+                  <CoinManagementView />
+                ) : activeModule === 'bao-cao-van-hanh' ? (
+                  <OperationalReportView />
+                ) : activeModule === 'theo-doi-fullfilment' ? (
+                  <FulfillmentTrackingView />
+                ) : activeModule === 'bao-cao-dieu-hanh' ? (
+                  <ExecutiveReportView />
+                ) : activeModule === 'doi-soat-du-lieu-tu-dong' ? (
+                  <AutoReconciliationView />
                 ) : activeModule === 'dashboard' ? (
                   <IncomeDashboard />
+                ) : activeModule === 'tai-khoan' ? (
+                  <SettingsAccountView />
+                ) : activeModule === 'quan-ly-gian-hang' ? (
+                  <SettingsStoreManagementView />
+                ) : activeModule === 'quan-ly-nhan-hang' ? (
+                  <SettingsBrandListView />
+                ) : activeModule === 'tai-khoan-quang-cao' ? (
+                  <SettingsAdAccountView />
+                ) : activeModule === 'xu-ly-ton-da-kenh' ? (
+                  <SettingsMultiChannelInventoryView />
+                ) : activeModule === 'cai-dat-tai-chinh' ? (
+                  <SettingsFinanceView />
+                ) : activeModule === 'cau-hinh-trang-thai-hang-hoa' ? (
+                  <SettingsProductStatusView />
+                ) : activeModule === 'cau-hinh-van-chuyen' ? (
+                  <SettingsShippingView />
                 ) : activeModule === 'workspace-settings' ? (
                   renderWorkspaceSettings()
                 ) : activeModule === 'template-create' ? (

@@ -240,9 +240,104 @@ const ProductLinkingView = () => {
                 </Select>
             </div>
 
+            {/* Filter Section - on top of table (PlatformProductsView pattern) */}
+            <Card
+                styles={{ body: { padding: '14px 16px' } }}
+                style={{
+                    borderRadius: 8,
+                    backgroundColor: '#fff',
+                    border: '1px solid #F0F0F0',
+                    marginBottom: 14
+                }}
+            >
+                <Row gutter={[16, 16]} align="top">
+                    <Col span={4}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                            <Text style={{ fontSize: 14, lineHeight: '22px' }}>Nhập tags</Text>
+                            <Select
+                                placeholder="Nhập tags"
+                                value={selectedTags}
+                                onChange={setSelectedTags}
+                                style={{ width: '100%', fontSize: 14 }}
+                                allowClear
+                                mode="multiple"
+                            >
+                                <Option value="tag1">Tag 1</Option>
+                                <Option value="tag2">Tag 2</Option>
+                            </Select>
+                        </div>
+                    </Col>
+                    <Col span={4}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                            <Text style={{ fontSize: 14, lineHeight: '22px' }}>Liên kết</Text>
+                            <Select
+                                value={linkFilter}
+                                onChange={setLinkFilter}
+                                style={{ width: '100%', fontSize: 14 }}
+                            >
+                                <Option value="all">Tất cả</Option>
+                                <Option value="linked">Liên kết</Option>
+                            </Select>
+                        </div>
+                    </Col>
+                    <Col span={4}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                            <Text style={{ fontSize: 14, lineHeight: '22px' }}>Khung ảnh</Text>
+                            <Select
+                                value={frameFilter}
+                                onChange={setFrameFilter}
+                                style={{ width: '100%', fontSize: 14 }}
+                            >
+                                <Option value="all">Tất cả</Option>
+                                <Option value="frame1">Khung ảnh 1</Option>
+                            </Select>
+                        </div>
+                    </Col>
+                    <Col span={6}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                            <Text style={{ fontSize: 14, lineHeight: '22px' }}>Tên sản phẩm/SKU</Text>
+                            <Input
+                                placeholder="Tên sản phẩm/SKU"
+                                prefix={<SearchOutlined />}
+                                value={searchText}
+                                onChange={(e) => setSearchText(e.target.value)}
+                                allowClear
+                                style={{ width: '100%', fontSize: 14 }}
+                            />
+                        </div>
+                    </Col>
+                    <Col span={3}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                            <Text style={{ fontSize: 14, lineHeight: '22px' }}>Gian hàng</Text>
+                            <Select
+                                placeholder="Chọn gian hàng"
+                                value={selectedStore}
+                                onChange={setSelectedStore}
+                                style={{ width: '100%', fontSize: 14 }}
+                                allowClear
+                            >
+                                <Option value="upbeauty">UpBeauty Store</Option>
+                            </Select>
+                        </div>
+                    </Col>
+                    <Col span={3}>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                            <div style={{ height: 22 }} />
+                            <Button
+                                icon={<FilterOutlined />}
+                                style={{ fontSize: 14 }}
+                            >
+                                Lọc sản phẩm nâng cao
+                            </Button>
+                        </div>
+                    </Col>
+                </Row>
+            </Card>
+
+            {/* Table Section - Tabs + Table (PlatformProductsView pattern) */}
             <Card
                 styles={{ body: { padding: 0 } }}
-                style={{ 
+                style={{
                     borderRadius: 8,
                     backgroundColor: '#fff',
                     border: '1px solid #F0F0F0'
@@ -290,92 +385,6 @@ const ProductLinkingView = () => {
                             </button>
                         );
                     })}
-                </div>
-
-                {/* Filter Section (DraftProductsView pattern) */}
-                <div style={{ padding: '14px 16px', borderBottom: '1px solid #F0F0F0' }}>
-                    <Row gutter={[16, 16]} align="top">
-                        <Col span={4}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                <Text style={{ fontSize: 14, lineHeight: '22px' }}>Nhập tags</Text>
-                                <Select
-                                    placeholder="Nhập tags"
-                                    value={selectedTags}
-                                    onChange={setSelectedTags}
-                                    style={{ width: '100%' }}
-                                    allowClear
-                                    mode="multiple"
-                                >
-                                    <Option value="tag1">Tag 1</Option>
-                                    <Option value="tag2">Tag 2</Option>
-                                </Select>
-                            </div>
-                        </Col>
-                        <Col span={4}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                <Text style={{ fontSize: 14, lineHeight: '22px' }}>Liên kết</Text>
-                                <Select
-                                    value={linkFilter}
-                                    onChange={setLinkFilter}
-                                    style={{ width: '100%' }}
-                                >
-                                    <Option value="all">Tất cả</Option>
-                                    <Option value="linked">Liên kết</Option>
-                                </Select>
-                            </div>
-                        </Col>
-                        <Col span={4}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                <Text style={{ fontSize: 14, lineHeight: '22px' }}>Khung ảnh</Text>
-                                <Select
-                                    value={frameFilter}
-                                    onChange={setFrameFilter}
-                                    style={{ width: '100%' }}
-                                >
-                                    <Option value="all">Tất cả</Option>
-                                    <Option value="frame1">Khung ảnh 1</Option>
-                                </Select>
-                            </div>
-                        </Col>
-                        <Col span={6}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                <Text style={{ fontSize: 14, lineHeight: '22px' }}>Tên sản phẩm/SKU</Text>
-                                <Input
-                                    placeholder="Tên sản phẩm/SKU"
-                                    prefix={<SearchOutlined />}
-                                    value={searchText}
-                                    onChange={(e) => setSearchText(e.target.value)}
-                                    allowClear
-                                    style={{ width: '100%' }}
-                                />
-                            </div>
-                        </Col>
-                        <Col span={3}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                <Text style={{ fontSize: 14, lineHeight: '22px' }}>Gian hàng</Text>
-                                <Select
-                                    placeholder="Chọn gian hàng"
-                                    value={selectedStore}
-                                    onChange={setSelectedStore}
-                                    style={{ width: '100%' }}
-                                    allowClear
-                                >
-                                    <Option value="upbeauty">UpBeauty Store</Option>
-                                </Select>
-                            </div>
-                        </Col>
-                        <Col span={3}>
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                                <div style={{ height: 22 }} />
-                                <Button
-                                    icon={<FilterOutlined />}
-                                    style={{ fontSize: 14 }}
-                                >
-                                    Lọc sản phẩm nâng cao
-                                </Button>
-                            </div>
-                        </Col>
-                    </Row>
                 </div>
 
                 {/* Selection Overlay or Table Header */}

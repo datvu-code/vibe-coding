@@ -124,20 +124,58 @@ const SyncManagementView = () => {
 
     return (
         <div>
-            {/* Main Card - Tabs, Filter, Table (DraftProductsView pattern) */}
+            {/* Filter Section - on top of table (PlatformProductsView pattern) */}
+            <Card
+                styles={{ body: { padding: '14px 16px' } }}
+                style={{ borderRadius: 8, backgroundColor: '#fff', border: '1px solid #F0F0F0', marginBottom: 14 }}
+            >
+                <Row gutter={[16, 16]} align="middle">
+                    <Col span={8}>
+                        <Input
+                            placeholder="Tên sản phẩm/SKU"
+                            prefix={<SearchOutlined />}
+                            value={searchText}
+                            onChange={(e) => setSearchText(e.target.value)}
+                            allowClear
+                            style={{ width: '100%', fontSize: 14 }}
+                        />
+                    </Col>
+                    <Col span={6}>
+                        <Select
+                            placeholder="Gian hàng"
+                            value={selectedStore}
+                            onChange={setSelectedStore}
+                            style={{ width: '100%', fontSize: 14 }}
+                            allowClear
+                        >
+                            <Option value="upbeauty">UpBeauty Store</Option>
+                            <Option value="upbeautyy">UpBeautyy</Option>
+                        </Select>
+                    </Col>
+                </Row>
+            </Card>
+
+            {/* Table Section - Tabs + Table (PlatformProductsView pattern) */}
             <Card
                 styles={{ body: { padding: 0 } }}
                 style={{ borderRadius: 8, backgroundColor: '#fff', border: '1px solid #F0F0F0' }}
             >
-                {/* Status Tabs */}
+                {/* Status Tabs + Đồng bộ action */}
                 <div style={{
                     display: 'flex',
-                    gap: 24,
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
                     padding: '12px 16px',
                     borderBottom: '1px solid #F0F0F0',
                     flexWrap: 'wrap',
-                    alignItems: 'center'
+                    gap: 12
                 }}>
+                    <div style={{
+                        display: 'flex',
+                        gap: 21,
+                        flexWrap: 'wrap',
+                        alignItems: 'center'
+                    }}>
                     {metrics.map((metric) => {
                         const isActive = selectedMetric === metric.key;
                         return (
@@ -146,7 +184,7 @@ const SyncManagementView = () => {
                                 onClick={() => setSelectedMetric(metric.key)}
                                 style={{
                                     border: 'none',
-                                    borderBottom: isActive ? '2px solid #EF5941' : '2px solid transparent',
+                                    borderBottom: isActive ? '1.74px solid #EF5941' : 'none',
                                     background: 'transparent',
                                     padding: '10px 0',
                                     cursor: 'pointer',
@@ -160,6 +198,7 @@ const SyncManagementView = () => {
                                 {metric.count !== undefined && (
                                     <span style={{
                                         marginLeft: 8,
+                                        fontSize: 14,
                                         fontWeight: 400,
                                         color: isActive ? '#EF5941' : 'rgba(0,0,0,0.45)'
                                     }}>
@@ -169,43 +208,14 @@ const SyncManagementView = () => {
                             </button>
                         );
                     })}
-                </div>
-
-                {/* Filter Section */}
-                <div style={{ padding: '14px 16px', borderBottom: '1px solid #F0F0F0' }}>
-                    <Row gutter={[16, 16]} align="middle">
-                        <Col span={8}>
-                            <Input
-                                placeholder="Tên sản phẩm/SKU"
-                                prefix={<SearchOutlined />}
-                                value={searchText}
-                                onChange={(e) => setSearchText(e.target.value)}
-                                allowClear
-                                style={{ width: '100%' }}
-                            />
-                        </Col>
-                        <Col span={6}>
-                            <Select
-                                placeholder="Gian hàng"
-                                value={selectedStore}
-                                onChange={setSelectedStore}
-                                style={{ width: '100%' }}
-                                allowClear
-                            >
-                                <Option value="upbeauty">UpBeauty Store</Option>
-                                <Option value="upbeautyy">UpBeautyy</Option>
-                            </Select>
-                        </Col>
-                        <Col span={10} style={{ display: 'flex', justifyContent: 'flex-end', alignItems: 'center' }}>
-                            <Button
-                                type="primary"
-                                icon={<SyncOutlined />}
-                                style={{ background: '#EF5941', borderColor: '#EF5941', fontSize: 14 }}
-                            >
-                                Đồng bộ
-                            </Button>
-                        </Col>
-                    </Row>
+                    </div>
+                    <Button
+                        type="primary"
+                        icon={<SyncOutlined />}
+                        style={{ background: '#EF5941', borderColor: '#EF5941', fontSize: 14 }}
+                    >
+                        Đồng bộ
+                    </Button>
                 </div>
 
                 {/* Selection Overlay or Table */}

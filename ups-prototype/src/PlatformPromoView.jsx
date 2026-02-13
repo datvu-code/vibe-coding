@@ -190,7 +190,32 @@ const PlatformPromoView = () => {
                 </Space.Compact>
             </div>
 
-            {/* Main Section - Tabs, Filter, Table */}
+            {/* Filter Section - on top of table */}
+            <Card
+                styles={{ body: { padding: '14px 16px' } }}
+                style={{ borderRadius: 8, background: '#fff', marginBottom: 14 }}
+            >
+                <Space size="middle" wrap>
+                    <span style={{ fontSize: 14 }}>Chọn khoảng thời gian</span>
+                    <Input style={{ width: 240 }} placeholder="Chọn" suffix={<span style={{ color: '#8c8c8c' }}>📅</span>} />
+                    <span style={{ fontSize: 14, marginLeft: 16 }}>Chọn sàn</span>
+                    <Select value={selectedPlatform} onChange={setSelectedPlatform} style={{ width: 120 }}>
+                        <Option value="all">Tất cả</Option>
+                    </Select>
+                    <span style={{ fontSize: 14, marginLeft: 16 }}>Chọn gian hàng</span>
+                    <Select value={selectedStore} onChange={setSelectedStore} style={{ width: 150 }}>
+                        <Option value="all">Tất cả</Option>
+                    </Select>
+                    <span style={{ fontSize: 14, marginLeft: 16 }}>Tìm chương trình</span>
+                    <Search placeholder="Tìm kiếm" allowClear style={{ width: 200 }} />
+                    <span style={{ fontSize: 14, marginLeft: 16 }}>Chọn loại chương trình</span>
+                    <Select style={{ width: 160 }} placeholder="Chọn" />
+                    <span style={{ fontSize: 14, marginLeft: 16 }}>Chọn chương trình</span>
+                    <Select style={{ width: 140 }} placeholder="Chọn" />
+                </Space>
+            </Card>
+
+            {/* Table Section - Tabs + Table */}
             <Card
                 styles={{ body: { padding: 0 } }}
                 style={{ borderRadius: 8, background: '#fff' }}
@@ -201,27 +226,6 @@ const PlatformPromoView = () => {
                         onChange={setActiveStatusTab}
                         items={statusTabItems}
                     />
-                </div>
-
-                <div style={{ padding: '14px 16px', borderBottom: '1px solid #F0F0F0' }}>
-                    <Space size="middle" wrap>
-                        <span style={{ fontSize: 14 }}>Chọn khoảng thời gian</span>
-                        <Input style={{ width: 240 }} placeholder="Chọn" suffix={<span style={{ color: '#8c8c8c' }}>📅</span>} />
-                        <span style={{ fontSize: 14, marginLeft: 16 }}>Chọn sàn</span>
-                        <Select value={selectedPlatform} onChange={setSelectedPlatform} style={{ width: 120 }}>
-                            <Option value="all">Tất cả</Option>
-                        </Select>
-                        <span style={{ fontSize: 14, marginLeft: 16 }}>Chọn gian hàng</span>
-                        <Select value={selectedStore} onChange={setSelectedStore} style={{ width: 150 }}>
-                            <Option value="all">Tất cả</Option>
-                        </Select>
-                        <span style={{ fontSize: 14, marginLeft: 16 }}>Tìm chương trình</span>
-                        <Search placeholder="Tìm kiếm" allowClear style={{ width: 200 }} />
-                        <span style={{ fontSize: 14, marginLeft: 16 }}>Chọn loại chương trình</span>
-                        <Select style={{ width: 160 }} placeholder="Chọn" />
-                        <span style={{ fontSize: 14, marginLeft: 16 }}>Chọn chương trình</span>
-                        <Select style={{ width: 140 }} placeholder="Chọn" />
-                    </Space>
                 </div>
 
                 <Table

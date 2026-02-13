@@ -225,7 +225,55 @@ const PlatformProductsView = () => {
                 </Select>
             </div>
 
-            {/* Main Card - Tabs, Filter, Table (DraftProductsView pattern) */}
+            {/* Filter Section - on top of table */}
+            <Card
+                styles={{ body: { padding: '14px 16px' } }}
+                style={{ borderRadius: 8, backgroundColor: '#fff', border: '1px solid #F0F0F0', marginBottom: 14 }}
+            >
+                <Row gutter={[16, 16]} align="middle">
+                    <Col span={8}>
+                        <Input
+                            placeholder="Tên sản phẩm/SKU"
+                            prefix={<SearchOutlined />}
+                            value={searchText}
+                            onChange={(e) => setSearchText(e.target.value)}
+                            allowClear
+                            style={{ width: '100%', fontSize: 14 }}
+                        />
+                    </Col>
+                    <Col span={6}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <Text style={{ fontSize: 14 }}>Gian hàng</Text>
+                            <Select
+                                placeholder="Chọn gian hàng"
+                                value={selectedStore}
+                                onChange={setSelectedStore}
+                                style={{ width: 200, fontSize: 14 }}
+                                allowClear
+                            >
+                                <Option value="all">Tất cả</Option>
+                                <Option value="upbeauty">UpBeauty Store</Option>
+                            </Select>
+                        </div>
+                    </Col>
+                    <Col span={6}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <Text style={{ fontSize: 14 }}>Trạng thái của sản phẩm sàn</Text>
+                            <Select
+                                value={selectedStatus}
+                                onChange={setSelectedStatus}
+                                style={{ width: 200, fontSize: 14 }}
+                            >
+                                <Option value="all">Tất cả</Option>
+                                <Option value="active">Đang hoạt động</Option>
+                                <Option value="hidden">Đã ẩn</Option>
+                            </Select>
+                        </div>
+                    </Col>
+                </Row>
+            </Card>
+
+            {/* Table Section - Tabs + Table */}
             <Card
                 styles={{ body: { padding: 0 } }}
                 style={{ borderRadius: 8, backgroundColor: '#fff', border: '1px solid #F0F0F0' }}
@@ -271,51 +319,6 @@ const PlatformProductsView = () => {
                             </button>
                         );
                     })}
-                </div>
-
-                {/* Filter Section */}
-                <div style={{ padding: '14px 16px', borderBottom: '1px solid #F0F0F0' }}>
-                    <Row gutter={[16, 16]} align="middle">
-                        <Col span={8}>
-                            <Input
-                                placeholder="Tên sản phẩm/SKU"
-                                prefix={<SearchOutlined />}
-                                value={searchText}
-                                onChange={(e) => setSearchText(e.target.value)}
-                                allowClear
-                                style={{ width: '100%' }}
-                            />
-                        </Col>
-                        <Col span={6}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <Text style={{ fontSize: 14 }}>Gian hàng</Text>
-                                <Select
-                                    placeholder="Chọn gian hàng"
-                                    value={selectedStore}
-                                    onChange={setSelectedStore}
-                                    style={{ width: 200 }}
-                                    allowClear
-                                >
-                                    <Option value="all">Tất cả</Option>
-                                    <Option value="upbeauty">UpBeauty Store</Option>
-                                </Select>
-                            </div>
-                        </Col>
-                        <Col span={6}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <Text style={{ fontSize: 14 }}>Trạng thái của sản phẩm sàn</Text>
-                                <Select
-                                    value={selectedStatus}
-                                    onChange={setSelectedStatus}
-                                    style={{ width: 200 }}
-                                >
-                                    <Option value="all">Tất cả</Option>
-                                    <Option value="active">Đang hoạt động</Option>
-                                    <Option value="hidden">Đã ẩn</Option>
-                                </Select>
-                            </div>
-                        </Col>
-                    </Row>
                 </div>
 
                 {/* Table */}

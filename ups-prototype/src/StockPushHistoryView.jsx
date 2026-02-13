@@ -133,7 +133,66 @@ const StockPushHistoryView = () => {
 
     return (
         <div>
-            {/* Main Card - Tabs, Filter, Table (DraftProductsView pattern) */}
+            {/* Filter Section - on top of table (PlatformProductsView pattern) */}
+            <Card
+                styles={{ body: { padding: '14px 16px' } }}
+                style={{ borderRadius: 8, backgroundColor: '#fff', border: '1px solid #F0F0F0', marginBottom: 14 }}
+            >
+                <Row gutter={[16, 16]} align="middle">
+                    <Col span={6}>
+                        <Input
+                            placeholder="Tên sản phẩm, SKU"
+                            prefix={<SearchOutlined />}
+                            value={searchText}
+                            onChange={(e) => setSearchText(e.target.value)}
+                            allowClear
+                            style={{ width: '100%', fontSize: 14 }}
+                        />
+                    </Col>
+                    <Col span={6}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <Text style={{ fontSize: 14 }}>Gian hàng</Text>
+                            <Select
+                                placeholder="Chọn gian hàng"
+                                value={selectedStore}
+                                onChange={setSelectedStore}
+                                style={{ flex: 1, fontSize: 14 }}
+                                allowClear
+                            >
+                                <Option value="upbeauty">UpBeauty Store</Option>
+                                <Option value="upbeautyy">UpBeautyy</Option>
+                            </Select>
+                        </div>
+                    </Col>
+                    <Col span={6}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <Text style={{ fontSize: 14 }}>Kho kênh bán</Text>
+                            <Select
+                                value={selectedWarehouse}
+                                onChange={setSelectedWarehouse}
+                                style={{ flex: 1, fontSize: 14 }}
+                            >
+                                <Option value="all">Tất cả</Option>
+                                <Option value="warehouse1">Kho 1</Option>
+                            </Select>
+                        </div>
+                    </Col>
+                    <Col span={6}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                            <Text style={{ fontSize: 14 }}>Thời gian đẩy</Text>
+                            <RangePicker
+                                value={dateRange}
+                                onChange={setDateRange}
+                                format="DD/MM/YYYY"
+                                style={{ flex: 1 }}
+                                placeholder={['dd/mm/yyyy', 'dd/mm/yyyy']}
+                            />
+                        </div>
+                    </Col>
+                </Row>
+            </Card>
+
+            {/* Table Section - Tabs + Table (PlatformProductsView pattern) */}
             <Card
                 styles={{ body: { padding: 0 } }}
                 style={{ borderRadius: 8, backgroundColor: '#fff', border: '1px solid #F0F0F0' }}
@@ -179,62 +238,6 @@ const StockPushHistoryView = () => {
                             </button>
                         );
                     })}
-                </div>
-
-                {/* Filter Section */}
-                <div style={{ padding: '14px 16px', borderBottom: '1px solid #F0F0F0' }}>
-                    <Row gutter={[16, 16]} align="middle">
-                        <Col span={6}>
-                            <Input
-                                placeholder="Tên sản phẩm, SKU"
-                                prefix={<SearchOutlined />}
-                                value={searchText}
-                                onChange={(e) => setSearchText(e.target.value)}
-                                allowClear
-                                style={{ width: '100%' }}
-                            />
-                        </Col>
-                        <Col span={6}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <Text style={{ fontSize: 14 }}>Gian hàng</Text>
-                                <Select
-                                    placeholder="Chọn gian hàng"
-                                    value={selectedStore}
-                                    onChange={setSelectedStore}
-                                    style={{ flex: 1 }}
-                                    allowClear
-                                >
-                                    <Option value="upbeauty">UpBeauty Store</Option>
-                                    <Option value="upbeautyy">UpBeautyy</Option>
-                                </Select>
-                            </div>
-                        </Col>
-                        <Col span={6}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <Text style={{ fontSize: 14 }}>Kho kênh bán</Text>
-                                <Select
-                                    value={selectedWarehouse}
-                                    onChange={setSelectedWarehouse}
-                                    style={{ flex: 1 }}
-                                >
-                                    <Option value="all">Tất cả</Option>
-                                    <Option value="warehouse1">Kho 1</Option>
-                                </Select>
-                            </div>
-                        </Col>
-                        <Col span={6}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                                <Text style={{ fontSize: 14 }}>Thời gian đẩy</Text>
-                                <RangePicker
-                                    value={dateRange}
-                                    onChange={setDateRange}
-                                    format="DD/MM/YYYY"
-                                    style={{ flex: 1 }}
-                                    placeholder={['dd/mm/yyyy', 'dd/mm/yyyy']}
-                                />
-                            </div>
-                        </Col>
-                    </Row>
                 </div>
 
                 {/* Selection Overlay or Table */}

@@ -77,17 +77,22 @@ const ReserveView = () => {
                 </Button>
             </div>
 
-            {/* Main Section - Card: Tabs, Filter, Table (FrameScheduleManagement pattern) */}
+            {/* Filter Section - on top of table */}
+            <Card
+                styles={{ body: { padding: '14px 16px' } }}
+                style={{ borderRadius: 8, background: '#fff', marginBottom: 14 }}
+            >
+                <Space size="middle" wrap>
+                    <Select placeholder="Chọn nhãn quản lý" style={{ width: 180, fontSize: 14 }} suffixIcon={<DownOutlined />}><Option value="all">Tất cả</Option></Select>
+                    <Select placeholder="Gian hàng" style={{ width: 160, fontSize: 14 }} suffixIcon={<DownOutlined />}><Option value="all">Tất cả</Option></Select>
+                    <Search placeholder="Tìm kiếm" allowClear onSearch={setSearchText} style={{ width: 220, fontSize: 14 }} prefix={<SearchOutlined />} />
+                </Space>
+            </Card>
+
+            {/* Table Section - Tabs + Table */}
             <Card styles={{ body: { padding: 0 } }} style={{ borderRadius: 8, background: '#fff' }}>
                 <div style={{ padding: '0 16px' }} className="order-processing-tabs">
                     <Tabs activeKey={activeTab} onChange={setActiveTab} items={tabItems} />
-                </div>
-                <div style={{ padding: '14px 16px', borderBottom: '1px solid #F0F0F0' }}>
-                    <Space size="middle" wrap>
-                        <Select placeholder="Chọn nhãn quản lý" style={{ width: 180, fontSize: 14 }} suffixIcon={<DownOutlined />}><Option value="all">Tất cả</Option></Select>
-                        <Select placeholder="Gian hàng" style={{ width: 160, fontSize: 14 }} suffixIcon={<DownOutlined />}><Option value="all">Tất cả</Option></Select>
-                        <Search placeholder="Tìm kiếm" allowClear onSearch={setSearchText} style={{ width: 220, fontSize: 14 }} prefix={<SearchOutlined />} />
-                    </Space>
                 </div>
                 <Table
                     columns={columns}
