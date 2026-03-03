@@ -176,6 +176,7 @@
 
 .custom-primary-checkbox .ant-checkbox-input:focus + .ant-checkbox-inner {
   border-color: var(--ups-primary) !important;
+  box-shadow: 0 0 0 3px rgba(239, 89, 65, 0.12) !important;
 }
 
 /* Switch primary color */
@@ -539,6 +540,28 @@ body:has(.guide-drawer-split.ant-drawer-open) .ant-layout-content {
 
 .order-processing-tabs .ant-tabs-ink-bar {
   background: #EF5941 !important;
+}
+
+/* Supplier / Đối tác: connection tabs — active = solid primary pill */
+.supplier-connection-tabs.ant-tabs .ant-tabs-nav {
+  margin-bottom: 0;
+}
+.supplier-connection-tabs .ant-tabs-tab {
+  padding: 0;
+  margin-right: 4px;
+}
+.supplier-connection-tabs .ant-tabs-tab .ant-tabs-tab-btn {
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #111827;
+}
+.supplier-connection-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
+  background: #EF5941 !important;
+  color: #fff !important;
+}
+.supplier-connection-tabs .ant-tabs-ink-bar {
+  display: none;
 }
 
 /* Fix Card width issues in Ant Design v6 */

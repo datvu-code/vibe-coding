@@ -1781,6 +1781,7 @@ const HomepageLayout = () => {
   const [sidebarLocked, setSidebarLocked] = useState(false); // Lock sidebar collapsed until mouse leave
   const [sidebarHovered, setSidebarHovered] = useState(false);
   const [expandedSubNav, setExpandedSubNav] = useState(null); // Track which parent item has sub-nav expanded (key of parent)
+  const [subNavCollapsed, setSubNavCollapsed] = useState(false); // Manual collapse overrides auto-detect
 
   // Get personalized greeting
   const userName = 'Dat'; // This could come from auth context
@@ -2307,6 +2308,7 @@ const HomepageLayout = () => {
       // Set active nav item and show sub-menu
       setActiveNavItem(item.key);
       setExpandedSubNav(item.key);
+      setSubNavCollapsed(false);
       // Collapse sidebar when item is selected
       setSidebarCollapsed(true);
       setSidebarLocked(true); // Prevent re-expansion until mouse leave
@@ -2593,7 +2595,33 @@ const HomepageLayout = () => {
             transition: 'left 0.2s ease'
           }}
         >
-          <div style={{ paddingTop: 24, paddingBottom: 16 }}>
+          {/* Collapse button */}
+          <button
+            onClick={() => { setExpandedSubNav(null); setSubNavCollapsed(true); }}
+            title="Thu gọn"
+            style={{
+              position: 'absolute',
+              top: 10,
+              right: 10,
+              width: 24,
+              height: 24,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              border: 'none',
+              background: 'transparent',
+              cursor: 'pointer',
+              color: '#5F6368',
+              zIndex: 1,
+              padding: 0,
+            }}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <rect width="18" height="18" x="3" y="3" rx="2"/>
+              <path d="M9 3v18"/>
+            </svg>
+          </button>
+          <div style={{ paddingTop: 48, paddingBottom: 16 }}>
             {/* Items */}
             <div style={{ padding: '0 8px' }}>          {parentItem.children.map((child) => {
               if (child.children && child.children.length > 0) {
@@ -5577,7 +5605,7 @@ const HomepageLayout = () => {
       helperText: 'Kết nối và làm việc với các đối tác',
       icon: <MdPeople />,
       expandable: false,
-      module: 'partners'
+      module: 'doi-tac'
     },
     {
       key: 'brands',
@@ -5621,6 +5649,7 @@ const HomepageLayout = () => {
 
   // Memoize sub-nav visibility calculation
   const isSubNavVisible = useMemo(() => {
+    if (subNavCollapsed) return false;
     if (expandedSubNav) return true;
     // Auto-detect based on activeNavItem
     const activeItem = navigationItems.find(item => item.key === activeNavItem);
@@ -5642,6 +5671,7 @@ const HomepageLayout = () => {
 
   // Memoize parent item to show in sub-nav
   const parentItemToShow = useMemo(() => {
+    if (subNavCollapsed) return null;
     // Check if Settings is expanded
     if (expandedSubNav === 'cai-dat') {
       return {
@@ -5681,7 +5711,7 @@ const HomepageLayout = () => {
       }
     }
     return null;
-  }, [expandedSubNav, activeNavItem]);
+  }, [subNavCollapsed, expandedSubNav, activeNavItem]);
 
   // Memoize main content margin-left
   const mainContentMarginLeft = useMemo(() => {
@@ -7808,6 +7838,8 @@ const HomepageLayout = () => {
                 ) : activeModule === 'chuyen-kho' ? (
                   <StockTransferView />
                 ) : activeModule === 'quan-ly-nha-cung-cap' ? (
+                  <SupplierManagementView />
+                ) : activeModule === 'doi-tac' ? (
                   <SupplierManagementView />
                 ) : activeModule === 'danh-sach-kho' ? (
                   <WarehouseListView />

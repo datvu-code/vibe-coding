@@ -1414,6 +1414,38 @@ const OrderList = ({
         return <CreateOrderScreen onClose={() => setCreateOrderModalVisible(false)} />;
     }
 
+    const allStatusTabs = [
+        { key: 'all', label: 'Tất cả' },
+        { key: 'pending', label: 'Chờ duyệt' },
+        { key: 'packing', label: 'Đóng gói' },
+        { key: 'waiting-pickup', label: 'Chờ lấy hàng' },
+        { key: 'error', label: 'Xử lý lỗi' },
+        { key: 'shipping', label: 'Đang giao hàng' },
+        { key: 'completed', label: 'Hoàn thành' },
+        { key: 'cancelled', label: 'Huỷ' },
+        { key: 'no-warehouse', label: 'Chưa có kho xử lý' },
+        { key: 'shipping-info', label: 'Thông tin vận đơn' },
+    ];
+
+    const statusColors = {
+        packing: { color: '#d46b08', bg: '#fff7e6' },
+        cancelled: { color: '#ff4d4f', bg: '#fff1f0' },
+        completed: { color: '#52c41a', bg: '#f6ffed' },
+        shipping: { color: '#1677ff', bg: '#e6f4ff' },
+        pending: { color: '#d46b08', bg: '#fff7e6' },
+    };
+
+    const orderTypeTabs = isReturnOrderView ? [
+        { value: 'noi-san', label: 'Đơn hoàn nội sàn' },
+        { value: 'ngoai-san', label: 'Đơn hoàn ngoại sàn' },
+    ] : [
+        { value: 'platform', label: 'Đơn từ sàn' },
+        { value: 'manual', label: 'Đơn thủ công' },
+        { value: 'pos', label: 'Đơn POS' },
+        { value: 'my-orders', label: 'Đơn của tôi' },
+        { value: 'history', label: 'Lịch sử' },
+    ];
+
     return (
         <div style={{ minHeight: '100vh', position: 'relative' }}>
             {/* Loading Overlay for Manual Orders */}
@@ -1452,858 +1484,455 @@ const OrderList = ({
                 </div>
             )}
 
-            {/* Batch Processing View */}
-            {isBatchProcessing && (
-                <div></div>
-            )}
+            {/* Alert Banner */}
+            <Alert
+                banner
+                type="info"
+                message="Các đơn hàng có thời gian hơn 90 ngày sẽ được chuyển vào Lịch sử và không thể xử lý được nữa."
+                style={{ marginBottom: 24, borderRadius: 0 }}
+            />
 
-            {/* Export Actions - Above Filter Section */}
-            {!isBatchProcessing && !isReturnOrderView && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
-                    <Button 
-                        icon={<BookOutlined />}
-                        style={{ 
-                            background: 'transparent', 
-                            border: 'none',
-                            padding: 0,
-                            color: '#1677ff',
-                            transition: 'all 0.2s'
-                        }}
-                        onMouseEnter={(e) => {
-                            e.currentTarget.style.opacity = '0.8';
-                        }}
-                        onMouseLeave={(e) => {
-                            e.currentTarget.style.opacity = '1';
-                        }}
-                        onClick={() => setGuideDrawerVisible(true)}
-                    >
-                        Hướng dẫn
-                    </Button>
-                    <Space size={14}>
-                        <Button 
-                            style={{ background: 'rgba(0,0,0,0.06)', border: 'none' }}
-                            onClick={() => setUpdateInfoModalVisible(true)}
-                        >
-                            Lịch sử đơn hàng
-                        </Button>
-                        <Button 
-                            icon={<ExportOutlined />}
-                            style={{ background: 'rgba(0,0,0,0.06)', border: 'none' }}
-                            onClick={() => setExportFileModalVisible(true)}
-                        >
-                            Xuất file
-                        </Button>
-                        <Tooltip title="Lịch sử xuất đơn hàng">
-                            <Button 
-                                icon={<HistoryOutlined />}
-                                style={{ background: 'rgba(0,0,0,0.06)', border: 'none' }}
-                                onClick={() => setUpdateInfoModalVisible(true)}
-                            />
-                        </Tooltip>
-                </Space>
-            </div>
-            )}
-
-            {/* Order Type Filter Card - Separate Section with Tabs */}
+            {/* Order Type Tabs */}
             {!isBatchProcessing && !isProcessReturnOrder && (
-                    <Card
-                    styles={{ body: { padding: 0, background: 'transparent' } }}
-                    style={{ marginBottom: 14, borderRadius: 8, background: 'transparent', border: 'none' }}
-                >
-                    <div style={{ display: 'flex', gap: 21, padding: '12px 0', flexWrap: 'wrap', alignItems: 'center', position: 'relative' }}>
-                        {(isReturnOrderView ? [
-                            { value: 'noi-san', label: 'Đơn hoàn nội sàn' },
-                            { value: 'ngoai-san', label: 'Đơn hoàn ngoại sàn' }
-                        ] : [
-                            { value: 'platform', label: 'Đơn từ sàn' },
-                            { value: 'manual', label: 'Đơn thủ công' },
-                            { value: 'my-orders', label: 'Đơn của tôi' },
-                            { value: 'pos', label: 'Đơn POS' }
-                        ]).map((option) => {
-                            const isActive = orderTypeFilter === option.value;
-                            return (
-                                <button
-                                    key={option.value}
-                                    onClick={() => {
-                                        if (!isLoadingOrderTypeSwitch) {
-                                            setOrderTypeFilter(option.value);
-                                        }
-                                    }}
-                                    disabled={isLoadingOrderTypeSwitch}
-                                    style={{
-                                        border: 'none',
-                                        borderBottom: isActive ? '1.74px solid #EF5941' : 'none',
-                                        background: 'transparent',
-                                        padding: '10px 0',
-                                        cursor: isLoadingOrderTypeSwitch ? 'wait' : 'pointer',
-                                        fontSize: 16,
-                                        fontWeight: isActive ? 600 : 400,
-                                        color: isActive ? '#EF5941' : 'rgba(0,0,0,0.88)',
-                                        opacity: isLoadingOrderTypeSwitch ? 0.6 : 1,
-                                        transition: 'all 0.2s'
-                                    }}
-                                >
-                                    {option.label}
-                                </button>
-                            );
-                        })}
-                        {isLoadingOrderTypeSwitch && (
-                            <Spin size="small" style={{ position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%)' }} />
-                        )}
-                </div>
-                </Card>
-            )}
-
-            {/* Filter Section Card */}
-            {!isBatchProcessing && (
-                <Card
-                    styles={{ body: { padding: '14px' } }}
-                    style={{ marginBottom: 14, borderRadius: 8 }}
-                >
-                <Row gutter={[16, 16]}>
-                        <Col span={6}>
-                            <div>
-                                <Text style={{ fontSize: 12, display: 'block', marginBottom: 4 }}>Thời gian tạo đơn hàng</Text>
-                                <RangePicker
-                                    style={{ width: '100%' }}
-                                    format="HH:mm DD/MM/YYYY"
-                                    showTime
-                                />
-                </div>
-                        </Col>
-                        <Col span={6}>
-                            <div>
-                                <Text style={{ fontSize: 12, display: 'block', marginBottom: 4 }}>Sàn</Text>
-                                <Select
-                                    placeholder="Chọn sàn"
-                                    style={{ width: '100%' }}
-                                    allowClear
-                                >
-                                    <Option value="shopee">Shopee</Option>
-                                    <Option value="tiktok">TikTok</Option>
-                                    <Option value="haravan">Haravan</Option>
-                                    <Option value="lazada">Lazada</Option>
-                                </Select>
-                            </div>
-                        </Col>
-                        <Col span={6}>
-                            <div>
-                                <Text style={{ fontSize: 12, display: 'block', marginBottom: 4 }}>Gian hàng</Text>
-                                <Select
-                                    placeholder="Chọn gian hàng"
-                                    style={{ width: '100%' }}
-                                    allowClear
-                                >
-                                    <Option value="shop1">Shop 1</Option>
-                                    <Option value="shop2">Shop 2</Option>
-                                </Select>
-                            </div>
-                        </Col>
-                        <Col span={6}>
-                            <div>
-                                <Text style={{ fontSize: 12, display: 'block', marginBottom: 4 }}>Kho</Text>
-                                <Select
-                                    placeholder="Chọn kho"
-                                    style={{ width: '100%' }}
-                                    allowClear
-                                >
-                                    <Option value="warehouse1">Kho 1</Option>
-                                    <Option value="warehouse2">Kho 2</Option>
-                                </Select>
-                            </div>
-                        </Col>
-                        <Col span={6}>
-                            <div>
-                                <Text style={{ fontSize: 12, display: 'block', marginBottom: 4 }}>Mã đơn hàng</Text>
-                                <Input.Group compact>
-                                    <Input
-                                        placeholder="Tìm đơn hàng"
-                                        prefix={<SearchOutlined />}
-                                        allowClear
-                                        style={{ width: '60%' }}
-                                    />
-                                    <Select
-                                        value={searchFilterType}
-                                        onChange={setSearchFilterType}
-                                        style={{ width: '40%' }}
-                                        dropdownMatchSelectWidth={false}
-                                        dropdownStyle={{ minWidth: '200px' }}
-                                    >
-                                        <Option value="order-code">Mã đơn hàng</Option>
-                                        <Option value="shipping-code">Mã vận đơn</Option>
-                                        <Option value="sku">SKU hàng hoá sàn</Option>
-                                        <Option value="product-name">Tên sản phẩm</Option>
-                                        <Option value="utm">UTM</Option>
-                                        <Option value="package-code">Mã kiện hàng</Option>
-                                    </Select>
-                                </Input.Group>
-                            </div>
-                        </Col>
-                        <Col span={6}>
-                            <div style={{ display: 'flex', alignItems: 'flex-end', height: '100%' }}>
-                                <Button icon={<FilterOutlined />} style={{ width: '100%' }}>
-                                    Lọc đơn hàng nâng cao
-                    </Button>
-            </div>
-                        </Col>
-                    </Row>
-                </Card>
-            )}
-
-            {/* Status Tabs and Summary Card - Sticky Container */}
-            <Card
-                className="status-tabs-sticky-card"
-                styles={{ body: { padding: 0 } }}
-                style={{ 
-                    marginTop: 14,
-                    borderRadius: 8,
-                    backgroundColor: '#fff',
-                    border: '1px solid #F0F0F0'
-                }}
-            >
-                {/* Status Tabs */}
-                    <div className="status-tabs-container" style={{ 
-                        display: 'flex', 
-                        gap: 21, 
-                        padding: '12px 16px', 
-                    borderBottom: '1px solid #F0F0F0',
-                        flexWrap: 'wrap',
-                        alignItems: 'center',
-                        backgroundColor: '#fff'
-                    }}>
-                    {/* Main status tabs (left side) */}
-                    {statusTabs.map(tab => {
-                        const isActive = activeStatusTab === tab.key;
-                        const hasCount = tab.count !== undefined;
-                        
-                        if (isAbnormalCancellation) {
-                            return (
-                                <button
-                                    key={tab.key}
-                                    onClick={() => setActiveStatusTab(tab.key)}
-                                    style={{
-                                        border: 'none',
-                                        borderBottom: isActive ? '1.74px solid #EF5941' : 'none',
-                                        background: 'transparent',
-                                        padding: '10px 0',
-                                        cursor: 'pointer',
-                                        fontSize: 14,
-                                        fontWeight: isActive ? 600 : 400,
-                                        color: isActive ? '#EF5941' : 'rgba(0,0,0,0.88)',
-                                        whiteSpace: 'nowrap'
-                                    }}
-                                >
-                                    {tab.label}{hasCount !== false && tab.count !== undefined ? ` (${tab.count})` : ''}
-                                </button>
-                            );
-                        }
-                        
+                <div style={{ display: 'flex', marginBottom: 16, borderBottom: '1px solid #F0F0F0', position: 'relative' }}>
+                    {orderTypeTabs.map((tab) => {
+                        const isActive = orderTypeFilter === tab.value;
                         return (
                             <button
-                                key={tab.key}
-                                onClick={() => setActiveStatusTab(tab.key)}
+                                key={tab.value}
+                                onClick={() => !isLoadingOrderTypeSwitch && setOrderTypeFilter(tab.value)}
                                 style={{
                                     border: 'none',
-                                    borderBottom: isActive ? '1.74px solid #EF5941' : 'none',
+                                    borderBottom: isActive ? '2px solid #EF5941' : '2px solid transparent',
                                     background: 'transparent',
-                                    padding: '10px 0',
-                                    cursor: 'pointer',
+                                    padding: '10px 16px',
+                                    cursor: isLoadingOrderTypeSwitch ? 'wait' : 'pointer',
                                     fontSize: 14,
                                     fontWeight: isActive ? 600 : 400,
-                                    color: isActive ? '#EF5941' : 'rgba(0,0,0,0.88)'
+                                    color: isActive ? '#EF5941' : 'rgba(0,0,0,0.88)',
+                                    marginBottom: -1,
+                                    whiteSpace: 'nowrap',
+                                    transition: 'all 0.2s',
                                 }}
                             >
                                 {tab.label}
                             </button>
                         );
                     })}
-                    
-                    {/* Vertical Divider and Secondary Status Tabs (right side) - Only for normal order list */}
-                    {!isAbnormalCancellation && !isReturnOrderView && !isBatchProcessing && (
-                        <>
-                            <div style={{
-                                width: '1px',
-                                height: '20px',
-                                background: '#D9D9D9',
-                                margin: '0 8px',
-                                flexShrink: 0
-                            }} />
-                            {secondaryStatusTabs.map(tab => {
-                                const isActive = activeStatusTab === tab.key;
-                                return (
-                                    <button
-                                        key={tab.key}
-                                        onClick={() => setActiveStatusTab(tab.key)}
-                                        style={{
-                                            border: 'none',
-                                            borderBottom: isActive ? '1.74px solid #EF5941' : 'none',
-                                            background: 'transparent',
-                                            padding: '10px 0',
-                                            cursor: 'pointer',
-                                            fontSize: 14,
-                                            fontWeight: isActive ? 600 : 400,
-                                            color: isActive ? '#EF5941' : 'rgba(0,0,0,0.88)'
-                                        }}
-                                    >
-                                        {tab.label}
-                                    </button>
-                                );
-                            })}
-                        </>
+                    {isLoadingOrderTypeSwitch && (
+                        <Spin size="small" style={{ position: 'absolute', right: 0, top: '50%', transform: 'translateY(-50%)' }} />
                     )}
                 </div>
-                {/* Select All Header */}
-                <div style={{
-                    padding: '12px 16px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                    gap: 16,
-                    backgroundColor: '#fff'
-                }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-                        <Text style={{ fontSize: 14, color: '#000000A6' }}>
-                            Tổng: {totalOrders} đơn hàng
-                        </Text>
-                        {orderTypeFilter !== 'manual' && (
-                            <div
-                                style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: 7,
-                                    cursor: 'pointer',
-                                    background: hoveredUpdateInfo ? 'rgba(0,0,0,0.06)' : 'transparent',
-                                    padding: '4px 8px',
-                                    borderRadius: '4px',
-                                    transition: 'all 0.2s'
-                                }}
-                                onMouseEnter={() => setHoveredUpdateInfo(true)}
-                                onMouseLeave={() => setHoveredUpdateInfo(false)}
-                                onClick={() => setUpdateInfoModalVisible(true)}
-                            >
-                        <Badge status="success" />
-                                <Text 
-                                    type="secondary" 
-                                    style={{ 
-                                        fontSize: 14,
-                                        color: hoveredUpdateInfo ? 'rgba(0,0,0,0.88)' : 'rgba(0,0,0,0.45)',
-                                        transition: 'color 0.2s'
-                                    }}
-                                >
-                                    Lần cập nhật gần nhất: 14:02 24/12/2025
-                                </Text>
-                </div>
-                        )}
+            )}
+
+            {/* Filter Card */}
+            {!isBatchProcessing && (
+                <Card
+                    styles={{ body: { padding: '16px' } }}
+                    style={{ marginBottom: 16, borderRadius: 8 }}
+                >
+                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 8, marginBottom: 8 }}>
+                        <Space.Compact style={{ width: '100%' }}>
+                            <Select defaultValue="create-time" style={{ width: '42%' }}>
+                                <Option value="create-time">Thời gian tạo đơn hàng</Option>
+                                <Option value="ship-time">Thời gian giao hàng</Option>
+                                <Option value="pack-time">Thời gian đóng gói</Option>
+                            </Select>
+                            <DatePicker style={{ width: '58%' }} format="HH:mm DD/MM/YYYY" showTime placeholder="hh:mm dd/yy/mm" />
+                        </Space.Compact>
+                        <Select placeholder="Chọn sàn" style={{ width: '100%' }} allowClear>
+                            <Option value="shopee">Shopee</Option>
+                            <Option value="tiktok">TikTok</Option>
+                            <Option value="haravan">Haravan</Option>
+                            <Option value="lazada">Lazada</Option>
+                        </Select>
+                        <Select placeholder="Chọn gian hàng" style={{ width: '100%' }} allowClear>
+                            <Option value="shop1">Shop 1</Option>
+                            <Option value="shop2">Shop 2</Option>
+                        </Select>
                     </div>
-                    <Space size={14}>
-                        <Button 
-                            icon={<SettingOutlined />}
-                            onClick={() => setConfigDrawerVisible(true)}
-                            style={{ height: 32 }}
+                    <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr', gap: 8 }}>
+                        <Space.Compact style={{ width: '100%' }}>
+                            <Select defaultValue="create-time" style={{ width: '42%' }}>
+                                <Option value="create-time">Thời gian tạo đơn hàng</Option>
+                                <Option value="ship-time">Thời gian giao hàng</Option>
+                                <Option value="pack-time">Thời gian đóng gói</Option>
+                            </Select>
+                            <DatePicker style={{ width: '58%' }} format="HH:mm DD/MM/YYYY" showTime placeholder="hh:mm dd/yy/mm" />
+                        </Space.Compact>
+                        <Select placeholder="Chọn kho" style={{ width: '100%' }} allowClear>
+                            <Option value="warehouse1">Kho 1</Option>
+                            <Option value="warehouse2">Kho 2</Option>
+                        </Select>
+                        <Button icon={<FilterOutlined />} style={{ background: '#ECECEC', border: 'none', color: 'rgba(0,0,0,0.88)' }}>
+                            Lọc nâng cao
+                        </Button>
+                    </div>
+                </Card>
+            )}
+
+            {/* Main Content Area */}
+            <div style={{ background: '#fff', borderRadius: 8, border: '1px solid #F0F0F0' }}>
+
+                {/* Update Status Row */}
+                <div style={{ padding: '16px 16px 0' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#52C41A', display: 'inline-block', flexShrink: 0 }} />
+                        <Text style={{ fontSize: 14, color: 'rgba(0,0,0,0.88)' }}>Tất cả đơn hàng đã được cập nhật</Text>
+                        <span style={{ width: 4, height: 4, borderRadius: '50%', background: 'rgba(0,0,0,0.45)', display: 'inline-block', flexShrink: 0 }} />
+                        <Text style={{ fontSize: 14, color: 'rgba(0,0,0,0.45)' }}>22:00 22/02/2026</Text>
+                        <ReloadOutlined
+                            style={{ fontSize: 14, color: 'rgba(0,0,0,0.45)', cursor: 'pointer' }}
+                            onClick={() => setUpdateInfoModalVisible(true)}
                         />
+                    </div>
+                </div>
+
+                {/* Action Bar */}
+                <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                        <Dropdown
+                            menu={{
+                                items: [
+                                    { key: 'bulk-reload', label: 'Tải lại', icon: <ReloadOutlined /> },
+                                    { key: 'bulk-add-tag', label: 'Thêm tag', icon: <TagsOutlined /> },
+                                    { key: 'bulk-auto-link', label: 'Tự động liên kết đơn', icon: <LinkOutlined /> },
+                                ]
+                            }}
+                            trigger={['click']}
+                        >
+                            <Button>Thao tác hàng loạt <DownOutlined style={{ fontSize: 10, marginLeft: 4 }} /></Button>
+                        </Dropdown>
+                        <Text style={{ fontSize: 14, color: 'rgba(0,0,0,0.65)' }}>
+                            Đã chọn: <Text style={{ fontSize: 14, color: 'rgba(0,0,0,0.88)' }}>{selectedRowKeys.length} đơn hàng</Text>
+                        </Text>
+                    </div>
+                    <Space size={8}>
                         <Dropdown
                             trigger={['click']}
                             placement="bottomRight"
                             dropdownRender={() => (
-                                <div style={{
-                                    background: '#fff',
-                                    padding: '12px',
-                                    borderRadius: '4px',
-                                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
-                                    minWidth: '250px'
-                                }}>
-                                    <Radio.Group
-                                        value={sortOption}
-                                        onChange={(e) => setSortOption(e.target.value)}
-                                        style={{ width: '100%' }}
-                                    >
-                                        <Space orientation="vertical" style={{ width: '100%' }}>
+                                <div style={{ background: '#fff', padding: '12px', borderRadius: '4px', boxShadow: '0 2px 8px rgba(0,0,0,0.15)', minWidth: '250px' }}>
+                                    <Radio.Group value={sortOption} onChange={(e) => setSortOption(e.target.value)} style={{ width: '100%' }}>
+                                        <Space direction="vertical" style={{ width: '100%' }}>
                                             <Radio value="order-time-oldest">Thời gian đặt hàng (cũ nhất trước)</Radio>
                                             <Radio value="order-time-newest">Thời gian đặt hàng (mới nhất trước)</Radio>
-                                            <Radio value="warehouse-time-oldest">Thời gian xuất kho (cũ nhất trước)</Radio>
-                                            <Radio value="warehouse-time-newest">Thời gian xuất kho (mới nhất trước)</Radio>
                                             <Radio value="delivery-deadline-oldest">Hạn giao hàng (cũ nhất trước)</Radio>
                                             <Radio value="delivery-deadline-newest">Hạn giao hàng (mới nhất trước)</Radio>
-                                    </Space>
+                                        </Space>
                                     </Radio.Group>
-                </div>
+                                </div>
                             )}
                         >
-                            <Button icon={<SortAscendingOutlined />} style={{ height: 32 }}>
-                                Sắp xếp theo
-                            </Button>
+                            <Button icon={<SortAscendingOutlined />}>Sắp xếp theo</Button>
                         </Dropdown>
-                        {isProcessReturnOrder && (
-                            <Button 
-                                type="primary"
-                                style={{ background: '#EF5941', borderColor: '#EF5941', height: 32 }}
-                            >
-                                Xử lý hàng loạt
-                            </Button>
-                        )}
-                        {!isProcessReturnOrder && orderTypeFilter === 'platform' && (
-                            <Button 
-                                type="primary"
-                                style={{ height: 32 }}
-                                onClick={() => {
-                                    // Navigate to batch processing view
-                                    // This will be handled by parent component or routing
-                                    window.location.href = '#/quan-tri-don-hang/xu-ly-hang-loat';
-                                }}
-                            >
-                                Xử lý hàng loạt
-                            </Button>
-                        )}
-                        {orderTypeFilter === 'manual' && (
-                            <>
-                                <Dropdown 
-                                    menu={{
-                                        items: [
-                                            { 
-                                                key: 'create-order', 
-                                                label: 'Tạo đơn',
-                                                onClick: () => setCreateOrderModalVisible(true)
-                                            },
-                                            { key: 'upload-order-file', label: 'Tải file đơn hàng' }
-                                        ]
-                                    }}
-                                    trigger={['click']}
-                                >
-                                    <Button 
-                                        size="small"
-                                        type="primary"
-                                    >
-                                        Tạo đơn <DownOutlined style={{ fontSize: 10, marginLeft: 4 }} />
-                                    </Button>
-                                </Dropdown>
-                                {(activeStatusTab === 'pending' || activeStatusTab === 'packing') && (
-                                    <Button 
-                                        size="small"
-                                        style={{ background: 'rgba(0,0,0,0.06)', border: 'none' }}
-                                    >
-                                        Tải file vận chuyển
-                                    </Button>
-                                )}
-                            </>
-                        )}
-                                    </Space>
-                </div>
-            </Card>
-
-            {/* Main Content Card */}
-            <div
-                style={{ borderRadius: 8, marginTop: 14 }}
-            >
-                {/* Card List Container */}
-                <div style={{ marginTop: 14, position: 'relative' }}>
-                {/* Table Header / Selection Overlay */}
-                {selectedRowKeys.length > 0 ? (
-                <div style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                        gap: 16,
-                        padding: '12px 16px',
-                        marginBottom: 0
-                    }}>
-                        <Checkbox
-                            checked={isAllCurrentPageSelected}
-                            indeterminate={isIndeterminate}
-                            onChange={handleSelectAll}
-                        />
-                        <Text style={{ fontSize: 14 }}>
-                            Đã chọn <strong>{selectedRowKeys.length}</strong> đơn hàng
-                        </Text>
-                                    <Space>
-                            <Button size="small">
-                                Tải lại
-                            </Button>
-                            <Button size="small">
-                                Thêm tag
-                            </Button>
-                            <Button size="small">
-                                Tự động liên kết đơn
-                            </Button>
-                                </Space>
-                    </div>
-                ) : (
-                    <div style={{ overflowX: guideDrawerVisible ? 'auto' : 'visible', overflowY: 'visible' }}>
-                    <div 
-                                        style={{
-                    display: 'grid',
-                            gridTemplateColumns: getGridTemplateColumns(),
-                            gap: 16,
-                            padding: '12px 0',
-                            marginBottom: 0,
-                            alignItems: 'start',
-                            minWidth: guideDrawerVisible ? 'max-content' : 'auto',
-                            background: 'transparent'
-                        }}
-                    >
-                        <div style={{ 
-                            padding: '0 0 0 16px', 
-                            display: 'flex', 
-                            alignItems: 'flex-start',
-                            position: guideDrawerVisible ? 'sticky' : 'static',
-                            left: guideDrawerVisible ? 0 : 'auto',
-                            background: 'transparent',
-                            zIndex: guideDrawerVisible ? 10 : 1
-                        }}>
-                            <Checkbox
-                                checked={isAllCurrentPageSelected}
-                                indeterminate={isIndeterminate}
-                                onChange={handleSelectAll}
-                            />
-                </div>
-                        {selectedColumns.map((columnName, colIndex) => (
-                            <div 
-                                key={columnName} 
-                                style={{ 
-                                    padding: '0 16px', 
-                                    textAlign: 'left', 
-                                    display: 'flex', 
-                                    alignItems: 'flex-start',
-                                    position: guideDrawerVisible && columnName === 'Sản phẩm' ? 'sticky' : 'static',
-                                    left: guideDrawerVisible && columnName === 'Sản phẩm' ? '40px' : 'auto',
-                                    background: 'transparent',
-                                    zIndex: guideDrawerVisible && columnName === 'Sản phẩm' ? 10 : 1
-                                }}
-                            >
-                                <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)', textAlign: 'left' }}>{columnName}</Text>
-                            </div>
-                        ))}
-                        <div style={{ 
-                            padding: '0 16px', 
-                            textAlign: 'left', 
-                            display: 'flex', 
-                            alignItems: 'flex-start',
-                            position: guideDrawerVisible ? 'sticky' : 'static',
-                            right: guideDrawerVisible ? 0 : 'auto',
-                            background: 'transparent',
-                            zIndex: guideDrawerVisible ? 10 : 1
-                        }}>
-                            <Text style={{ fontSize: 14, fontWeight: 500, color: 'rgba(0,0,0,0.88)', textAlign: 'left' }}>Thao tác</Text>
-                        </div>
-                    </div>
-                    </div>
-                )}
-
-                    {/* Order Cards List */}
-                    <div style={{ 
-                        display: 'flex', 
-                        flexDirection: 'column', 
-                        gap: 12,
-                        overflowX: guideDrawerVisible ? 'auto' : 'visible',
-                        overflowY: 'visible'
-                    }}>
-                    {orders.map((order, index) => (
-                        <div
-                            key={order.id}
-                            ref={(el) => {
-                                if (el) {
-                                    cardRefs.current[order.id] = el;
-                                } else {
-                                    delete cardRefs.current[order.id];
-                                }
-                            }}
-                            style={{
-                                borderRadius: 8,
-                                border: '1px solid #F0F0F0',
-                                background: '#fff',
-                                overflow: 'hidden',
-                                display: 'flex',
-                                flexDirection: 'column',
-                                ...(cardHeight ? { height: `${cardHeight}px` } : {})
-                            }}
+                        <Dropdown
+                            menu={{ items: [{ key: 'export-filter', label: 'Xuất theo bộ lọc' }, { key: 'export-custom', label: 'Xuất theo tuỳ chỉnh' }] }}
+                            trigger={['click']}
                         >
-                            {/* Order Header */}
-                            <div style={{
-                                display: 'grid',
-                                gridTemplateColumns: getGridTemplateColumns(),
-                                gap: 16,
-                                padding: '12px 0',
-                                background: '#FFF',
-                                borderBottom: '1px solid #F0F0F0',
-                                alignItems: 'start',
-                                minWidth: guideDrawerVisible ? 'max-content' : 'auto'
-                            }}>
-                                <div style={{ 
-                                    padding: '0 0 0 16px', 
-                                display: 'flex',
-                                    alignItems: 'flex-start',
-                                    position: guideDrawerVisible ? 'sticky' : 'static',
-                                    left: guideDrawerVisible ? 0 : 'auto',
+                            <Button onClick={() => setExportFileModalVisible(true)}>Xuất đơn hàng <DownOutlined style={{ fontSize: 10, marginLeft: 4 }} /></Button>
+                        </Dropdown>
+                        <Dropdown
+                            menu={{ items: [{ key: 'export-payment-filter', label: 'Xuất theo bộ lọc' }, { key: 'export-payment-custom', label: 'Xuất theo tuỳ chỉnh' }] }}
+                            trigger={['click']}
+                        >
+                            <Button>Xuất giao dịch thanh toán <DownOutlined style={{ fontSize: 10, marginLeft: 4 }} /></Button>
+                        </Dropdown>
+                        <Tooltip title="Lịch sử xuất đơn hàng">
+                            <Button icon={<HistoryOutlined />} onClick={() => setUpdateInfoModalVisible(true)} />
+                        </Tooltip>
+                        <Divider type="vertical" style={{ height: 24, margin: '0 4px' }} />
+                        <Button
+                            type="primary"
+                            style={{ background: '#EF5941', borderColor: '#EF5941' }}
+                            onClick={() => { window.location.href = '#/quan-tri-don-hang/xu-ly-hang-loat'; }}
+                        >
+                            Xử lý hàng loạt
+                        </Button>
+                    </Space>
+                </div>
+
+                {/* Secondary Status Tabs */}
+                <div style={{ padding: '0 16px', borderBottom: '1px solid #F0F0F0', display: 'flex', alignItems: 'center', overflowX: 'auto' }}>
+                    {allStatusTabs.map((tab) => {
+                        const isActive = activeStatusTab === tab.key;
+                        return (
+                            <button
+                                key={tab.key}
+                                onClick={() => setActiveStatusTab(tab.key)}
+                                style={{
+                                    border: 'none',
+                                    borderBottom: isActive ? '2px solid #EF5941' : '2px solid transparent',
                                     background: 'transparent',
-                                    zIndex: guideDrawerVisible ? 9 : 1
+                                    padding: '8px 12px',
+                                    cursor: 'pointer',
+                                    fontSize: 14,
+                                    fontWeight: isActive ? 600 : 400,
+                                    color: isActive ? '#EF5941' : 'rgba(0,0,0,0.88)',
+                                    marginBottom: -1,
+                                    whiteSpace: 'nowrap',
+                                }}
+                            >
+                                {tab.label}
+                            </button>
+                        );
+                    })}
+                </div>
+
+                {/* Table Header */}
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: '48px minmax(255px,1fr) 158px 158px 158px 158px 158px 120px',
+                    borderBottom: '1px solid #F0F0F0',
+                    background: '#fff',
+                }}>
+                    {[
+                        { key: 'checkbox', content: <Checkbox checked={isAllCurrentPageSelected} indeterminate={isIndeterminate} onChange={handleSelectAll} />, pad: '12px 0 12px 16px' },
+                        { key: 'product', content: <Text style={{ fontSize: 14, fontWeight: 500 }}>Thông tin sản phẩm</Text>, pad: '12px 16px' },
+                        { key: 'total', content: <Text style={{ fontSize: 14, fontWeight: 500 }}>Tổng tiền</Text>, pad: '12px 16px' },
+                        { key: 'warehouse', content: <Text style={{ fontSize: 14, fontWeight: 500 }}>Kho xử lý</Text>, pad: '12px 16px' },
+                        { key: 'processing', content: <Text style={{ fontSize: 14, fontWeight: 500 }}>Xử lý</Text>, pad: '12px 16px' },
+                        { key: 'shipping', content: <Text style={{ fontSize: 14, fontWeight: 500 }}>Vận chuyển</Text>, pad: '12px 16px' },
+                        { key: 'recipient', content: <Text style={{ fontSize: 14, fontWeight: 500 }}>Người nhận</Text>, pad: '12px 16px' },
+                        { key: 'action', content: <Text style={{ fontSize: 14, fontWeight: 500 }}>Thao tác</Text>, pad: '12px 16px' },
+                    ].map((col) => (
+                        <div key={col.key} style={{ padding: col.pad, display: 'flex', alignItems: 'center' }}>
+                            {col.content}
+                        </div>
+                    ))}
+                </div>
+
+                {/* Order Cards */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+                    {orders.map((order) => {
+                        const isExpanded = expandedProductOrderIds.has(order.id);
+                        const allItems = [
+                            ...order.products,
+                            ...(order.gifts || []).map(g => ({ ...g, isGift: true })),
+                        ];
+                        const visibleItems = allItems.length > 3 && !isExpanded ? allItems.slice(0, 3) : allItems;
+                        const hasMore = allItems.length > 3 && !isExpanded;
+                        const sc = statusColors[order.status] || { color: '#d46b08', bg: '#fff7e6' };
+
+                        return (
+                            <div
+                                key={order.id}
+                                style={{
+                                    borderTop: '1px solid #F0F0F0',
+                                    background: '#fff',
+                                    borderRadius: 0,
+                                }}
+                            >
+                                {/* Order Header Row */}
+                                <div style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    justifyContent: 'space-between',
+                                    padding: '10px 16px',
+                                    borderBottom: '1px solid #F0F0F0',
+                                    background: '#FAFAFA',
                                 }}>
-                                    <Checkbox
-                                        checked={selectedRowKeys.includes(order.id)}
-                                        onChange={(e) => handleSelectOrder(order.id, e.target.checked)}
-                                    />
-                                </div>
-                                <div style={{ 
-                                    padding: '0 16px', 
-                                    display: 'flex', 
-                                    alignItems: 'flex-start',
-                                    position: guideDrawerVisible && selectedColumns[0] === 'Sản phẩm' ? 'sticky' : 'static',
-                                    left: guideDrawerVisible && selectedColumns[0] === 'Sản phẩm' ? '40px' : 'auto',
-                                    background: 'transparent',
-                                    zIndex: guideDrawerVisible && selectedColumns[0] === 'Sản phẩm' ? 9 : 1
-                                }}>
-                                    <Space size={8} style={{ textAlign: 'left', alignItems: 'flex-start' }}>
-                                        <span
-                                            style={{
-                                                display: 'inline-flex',
-                                                alignItems: 'center',
-                                                gap: 6,
-                                                padding: '2px 8px',
-                                                borderRadius: 999,
-                                                background: 'rgba(0,0,0,0.04)',
-                                                lineHeight: 1.2
-                                            }}
-                                        >
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+                                        <Checkbox
+                                            checked={selectedRowKeys.includes(order.id)}
+                                            onChange={(e) => handleSelectOrder(order.id, e.target.checked)}
+                                        />
+                                        <span style={{
+                                            display: 'inline-flex', alignItems: 'center', gap: 5,
+                                            padding: '2px 8px', borderRadius: 999, background: 'rgba(0,0,0,0.04)',
+                                        }}>
                                             <img
                                                 src={getChannelMeta(order.channel).logo}
                                                 alt={getChannelMeta(order.channel).platformLabel}
-                                                style={{
-                                                    width: 14,
-                                                    height: 14,
-                                                    borderRadius: 3,
-                                                    objectFit: 'contain',
-                                                    background: '#fff'
-                                                }}
+                                                style={{ width: 14, height: 14, borderRadius: 3, objectFit: 'contain', background: '#fff' }}
+                                                onError={(e) => { e.target.style.display = 'none'; }}
                                             />
-                                            <Text style={{ fontSize: 13, color: 'rgba(0,0,0,0.88)' }}>
-                                                {order.shopName || 'UpBeauty'}
-                                            </Text>
-                                            <Text style={{ fontSize: 13, color: 'rgba(0,0,0,0.45)' }}>
-                                                · {getChannelMeta(order.channel).platformLabel}
-                                            </Text>
+                                            <Text style={{ fontSize: 13, color: 'rgba(0,0,0,0.88)' }}>{order.shopName || 'UpBeauty'}</Text>
                                         </span>
-                                        <Text style={{ fontSize: 14, textAlign: 'left' }}>Mã đơn hàng: </Text>
+                                        <Text style={{ fontSize: 14, color: 'rgba(0,0,0,0.65)' }}>Mã đơn hàng:</Text>
                                         <span
-                                        style={{
+                                            style={{
                                                 fontSize: 14,
-                                                color: hoveredOrderId === order.id ? '#1677FF' : 'inherit',
+                                                color: hoveredOrderId === order.id ? '#1677FF' : 'rgba(0,0,0,0.88)',
                                                 cursor: 'pointer',
                                                 textDecoration: hoveredOrderId === order.id ? 'underline' : 'none',
-                                                transition: 'all 0.2s'
                                             }}
-                                            onMouseEnter={(e) => {
-                                                e.stopPropagation();
-                                                setHoveredOrderId(order.id);
-                                            }}
-                                            onMouseLeave={(e) => {
-                                                e.stopPropagation();
-                                                setHoveredOrderId(null);
-                                            }}
-                                            onClick={() => {
-                                                navigator.clipboard.writeText(order.id);
-                                            }}
+                                            onMouseEnter={() => setHoveredOrderId(order.id)}
+                                            onMouseLeave={() => setHoveredOrderId(null)}
+                                            onClick={() => navigator.clipboard.writeText(order.id)}
                                         >
                                             {order.id}
                                         </span>
                                         <Tooltip title="Sao chép mã đơn hàng">
-                                            <CopyOutlined 
-                                                style={{ 
-                                                    color: hoveredOrderId === order.id ? '#1677FF' : '#BFBFBF', 
-                                                    cursor: 'pointer', 
-                                                    fontSize: 14,
-                                                    transition: 'color 0.2s'
-                                                }}
-                                                onClick={() => {
-                                                    navigator.clipboard.writeText(order.id);
-                                                }}
-                                                onMouseEnter={(e) => {
-                                                    e.stopPropagation();
-                                                    setHoveredOrderId(order.id);
-                                                }}
-                                                onMouseLeave={(e) => {
-                                                    e.stopPropagation();
-                                                    setHoveredOrderId(null);
-                                                }}
+                                            <CopyOutlined
+                                                style={{ fontSize: 14, color: '#BFBFBF', cursor: 'pointer' }}
+                                                onClick={() => navigator.clipboard.writeText(order.id)}
                                             />
                                         </Tooltip>
-                                    </Space>
-                                </div>
-                                {selectedColumns.map((columnName, index) => {
-                                    if (index === 0) {
-                                        // First column already has "Mã đơn hàng", skip
-                                        return null;
-                                    }
-                                    return (
-                                        <div key={columnName} style={{ padding: '0 16px', display: 'flex', alignItems: 'flex-start' }}>
-                                            {/* Empty cells for other columns */}
-                                        </div>
-                                    );
-                                })}
-                                <div style={{ 
-                                    padding: '0 16px', 
-                                    display: 'flex', 
-                                    alignItems: 'flex-start', 
-                                    justifyContent: 'flex-end', 
-                                    gap: 8,
-                                    position: guideDrawerVisible ? 'sticky' : 'static',
-                                    right: guideDrawerVisible ? 0 : 'auto',
-                                    background: 'transparent',
-                                    zIndex: guideDrawerVisible ? 9 : 1
-                                }}>
-                                    <Space size={16} style={{ alignItems: 'center', flexWrap: 'nowrap' }}>
-                                        <Text type="secondary" style={{ fontSize: 13, textAlign: 'left', whiteSpace: 'nowrap' }}>
-                                            {order.orderDate}
-                                        </Text>
-                                        <Tag
-                                            color={order.status === 'cancelled' ? 'error' : order.status === 'completed' ? 'success' : 'processing'}
-                                            style={{ margin: 0, flexShrink: 0 }}
-                                        >
-                                        {order.statusLabel}
-                                    </Tag>
-                                </Space>
-                                </div>
-                            </div>
-
-                            {/* Order Content - Card Layout */}
-                            <div 
-                                style={{
-                                display: 'grid',
-                                    gridTemplateColumns: getGridTemplateColumns(),
-                                    gap: 16,
-                                    padding: 0,
-                                    position: 'relative',
-                                    alignItems: 'start',
-                                    minWidth: guideDrawerVisible ? 'max-content' : 'auto'
-                                }}
-                            >
-                                {/* Empty cell for checkbox column alignment */}
-                                <div style={{ 
-                                    padding: '16px 0 16px 16px',
-                                    position: guideDrawerVisible ? 'sticky' : 'static',
-                                    left: guideDrawerVisible ? 0 : 'auto',
-                                    background: 'transparent',
-                                    zIndex: guideDrawerVisible ? 8 : 1
-                                }}></div>
-                                {/* Render columns based on selectedColumns */}
-                                {selectedColumns.map((columnName, colIndex) => (
-                                    <div 
-                                        key={columnName}
-                                        style={{
-                                            position: guideDrawerVisible && columnName === 'Sản phẩm' ? 'sticky' : 'static',
-                                            left: guideDrawerVisible && columnName === 'Sản phẩm' ? '40px' : 'auto',
-                                            background: 'transparent',
-                                            zIndex: guideDrawerVisible && columnName === 'Sản phẩm' ? 8 : 1,
-                                            minWidth: columnName === 'Sản phẩm' ? 320 : undefined,
-                                            overflow: columnName === 'Sản phẩm' ? 'visible' : undefined
-                                        }}
-                                    >
-                                        {renderColumnContent(order, columnName)}
                                     </div>
-                                ))}
-                                {/* Thao tác column */}
-                                <div style={{ 
-                                    padding: '16px', 
-                                    textAlign: 'left', 
-                                    display: 'flex', 
-                                    alignItems: 'flex-start', 
-                                    justifyContent: 'flex-start',
-                                    position: guideDrawerVisible ? 'sticky' : 'static',
-                                    right: guideDrawerVisible ? 0 : 'auto',
-                                    background: 'transparent',
-                                    zIndex: guideDrawerVisible ? 8 : 1
-                                }}>
-                                    <Dropdown
-                                        menu={getActionMenu(order)}
-                                        trigger={['click']}
-                                        placement="bottomRight"
-                                    >
-                                        <Button type="text" size="small" style={{ padding: '4px 8px' }}>
-                                            Thao tác <DownOutlined style={{ fontSize: 12, marginLeft: 4 }} />
-                                        </Button>
-                                    </Dropdown>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
-                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                                        <Text style={{ fontSize: 14, color: 'rgba(0,0,0,0.65)' }}>Đặt lúc: {order.orderDate}</Text>
+                                        <span style={{
+                                            display: 'inline-flex', alignItems: 'center',
+                                            padding: '2px 10px', borderRadius: 4,
+                                            background: sc.bg, color: sc.color,
+                                            fontSize: 12, fontWeight: 500,
+                                        }}>
+                                            {order.statusLabel}
+                                        </span>
+                                    </div>
                                 </div>
 
-                {/* Footer / Pagination */}
-                <div style={{ 
-                    padding: '14px 0 0 0', 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
+                                {/* Product Body Grid */}
+                                <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: '48px minmax(255px,1fr) 158px 158px 158px 158px 158px 120px',
+                                }}>
+                                    {/* Checkbox spacer */}
+                                    <div style={{ borderRight: '1px solid #F5F5F5' }} />
+
+                                    {/* Col 1: Stacked products */}
+                                    <div style={{ borderRight: '1px solid #F5F5F5' }}>
+                                        {visibleItems.map((item, pIdx) => (
+                                            <div
+                                                key={item.id || pIdx}
+                                                style={{
+                                                    padding: '12px 16px',
+                                                    borderBottom: (pIdx < visibleItems.length - 1 || hasMore) ? '1px solid #F5F5F5' : 'none',
+                                                }}
+                                            >
+                                                <div style={{ display: 'flex', gap: 8, alignItems: 'flex-start' }}>
+                                                    <div style={{ width: 40, height: 40, borderRadius: 2, background: '#DDD', flexShrink: 0, overflow: 'hidden' }}>
+                                                        {item.image && (
+                                                            <img src={item.image} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} onError={(e) => { e.target.style.display = 'none'; }} />
+                                                        )}
+                                                    </div>
+                                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                                        {item.isGift && (
+                                                            <span style={{ display: 'inline-block', fontSize: 12, color: '#FF5629', border: '0.5px solid #FF5629', borderRadius: 2, padding: '1px 4px', marginBottom: 2 }}>
+                                                                Quà tặng
+                                                            </span>
+                                                        )}
+                                                        <Text ellipsis style={{ fontSize: 14, display: 'block', color: 'rgba(0,0,0,0.88)' }}>
+                                                            {item.name}
+                                                        </Text>
+                                                        <Text ellipsis style={{ fontSize: 14, display: 'block', color: 'rgba(0,0,0,0.65)' }}>
+                                                            SKU: {item.sku}
+                                                        </Text>
+                                                        {item.variant && (
+                                                            <Text ellipsis style={{ fontSize: 14, display: 'block', color: 'rgba(0,0,0,0.65)' }}>
+                                                                {item.variant}
+                                                            </Text>
+                                                        )}
+                                                    </div>
+                                                    <Text style={{ fontSize: 14, color: 'rgba(0,0,0,0.88)', flexShrink: 0 }}>x{item.quantity}</Text>
+                                                </div>
+                                            </div>
+                                        ))}
+                                        {hasMore && (
+                                            <div
+                                                style={{ padding: '8px 16px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}
+                                                onClick={() => setExpandedProductOrderIds(prev => { const next = new Set(prev); next.add(order.id); return next; })}
+                                            >
+                                                <Text style={{ fontSize: 14, color: 'rgba(0,0,0,0.65)' }}>Xem thêm</Text>
+                                                <DownOutlined style={{ fontSize: 12, color: 'rgba(0,0,0,0.45)' }} />
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Col 2: Tổng tiền */}
+                                    <div style={{ padding: '12px 16px', borderRight: '1px solid #F5F5F5', display: 'flex', flexDirection: 'column', gap: 4 }}>
+                                        <Text style={{ fontSize: 14, color: 'rgba(0,0,0,0.88)', fontWeight: 500 }}>
+                                            {order.totalAmount?.toLocaleString('vi-VN')}₫
+                                        </Text>
+                                        <Text style={{ fontSize: 14, color: 'rgba(0,0,0,0.65)' }}>
+                                            {order.products[0]?.method || 'Cash on Delivery'}
+                                        </Text>
+                                    </div>
+
+                                    {/* Col 3: Kho xử lý */}
+                                    <div style={{ padding: '12px 16px', borderRight: '1px solid #F5F5F5' }}>
+                                        <Text style={{ fontSize: 14, color: 'rgba(0,0,0,0.88)' }}>{order.warehouse}</Text>
+                                    </div>
+
+                                    {/* Col 4: Xử lý */}
+                                    <div style={{ padding: '12px 16px', borderRight: '1px solid #F5F5F5', display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                        <Text style={{ fontSize: 14, color: order.processing.remaining === 'Quá hạn' ? '#FF4D4F' : 'rgba(0,0,0,0.88)' }}>
+                                            Còn lại: {order.processing.remaining}
+                                        </Text>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                            <Text style={{ fontSize: 14, color: 'rgba(0,0,0,0.65)' }}>Giao trước</Text>
+                                            <InfoCircleOutlined style={{ fontSize: 12, color: 'rgba(0,0,0,0.45)' }} />
+                                        </div>
+                                        <Text style={{ fontSize: 14, color: 'rgba(0,0,0,0.88)' }}>{order.processing.shipBefore}</Text>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+                                            <Text style={{ fontSize: 14, color: 'rgba(0,0,0,0.65)' }}>CBH trước</Text>
+                                            <InfoCircleOutlined style={{ fontSize: 12, color: 'rgba(0,0,0,0.45)' }} />
+                                        </div>
+                                        <Text style={{ fontSize: 14, color: 'rgba(0,0,0,0.65)' }}>--</Text>
+                                    </div>
+
+                                    {/* Col 5: Vận chuyển */}
+                                    <div style={{ padding: '12px 16px', borderRight: '1px solid #F5F5F5', display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                        <Text style={{ fontSize: 14, color: 'rgba(0,0,0,0.88)' }}>Điểm nhận hàng</Text>
+                                        <Text style={{ fontSize: 14, color: 'rgba(0,0,0,0.65)' }}>Mã kiện hàng:</Text>
+                                        <Text style={{ fontSize: 14, color: 'rgba(0,0,0,0.88)' }}>{order.shipping.orderId}</Text>
+                                        <Text style={{ fontSize: 14, color: 'rgba(0,0,0,0.65)' }}>Mã vận đơn:</Text>
+                                        <Text style={{ fontSize: 14, color: 'rgba(0,0,0,0.65)' }}>--</Text>
+                                    </div>
+
+                                    {/* Col 6: Người nhận */}
+                                    <div style={{ padding: '12px 16px', borderRight: '1px solid #F5F5F5', display: 'flex', flexDirection: 'column', gap: 2 }}>
+                                        <Text style={{ fontSize: 14, color: 'rgba(0,0,0,0.88)' }}>{order.recipient.name}</Text>
+                                        <Text ellipsis style={{ fontSize: 14, color: 'rgba(0,0,0,0.65)' }}>{order.recipient.address}</Text>
+                                    </div>
+
+                                    {/* Col 7: Thao tác */}
+                                    <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'flex-start' }}>
+                                        <Dropdown menu={getActionMenu(order)} trigger={['click']} placement="bottomRight">
+                                            <Button style={{ border: '1px solid #D9D9D9' }}>
+                                                Chọn <DownOutlined style={{ fontSize: 10, marginLeft: 4 }} />
+                                            </Button>
+                                        </Dropdown>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })}
+                </div>
+
+                {/* Pagination */}
+                <div style={{
+                    padding: '12px 16px',
+                    display: 'flex',
+                    justifyContent: 'space-between',
                     alignItems: 'center',
-                    borderTop: '0.87px solid #F0F0F0',
-                    marginTop: 0
+                    borderTop: '1px solid #F0F0F0',
                 }}>
                     <Select
-                        className="page-size-select"
                         value={pageSize.toString()}
-                        onChange={(value) => {
-                            setPageSize(parseInt(value));
-                            setCurrentPage(1);
-                        }}
-                        style={{ 
-                            width: 160, 
-                            background: '#fff',
-                            color: 'rgba(0,0,0,0.88)'
-                        }}
-                        suffixIcon={<DownOutlined style={{ fontSize: 12, color: 'rgba(0,0,0,0.45)' }} />}
+                        onChange={(value) => { setPageSize(parseInt(value)); setCurrentPage(1); }}
+                        style={{ width: 120 }}
                     >
-                        <Option value="20">20 bản ghi/trang</Option>
-                        <Option value="50">50 bản ghi/trang</Option>
-                        <Option value="100">100 bản ghi/trang</Option>
+                        <Option value="10">10/Trang</Option>
+                        <Option value="25">25/Trang</Option>
+                        <Option value="50">50/Trang</Option>
+                        <Option value="100">100/Trang</Option>
                     </Select>
-
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
-                        <Text type="secondary" style={{ fontSize: 12 }}>
-                            Hiển thị {orders.length} / Tổng: {totalOrders} đơn hàng
-                                        </Text>
-                        <Space size={7}>
-                            <Button 
-                                type="text" 
-                                icon={<LeftOutlined style={{ fontSize: 14 }} />}
-                                style={{ width: 28, height: 28, padding: 0 }}
-                                disabled={currentPage === 1}
-                                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                            />
-                            {Array.from({ length: Math.min(3, Math.ceil(totalOrders / pageSize)) }, (_, i) => {
-                                const page = i + 1;
-                                return (
-                                    <Button 
-                                        key={page}
-                                        type="text"
-                                        style={{ 
-                                            width: 28, 
-                                            height: 28, 
-                                            padding: 0,
-                                            background: currentPage === page ? '#fff' : 'transparent',
-                                            border: currentPage === page ? '0.87px solid rgba(0,0,0,0.15)' : 'none',
-                                            color: 'rgba(0,0,0,0.88)',
-                                            fontWeight: currentPage === page ? 600 : 400
-                                        }}
-                                        onClick={() => setCurrentPage(page)}
-                                    >
-                                        {page}
-                                    </Button>
-                                );
-                            })}
-                            <Button 
-                                type="text" 
-                                icon={<RightOutlined style={{ fontSize: 14 }} />}
-                                style={{ width: 28, height: 28, padding: 0 }}
-                                disabled={currentPage >= Math.ceil(totalOrders / pageSize)}
-                                onClick={() => setCurrentPage(Math.min(Math.ceil(totalOrders / pageSize), currentPage + 1))}
-                            />
-                            <Button 
-                                type="text" 
-                                icon={<DoubleRightOutlined style={{ fontSize: 12 }} />}
-                                style={{ width: 28, height: 28, padding: 0 }}
-                                disabled={currentPage >= Math.ceil(totalOrders / pageSize)}
-                                onClick={() => setCurrentPage(Math.ceil(totalOrders / pageSize))}
-                            />
-                                        </Space>
-                                    </div>
-                                    </div>
-                                </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <Text style={{ fontSize: 14, color: 'rgba(0,0,0,0.65)' }}>
+                            Hiển thị 1 - {Math.min(pageSize, totalOrders)} của {totalOrders}
+                        </Text>
+                        <Pagination
+                            current={currentPage}
+                            total={totalOrders}
+                            pageSize={pageSize}
+                            onChange={(page) => setCurrentPage(page)}
+                            showSizeChanger={false}
+                        />
+                    </div>
+                </div>
+            </div>
 
             {/* Update Info Modal */}
             <Modal
