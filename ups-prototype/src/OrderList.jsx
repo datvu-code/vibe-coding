@@ -25,374 +25,374 @@ const { Panel } = Collapse;
 // Create Order Screen Component
 const CreateOrderScreen = ({ onClose }) => {
     return (
-        <div style={{ 
-            maxWidth: 1400, 
+        <div style={{
+            maxWidth: 1400,
             margin: '0 auto',
             padding: '24px'
         }}>
-                {/* Header */}
-                <div style={{ 
-                    marginBottom: 24,
-                    paddingBottom: 16,
-                    borderBottom: '1px solid #F0F0F0'
-                }}>
-                    <Text style={{ fontSize: 14, fontWeight: 600 }}>Tạo đơn hàng</Text>
-                </div>
+            {/* Header */}
+            <div style={{
+                marginBottom: 24,
+                paddingBottom: 16,
+                borderBottom: '1px solid #F0F0F0'
+            }}>
+                <Text style={{ fontSize: 14, fontWeight: 600 }}>Tạo đơn hàng</Text>
+            </div>
 
-                <Form layout="vertical">
-                    {/* Thông tin khách hàng */}
-                    <Card 
-                        title={<Text style={{ fontSize: 14 }}>Thông tin khách hàng</Text>}
-                        style={{ marginBottom: 16 }}
-                        styles={{ body: { padding: '16px' } }}
-                    >
-                        <Input
-                            placeholder="Tìm thông tin khách hàng (tên, số điện thoại, mã khách hàng, email, mã tham chiếu)"
-                            prefix={<SearchOutlined />}
-                            style={{ fontSize: 14 }}
-                        />
-                    </Card>
+            <Form layout="vertical">
+                {/* Thông tin khách hàng */}
+                <Card
+                    title={<Text style={{ fontSize: 14 }}>Thông tin khách hàng</Text>}
+                    style={{ marginBottom: 16 }}
+                    styles={{ body: { padding: '16px' } }}
+                >
+                    <Input
+                        placeholder="Tìm thông tin khách hàng (tên, số điện thoại, mã khách hàng, email, mã tham chiếu)"
+                        prefix={<SearchOutlined />}
+                        style={{ fontSize: 14 }}
+                    />
+                </Card>
 
-                    <Row gutter={16}>
-                        {/* Left Column - Thông tin sản phẩm */}
-                        <Col span={16}>
-                            <Card 
-                                title={<Text style={{ fontSize: 14 }}>Thông tin sản phẩm</Text>}
-                                style={{ marginBottom: 16 }}
-                                styles={{ body: { padding: '16px' } }}
-                            >
-                                {/* Product Selection Fields */}
-                                <Row gutter={16} style={{ marginBottom: 16 }}>
-                                    <Col span={8}>
-                                        <Form.Item label={<Text style={{ fontSize: 14 }}>Kênh bán *</Text>} required>
-                                            <Select placeholder="Chọn kênh bán" style={{ fontSize: 14 }}>
-                                                <Option value="shopee">Shopee</Option>
-                                                <Option value="tiktok">TikTok</Option>
-                                                <Option value="haravan">Haravan</Option>
-                                                <Option value="lazada">Lazada</Option>
-                                            </Select>
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={8}>
-                                        <Form.Item label={<Text style={{ fontSize: 14 }}>Gian hàng *</Text>} required>
-                                            <Select placeholder="Chọn gian hàng" style={{ fontSize: 14 }}>
-                                                <Option value="shop1">Shop 1</Option>
-                                                <Option value="shop2">Shop 2</Option>
-                                            </Select>
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={8}>
-                                        <Form.Item label={<Text style={{ fontSize: 14 }}>Kho xử lý *</Text>} required>
-                                            <Select placeholder="Chọn kho xử lý" style={{ fontSize: 14 }}>
-                                                <Option value="warehouse1">Kho 1</Option>
-                                                <Option value="warehouse2">Kho 2</Option>
-                                            </Select>
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
-
-                                {/* Radio buttons for warehouse allocation */}
-                                <Radio.Group defaultValue="assign" style={{ marginBottom: 16 }}>
-                                    <Radio value="auto" style={{ fontSize: 14 }}>Tự động điều phối</Radio>
-                                    <Radio value="assign" style={{ fontSize: 14 }}>Chỉ định</Radio>
-                                </Radio.Group>
-
-                                {/* Action Buttons */}
-                                <Space style={{ marginBottom: 16 }}>
-                                    <Button icon={<GiftOutlined />} style={{ fontSize: 14 }}>Thêm quà</Button>
-                                    <Button type="primary" icon={<PlusOutlined />} style={{ background: '#EF5941', borderColor: '#EF5941', fontSize: 14 }}>
-                                        Thêm sản phẩm
-                                    </Button>
-                                </Space>
-
-                                {/* Empty Product State */}
-                                <div style={{
-                                    border: '1px dashed #D9D9D9',
-                                    borderRadius: 4,
-                                    padding: '60px 20px',
-                                    textAlign: 'center',
-                                    background: '#FAFAFA',
-                                    marginBottom: 16
-                                }}>
-                                    <Space orientation="vertical" size={8}>
-                                        <PlusOutlined style={{ fontSize: 32, color: '#BFBFBF' }} />
-                                        <Text type="secondary" style={{ fontSize: 14 }}>Vui lòng chọn Kênh bán, Gian hàng để thêm sản phẩm</Text>
-                                    </Space>
-                                </div>
-
-                                {/* Attachments and Notes */}
-                                <Row gutter={16}>
-                                    <Col span={8}>
-                                        <Form.Item label={<Text style={{ fontSize: 14 }}>Đính kèm</Text>}>
-                                            <Upload>
-                                                <Button icon={<UploadOutlined />} style={{ width: '100%', fontSize: 14 }}>
-                                                    Tải file lên
-                                                </Button>
-                                            </Upload>
-                                        </Form.Item>
-                                    </Col>
-                                    <Col span={16}>
-                                        <Form.Item label={<Text style={{ fontSize: 14 }}>Ghi chú</Text>}>
-                                            <Space orientation="vertical" style={{ width: '100%' }}>
-                                                <Radio.Group defaultValue="internal" size="small">
-                                                    <Radio.Button value="internal" style={{ fontSize: 14 }}>Nội bộ</Radio.Button>
-                                                    <Radio.Button value="customer" style={{ fontSize: 14 }}>Khách hàng</Radio.Button>
-                                                </Radio.Group>
-                                                <TextArea 
-                                                    placeholder="Nhập ghi chú" 
-                                                    rows={4}
-                                                    showCount
-                                                    maxLength={500}
-                                                    style={{ fontSize: 14 }}
-                                                />
-                                            </Space>
-                                        </Form.Item>
-                                    </Col>
-                                </Row>
-
-                                <Form.Item label={<Text style={{ fontSize: 14 }}>Tag</Text>}>
-                                    <Select
-                                        mode="tags"
-                                        placeholder="Nhập tag"
-                                        style={{ width: '100%', fontSize: 14 }}
-                                    />
-                                </Form.Item>
-                            </Card>
-                        </Col>
-
-                        {/* Right Column - Product Summary & Order Info */}
-                        <Col span={8}>
-                            {/* Product Summary */}
-                            <Card
-                                title={<Text style={{ fontSize: 14 }}>Tóm tắt</Text>}
-                                style={{ marginBottom: 16 }}
-                                styles={{ body: { padding: '16px' } }}
-                            >
-                                <Space orientation="vertical" style={{ width: '100%' }} size={12}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <Text style={{ fontSize: 14 }}>Số lượng hàng hoá:</Text>
-                                        <Text strong style={{ fontSize: 14 }}>0</Text>
-                                    </div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <Text style={{ fontSize: 14 }}>Tổng tiền hàng hoá:</Text>
-                                        <Text strong style={{ fontSize: 14 }}>0₫</Text>
-                                    </div>
-                                    
-                                    <Collapse ghost>
-                                        <Panel header={<Text style={{ fontSize: 14 }}>Tổng giảm giá</Text>} key="1">
-                                            <Space orientation="vertical" style={{ width: '100%' }} size={8}>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                    <Text style={{ fontSize: 14 }}>Giảm giá sản phẩm:</Text>
-                                                    <Text style={{ fontSize: 14 }}>0₫</Text>
-                                                </div>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                    <Text style={{ fontSize: 14 }}>Mã giảm giá:</Text>
-                                                    <Space>
-                                                        <InputNumber size="small" style={{ width: 80, fontSize: 14 }} addonAfter="%" />
-                                                        <InputNumber size="small" style={{ width: 80, fontSize: 14 }} />
-                                                    </Space>
-                                                </div>
-                                            </Space>
-                                        </Panel>
-                                    </Collapse>
-
-                                    <Collapse ghost>
-                                        <Panel header={<Text style={{ fontSize: 14 }}>Phí vận chuyển phải trả</Text>} key="2">
-                                            <Space orientation="vertical" style={{ width: '100%' }} size={8}>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                    <Space>
-                                                        <Text style={{ fontSize: 14 }}>Phí vận chuyển NBH hỗ trợ:</Text>
-                                                        <InfoCircleOutlined style={{ fontSize: 12, color: '#8C8C8C' }} />
-                                                    </Space>
-                                                    <Space>
-                                                        <InputNumber size="small" style={{ width: 80, fontSize: 14 }} addonAfter="%" />
-                                                        <InputNumber size="small" style={{ width: 80, fontSize: 14 }} />
-                                                    </Space>
-                                                </div>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                    <Space>
-                                                        <Text style={{ fontSize: 14 }}>Phí vận chuyển báo khách:</Text>
-                                                        <InfoCircleOutlined style={{ fontSize: 12, color: '#8C8C8C' }} />
-                                                    </Space>
-                                                    <InputNumber size="small" style={{ width: 100, fontSize: 14 }} />
-                                                </div>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                    <Text style={{ fontSize: 14 }}>Phí vận chuyển ĐVVC:</Text>
-                                                    <Text style={{ fontSize: 14 }}>0₫</Text>
-                                                </div>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                    <Space>
-                                                        <Text style={{ fontSize: 14 }}>Chênh lệch phí vận chuyển:</Text>
-                                                        <InfoCircleOutlined style={{ fontSize: 12, color: '#8C8C8C' }} />
-                                                    </Space>
-                                                    <Text style={{ fontSize: 14 }}>0₫</Text>
-                                                </div>
-                                            </Space>
-                                        </Panel>
-                                    </Collapse>
-
-                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <Text style={{ fontSize: 14 }}>Xu đã sử dụng:</Text>
-                                        <Text style={{ fontSize: 14 }}>0₫</Text>
-                                    </div>
-
-                                    <Collapse ghost>
-                                        <Panel header={<Text style={{ fontSize: 14 }}>Điểm khách hàng thân thiết</Text>} key="3">
-                                            <Space orientation="vertical" style={{ width: '100%' }} size={8}>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                    <Text style={{ fontSize: 14 }}>Điểm quy đổi:</Text>
-                                                    <Text style={{ fontSize: 14 }}>0 (0₫)</Text>
-                                                </div>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                                    <Text style={{ fontSize: 14 }}>Điểm tích luỹ:</Text>
-                                                    <Text style={{ fontSize: 14 }}>+0</Text>
-                                                </div>
-                                            </Space>
-                                        </Panel>
-                                    </Collapse>
-
-                                    <Divider style={{ margin: '12px 0' }} />
-
-                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <Text strong style={{ fontSize: 14 }}>Tổng tiền phải trả:</Text>
-                                        <Text strong style={{ fontSize: 14, color: '#EF5941' }}>0₫</Text>
-                                    </div>
-                                </Space>
-                            </Card>
-
-                            {/* Order Information */}
-                            <Card 
-                                title={<Text style={{ fontSize: 14 }}>Thông tin đơn hàng</Text>}
-                                styles={{ body: { padding: '16px' } }}
-                            >
-                                <Space orientation="vertical" style={{ width: '100%' }} size={16}>
-                                    <Form.Item>
-                                        <Checkbox style={{ fontSize: 14 }}>Đơn sản phẩm gửi KOC, KOL</Checkbox>
-                                    </Form.Item>
-
-                                    <Form.Item label={<Text style={{ fontSize: 14 }}>Nhân viên bán hàng</Text>}>
-                                        <Input
-                                            defaultValue="daothingoc9@gmail.com"
-                                            suffix={<CloseOutlined style={{ fontSize: 12, cursor: 'pointer' }} />}
-                                            addonAfter={<InfoCircleOutlined style={{ fontSize: 12, color: '#8C8C8C' }} />}
-                                            style={{ fontSize: 14 }}
-                                        />
-                                    </Form.Item>
-
-                                    <Form.Item label={<Text style={{ fontSize: 14 }}>Nhân viên marketing</Text>}>
-                                        <Select placeholder="Chọn nhân viên marketing" style={{ fontSize: 14 }}>
-                                            <Option value="marketing1">Marketing 1</Option>
-                                            <Option value="marketing2">Marketing 2</Option>
+                <Row gutter={16}>
+                    {/* Left Column - Thông tin sản phẩm */}
+                    <Col span={16}>
+                        <Card
+                            title={<Text style={{ fontSize: 14 }}>Thông tin sản phẩm</Text>}
+                            style={{ marginBottom: 16 }}
+                            styles={{ body: { padding: '16px' } }}
+                        >
+                            {/* Product Selection Fields */}
+                            <Row gutter={16} style={{ marginBottom: 16 }}>
+                                <Col span={8}>
+                                    <Form.Item label={<Text style={{ fontSize: 14 }}>Kênh bán *</Text>} required>
+                                        <Select placeholder="Chọn kênh bán" style={{ fontSize: 14 }}>
+                                            <Option value="shopee">Shopee</Option>
+                                            <Option value="tiktok">TikTok</Option>
+                                            <Option value="haravan">Haravan</Option>
+                                            <Option value="lazada">Lazada</Option>
                                         </Select>
                                     </Form.Item>
-
-                                    <Form.Item label={
-                                        <Space>
-                                            <Text style={{ fontSize: 14 }}>Ngày phát sinh đơn</Text>
-                                            <InfoCircleOutlined style={{ fontSize: 12, color: '#8C8C8C' }} />
-                                        </Space>
-                                    }>
-                                        <Text style={{ fontSize: 14 }}>24/12/2025 14:47</Text>
+                                </Col>
+                                <Col span={8}>
+                                    <Form.Item label={<Text style={{ fontSize: 14 }}>Gian hàng *</Text>} required>
+                                        <Select placeholder="Chọn gian hàng" style={{ fontSize: 14 }}>
+                                            <Option value="shop1">Shop 1</Option>
+                                            <Option value="shop2">Shop 2</Option>
+                                        </Select>
                                     </Form.Item>
-
-                                    <Form.Item label={
-                                        <Space>
-                                            <Text style={{ fontSize: 14 }}>Ngày dự kiến bàn giao ĐVVC</Text>
-                                            <InfoCircleOutlined style={{ fontSize: 12, color: '#8C8C8C' }} />
-                                        </Space>
-                                    }>
-                                        <DatePicker style={{ width: '100%', fontSize: 14 }} placeholder="Chọn" />
+                                </Col>
+                                <Col span={8}>
+                                    <Form.Item label={<Text style={{ fontSize: 14 }}>Kho xử lý *</Text>} required>
+                                        <Select placeholder="Chọn kho xử lý" style={{ fontSize: 14 }}>
+                                            <Option value="warehouse1">Kho 1</Option>
+                                            <Option value="warehouse2">Kho 2</Option>
+                                        </Select>
                                     </Form.Item>
+                                </Col>
+                            </Row>
 
-                                    <Form.Item label={<Text style={{ fontSize: 14 }}>UTM</Text>}>
-                                        <Input placeholder="Nhập link" style={{ fontSize: 14 }} />
-                                    </Form.Item>
+                            {/* Radio buttons for warehouse allocation */}
+                            <Radio.Group defaultValue="assign" style={{ marginBottom: 16 }}>
+                                <Radio value="auto" style={{ fontSize: 14 }}>Tự động điều phối</Radio>
+                                <Radio value="assign" style={{ fontSize: 14 }}>Chỉ định</Radio>
+                            </Radio.Group>
 
-                                    <Form.Item label={<Text style={{ fontSize: 14 }}>Mã đơn hàng</Text>}>
-                                        <Radio.Group defaultValue="auto">
-                                            <Radio value="manual" style={{ fontSize: 14 }}>Nhập tay</Radio>
-                                            <Radio value="auto" style={{ fontSize: 14 }}>Hệ thống tự động tạo</Radio>
-                                        </Radio.Group>
-                                    </Form.Item>
+                            {/* Action Buttons */}
+                            <Space style={{ marginBottom: 16 }}>
+                                <Button icon={<GiftOutlined />} style={{ fontSize: 14 }}>Thêm quà</Button>
+                                <Button type="primary" icon={<PlusOutlined />} style={{ background: '#EF5941', borderColor: '#EF5941', fontSize: 14 }}>
+                                    Thêm sản phẩm
+                                </Button>
+                            </Space>
+
+                            {/* Empty Product State */}
+                            <div style={{
+                                border: '1px dashed #D9D9D9',
+                                borderRadius: 4,
+                                padding: '60px 20px',
+                                textAlign: 'center',
+                                background: '#FAFAFA',
+                                marginBottom: 16
+                            }}>
+                                <Space orientation="vertical" size={8}>
+                                    <PlusOutlined style={{ fontSize: 32, color: '#BFBFBF' }} />
+                                    <Text type="secondary" style={{ fontSize: 14 }}>Vui lòng chọn Kênh bán, Gian hàng để thêm sản phẩm</Text>
                                 </Space>
-                            </Card>
+                            </div>
+
+                            {/* Attachments and Notes */}
+                            <Row gutter={16}>
+                                <Col span={8}>
+                                    <Form.Item label={<Text style={{ fontSize: 14 }}>Đính kèm</Text>}>
+                                        <Upload>
+                                            <Button icon={<UploadOutlined />} style={{ width: '100%', fontSize: 14 }}>
+                                                Tải file lên
+                                            </Button>
+                                        </Upload>
+                                    </Form.Item>
+                                </Col>
+                                <Col span={16}>
+                                    <Form.Item label={<Text style={{ fontSize: 14 }}>Ghi chú</Text>}>
+                                        <Space orientation="vertical" style={{ width: '100%' }}>
+                                            <Radio.Group defaultValue="internal" size="small">
+                                                <Radio.Button value="internal" style={{ fontSize: 14 }}>Nội bộ</Radio.Button>
+                                                <Radio.Button value="customer" style={{ fontSize: 14 }}>Khách hàng</Radio.Button>
+                                            </Radio.Group>
+                                            <TextArea
+                                                placeholder="Nhập ghi chú"
+                                                rows={4}
+                                                showCount
+                                                maxLength={500}
+                                                style={{ fontSize: 14 }}
+                                            />
+                                        </Space>
+                                    </Form.Item>
+                                </Col>
+                            </Row>
+
+                            <Form.Item label={<Text style={{ fontSize: 14 }}>Tag</Text>}>
+                                <Select
+                                    mode="tags"
+                                    placeholder="Nhập tag"
+                                    style={{ width: '100%', fontSize: 14 }}
+                                />
+                            </Form.Item>
+                        </Card>
+                    </Col>
+
+                    {/* Right Column - Product Summary & Order Info */}
+                    <Col span={8}>
+                        {/* Product Summary */}
+                        <Card
+                            title={<Text style={{ fontSize: 14 }}>Tóm tắt</Text>}
+                            style={{ marginBottom: 16 }}
+                            styles={{ body: { padding: '16px' } }}
+                        >
+                            <Space orientation="vertical" style={{ width: '100%' }} size={12}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <Text style={{ fontSize: 14 }}>Số lượng hàng hoá:</Text>
+                                    <Text strong style={{ fontSize: 14 }}>0</Text>
+                                </div>
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <Text style={{ fontSize: 14 }}>Tổng tiền hàng hoá:</Text>
+                                    <Text strong style={{ fontSize: 14 }}>0₫</Text>
+                                </div>
+
+                                <Collapse ghost>
+                                    <Panel header={<Text style={{ fontSize: 14 }}>Tổng giảm giá</Text>} key="1">
+                                        <Space orientation="vertical" style={{ width: '100%' }} size={8}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                <Text style={{ fontSize: 14 }}>Giảm giá sản phẩm:</Text>
+                                                <Text style={{ fontSize: 14 }}>0₫</Text>
+                                            </div>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <Text style={{ fontSize: 14 }}>Mã giảm giá:</Text>
+                                                <Space>
+                                                    <InputNumber size="small" style={{ width: 80, fontSize: 14 }} addonAfter="%" />
+                                                    <InputNumber size="small" style={{ width: 80, fontSize: 14 }} />
+                                                </Space>
+                                            </div>
+                                        </Space>
+                                    </Panel>
+                                </Collapse>
+
+                                <Collapse ghost>
+                                    <Panel header={<Text style={{ fontSize: 14 }}>Phí vận chuyển phải trả</Text>} key="2">
+                                        <Space orientation="vertical" style={{ width: '100%' }} size={8}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <Space>
+                                                    <Text style={{ fontSize: 14 }}>Phí vận chuyển NBH hỗ trợ:</Text>
+                                                    <InfoCircleOutlined style={{ fontSize: 12, color: '#8C8C8C' }} />
+                                                </Space>
+                                                <Space>
+                                                    <InputNumber size="small" style={{ width: 80, fontSize: 14 }} addonAfter="%" />
+                                                    <InputNumber size="small" style={{ width: 80, fontSize: 14 }} />
+                                                </Space>
+                                            </div>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                <Space>
+                                                    <Text style={{ fontSize: 14 }}>Phí vận chuyển báo khách:</Text>
+                                                    <InfoCircleOutlined style={{ fontSize: 12, color: '#8C8C8C' }} />
+                                                </Space>
+                                                <InputNumber size="small" style={{ width: 100, fontSize: 14 }} />
+                                            </div>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                <Text style={{ fontSize: 14 }}>Phí vận chuyển ĐVVC:</Text>
+                                                <Text style={{ fontSize: 14 }}>0₫</Text>
+                                            </div>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                <Space>
+                                                    <Text style={{ fontSize: 14 }}>Chênh lệch phí vận chuyển:</Text>
+                                                    <InfoCircleOutlined style={{ fontSize: 12, color: '#8C8C8C' }} />
+                                                </Space>
+                                                <Text style={{ fontSize: 14 }}>0₫</Text>
+                                            </div>
+                                        </Space>
+                                    </Panel>
+                                </Collapse>
+
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <Text style={{ fontSize: 14 }}>Xu đã sử dụng:</Text>
+                                    <Text style={{ fontSize: 14 }}>0₫</Text>
+                                </div>
+
+                                <Collapse ghost>
+                                    <Panel header={<Text style={{ fontSize: 14 }}>Điểm khách hàng thân thiết</Text>} key="3">
+                                        <Space orientation="vertical" style={{ width: '100%' }} size={8}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                <Text style={{ fontSize: 14 }}>Điểm quy đổi:</Text>
+                                                <Text style={{ fontSize: 14 }}>0 (0₫)</Text>
+                                            </div>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                <Text style={{ fontSize: 14 }}>Điểm tích luỹ:</Text>
+                                                <Text style={{ fontSize: 14 }}>+0</Text>
+                                            </div>
+                                        </Space>
+                                    </Panel>
+                                </Collapse>
+
+                                <Divider style={{ margin: '12px 0' }} />
+
+                                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                    <Text strong style={{ fontSize: 14 }}>Tổng tiền phải trả:</Text>
+                                    <Text strong style={{ fontSize: 14, color: '#EF5941' }}>0₫</Text>
+                                </div>
+                            </Space>
+                        </Card>
+
+                        {/* Order Information */}
+                        <Card
+                            title={<Text style={{ fontSize: 14 }}>Thông tin đơn hàng</Text>}
+                            styles={{ body: { padding: '16px' } }}
+                        >
+                            <Space orientation="vertical" style={{ width: '100%' }} size={16}>
+                                <Form.Item>
+                                    <Checkbox style={{ fontSize: 14 }}>Đơn sản phẩm gửi KOC, KOL</Checkbox>
+                                </Form.Item>
+
+                                <Form.Item label={<Text style={{ fontSize: 14 }}>Nhân viên bán hàng</Text>}>
+                                    <Input
+                                        defaultValue="daothingoc9@gmail.com"
+                                        suffix={<CloseOutlined style={{ fontSize: 12, cursor: 'pointer' }} />}
+                                        addonAfter={<InfoCircleOutlined style={{ fontSize: 12, color: '#8C8C8C' }} />}
+                                        style={{ fontSize: 14 }}
+                                    />
+                                </Form.Item>
+
+                                <Form.Item label={<Text style={{ fontSize: 14 }}>Nhân viên marketing</Text>}>
+                                    <Select placeholder="Chọn nhân viên marketing" style={{ fontSize: 14 }}>
+                                        <Option value="marketing1">Marketing 1</Option>
+                                        <Option value="marketing2">Marketing 2</Option>
+                                    </Select>
+                                </Form.Item>
+
+                                <Form.Item label={
+                                    <Space>
+                                        <Text style={{ fontSize: 14 }}>Ngày phát sinh đơn</Text>
+                                        <InfoCircleOutlined style={{ fontSize: 12, color: '#8C8C8C' }} />
+                                    </Space>
+                                }>
+                                    <Text style={{ fontSize: 14 }}>24/12/2025 14:47</Text>
+                                </Form.Item>
+
+                                <Form.Item label={
+                                    <Space>
+                                        <Text style={{ fontSize: 14 }}>Ngày dự kiến bàn giao ĐVVC</Text>
+                                        <InfoCircleOutlined style={{ fontSize: 12, color: '#8C8C8C' }} />
+                                    </Space>
+                                }>
+                                    <DatePicker style={{ width: '100%', fontSize: 14 }} placeholder="Chọn" />
+                                </Form.Item>
+
+                                <Form.Item label={<Text style={{ fontSize: 14 }}>UTM</Text>}>
+                                    <Input placeholder="Nhập link" style={{ fontSize: 14 }} />
+                                </Form.Item>
+
+                                <Form.Item label={<Text style={{ fontSize: 14 }}>Mã đơn hàng</Text>}>
+                                    <Radio.Group defaultValue="auto">
+                                        <Radio value="manual" style={{ fontSize: 14 }}>Nhập tay</Radio>
+                                        <Radio value="auto" style={{ fontSize: 14 }}>Hệ thống tự động tạo</Radio>
+                                    </Radio.Group>
+                                </Form.Item>
+                            </Space>
+                        </Card>
+                    </Col>
+                </Row>
+
+                {/* Payment Information */}
+                <Card
+                    title={
+                        <Space>
+                            <Text style={{ fontSize: 14 }}>Thông tin thanh toán</Text>
+                            <Button size="small" style={{ background: '#FAFAFA', border: '1px solid #D9D9D9', fontSize: 14 }}>
+                                Chưa thanh toán
+                            </Button>
+                        </Space>
+                    }
+                    style={{ marginBottom: 16 }}
+                    styles={{ body: { padding: '16px' } }}
+                >
+                    <Row gutter={16} style={{ marginBottom: 16 }}>
+                        <Col span={8}>
+                            <Text style={{ fontSize: 14 }}>Khách phải trả: <Text strong style={{ fontSize: 14 }}>0₫</Text></Text>
+                        </Col>
+                        <Col span={8}>
+                            <Text style={{ fontSize: 14 }}>Đã thanh toán: <Text strong style={{ fontSize: 14 }}>0₫</Text></Text>
+                        </Col>
+                        <Col span={8}>
+                            <Text style={{ fontSize: 14 }}>Còn phải trả: <Text strong style={{ fontSize: 14 }}>0₫</Text></Text>
                         </Col>
                     </Row>
+                    <Text type="secondary" style={{ display: 'block', marginBottom: 12, fontSize: 14 }}>
+                        Chưa có giao dịch thanh toán nào
+                    </Text>
+                    <Button icon={<PlusOutlined />} type="default" style={{ fontSize: 14 }}>
+                        Thêm thanh toán
+                    </Button>
+                </Card>
 
-                    {/* Payment Information */}
-                    <Card 
-                        title={
-                            <Space>
-                                <Text style={{ fontSize: 14 }}>Thông tin thanh toán</Text>
-                                <Button size="small" style={{ background: '#FAFAFA', border: '1px solid #D9D9D9', fontSize: 14 }}>
-                                    Chưa thanh toán
-                                </Button>
-                            </Space>
-                        }
-                        style={{ marginBottom: 16 }}
-                        styles={{ body: { padding: '16px' } }}
-                    >
-                        <Row gutter={16} style={{ marginBottom: 16 }}>
-                            <Col span={8}>
-                                <Text style={{ fontSize: 14 }}>Khách phải trả: <Text strong style={{ fontSize: 14 }}>0₫</Text></Text>
-                            </Col>
-                            <Col span={8}>
-                                <Text style={{ fontSize: 14 }}>Đã thanh toán: <Text strong style={{ fontSize: 14 }}>0₫</Text></Text>
-                            </Col>
-                            <Col span={8}>
-                                <Text style={{ fontSize: 14 }}>Còn phải trả: <Text strong style={{ fontSize: 14 }}>0₫</Text></Text>
-                            </Col>
-                        </Row>
-                        <Text type="secondary" style={{ display: 'block', marginBottom: 12, fontSize: 14 }}>
-                            Chưa có giao dịch thanh toán nào
-                        </Text>
-                        <Button icon={<PlusOutlined />} type="default" style={{ fontSize: 14 }}>
-                            Thêm thanh toán
-                        </Button>
-                    </Card>
+                {/* Shipping Information */}
+                <Card
+                    title={
+                        <Space>
+                            <Text style={{ fontSize: 14 }}>Thông tin vận chuyển</Text>
+                            <Button icon={<PlusOutlined />} type="default" style={{ fontSize: 14 }}>
+                                Thêm vận chuyển
+                            </Button>
+                        </Space>
+                    }
+                    style={{ marginBottom: 16 }}
+                    styles={{ body: { padding: '16px' } }}
+                >
+                    {/* Shipping content will be added here */}
+                </Card>
 
-                    {/* Shipping Information */}
-                    <Card 
-                        title={
-                            <Space>
-                                <Text style={{ fontSize: 14 }}>Thông tin vận chuyển</Text>
-                                <Button icon={<PlusOutlined />} type="default" style={{ fontSize: 14 }}>
-                                    Thêm vận chuyển
-                                </Button>
-                            </Space>
-                        }
-                        style={{ marginBottom: 16 }}
-                        styles={{ body: { padding: '16px' } }}
-                    >
-                        {/* Shipping content will be added here */}
-                    </Card>
-
-                    {/* Footer Buttons */}
-                    <div style={{ 
-                        display: 'flex', 
-                        justifyContent: 'flex-end', 
-                        gap: 12,
-                        paddingTop: 16,
-                        borderTop: '1px solid #F0F0F0'
-                    }}>
-                        <Button onClick={onClose} style={{ fontSize: 14 }}>
-                            Huỷ bỏ
-                        </Button>
-                        <Button style={{ borderColor: '#EF5941', color: '#EF5941', fontSize: 14 }}>
-                            Lưu nháp
-                        </Button>
-                        <Button type="primary" style={{ background: '#EF5941', borderColor: '#EF5941', fontSize: 14 }}>
-                            Lưu & chốt đơn
-                        </Button>
-                    </div>
-                </Form>
-            </div>
+                {/* Footer Buttons */}
+                <div style={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    gap: 12,
+                    paddingTop: 16,
+                    borderTop: '1px solid #F0F0F0'
+                }}>
+                    <Button onClick={onClose} style={{ fontSize: 14 }}>
+                        Huỷ bỏ
+                    </Button>
+                    <Button style={{ borderColor: '#EF5941', color: '#EF5941', fontSize: 14 }}>
+                        Lưu nháp
+                    </Button>
+                    <Button type="primary" style={{ background: '#EF5941', borderColor: '#EF5941', fontSize: 14 }}>
+                        Lưu & chốt đơn
+                    </Button>
+                </div>
+            </Form>
+        </div>
     );
 };
 
-const OrderList = ({ 
-    isBatchProcessing = false, 
-    isAbnormalCancellation = false, 
+const OrderList = ({
+    isBatchProcessing = false,
+    isAbnormalCancellation = false,
     isReturnOrderView = false,
     isProcessReturnOrder = false,
     guideDrawerVisible: externalGuideDrawerVisible,
@@ -414,7 +414,7 @@ const OrderList = ({
     const setGuideDrawerVisible = externalSetGuideDrawerVisible || setInternalGuideDrawerVisible;
     const [activeStep, setActiveStep] = useState(0); // Step 1 is active by default (index 0)
     const [currentProgressStep, setCurrentProgressStep] = useState(0); // Progress stepper current step
-    
+
     // Batch processing states
     const [batchProcessingStatusTab, setBatchProcessingStatusTab] = useState('cho-dong-goi'); // 'cho-dong-goi', 'dang-dong-goi', 'cho-lay-hang'
     const [selectedWarehouse, setSelectedWarehouse] = useState('hcm-hoc-mon-02');
@@ -454,7 +454,7 @@ const OrderList = ({
             }
         };
     }, [guideDrawerVisible]);
-    
+
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [hoveredOrderId, setHoveredOrderId] = useState(null);
     const [hoveredOrderCardId, setHoveredOrderCardId] = useState(null);
@@ -471,7 +471,7 @@ const OrderList = ({
     const [exportOption, setExportOption] = useState(null);
     const [exportShopOption, setExportShopOption] = useState(null);
     const [internalExportFileModalVisible, setInternalExportFileModalVisible] = useState(false);
-    
+
     const updateInfoModalVisible = externalUpdateInfoModalVisible !== undefined ? externalUpdateInfoModalVisible : internalUpdateInfoModalVisible;
     const setUpdateInfoModalVisible = externalSetUpdateInfoModalVisible || setInternalUpdateInfoModalVisible;
     const exportFileModalVisible = externalExportFileModalVisible !== undefined ? externalExportFileModalVisible : internalExportFileModalVisible;
@@ -484,12 +484,12 @@ const OrderList = ({
     // Helper function to highlight actions in description
     const renderDescriptionWithHighlights = (description) => {
         const actions = [
-            'Đóng gói', 'Chờ đóng gói', 'Chọn', 'Chuẩn bị hàng', 'In vận đơn', 
-            'Sẵn sàng giao', 'phiếu xuất kho', 'Chờ lấy hàng', 'phiếu xuất', 
+            'Đóng gói', 'Chờ đóng gói', 'Chọn', 'Chuẩn bị hàng', 'In vận đơn',
+            'Sẵn sàng giao', 'phiếu xuất kho', 'Chờ lấy hàng', 'phiếu xuất',
             'phiếu bàn giao', 'ĐVVC', 'Đang đóng gói', 'Quản trị đơn hàng',
             'In phiếu xuất', 'In phiếu bàn giao'
         ];
-        
+
         const highlightText = (text) => {
             let result = text;
             actions.forEach(action => {
@@ -498,7 +498,7 @@ const OrderList = ({
             });
             return result;
         };
-        
+
         // Handle array of descriptions (for bullet points)
         if (Array.isArray(description)) {
             return (
@@ -512,7 +512,7 @@ const OrderList = ({
                 </div>
             );
         }
-        
+
         // Handle string description
         return <span dangerouslySetInnerHTML={{ __html: highlightText(description) }} />;
     };
@@ -565,13 +565,13 @@ const OrderList = ({
         const statuses = ['packing', 'cancelled', 'completed', 'shipping', 'pending'];
         const statusLabels = ['Đang đóng gói', 'Đã hủy', 'Hoàn thành', 'Đang giao hàng', 'Chờ duyệt'];
         const orders = [];
-        
+
         for (let i = 0; i < size; i++) {
             const orderIndex = (page - 1) * size + i;
             const channel = channels[orderIndex % channels.length];
             const statusIndex = orderIndex % statuses.length;
             const orderId = `251007F3DE2EC${orderIndex + 1}`;
-            
+
             orders.push({
                 id: orderId,
                 shopName: "Puka's Shop",
@@ -815,9 +815,9 @@ const OrderList = ({
         { key: 'all', label: 'Tất cả' },
         { key: 'pending', label: 'Chờ duyệt (12)' },
     ];
-    
+
     const draftTab = { key: 'draft', label: 'Đơn nháp (12)' };
-    
+
     const remainingStatusTabs = [
         { key: 'packing', label: 'Đóng gói (12)' },
         { key: 'shipping', label: 'Đang giao hàng (12)' },
@@ -870,7 +870,7 @@ const OrderList = ({
         ? abnormalCancellationTabs
         : isReturnOrderView
             ? (orderTypeFilter === 'noi-san' ? noiSanReturnTabs : ngoaiSanReturnTabs)
-            : (orderTypeFilter === 'manual' 
+            : (orderTypeFilter === 'manual'
                 ? [{ key: 'all', label: 'Tất cả' }, draftTab, ...baseStatusTabs.slice(1), ...remainingStatusTabs]
                 : [...baseStatusTabs, ...remainingStatusTabs]); // Note: secondaryStatusTabs are rendered separately on the right side
 
@@ -904,7 +904,7 @@ const OrderList = ({
         const updateCardHeight = () => {
             let maxHeight = 0;
             let giftCardHeight = null;
-            
+
             // Find card with gifts and get its height
             Object.keys(cardRefs.current).forEach(orderId => {
                 const cardElement = cardRefs.current[orderId];
@@ -919,7 +919,7 @@ const OrderList = ({
                     }
                 }
             });
-            
+
             // Use gift card height if found, otherwise use max height
             if (giftCardHeight) {
                 setCardHeight(giftCardHeight);
@@ -927,13 +927,13 @@ const OrderList = ({
                 setCardHeight(maxHeight);
             }
         };
-        
+
         // Update height after render
         const timeoutId = setTimeout(updateCardHeight, 100);
-        
+
         // Also update on window resize
         window.addEventListener('resize', updateCardHeight);
-        
+
         return () => {
             clearTimeout(timeoutId);
             window.removeEventListener('resize', updateCardHeight);
@@ -973,7 +973,7 @@ const OrderList = ({
 
     // Render column content based on column name
     const renderColumnContent = (order, columnName) => {
-        switch(columnName) {
+        switch (columnName) {
             case 'Sản phẩm': {
                 const isExpanded = expandedProductOrderIds.has(order.id);
                 const visibleProducts = order.products.length > 2 && !isExpanded
@@ -990,7 +990,7 @@ const OrderList = ({
                                         content={
                                             <div style={{ minWidth: 300, maxWidth: 400 }}>
                                                 {order.gifts.map((gift, gIndex) => (
-                                                    <div key={gift.id} style={{ 
+                                                    <div key={gift.id} style={{
                                                         marginBottom: gIndex < order.gifts.length - 1 ? 16 : 0,
                                                         display: 'flex',
                                                         gap: 12
@@ -1005,10 +1005,10 @@ const OrderList = ({
                                                         <div style={{ flex: 1, minWidth: 0, textAlign: 'left' }}>
                                                             <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, textAlign: 'left' }}>
                                                                 <Tooltip title={gift.name} placement="top">
-                                                                    <Text 
-                                                                        style={{ 
-                                                                            fontSize: 13, 
-                                                                            display: 'inline-block', 
+                                                                    <Text
+                                                                        style={{
+                                                                            fontSize: 13,
+                                                                            display: 'inline-block',
                                                                             maxWidth: '200px',
                                                                             overflow: 'hidden',
                                                                             textOverflow: 'ellipsis',
@@ -1063,11 +1063,11 @@ const OrderList = ({
                                         trigger="click"
                                         placement="right"
                                     >
-                                        <Tag 
-                                            color="orange" 
-                                            icon={<GiftOutlined />} 
-                                            style={{ 
-                                                margin: 0, 
+                                        <Tag
+                                            color="orange"
+                                            icon={<GiftOutlined />}
+                                            style={{
+                                                margin: 0,
                                                 cursor: 'pointer',
                                                 userSelect: 'none'
                                             }}
@@ -1088,10 +1088,10 @@ const OrderList = ({
                                     <div style={{ flex: 1, minWidth: 0, textAlign: 'left', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 2 }}>
                                         <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, textAlign: 'left', width: '100%', flexWrap: 'wrap' }}>
                                             <Tooltip title={product.name} placement="top">
-                                                <Text 
-                                                    style={{ 
-                                                        fontSize: 14, 
-                                                        display: 'inline-block', 
+                                                <Text
+                                                    style={{
+                                                        fontSize: 14,
+                                                        display: 'inline-block',
                                                         maxWidth: '100%',
                                                         overflow: 'hidden',
                                                         textOverflow: 'ellipsis',
@@ -1185,10 +1185,10 @@ const OrderList = ({
                     <div style={{ padding: '16px', textAlign: 'left', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                         <div style={{ textAlign: 'left', width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
                             <Tooltip title={order.recipient.name} placement="top">
-                                <Text 
-                                    style={{ 
-                                        fontSize: 14, 
-                                        display: 'block', 
+                                <Text
+                                    style={{
+                                        fontSize: 14,
+                                        display: 'block',
                                         marginBottom: 8,
                                         maxWidth: '100%',
                                         overflow: 'hidden',
@@ -1202,8 +1202,8 @@ const OrderList = ({
                                 </Text>
                             </Tooltip>
                             <Tooltip title={order.recipient.address} placement="top">
-                                <Text 
-                                    style={{ 
+                                <Text
+                                    style={{
                                         fontSize: 14,
                                         display: 'block',
                                         maxWidth: '100%',
@@ -1463,9 +1463,9 @@ const OrderList = ({
                     zIndex: 1000
                 }}>
                     <Spin size="large" />
-            </div>
+                </div>
             )}
-            
+
             {/* Loading Overlay for Order Type Switch in Return Order View */}
             {isLoadingOrderTypeSwitch && (
                 <div style={{
@@ -1589,7 +1589,7 @@ const OrderList = ({
                 </div>
 
                 {/* Action Bar */}
-                <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ padding: '12px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12 }}>
                     <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                         <Dropdown
                             menu={{
@@ -1601,13 +1601,13 @@ const OrderList = ({
                             }}
                             trigger={['click']}
                         >
-                            <Button>Thao tác hàng loạt <DownOutlined style={{ fontSize: 10, marginLeft: 4 }} /></Button>
+                            <Button style={{ whiteSpace: 'nowrap' }}>Thao tác hàng loạt <DownOutlined style={{ fontSize: 10, marginLeft: 4 }} /></Button>
                         </Dropdown>
-                        <Text style={{ fontSize: 14, color: 'rgba(0,0,0,0.65)' }}>
+                        <Text style={{ fontSize: 14, color: 'rgba(0,0,0,0.65)', whiteSpace: 'nowrap' }}>
                             Đã chọn: <Text style={{ fontSize: 14, color: 'rgba(0,0,0,0.88)' }}>{selectedRowKeys.length} đơn hàng</Text>
                         </Text>
                     </div>
-                    <Space size={8}>
+                    <Space size={8} wrap>
                         <Dropdown
                             trigger={['click']}
                             placement="bottomRight"
@@ -1947,9 +1947,9 @@ const OrderList = ({
             >
                 <div style={{ padding: 0 }}>
                     {/* Header */}
-                    <div style={{ 
-                        display: 'flex', 
-                        justifyContent: 'space-between', 
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
                         alignItems: 'center',
                         marginBottom: 16,
                         paddingBottom: 12,
@@ -1960,7 +1960,7 @@ const OrderList = ({
                     </div>
 
                     {/* Shop List */}
-                                <div>
+                    <div>
                         {[
                             { name: 'upbase1', channel: 'shopee', status: '0/0' },
                             { name: 'Puka1', channel: 'haravan', status: '0/0' },
@@ -1988,9 +1988,9 @@ const OrderList = ({
                                     <Text style={{ fontSize: 14, color: '#FF4D4F' }}>0</Text>
                                     <Text style={{ fontSize: 14 }}>/0</Text>
                                 </div>
-                                <Button 
+                                <Button
                                     size="small"
-                                    style={{ 
+                                    style={{
                                         background: 'rgba(0,0,0,0.06)',
                                         borderColor: 'rgba(0,0,0,0.06)',
                                         color: 'rgba(0,0,0,0.88)',
@@ -2000,9 +2000,9 @@ const OrderList = ({
                                 >
                                     Cập nhật
                                 </Button>
-                        </div>
-                    ))}
-                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </Modal>
 
@@ -2018,12 +2018,12 @@ const OrderList = ({
                 style={{ zIndex: 1003 }}
             >
                 {selectedOrder && (
-                                <div>
+                    <div>
                         {/* Kho xử lý */}
                         <div style={{ marginBottom: 24 }}>
                             <Title level={5} style={{ marginBottom: 12 }}>Kho xử lý</Title>
                             <Text style={{ fontSize: 14 }}>{selectedOrder.warehouse}</Text>
-                                </div>
+                        </div>
 
                         <Divider />
 
@@ -2036,7 +2036,7 @@ const OrderList = ({
                                     <div style={{ marginTop: 4 }}>
                                         <Text style={{ fontSize: 14 }}>{selectedOrder.processing.shipBefore}</Text>
                                     </div>
-                                    </div>
+                                </div>
                                 <div>
                                     <Text type="secondary" style={{ fontSize: 13 }}>Chuẩn bị hàng trước:</Text>
                                     <div style={{ marginTop: 4 }}>
@@ -2044,7 +2044,7 @@ const OrderList = ({
                                     </div>
                                 </div>
                             </Space>
-                                </div>
+                        </div>
 
                         <Divider />
 
@@ -2056,8 +2056,8 @@ const OrderList = ({
                                     <Text type="secondary" style={{ fontSize: 13 }}>Hình thức:</Text>
                                     <div style={{ marginTop: 4 }}>
                                         <Text style={{ fontSize: 14 }}>{selectedOrder.shipping.method}</Text>
+                                    </div>
                                 </div>
-                            </div>
                                 <div>
                                     <Text type="secondary" style={{ fontSize: 13 }}>Mã kiện hàng:</Text>
                                     <div style={{ marginTop: 4 }}>
@@ -2083,8 +2083,8 @@ const OrderList = ({
                                                 <CopyOutlined style={{ fontSize: 12, color: '#1677FF' }} />
                                             )}
                                         </span>
-                        </div>
-                </div>
+                                    </div>
+                                </div>
                                 <div>
                                     <Text type="secondary" style={{ fontSize: 13 }}>Mã vận đơn:</Text>
                                     <div style={{ marginTop: 4 }}>
@@ -2153,8 +2153,8 @@ const OrderList = ({
                     }}>
                         Huỷ
                     </Button>,
-                    <Button 
-                        key="export" 
+                    <Button
+                        key="export"
                         type="primary"
                         disabled={!exportOption}
                         onClick={() => {
@@ -2167,7 +2167,7 @@ const OrderList = ({
                         }}
                     >
                         Xuất
-                                    </Button>
+                    </Button>
                 ]}
                 width={500}
             >
@@ -2200,13 +2200,13 @@ const OrderList = ({
                                                     <Radio value="separate-shops">Tách từng gian hàng</Radio>
                                                 </Space>
                                             </Radio.Group>
-                                </div>
+                                        </div>
                                     )}
-                            </div>
+                                </div>
                                 <Radio value="export-orders-custom">Theo tuỳ chỉnh</Radio>
                             </Space>
                         </Radio.Group>
-                        </div>
+                    </div>
                     <Divider style={{ margin: '16px 0' }} />
                     <div>
                         <Text strong style={{ fontSize: 14, display: 'block', marginBottom: 12 }}>
@@ -2225,7 +2225,7 @@ const OrderList = ({
                                 <Radio value="export-payment-custom">Theo tuỳ chỉnh</Radio>
                             </Space>
                         </Radio.Group>
-                </div>
+                    </div>
                 </div>
             </Modal>
 
@@ -2255,20 +2255,20 @@ const OrderList = ({
                     {(() => {
                         const allColumns = [...selectedColumns, ...availableColumns];
                         const fixedColumns = ['Sản phẩm', 'Tổng tiền', 'Người nhận'];
-                        
+
                         const moveColumn = (column, direction) => {
                             const currentIndex = selectedColumns.indexOf(column);
                             if (currentIndex === -1) return;
-                            
+
                             const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1;
                             if (newIndex < 0 || newIndex >= selectedColumns.length) return;
-                            
+
                             const newSelectedColumns = [...selectedColumns];
-                            [newSelectedColumns[currentIndex], newSelectedColumns[newIndex]] = 
+                            [newSelectedColumns[currentIndex], newSelectedColumns[newIndex]] =
                                 [newSelectedColumns[newIndex], newSelectedColumns[currentIndex]];
                             setSelectedColumns(newSelectedColumns);
                         };
-                        
+
                         return allColumns.map((column) => {
                             const isSelected = selectedColumns.includes(column);
                             const isFixed = fixedColumns.includes(column);
@@ -2276,7 +2276,7 @@ const OrderList = ({
                             const canMoveUp = isSelected && !isFixed && selectedIndex > 0;
                             const canMoveDown = isSelected && !isFixed && selectedIndex < selectedColumns.length - 1;
                             const isHovered = hoveredColumn === column;
-                            
+
                             return (
                                 <div
                                     key={column}
@@ -2336,7 +2336,7 @@ const OrderList = ({
                                                 type="text"
                                                 size="small"
                                                 icon={<MenuOutlined />}
-                                                style={{ 
+                                                style={{
                                                     marginLeft: 'auto',
                                                     padding: 0,
                                                     width: 24,
@@ -2347,7 +2347,7 @@ const OrderList = ({
                                                     color: 'rgba(0,0,0,0.45)'
                                                 }}
                                             />
-                    </Dropdown>
+                                        </Dropdown>
                                     )}
                                 </div>
                             );
@@ -2424,10 +2424,10 @@ const OrderList = ({
                     ].map((step, index) => {
                         const isActive = activeStep === index;
                         return (
-                            <div 
-                                key={index} 
-                                style={{ 
-                                    paddingBottom: 12, 
+                            <div
+                                key={index}
+                                style={{
+                                    paddingBottom: 12,
                                     borderBottom: index < 6 ? '1px solid #F0F0F0' : 'none',
                                     cursor: 'pointer',
                                     transition: 'all 0.2s'
@@ -2450,11 +2450,11 @@ const OrderList = ({
                                         transition: 'background 0.2s'
                                     }}>
                                         {index + 1}
-                    </div>
+                                    </div>
                                     <div style={{ flex: 1, minWidth: 0, wordWrap: 'break-word', overflowWrap: 'break-word' }}>
                                         <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginBottom: isActive ? 8 : 0 }}>
-                                            <Text strong style={{ 
-                                                fontSize: 13, 
+                                            <Text strong style={{
+                                                fontSize: 13,
                                                 color: isActive ? 'rgba(0,0,0,0.88)' : 'rgba(0,0,0,0.65)',
                                                 transition: 'color 0.2s',
                                                 wordWrap: 'break-word',
@@ -2465,25 +2465,25 @@ const OrderList = ({
                                             </Text>
                                             {(step.title === 'Gom hàng' || step.title === 'Đóng hàng' || step.title === 'Chia đơn theo ĐVVC' || step.title === 'Bàn giao cho ĐVVC') && (
                                                 <Tooltip title="Thao tác này sẽ được thực hiện ngoài UpS" placement="top">
-                                                    <InfoCircleOutlined style={{ 
-                                                        fontSize: 12, 
+                                                    <InfoCircleOutlined style={{
+                                                        fontSize: 12,
                                                         color: 'rgba(0,0,0,0.45)',
                                                         cursor: 'help',
                                                         flexShrink: 0
                                                     }} />
                                                 </Tooltip>
                                             )}
-                </div>
+                                        </div>
                                         {isActive && (
-                                            <div style={{ 
-                                                fontSize: 12, 
-                                                color: 'rgba(0,0,0,0.65)', 
+                                            <div style={{
+                                                fontSize: 12,
+                                                color: 'rgba(0,0,0,0.65)',
                                                 lineHeight: 1.6,
                                                 wordWrap: 'break-word',
                                                 overflowWrap: 'break-word'
                                             }}>
                                                 {renderDescriptionWithHighlights(step.description)}
-                </div>
+                                            </div>
                                         )}
                                     </div>
                                 </div>

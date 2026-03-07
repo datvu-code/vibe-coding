@@ -23,7 +23,8 @@ import {
 } from '@ant-design/icons';
 import { LineChart, Line as RechartLine, BarChart, Bar, PieChart, Pie as RechartPie, AreaChart, Area as RechartArea, XAxis, YAxis, CartesianGrid, Tooltip as ChartTooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import dayjs from 'dayjs';
-import { MdHome, MdShoppingBag, MdBarChart, MdInbox, MdSettings, MdAssignment, MdPeople, MdStore, MdCampaign } from 'react-icons/md';
+import { MdShoppingBag, MdInbox, MdSettings, MdPeople, MdStore, MdCampaign } from 'react-icons/md';
+import { Home, BarChart3, ClipboardList, Bot } from 'lucide-react';
 import logoSvg from './assets/logo-dark.svg';
 import { DndContext, closestCenter } from '@dnd-kit/core';
 import OrderList from './OrderList';
@@ -1773,6 +1774,11 @@ const HomepageLayout = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [dateRange, setDateRange] = useState([dayjs().subtract(7, 'day'), dayjs()]);
 
+  // Welcome Modal state
+  const [welcomeModalVisible, setWelcomeModalVisible] = useState(false);
+
+
+
   // Sidebar navigation state
   const [expandedNavItems, setExpandedNavItems] = useState(new Set());
   const [activeNavItem, setActiveNavItem] = useState('home');
@@ -1782,6 +1788,84 @@ const HomepageLayout = () => {
   const [sidebarHovered, setSidebarHovered] = useState(false);
   const [expandedSubNav, setExpandedSubNav] = useState(null); // Track which parent item has sub-nav expanded (key of parent)
   const [subNavCollapsed, setSubNavCollapsed] = useState(false); // Manual collapse overrides auto-detect
+
+  // AI Assistant chat (split-screen)
+  const ASSISTANT_CHAT_MIN_WIDTH = 320;
+  const ASSISTANT_CHAT_MAX_WIDTH = 600;
+  const [assistantChatOpen, setAssistantChatOpen] = useState(false);
+  const [assistantChatWidth, setAssistantChatWidth] = useState(400);
+  const [selectedAssistantId, setSelectedAssistantId] = useState('lien');
+  const [chatMessages, setChatMessages] = useState([]);
+  const [chatInput, setChatInput] = useState('');
+  const chatEndRef = useRef(null);
+  const resizeStartRef = useRef(null);
+
+  const ASSISTANTS = [
+    { id: 'lien', name: 'Liên', expertise: 'Chuyên gia vận hành sàn', color: '#EF5941' },
+    { id: 'tu', name: 'Tú', expertise: 'Chuyên gia phân tích báo cáo tài chính', color: '#1677FF' },
+    { id: 'thanh', name: 'Thanh', expertise: 'Chiến lược gia marketing', color: '#52c41a' }
+  ];
+
+  // Context for Quản lý đơn hàng - from BPMN "Quản lý và xử lý đơn hàng đa sàn"
+  const ORDER_PROCESS_CONTEXT = `Quy trình quản lý và xử lý đơn hàng đa sàn:
+- Khách hàng đặt đơn → Hệ thống tiếp nhận → Quản lý đơn hàng.
+- Sau quản lý đơn: nhánh "chờ duyệt" hoặc xử lý mặc định.
+- Nhánh chờ duyệt có 3 cách xử lý (BL_XU_LY): (1) Xử lý theo DS - tạo DS, ghi nhận, in/xuất DS hàng loạt, BVVC tiếp nhận, đồng hàng, chốt đơn GD, đóng gói, chờ chuyển hàng BVVC, bàn giao; (2) Xử lý hàng loạt - ghi nhận hàng loạt, đồng hàng, SSO hàng loạt, chờ chuyển/bàn giao BVVC; (3) Xử lý từng đơn - ghi nhận đơn, tiếp nhận, đồng hàng, nhận SSO, chờ chuyển/bàn giao BVVC.
+- Sau đó: Quét mã đơn → So sánh hàng.
+- Quy trình hủy đơn: Khách yêu cầu hủy → Vận hành xác nhận hủy đơn → Đồng ý hủy.`;
+
+  const scrollChatToBottom = () => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  };
+  useEffect(() => { scrollChatToBottom(); }, [chatMessages]);
+
+  const handleResizeStart = (e) => {
+    e.preventDefault();
+    resizeStartRef.current = { x: e.clientX, w: assistantChatWidth };
+    const onMove = (ev) => {
+      if (!resizeStartRef.current) return;
+      const delta = resizeStartRef.current.x - ev.clientX;
+      let next = resizeStartRef.current.w + delta;
+      next = Math.max(ASSISTANT_CHAT_MIN_WIDTH, Math.min(ASSISTANT_CHAT_MAX_WIDTH, next));
+      setAssistantChatWidth(next);
+    };
+    const onUp = () => {
+      resizeStartRef.current = null;
+      document.removeEventListener('mousemove', onMove);
+      document.removeEventListener('mouseup', onUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    };
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mouseup', onUp);
+  };
+
+  const getAssistantReply = (userText, moduleContext) => {
+    const lower = (userText || '').toLowerCase();
+    if (moduleContext && moduleContext.includes('đơn hàng') && (lower.includes('quy trình') || lower.includes('xử lý') || lower.includes('đơn hàng') || lower.includes('hàng loạt') || lower.includes('theo ds') || lower.includes('từng đơn') || lower.includes('hủy'))) {
+      if (lower.includes('hủy')) return 'Quy trình hủy đơn: Khách hàng yêu cầu hủy đơn → Vận hành hệ thống xác nhận hủy đơn → Kết thúc khi đồng ý hủy.';
+      if (lower.includes('theo ds') || lower.includes('theo danh sách')) return 'Xử lý theo DS (1): Tạo DS xử lý → Ghi nhận DS → In/xuất DS hàng loạt → BVVC tiếp nhận → Đồng hàng → Chốt đơn GD → Đóng gói → Chờ chuyển hàng BVVC → Bàn giao cho BVVC.';
+      if (lower.includes('hàng loạt')) return 'Xử lý hàng loạt (2): Ghi nhận hàng loạt → Đồng hàng → SSO hàng loạt → Chờ chuyển hàng BVVC → Bàn giao cho BVVC.';
+      if (lower.includes('từng đơn')) return 'Xử lý từng đơn (3): Ghi nhận đơn → Tiếp nhận → Đồng hàng → Nhận SSO → Chờ chuyển hàng BVVC → Bàn giao cho BVVC.';
+      return 'Quy trình chính: Đặt đơn → Tiếp nhận → Quản lý đơn hàng. Sau đó có thể chờ duyệt rồi chọn 1 trong 3 cách: Xử lý theo DS, Xử lý hàng loạt, hoặc Xử lý từng đơn. Cuối cùng: Quét mã đơn → So sánh hàng. Bạn muốn đi sâu bước nào?';
+    }
+    return 'Tôi có thể hỗ trợ bạn theo ngữ cảnh màn hình hiện tại. Với Quản lý đơn hàng, tôi nắm rõ quy trình đa sàn: tiếp nhận, quản lý đơn, 3 luồng xử lý (theo DS / hàng loạt / từng đơn), quét mã, so sánh hàng và quy trình hủy đơn. Bạn hỏi cụ thể bước nào nhé.';
+  };
+
+  const sendChatMessage = () => {
+    const text = (chatInput || '').trim();
+    if (!text) return;
+    setChatInput('');
+    const userMsg = { role: 'user', text };
+    setChatMessages((prev) => [...prev, userMsg]);
+    const moduleContext = (activeModule === 'orders' || activeModule === 'danh-sach-don-hang' || activeModule === 'xu-ly-hang-loat' || activeModule === 'xu-ly-theo-danh-sach' || activeModule === 'xu-ly-tra-hang' || activeModule === 'don-hoan') ? ORDER_PROCESS_CONTEXT : null;
+    const replyText = getAssistantReply(text, moduleContext);
+    setTimeout(() => {
+      setChatMessages((prev) => [...prev, { role: 'assistant', text: replyText }]);
+    }, 400);
+  };
 
   // Get personalized greeting
   const userName = 'Dat'; // This could come from auth context
@@ -1824,6 +1908,16 @@ const HomepageLayout = () => {
     return hash || 'home';
   };
   const [activeModule, setActiveModule] = useState(() => getModuleFromHash());
+
+  // Trigger Welcome Modal after 10s on dashboard
+  useEffect(() => {
+    if (activeModule === 'dashboard') {
+      const timer = setTimeout(() => {
+        setWelcomeModalVisible(true);
+      }, 10000);
+      return () => clearTimeout(timer);
+    }
+  }, [activeModule]);
   const [datePeriod, setDatePeriod] = useState('today'); // 'yesterday', 'today', 'thisWeek', 'thisMonth', 'thisYear'
   const [createTemplateModalVisible, setCreateTemplateModalVisible] = useState(false);
   const [editTemplateModalVisible, setEditTemplateModalVisible] = useState(false);
@@ -2465,9 +2559,9 @@ const HomepageLayout = () => {
     }
   ];
 
-  // Render GA4-style sidebar navigation
+  // Render GA4-style sidebar navigation (L1 = vertical icon + label, no hover expand)
   const renderSidebarNavigation = () => {
-    const isSidebarExpanded = !sidebarCollapsed; // Collapse when item is selected
+    const L1_SIDEBAR_WIDTH = 88;
 
     const renderNavItem = (item, level = 0, isSettings = false) => {
       const isSubNavExpanded = expandedSubNav === item.key;
@@ -2476,6 +2570,7 @@ const HomepageLayout = () => {
       ));
       const isHovered = hoveredNavItem === item.key;
       const hasChildren = item.children && item.children.length > 0;
+      const isL1Vertical = level === 0;
 
       return (
         <div key={item.key}>
@@ -2485,89 +2580,91 @@ const HomepageLayout = () => {
             onMouseLeave={() => setHoveredNavItem(null)}
             style={{
               display: 'flex',
-              alignItems: item.helperText ? 'flex-start' : 'center',
-              padding: level === 0
-                ? (isSidebarExpanded ? (item.helperText ? '12px 16px' : '10px 16px') : '10px 0')
-                : '8px 16px 8px 32px',
+              flexDirection: isL1Vertical ? 'column' : 'row',
+              alignItems: isL1Vertical ? 'center' : (item.helperText ? 'flex-start' : 'center'),
+              padding: isL1Vertical ? '10px 8px' : '8px 16px 8px 32px',
               cursor: 'pointer',
               backgroundColor: isActive
-                ? '#F5F5F5'
+                ? 'rgba(239,89,65,0.18)'
                 : isHovered
-                  ? '#FAFAFA'
+                  ? 'rgba(255,255,255,0.06)'
                   : 'transparent',
-              borderLeft: '3px solid transparent',
-              borderTopRightRadius: isActive && level === 0 ? '20px' : 0,
-              borderBottomRightRadius: isActive && level === 0 ? '20px' : 0,
-              marginRight: isActive && level === 0 ? '8px' : 0,
-              color: '#202124',
-              fontSize: level === 0 ? 15 : 13,
+              borderLeft: isL1Vertical ? 'none' : '3px solid transparent',
+              borderTopRightRadius: isActive && level === 0 ? 12 : 0,
+              borderBottomRightRadius: isActive && level === 0 ? 12 : 0,
+              marginRight: 0,
+              color: isActive ? '#EF5941' : 'rgba(255,255,255,0.85)',
+              fontSize: isL1Vertical ? 11 : 13,
               fontWeight: level === 0 ? 500 : 400,
               transition: 'all 0.2s',
               position: 'relative',
-              justifyContent: isSidebarExpanded ? 'flex-start' : 'center',
+              justifyContent: isL1Vertical ? 'center' : 'flex-start',
               boxShadow: 'none',
-              transform: isActive && level === 0 ? 'translateY(-1px)' : 'translateY(0)',
-              whiteSpace: 'nowrap',
-              overflow: 'hidden'
+              whiteSpace: isL1Vertical ? 'normal' : 'nowrap',
+              overflow: 'hidden',
+              textAlign: isL1Vertical ? 'center' : 'left'
             }}
           >
             {item.icon && (
               <span
                 style={{
-                  marginRight: isSidebarExpanded ? 12 : 0,
+                  marginRight: isL1Vertical ? 0 : 12,
+                  marginBottom: isL1Vertical ? 4 : 0,
                   display: 'inline-flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  flexShrink: 0
+                  flexShrink: 0,
+                  width: 24,
+                  height: 24
                 }}
               >
                 {React.cloneElement(item.icon, {
+                  ...(item.icon.props?.size != null ? { size: isL1Vertical ? 24 : item.icon.props.size } : {}),
                   style: {
-                    fontSize: 28,
-                    width: 28,
-                    height: 28,
-                    color: isActive ? '#EF5941' : '#5F6368',
-                    ...item.icon.props?.style
+                    ...(item.icon.props?.style || {}),
+                    fontSize: isL1Vertical ? 24 : 28,
+                    width: isL1Vertical ? 24 : 28,
+                    height: isL1Vertical ? 24 : 28,
+                    color: isActive ? '#EF5941' : 'rgba(255,255,255,0.7)'
                   }
                 })}
               </span>
             )}
-            {isSidebarExpanded && (
-              <div style={{
-                flex: 1,
+            <div style={{
+              overflow: 'hidden',
+              minWidth: 0,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2,
+              alignItems: isL1Vertical ? 'center' : 'flex-start'
+            }}>
+              <span style={{
                 overflow: 'hidden',
-                minWidth: 0,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 2
+                textOverflow: 'ellipsis',
+                whiteSpace: isL1Vertical ? 'normal' : 'nowrap',
+                fontWeight: 500,
+                lineHeight: 1.2,
+                maxWidth: isL1Vertical ? 80 : '100%'
               }}>
+                {item.label}
+              </span>
+              {!isL1Vertical && item.helperText && (
                 <span style={{
+                  fontSize: 12,
+                  color: '#8c8c8c',
+                  lineHeight: 1.3,
                   overflow: 'hidden',
                   textOverflow: 'ellipsis',
-                  whiteSpace: 'nowrap',
-                  fontWeight: 500
+                  display: '-webkit-box',
+                  WebkitLineClamp: 2,
+                  WebkitBoxOrient: 'vertical',
+                  whiteSpace: 'normal'
                 }}>
-                  {item.label}
+                  {item.helperText}
                 </span>
-                {item.helperText && (
-                  <span style={{
-                    fontSize: 12,
-                    color: '#8c8c8c',
-                    lineHeight: 1.3,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    display: '-webkit-box',
-                    WebkitLineClamp: 2,
-                    WebkitBoxOrient: 'vertical',
-                    whiteSpace: 'normal'
-                  }}>
-                    {item.helperText}
-                  </span>
-                )}
-              </div>
-            )}
+              )}
+            </div>
           </div>
-          {/* Remove inline children - they will be shown in sub-nav column */}
         </div>
       );
     };
@@ -2582,19 +2679,43 @@ const HomepageLayout = () => {
         <div
           style={{
             position: 'fixed',
-            left: 64,
+            left: 88,
             top: 64,
             bottom: 0,
             width: 177,
-            backgroundColor: '#FAFBFB',
-            borderRight: '1px solid #E1E3E5',
+            paddingRight: 20,
+            boxSizing: 'border-box',
+            backgroundColor: '#252526',
+            borderRight: '1px solid rgba(255,255,255,0.06)',
             zIndex: 1001,
             height: 'calc(100vh - 64px)',
             overflowY: 'auto',
             overflowX: 'hidden',
-            transition: 'left 0.2s ease'
+            transition: 'left 0.2s ease',
+            position: 'fixed' // maintain fixed position layout structure explicitly
           }}
         >
+          {/* Glowing SVG Blob behind Sub-Navigation */}
+          <div style={{
+            position: 'fixed',
+            top: 64,
+            left: 88,
+            width: 177,
+            height: 'calc(100vh - 64px)',
+            pointerEvents: 'none',
+            zIndex: 0,
+            overflow: 'hidden'
+          }}>
+            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <filter id="subGlowBlur" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="40" result="blur" />
+                </filter>
+              </defs>
+              <circle cx="20%" cy="20%" r="80" fill="rgba(239,89,65,0.08)" filter="url(#subGlowBlur)" />
+              <circle cx="80%" cy="70%" r="100" fill="rgba(22,119,255,0.05)" filter="url(#subGlowBlur)" />
+            </svg>
+          </div>
           {/* Collapse button */}
           <button
             onClick={() => { setExpandedSubNav(null); setSubNavCollapsed(true); }}
@@ -2602,7 +2723,7 @@ const HomepageLayout = () => {
             style={{
               position: 'absolute',
               top: 10,
-              right: 10,
+              right: 18, // moved inward to avoid conflict with layout content
               width: 24,
               height: 24,
               display: 'flex',
@@ -2611,14 +2732,14 @@ const HomepageLayout = () => {
               border: 'none',
               background: 'transparent',
               cursor: 'pointer',
-              color: '#5F6368',
+              color: 'rgba(255,255,255,0.6)',
               zIndex: 1,
               padding: 0,
             }}
           >
             <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <rect width="18" height="18" x="3" y="3" rx="2"/>
-              <path d="M9 3v18"/>
+              <rect width="18" height="18" x="3" y="3" rx="2" />
+              <path d="M9 3v18" />
             </svg>
           </button>
           <div style={{ paddingTop: 48, paddingBottom: 16 }}>
@@ -2645,14 +2766,14 @@ const HomepageLayout = () => {
                       style={{
                         display: 'flex',
                         alignItems: 'center',
-                        padding: '8px 16px',
+                        padding: '12px 16px',
                         cursor: 'pointer',
                         backgroundColor: isChildActive
-                          ? '#F5F5F5'
+                          ? 'rgba(239,89,65,0.18)'
                           : hoveredNavItem === child.key
-                            ? '#F5F5F5'
+                            ? 'rgba(255,255,255,0.06)'
                             : 'transparent',
-                        color: isChildActive ? '#202124' : '#5F6368',
+                        color: isChildActive ? '#EF5941' : 'rgba(255,255,255,0.85)',
                         fontSize: 14,
                         fontWeight: 500,
                         borderRadius: 6,
@@ -2666,7 +2787,7 @@ const HomepageLayout = () => {
                         fontSize: 10,
                         transition: 'transform 0.2s',
                         transform: isSubExpanded ? 'rotate(0deg)' : 'rotate(-90deg)',
-                        color: '#5F6368',
+                        color: 'rgba(255,255,255,0.7)',
                         flexShrink: 0
                       }} />
                     </div>
@@ -2689,33 +2810,20 @@ const HomepageLayout = () => {
                             style={{
                               display: 'flex',
                               alignItems: 'center',
-                              padding: '6px 16px 6px 28px',
+                              padding: '8px 16px 8px 28px',
                               cursor: 'pointer',
                               backgroundColor: activeNavItem === nestedChild.key
-                                ? '#F5F5F5'
+                                ? 'rgba(239,89,65,0.18)'
                                 : hoveredNavItem === nestedChild.key
-                                  ? '#FAFAFA'
+                                  ? 'rgba(255,255,255,0.06)'
                                   : 'transparent',
-                              color: activeNavItem === nestedChild.key ? '#EF5941' : '#202124',
+                              color: activeNavItem === nestedChild.key ? '#EF5941' : 'rgba(255,255,255,0.85)',
                               fontSize: 14,
                               fontWeight: 400,
                               borderRadius: 6,
                               transition: 'all 0.2s'
                             }}
                           >
-                            {navKeysWithView.has(nestedChild.key) && (
-                              <span
-                                style={{
-                                  width: 6,
-                                  height: 6,
-                                  borderRadius: '50%',
-                                  background: '#52c41a',
-                                  flexShrink: 0,
-                                  marginRight: 8
-                                }}
-                                title="Đã có màn view"
-                              />
-                            )}
                             <TruncatedTooltip title={nestedChild.label} placement="right">
                               {nestedChild.label}
                             </TruncatedTooltip>
@@ -2744,33 +2852,20 @@ const HomepageLayout = () => {
                     style={{
                       display: 'flex',
                       alignItems: 'center',
-                      padding: '8px 16px',
+                      padding: '12px 16px',
                       cursor: 'pointer',
                       backgroundColor: activeNavItem === child.key
-                        ? '#F5F5F5'
+                        ? 'rgba(239,89,65,0.18)'
                         : hoveredNavItem === child.key
-                          ? '#FAFAFA'
+                          ? 'rgba(255,255,255,0.06)'
                           : 'transparent',
-                      color: activeNavItem === child.key ? '#EF5941' : '#202124',
+                      color: activeNavItem === child.key ? '#EF5941' : 'rgba(255,255,255,0.85)',
                       fontSize: 14,
                       fontWeight: 400,
                       borderRadius: 6,
                       transition: 'all 0.2s'
                     }}
                   >
-                    {navKeysWithView.has(child.key) && (
-                      <span
-                        style={{
-                          width: 6,
-                          height: 6,
-                          borderRadius: '50%',
-                          background: '#52c41a',
-                          flexShrink: 0,
-                          marginRight: 8
-                        }}
-                        title="Đã có màn view"
-                      />
-                    )}
                     <TruncatedTooltip title={child.label} placement="right">
                       {child.label}
                     </TruncatedTooltip>
@@ -2804,33 +2899,46 @@ const HomepageLayout = () => {
     return (
       <>
         <div
-          onMouseEnter={() => {
-            if (!sidebarLocked) {
-              setSidebarCollapsed(false);
-            }
-          }}
-          onMouseLeave={() => {
-            setSidebarCollapsed(true);
-            setSidebarLocked(false); // Reset lock on mouse leave
-          }}
           style={{
             position: 'fixed',
             left: 0,
             top: 64,
             bottom: 0,
-            width: sidebarCollapsed ? 64 : 240,
-            backgroundColor: '#fff',
-            borderRight: '1px solid #E1E3E5',
+            width: 88,
+            paddingRight: 20,
+            boxSizing: 'border-box',
+            backgroundColor: '#252526',
+            borderRight: '1px solid rgba(255,255,255,0.06)',
             zIndex: 1002,
             height: 'calc(100vh - 64px)',
             display: 'flex',
             flexDirection: 'column',
             overflowY: 'auto',
-            overflowX: 'hidden',
-            transition: 'width 0.2s ease'
+            overflowX: 'hidden'
           }}
         >
-          {/* Primary L1: Trang chủ, Quản trị, Vận hành */}
+          {/* Glowing SVG Blob behind Navigation */}
+          <div style={{
+            position: 'fixed',
+            top: 64,
+            left: 0,
+            width: 88,
+            height: 'calc(100vh - 64px)',
+            pointerEvents: 'none',
+            zIndex: 0,
+            overflow: 'hidden'
+          }}>
+            <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <filter id="glowBlur" x="-50%" y="-50%" width="200%" height="200%">
+                  <feGaussianBlur stdDeviation="40" result="blur" />
+                </filter>
+              </defs>
+              <circle cx="50%" cy="10%" r="70" fill="rgba(239,89,65,0.15)" filter="url(#glowBlur)" />
+              <circle cx="50%" cy="80%" r="90" fill="rgba(22,119,255,0.1)" filter="url(#glowBlur)" />
+            </svg>
+          </div>
+          {/* Primary L1: Trang chủ, Quản trị, Vận hành - vertical icon + label */}
           <div style={{ paddingTop: 24 }}>
             {navigationItemsPrimary.map((item) => renderNavItem(item))}
           </div>
@@ -2838,30 +2946,29 @@ const HomepageLayout = () => {
           {/* Spacer - pushes secondary items to bottom */}
           <div style={{ flex: 1, minHeight: 24 }} />
 
-          {/* Secondary L1: Đối tác, Brands, KOC Hub - in red box area at bottom */}
+          {/* Secondary L1: Đối tác, Brands, KOC Hub */}
           <div style={{
-            borderTop: '1px solid #E1E3E5',
+            borderTop: '1px solid rgba(255,255,255,0.06)',
             paddingTop: 16,
             paddingBottom: 8
           }}>
-            {!sidebarCollapsed && (
-              <div style={{
-                padding: '0 16px 12px',
-                fontSize: 12,
-                fontWeight: 600,
-                color: '#8c8c8c',
-                textTransform: 'uppercase',
-                letterSpacing: '0.5px'
-              }}>
-                Mở rộng
-              </div>
-            )}
+            <div style={{
+              padding: '0 8px 12px',
+              fontSize: 11,
+              fontWeight: 600,
+              color: 'rgba(255,255,255,0.45)',
+              textTransform: 'uppercase',
+              letterSpacing: '0.5px',
+              textAlign: 'center'
+            }}>
+              Mở rộng
+            </div>
             {navigationItemsSecondary.map((item) => renderNavItem(item))}
           </div>
 
           {/* Settings at bottom, separated */}
           <div style={{
-            borderTop: '1px solid #E1E3E5',
+            borderTop: '1px solid rgba(255,255,255,0.06)',
             paddingTop: 8,
             paddingBottom: 16,
             marginTop: 'auto'
@@ -5455,14 +5562,14 @@ const HomepageLayout = () => {
     {
       key: 'trang-chu',
       label: 'Trang chủ',
-      icon: <MdHome />,
+      icon: <Home size={24} />,
       expandable: false,
       module: 'home'
     },
     {
       key: 'quan-tri',
       label: 'Quản trị',
-      icon: <MdBarChart />,
+      icon: <BarChart3 size={24} />,
       expandable: true,
       children: [
         { key: 'bao-cao-van-hanh', label: 'Báo cáo vận hành', module: 'home' },
@@ -5474,7 +5581,7 @@ const HomepageLayout = () => {
     {
       key: 'van-hanh',
       label: 'Vận hành',
-      icon: <MdAssignment />,
+      icon: <ClipboardList size={24} />,
       expandable: true,
       children: [
         {
@@ -5715,10 +5822,8 @@ const HomepageLayout = () => {
 
   // Memoize main content margin-left
   const mainContentMarginLeft = useMemo(() => {
-    // Content always starts after the collapsed sidebar width (64px)
-    // If sub-nav is visible, push content by sub-nav width (177px)
-    // L1 hover expansion will still overlay everything
-    const sidebarWidth = 64;
+    // Content starts after L1 nav (88px) and optional sub-nav (177px)
+    const sidebarWidth = 88;
     const subNavWidth = isSubNavVisible ? 177 : 0;
     return sidebarWidth + subNavWidth;
   }, [isSubNavVisible]);
@@ -6855,30 +6960,35 @@ const HomepageLayout = () => {
         <Layout style={{ minHeight: '100vh' }}>
           {/* Header */}
           <Header style={{
-            background: '#fff',
-            padding: '0 24px',
-            paddingLeft: '24px',
+            background: '#252526',
+            padding: '24px 24px 32px 24px', // Increased top and bottom padding
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            borderBottom: '1px solid #f0f0f0',
+            borderBottom: 'none',
             position: 'sticky',
             top: 0,
             zIndex: 1002,
-            width: '100%',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.06)'
+            width: '100%'
           }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-              <img src={logoSvg} alt="UpS Logo" style={{ height: 28 }} />
-              <div style={{ fontSize: 13, color: '#8c8c8c' }}>
-                Bảng điều khiển <span style={{ margin: '0 6px' }}>›</span> {moduleBreadcrumb}
+              <img src={logoSvg} alt="UpS Logo" style={{ height: 28, filter: 'brightness(0) invert(1)' }} />
+              <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.85)' }}>
+                Bảng điều khiển <span style={{ margin: '0 6px', color: 'rgba(255,255,255,0.45)' }}>›</span> {moduleBreadcrumb}
               </div>
             </div>
 
             <Space size="middle">
+              <Tooltip title="Hướng dẫn sử dụng UpS">
+                <Button
+                  type="text"
+                  icon={<BulbOutlined style={{ fontSize: 18, color: 'rgba(255,255,255,0.85)' }} />}
+                  onClick={() => setWelcomeModalVisible(true)}
+                />
+              </Tooltip>
               <Dropdown overlay={notificationMenu} trigger={['click']}>
                 <Badge count={3} size="small">
-                  <Button type="text" icon={<BellOutlined style={{ fontSize: 18 }} />} />
+                  <Button type="text" icon={<BellOutlined style={{ fontSize: 18, color: 'rgba(255,255,255,0.85)' }} />} />
                 </Badge>
               </Dropdown>
               <Dropdown overlay={userMenu} trigger={['click']}>
@@ -6886,7 +6996,7 @@ const HomepageLayout = () => {
                   <Avatar style={{ backgroundColor: '#1677FF' }} size="small">
                     D
                   </Avatar>
-                  <span style={{ fontWeight: 500 }}>Dat Vu</span>
+                  <span style={{ fontWeight: 500, color: 'rgba(255,255,255,0.85)' }}>Dat Vu</span>
                 </div>
               </Dropdown>
             </Space>
@@ -6896,1006 +7006,1127 @@ const HomepageLayout = () => {
             {/* GA4-style Sidebar */}
             {renderSidebarNavigation()}
 
-            {/* Main Content Area */}
-            <Layout style={{
-              background: '#FAFBFB',
-              marginLeft: mainContentMarginLeft,
-              transition: 'margin-left 0.2s ease'
+            {/* Main Content Area - đè lên góc header/nav để hiển thị radius, padding header/nav đồng bộ */}
+            <Layout className="ups-content-layout" style={{
+              background: '#F5F6F8',
+              marginLeft: mainContentMarginLeft - 20,
+              marginTop: -20,
+              position: 'relative',
+              zIndex: 1003,
+              transition: 'margin-left 0.2s ease',
+              borderRadius: 20,
+              boxShadow: '-4px 0 24px rgba(0,0,0,0.08), 4px 0 16px rgba(0,0,0,0.04)',
+              overflow: 'hidden',
+              minHeight: 'calc(100vh - 64px + 20px)',
+              border: '1px solid rgba(0,0,0,0.04)'
             }}>
-              <Content style={{ padding: '24px', height: 'fit-content' }}>
-                {/* Page Header */}
-                {activeModule !== 'xu-ly-hang-loat' && activeModule !== 'xu-ly-tra-hang' && activeModule !== 'xu-ly-theo-danh-sach' && activeModule !== 'don-hoan' && activeModule !== 'dashboard' && (
-                  <div
-                    style={{
-                      marginBottom: 20,
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'flex-start',
-                      flexWrap: 'wrap',
-                      gap: 16
-                    }}
-                  >
-                    {activeModule === 'workspace-settings' && (
-                      <Space size="middle" wrap>
-                        <Button
-                          icon={<AppstoreAddOutlined />}
-                          onClick={() => setTemplateGalleryVisible(true)}
-                        >
-                          Tạo mới từ template
-                        </Button>
-                        <Button
-                          type="primary"
-                          icon={<PlusOutlined />}
-                          onClick={() => {
-                            resetTemplateBuilder();
-                            setActiveModule('template-create');
-                          }}
-                        >
-                          Tạo
-                        </Button>
-                      </Space>
-                    )}
-                    {activeModule === 'template-create' && (
-                      <Space size="middle" wrap>
-                        <Button
-                          icon={<LeftOutlined />}
-                          onClick={handleCancelTemplateCreation}
-                        >
-                          Quay lại danh sách
-                        </Button>
-                      </Space>
-                    )}
+              <Content style={{
+                padding: '28px 24px',
+                height: assistantChatOpen ? 'calc(100vh - 64px - 48px)' : 'fit-content',
+                minHeight: assistantChatOpen ? 0 : undefined,
+                display: 'flex',
+                flexDirection: 'column',
+                transition: 'height 0.25s ease',
+                borderRadius: 'inherit',
+                overflow: 'hidden'
+              }}>
+                {/* L3: AI Agent icon CTA - top right */}
+                {activeModule !== 'home' && activeModule !== 'template-create' && (
+                  <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12, flexShrink: 0 }}>
+                    <Tooltip title={assistantChatOpen ? 'Đóng trợ lý' : 'Chat với trợ lý'}>
+                      <Button
+                        type={assistantChatOpen ? 'primary' : 'text'}
+                        icon={<Bot size={20} />}
+                        onClick={() => setAssistantChatOpen((o) => !o)}
+                        style={{ width: 40, height: 40, padding: 0 }}
+                      />
+                    </Tooltip>
                   </div>
                 )}
-
-                {activeModule === 'home' ? (
-                  <>
-                    {/* Date Period Selector and Customize Action */}
-                    <div style={{
-                      marginBottom: 20,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'space-between',
-                      gap: 16,
-                      flexWrap: 'wrap'
-                    }}>
-                      <Select
-                        value={datePeriod}
-                        onChange={setDatePeriod}
-                        style={{ width: 150 }}
-                        options={[
-                          { label: 'Hôm qua', value: 'yesterday' },
-                          { label: 'Hôm nay', value: 'today' },
-                          { label: 'Tuần này', value: 'thisWeek' },
-                          { label: 'Tháng này', value: 'thisMonth' },
-                          { label: 'Năm nay', value: 'thisYear' }
-                        ]}
-                      />
-                      <Button
-                        type="text"
-                        icon={<EditOutlined />}
-                        onClick={() => setActiveModule('workspace-settings')}
+                <div style={{
+                  display: 'flex',
+                  flexDirection: 'row',
+                  alignItems: 'stretch',
+                  flex: assistantChatOpen ? 1 : 'none',
+                  minHeight: 0,
+                  transition: 'opacity 0.25s ease'
+                }}>
+                  <div className="ups-main-content-scroll hide-scrollbar" style={{
+                    flex: 1,
+                    minWidth: assistantChatOpen ? 320 : 0,
+                    width: assistantChatOpen ? undefined : '100%',
+                    overflow: 'auto',
+                    transition: 'min-width 0.25s ease',
+                    overflowX: 'hidden'
+                  }}>
+                    {/* Page Header */}
+                    {activeModule !== 'xu-ly-hang-loat' && activeModule !== 'xu-ly-tra-hang' && activeModule !== 'xu-ly-theo-danh-sach' && activeModule !== 'don-hoan' && activeModule !== 'dashboard' && (
+                      <div
                         style={{
-                          color: '#6D7175',
+                          marginBottom: 20,
                           display: 'flex',
-                          alignItems: 'center',
-                          gap: 6
+                          justifyContent: 'space-between',
+                          alignItems: 'flex-start',
+                          flexWrap: 'wrap',
+                          gap: 16
                         }}
                       >
-                        Tùy chỉnh
-                      </Button>
-                    </div>
-
-                    <Row gutter={24}>
-                      {/* Left Main Column */}
-                      <Col xs={24} lg={17}>
-                        <Space orientation="vertical" size={20} style={{ width: '100%' }}>
-                          {/* Báo cáo kết quả - Customizable với Template System */}
-                          {(selectedWorkspace?.layout?.showDashboard !== false && selectedWorkspace) && (
-                            <Card
-                              title={<Text strong style={{ fontSize: 16, color: '#2b2b2b' }}>Báo cáo kết quả</Text>}
-                              extra={
-                                isReorderMode ? (
-                                  <Space>
-                                    <Button
-                                      size="small"
-                                      onClick={handleCancelReorder}
-                                    >
-                                      Hủy
-                                    </Button>
-                                    <Button
-                                      size="small"
-                                      type="primary"
-                                      icon={<SaveOutlined />}
-                                      onClick={handleSaveOrder}
-                                    >
-                                      Lưu sắp xếp
-                                    </Button>
-                                  </Space>
-                                ) : (() => {
-                                  const linkData = selectedTemplate?.sectionLinks?.['bao-cao'];
-                                  const linkUrl = typeof linkData === 'object' ? linkData?.url : linkData;
-                                  const linkText = typeof linkData === 'object' ? (linkData?.text || 'Xem thêm') : 'Xem thêm';
-                                  return (
-                                    <Button
-                                      type="link"
-                                      size="small"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        if (linkUrl) {
-                                          window.open(linkUrl, '_blank', 'noopener,noreferrer');
-                                        }
-                                      }}
-                                      style={{ padding: 0 }}
-                                      className="xem-them-link"
-                                    >
-                                      {linkText}
-                                    </Button>
-                                  );
-                                })()
-                              }
-                              style={{
-                                background: '#fff',
-                                border: '1px solid #E1E3E5',
-                                borderRadius: 16,
-                                boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)'
-                              }}
+                        {activeModule === 'workspace-settings' && (
+                          <Space size="middle" wrap>
+                            <Button
+                              icon={<AppstoreAddOutlined />}
+                              onClick={() => setTemplateGalleryVisible(true)}
                             >
-                              {isReorderMode ? (
-                                <DndContext
-                                  collisionDetection={closestCenter}
-                                  onDragEnd={handleDragEnd}
-                                >
-                                  <SortableContext
-                                    items={tempMetricOrder}
-                                    strategy={verticalListSortingStrategy}
-                                  >
-                                    <Row gutter={[12, 12]}>
-                                      {tempMetricOrder.map(metricId => {
-                                        const metric = allMetricsPool.find(m => m.id === metricId);
-                                        return metric ? (
-                                          <Col span={8} key={metric.id}>
-                                            <SortableMetricCard metric={metric} isReorderMode={true} />
-                                          </Col>
-                                        ) : null;
-                                      })}
-                                    </Row>
-                                  </SortableContext>
-                                </DndContext>
-                              ) : (
-                                <Row gutter={[12, 12]}>
-                                  {currentMetrics.map((metric, idx) => (
-                                    <Col span={8} key={metric.id || idx}>
-                                      <KPICard {...metric} title={metric.name} />
-                                    </Col>
-                                  ))}
-                                </Row>
-                              )}
-                            </Card>
-                          )}
-
-                          {/* Báo cáo tiến độ - Customizable */}
-                          {(selectedWorkspace?.layout?.showDashboard !== false && selectedWorkspace) && (
-                            <Card
-                              title={<Text strong style={{ fontSize: 16, color: '#2b2b2b' }}>Báo cáo tiến độ</Text>}
-                              extra={(() => {
-                                const linkData = selectedTemplate?.sectionLinks?.['bao-cao'];
-                                const linkUrl = typeof linkData === 'object' ? linkData?.url : linkData;
-                                const linkText = typeof linkData === 'object' ? (linkData?.text || 'Xem thêm') : 'Xem thêm';
-                                return (
-                                  <Button
-                                    type="link"
-                                    size="small"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      if (linkUrl) {
-                                        window.open(linkUrl, '_blank', 'noopener,noreferrer');
-                                      }
-                                    }}
-                                    style={{ padding: 0 }}
-                                    className="xem-them-link"
-                                  >
-                                    {linkText}
-                                  </Button>
-                                );
-                              })()}
-                              style={{
-                                background: '#fff',
-                                border: '1px solid #E1E3E5',
-                                borderRadius: 16,
-                                boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)'
-                              }}
-                            >
-                              <Row gutter={[16, 16]}>
-                                {progressGoals.map((goal, idx) => (
-                                  <Col xs={24} md={8} key={idx}>
-                                    <div style={{
-                                      padding: '20px 16px',
-                                      background: '#F7F7F7',
-                                      borderRadius: 12,
-                                      border: 'none'
-                                    }}>
-                                      <div style={{ fontSize: 13, color: '#6D7175', marginBottom: 8, fontWeight: 500 }}>
-                                        {goal.title}
-                                      </div>
-                                      <div style={{ fontSize: 24, fontWeight: 700, marginBottom: 12, color: '#2b2b2b' }}>
-                                        {goal.current} / {goal.target}
-                                      </div>
-                                      <Progress
-                                        percent={goal.percent}
-                                        strokeColor="#1677FF"
-                                        size={10}
-                                        showInfo={false}
-                                      />
-                                      <div style={{
-                                        fontSize: 14,
-                                        color: '#2b2b2b',
-                                        marginTop: 8,
-                                        fontWeight: 500
-                                      }}>
-                                        {goal.percent}% {goal.status}
-                                      </div>
-                                    </div>
-                                  </Col>
-                                ))}
-                              </Row>
-                            </Card>
-                          )}
-
-                          {/* Xu hướng Doanh thu */}
-                          {(selectedWorkspace?.layout?.showDashboard !== false && selectedWorkspace) && (
-                            <Card
-                              title={<Text strong style={{ fontSize: 16, color: '#2b2b2b' }}>Xu hướng Doanh thu</Text>}
-                              style={{
-                                background: '#fff',
-                                border: '1px solid #E1E3E5',
-                                borderRadius: 16,
-                                boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)'
-                              }}
-                              extra={
-                                <Radio.Group defaultValue={30} size="small">
-                                  <Radio.Button value={7}>7 ngày</Radio.Button>
-                                  <Radio.Button value={30}>30 ngày</Radio.Button>
-                                  <Radio.Button value={60}>60 ngày</Radio.Button>
-                                </Radio.Group>
-                              }
-                            >
-                              <ResponsiveContainer width="100%" height={300}>
-                                <LineChart data={revenueTrendData}>
-                                  <CartesianGrid strokeDasharray="3 3" stroke="#E1E3E5" />
-                                  <XAxis
-                                    dataKey="date"
-                                    stroke="#6D7175"
-                                    tick={{ fill: '#6D7175', fontSize: 11 }}
-                                  />
-                                  <YAxis
-                                    stroke="#6D7175"
-                                    tickFormatter={(v) => `₫${v}M`}
-                                    tick={{ fill: '#6D7175', fontSize: 11 }}
-                                  />
-                                  <ChartTooltip
-                                    contentStyle={{
-                                      background: '#fff',
-                                      border: '1px solid #e5e7eb',
-                                      borderRadius: 8,
-                                      fontSize: 13
-                                    }}
-                                    formatter={(value) => [`₫${value}M`, 'Doanh thu']}
-                                  />
-                                  <RechartLine
-                                    type="monotone"
-                                    dataKey="revenue"
-                                    stroke="#2b2b2b"
-                                    strokeWidth={2}
-                                    dot={{ fill: '#2b2b2b', stroke: '#fff', strokeWidth: 2, r: 4 }}
-                                    activeDot={{ r: 6 }}
-                                  />
-                                </LineChart>
-                              </ResponsiveContainer>
-                            </Card>
-                          )}
-
-                        </Space>
-                      </Col>
-
-                      {/* Right Sidebar */}
-                      <Col xs={24} lg={7}>
-                        <Space orientation="vertical" size={16} style={{ width: '100%' }}>
-                          {/* Alert & Risks - Tabbed */}
-                          {(selectedWorkspace?.layout?.showAlerts !== false && selectedWorkspace) && (
-                            <Card
-                              title={<Text strong style={{ fontSize: 14, color: '#2b2b2b' }}>Alert & Risks</Text>}
-                              size="small"
-                              style={{
-                                background: '#fff',
-                                border: '1px solid #E1E3E5',
-                                borderRadius: 12,
-                                boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)',
-                                cursor: selectedTemplate?.sectionLinks?.['loi-canh-bao'] ? 'pointer' : 'default'
-                              }}
+                              Tạo mới từ template
+                            </Button>
+                            <Button
+                              type="primary"
+                              icon={<PlusOutlined />}
                               onClick={() => {
-                                const link = selectedTemplate?.sectionLinks?.['loi-canh-bao'];
-                                if (link) {
-                                  window.open(link, '_blank', 'noopener,noreferrer');
-                                }
+                                resetTemplateBuilder();
+                                setActiveModule('template-create');
                               }}
                             >
-                              <Tabs
-                                defaultActiveKey="errors"
-                                size="small"
-                                items={[
-                                  {
-                                    key: 'errors',
-                                    label: (
-                                      <Space size={4}>
-                                        <ExclamationCircleOutlined style={{ color: '#D72C0D', fontSize: 14 }} />
-                                        <span>Lỗi</span>
-                                        <Tag
-                                          color="error"
-                                          style={{
-                                            fontSize: 11,
-                                            padding: '0 6px',
-                                            background: '#FEF3F2',
-                                            color: '#D72C0D',
-                                            border: '1px solid #FECDD6',
-                                            borderRadius: 10,
-                                            marginLeft: 4
-                                          }}
-                                        >
-                                          {alertsData.errors.length}
-                                        </Tag>
-                                      </Space>
-                                    ),
-                                    children: (
-                                      <div style={{
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        gap: 6
-                                      }}>
-                                        {alertsData.errors.map((alert) => {
-                                          const isExpanded = expandedAlerts.has(alert.id);
-                                          const guides = alertGuides[alert.id] || [];
-                                          return (
-                                            <div key={alert.id}>
-                                              <div
-                                                style={{
-                                                  display: 'flex',
-                                                  alignItems: 'center',
-                                                  padding: '10px 12px',
-                                                  borderRadius: 6,
-                                                  background: hoveredAlertId === alert.id ? '#FEE4E2' : '#FEF3F2',
-                                                  border: 'none',
-                                                  transition: 'all 0.2s',
-                                                  cursor: 'pointer',
-                                                  gap: 8
-                                                }}
-                                                onClick={() => {
-                                                  setExpandedAlerts(prev => {
-                                                    const newSet = new Set(prev);
-                                                    if (newSet.has(alert.id)) {
-                                                      newSet.delete(alert.id);
-                                                    } else {
-                                                      newSet.add(alert.id);
-                                                    }
-                                                    return newSet;
-                                                  });
-                                                }}
-                                                onMouseEnter={() => setHoveredAlertId(alert.id)}
-                                                onMouseLeave={() => setHoveredAlertId(null)}
-                                              >
-                                                <div style={{ flex: 1, minWidth: 0 }}>
-                                                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, flexWrap: 'wrap' }}>
-                                                    <span style={{
-                                                      fontSize: 20,
-                                                      fontWeight: 700,
-                                                      color: '#2b2b2b',
-                                                      lineHeight: 1
-                                                    }}>
-                                                      {alert.value || alert.count}
-                                                    </span>
-                                                    <Text style={{
-                                                      fontSize: 13,
-                                                      fontWeight: 500,
-                                                      color: '#2b2b2b'
-                                                    }}>
-                                                      {alert.title}
-                                                    </Text>
-                                                  </div>
-                                                </div>
-                                                {hoveredAlertId === alert.id && (
-                                                  <Tooltip title="Xem thêm">
-                                                    <EyeOutlined
-                                                      style={{
-                                                        fontSize: 14,
-                                                        color: '#6D7175',
-                                                        transition: 'all 0.2s',
-                                                        marginRight: 8
-                                                      }}
-                                                      onClick={(e) => {
-                                                        e.stopPropagation();
-                                                      }}
-                                                      onMouseEnter={(e) => {
-                                                        e.currentTarget.style.color = '#1677FF';
-                                                        e.currentTarget.style.transform = 'scale(1.1)';
-                                                      }}
-                                                      onMouseLeave={(e) => {
-                                                        e.currentTarget.style.color = '#6D7175';
-                                                        e.currentTarget.style.transform = 'scale(1)';
-                                                      }}
-                                                    />
-                                                  </Tooltip>
-                                                )}
-                                                {guides.length > 0 && (
-                                                  (isExpanded || hoveredAlertId === alert.id) ? (
-                                                    isExpanded ? (
-                                                      <DownOutlined
-                                                        style={{
-                                                          fontSize: 12,
-                                                          color: '#6D7175',
-                                                          transition: 'all 0.2s'
-                                                        }}
-                                                        onMouseEnter={(e) => {
-                                                          e.currentTarget.style.color = '#2b2b2b';
-                                                          e.currentTarget.style.transform = 'scale(1.1)';
-                                                        }}
-                                                        onMouseLeave={(e) => {
-                                                          e.currentTarget.style.color = '#6D7175';
-                                                          e.currentTarget.style.transform = 'scale(1)';
-                                                        }}
-                                                      />
-                                                    ) : (
-                                                      <Tooltip title="Hướng dẫn">
-                                                        <BookOutlined
-                                                          style={{
-                                                            fontSize: 12,
-                                                            color: '#6D7175',
-                                                            transition: 'all 0.2s'
-                                                          }}
-                                                          onMouseEnter={(e) => {
-                                                            e.currentTarget.style.color = '#2b2b2b';
-                                                            e.currentTarget.style.transform = 'scale(1.1)';
-                                                          }}
-                                                          onMouseLeave={(e) => {
-                                                            e.currentTarget.style.color = '#6D7175';
-                                                            e.currentTarget.style.transform = 'scale(1)';
-                                                          }}
-                                                        />
-                                                      </Tooltip>
-                                                    )
-                                                  ) : (
-                                                    <div style={{ width: 12 }} />
-                                                  )
-                                                )}
-                                              </div>
-                                              {isExpanded && guides.length > 0 && (
-                                                <div style={{
-                                                  padding: '12px',
-                                                  background: '#FAFAFA',
-                                                  borderLeft: '3px solid #D72C0D',
-                                                  marginTop: 4,
-                                                  borderRadius: '0 0 6px 6px'
-                                                }}>
-                                                  <List
-                                                    size="small"
-                                                    dataSource={guides}
-                                                    renderItem={(item) => {
-                                                      const getIcon = (type) => {
-                                                        return type === 'case-study' ? <LineChartOutlined /> : <BookOutlined />;
-                                                      };
-                                                      const getColor = (type) => {
-                                                        return type === 'case-study' ? '#52C41A' : '#1890FF';
-                                                      };
-                                                      return (
-                                                        <List.Item
-                                                          style={{ padding: '6px 0', cursor: 'pointer' }}
-                                                          onClick={() => message.info(`Đang mở: ${item.title}`)}
-                                                        >
-                                                          <List.Item.Meta
-                                                            avatar={
-                                                              <div style={{
-                                                                width: 24,
-                                                                height: 24,
-                                                                borderRadius: 6,
-                                                                background: `${getColor(item.type)}15`,
-                                                                display: 'flex',
-                                                                alignItems: 'center',
-                                                                justifyContent: 'center'
-                                                              }}>
-                                                                {React.cloneElement(getIcon(item.type), {
-                                                                  style: { fontSize: 12, color: getColor(item.type) }
-                                                                })}
-                                                              </div>
-                                                            }
-                                                            title={<Text style={{ fontSize: 12 }}>{item.title}</Text>}
-                                                            description={
-                                                              <Tag style={{ fontSize: 9, padding: '0 4px' }}>{item.category}</Tag>
-                                                            }
-                                                          />
-                                                          <ExportOutlined
-                                                            style={{
-                                                              fontSize: 10,
-                                                              color: '#8c8c8c',
-                                                              transition: 'all 0.2s'
-                                                            }}
-                                                            onMouseEnter={(e) => {
-                                                              e.currentTarget.style.color = '#1677FF';
-                                                              e.currentTarget.style.transform = 'scale(1.1)';
-                                                            }}
-                                                            onMouseLeave={(e) => {
-                                                              e.currentTarget.style.color = '#8c8c8c';
-                                                              e.currentTarget.style.transform = 'scale(1)';
-                                                            }}
-                                                          />
-                                                        </List.Item>
-                                                      );
-                                                    }}
-                                                  />
-                                                </div>
-                                              )}
-                                            </div>
-                                          );
-                                        })}
-                                      </div>
-                                    )
-                                  },
-                                  {
-                                    key: 'warnings',
-                                    label: (
-                                      <Space size={4}>
-                                        <WarningOutlined style={{ color: '#F49342', fontSize: 14 }} />
-                                        <span>Cảnh báo</span>
-                                        <Tag
-                                          color="warning"
-                                          style={{
-                                            fontSize: 11,
-                                            padding: '0 6px',
-                                            background: '#FFF8F1',
-                                            color: '#F49342',
-                                            border: '1px solid #FFE8D7',
-                                            borderRadius: 10,
-                                            marginLeft: 4
-                                          }}
-                                        >
-                                          {alertsData.warnings.length}
-                                        </Tag>
-                                      </Space>
-                                    ),
-                                    children: (
-                                      <div style={{
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        gap: 6
-                                      }}>
-                                        {alertsData.warnings.map((alert) => {
-                                          const isExpanded = expandedAlerts.has(alert.id);
-                                          const guides = alertGuides[alert.id] || [];
-                                          return (
-                                            <div key={alert.id}>
-                                              <div
-                                                style={{
-                                                  display: 'flex',
-                                                  alignItems: 'center',
-                                                  padding: '10px 12px',
-                                                  borderRadius: 6,
-                                                  background: hoveredAlertId === alert.id ? '#FFE8D7' : '#FFF8F1',
-                                                  border: 'none',
-                                                  transition: 'all 0.2s',
-                                                  cursor: 'pointer',
-                                                  gap: 8
-                                                }}
-                                                onClick={() => {
-                                                  setExpandedAlerts(prev => {
-                                                    const newSet = new Set(prev);
-                                                    if (newSet.has(alert.id)) {
-                                                      newSet.delete(alert.id);
-                                                    } else {
-                                                      newSet.add(alert.id);
-                                                    }
-                                                    return newSet;
-                                                  });
-                                                }}
-                                                onMouseEnter={() => setHoveredAlertId(alert.id)}
-                                                onMouseLeave={() => setHoveredAlertId(null)}
-                                              >
-                                                <div style={{ flex: 1, minWidth: 0 }}>
-                                                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, flexWrap: 'wrap' }}>
-                                                    <span style={{
-                                                      fontSize: 20,
-                                                      fontWeight: 700,
-                                                      color: '#2b2b2b',
-                                                      lineHeight: 1
-                                                    }}>
-                                                      {alert.value || alert.count}
-                                                      {alert.unit === '%' ? '%' : alert.unit ? ` ${alert.unit}` : ''}
-                                                    </span>
-                                                    <Text style={{
-                                                      fontSize: 13,
-                                                      fontWeight: 500,
-                                                      color: '#2b2b2b'
-                                                    }}>
-                                                      {alert.title}
-                                                    </Text>
-                                                  </div>
-                                                </div>
-                                                {hoveredAlertId === alert.id && (
-                                                  <Tooltip title="Xem thêm">
-                                                    <EyeOutlined
-                                                      style={{
-                                                        fontSize: 14,
-                                                        color: '#6D7175',
-                                                        transition: 'all 0.2s',
-                                                        marginRight: 8
-                                                      }}
-                                                      onClick={(e) => {
-                                                        e.stopPropagation();
-                                                      }}
-                                                      onMouseEnter={(e) => {
-                                                        e.currentTarget.style.color = '#1677FF';
-                                                        e.currentTarget.style.transform = 'scale(1.1)';
-                                                      }}
-                                                      onMouseLeave={(e) => {
-                                                        e.currentTarget.style.color = '#6D7175';
-                                                        e.currentTarget.style.transform = 'scale(1)';
-                                                      }}
-                                                    />
-                                                  </Tooltip>
-                                                )}
-                                                {guides.length > 0 && (
-                                                  (isExpanded || hoveredAlertId === alert.id) ? (
-                                                    isExpanded ? (
-                                                      <DownOutlined
-                                                        style={{
-                                                          fontSize: 12,
-                                                          color: '#6D7175',
-                                                          transition: 'all 0.2s'
-                                                        }}
-                                                        onMouseEnter={(e) => {
-                                                          e.currentTarget.style.color = '#2b2b2b';
-                                                          e.currentTarget.style.transform = 'scale(1.1)';
-                                                        }}
-                                                        onMouseLeave={(e) => {
-                                                          e.currentTarget.style.color = '#6D7175';
-                                                          e.currentTarget.style.transform = 'scale(1)';
-                                                        }}
-                                                      />
-                                                    ) : (
-                                                      <Tooltip title="Hướng dẫn">
-                                                        <BookOutlined
-                                                          style={{
-                                                            fontSize: 12,
-                                                            color: '#6D7175',
-                                                            transition: 'all 0.2s'
-                                                          }}
-                                                          onMouseEnter={(e) => {
-                                                            e.currentTarget.style.color = '#2b2b2b';
-                                                            e.currentTarget.style.transform = 'scale(1.1)';
-                                                          }}
-                                                          onMouseLeave={(e) => {
-                                                            e.currentTarget.style.color = '#6D7175';
-                                                            e.currentTarget.style.transform = 'scale(1)';
-                                                          }}
-                                                        />
-                                                      </Tooltip>
-                                                    )
-                                                  ) : (
-                                                    <div style={{ width: 12 }} />
-                                                  )
-                                                )}
-                                              </div>
-                                              {isExpanded && guides.length > 0 && (
-                                                <div style={{
-                                                  padding: '12px',
-                                                  background: '#FAFAFA',
-                                                  borderLeft: '3px solid #F49342',
-                                                  marginTop: 4,
-                                                  borderRadius: '0 0 6px 6px'
-                                                }}>
-                                                  <List
-                                                    size="small"
-                                                    dataSource={guides}
-                                                    renderItem={(item) => {
-                                                      const getIcon = (type) => {
-                                                        return type === 'case-study' ? <LineChartOutlined /> : <BookOutlined />;
-                                                      };
-                                                      const getColor = (type) => {
-                                                        return type === 'case-study' ? '#52C41A' : '#1890FF';
-                                                      };
-                                                      return (
-                                                        <List.Item
-                                                          style={{ padding: '6px 0', cursor: 'pointer' }}
-                                                          onClick={() => message.info(`Đang mở: ${item.title}`)}
-                                                        >
-                                                          <List.Item.Meta
-                                                            avatar={
-                                                              <div style={{
-                                                                width: 24,
-                                                                height: 24,
-                                                                borderRadius: 6,
-                                                                background: `${getColor(item.type)}15`,
-                                                                display: 'flex',
-                                                                alignItems: 'center',
-                                                                justifyContent: 'center'
-                                                              }}>
-                                                                {React.cloneElement(getIcon(item.type), {
-                                                                  style: { fontSize: 12, color: getColor(item.type) }
-                                                                })}
-                                                              </div>
-                                                            }
-                                                            title={<Text style={{ fontSize: 12 }}>{item.title}</Text>}
-                                                            description={
-                                                              <Tag style={{ fontSize: 9, padding: '0 4px' }}>{item.category}</Tag>
-                                                            }
-                                                          />
-                                                          <ExportOutlined
-                                                            style={{
-                                                              fontSize: 10,
-                                                              color: '#8c8c8c',
-                                                              transition: 'all 0.2s'
-                                                            }}
-                                                            onMouseEnter={(e) => {
-                                                              e.currentTarget.style.color = '#1677FF';
-                                                              e.currentTarget.style.transform = 'scale(1.1)';
-                                                            }}
-                                                            onMouseLeave={(e) => {
-                                                              e.currentTarget.style.color = '#8c8c8c';
-                                                              e.currentTarget.style.transform = 'scale(1)';
-                                                            }}
-                                                          />
-                                                        </List.Item>
-                                                      );
-                                                    }}
-                                                  />
-                                                </div>
-                                              )}
-                                            </div>
-                                          );
-                                        })}
-                                      </div>
-                                    )
-                                  }
-                                ]}
-                              />
-                            </Card>
-                          )}
+                              Tạo
+                            </Button>
+                          </Space>
+                        )}
+                        {activeModule === 'template-create' && (
+                          <Space size="middle" wrap>
+                            <Button
+                              icon={<LeftOutlined />}
+                              onClick={handleCancelTemplateCreation}
+                            >
+                              Quay lại danh sách
+                            </Button>
+                          </Space>
+                        )}
+                      </div>
+                    )}
 
-                          {/* Có thể bạn quan tâm - Case Study & Blog Only */}
-                          {(selectedWorkspace?.layout?.showGuides !== false && selectedWorkspace) && (
-                            <Card
-                              title={<Text strong style={{ fontSize: 14, color: '#2b2b2b' }}>Có thể bạn quan tâm</Text>}
-                              size="small"
-                              extra={
-                                (() => {
-                                  const linkData = selectedTemplate?.sectionLinks?.['tin-tuc'];
-                                  const linkUrl = typeof linkData === 'object' ? linkData?.url : linkData;
-                                  const linkText = typeof linkData === 'object' ? (linkData?.text || 'Xem thêm') : 'Xem thêm';
-                                  return linkUrl ? (
-                                    <Button
-                                      type="link"
-                                      size="small"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        window.open(linkUrl, '_blank', 'noopener,noreferrer');
-                                      }}
-                                      style={{ padding: 0 }}
-                                      className="xem-them-link"
+                    {activeModule === 'home' ? (
+                      <>
+                        {/* Date Period Selector and Customize Action */}
+                        <div style={{
+                          marginBottom: 20,
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'space-between',
+                          gap: 16,
+                          flexWrap: 'wrap'
+                        }}>
+                          <Select
+                            value={datePeriod}
+                            onChange={setDatePeriod}
+                            style={{ width: 150 }}
+                            options={[
+                              { label: 'Hôm qua', value: 'yesterday' },
+                              { label: 'Hôm nay', value: 'today' },
+                              { label: 'Tuần này', value: 'thisWeek' },
+                              { label: 'Tháng này', value: 'thisMonth' },
+                              { label: 'Năm nay', value: 'thisYear' }
+                            ]}
+                          />
+                          <Button
+                            type="text"
+                            icon={<EditOutlined />}
+                            onClick={() => setActiveModule('workspace-settings')}
+                            style={{
+                              color: '#6D7175',
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: 6
+                            }}
+                          >
+                            Tùy chỉnh
+                          </Button>
+                        </div>
+
+                        <Row gutter={24}>
+                          {/* Left Main Column */}
+                          <Col xs={24} lg={17}>
+                            <Space orientation="vertical" size={20} style={{ width: '100%' }}>
+                              {/* Báo cáo kết quả - Customizable với Template System */}
+                              {(selectedWorkspace?.layout?.showDashboard !== false && selectedWorkspace) && (
+                                <Card
+                                  title={<Text strong style={{ fontSize: 16, color: '#2b2b2b' }}>Báo cáo kết quả</Text>}
+                                  extra={
+                                    isReorderMode ? (
+                                      <Space>
+                                        <Button
+                                          size="small"
+                                          onClick={handleCancelReorder}
+                                        >
+                                          Hủy
+                                        </Button>
+                                        <Button
+                                          size="small"
+                                          type="primary"
+                                          icon={<SaveOutlined />}
+                                          onClick={handleSaveOrder}
+                                        >
+                                          Lưu sắp xếp
+                                        </Button>
+                                      </Space>
+                                    ) : (() => {
+                                      const linkData = selectedTemplate?.sectionLinks?.['bao-cao'];
+                                      const linkUrl = typeof linkData === 'object' ? linkData?.url : linkData;
+                                      const linkText = typeof linkData === 'object' ? (linkData?.text || 'Xem thêm') : 'Xem thêm';
+                                      return (
+                                        <Button
+                                          type="link"
+                                          size="small"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            if (linkUrl) {
+                                              window.open(linkUrl, '_blank', 'noopener,noreferrer');
+                                            }
+                                          }}
+                                          style={{ padding: 0 }}
+                                          className="xem-them-link"
+                                        >
+                                          {linkText}
+                                        </Button>
+                                      );
+                                    })()
+                                  }
+                                  style={{
+                                    background: '#fff',
+                                    border: '1px solid #E1E3E5',
+                                    borderRadius: 16,
+                                    boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)'
+                                  }}
+                                >
+                                  {isReorderMode ? (
+                                    <DndContext
+                                      collisionDetection={closestCenter}
+                                      onDragEnd={handleDragEnd}
                                     >
-                                      {linkText}
-                                    </Button>
+                                      <SortableContext
+                                        items={tempMetricOrder}
+                                        strategy={verticalListSortingStrategy}
+                                      >
+                                        <Row gutter={[12, 12]}>
+                                          {tempMetricOrder.map(metricId => {
+                                            const metric = allMetricsPool.find(m => m.id === metricId);
+                                            return metric ? (
+                                              <Col span={8} key={metric.id}>
+                                                <SortableMetricCard metric={metric} isReorderMode={true} />
+                                              </Col>
+                                            ) : null;
+                                          })}
+                                        </Row>
+                                      </SortableContext>
+                                    </DndContext>
                                   ) : (
-                                    <Button
-                                      type="link"
-                                      size="small"
-                                      onClick={(e) => e.stopPropagation()}
-                                    >
-                                      Tất cả
-                                    </Button>
-                                  );
-                                })()
-                              }
-                              style={{
-                                background: '#fff',
-                                border: '1px solid #E1E3E5',
-                                borderRadius: 12,
-                                boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)'
-                              }}
-                            >
-                              <List
-                                size="small"
-                                dataSource={contentItems.insights}
-                                renderItem={(item) => {
-                                  const getIcon = (iconType) => {
-                                    switch (iconType) {
-                                      case 'chart': return <LineChartOutlined />;
-                                      case 'bulb': return <BulbOutlined />;
-                                      case 'book': return <BookOutlined />;
-                                      default: return <BookOutlined />;
-                                    }
-                                  };
-                                  return (
-                                    <List.Item
-                                      style={{ padding: '8px 0', cursor: 'pointer' }}
-                                      onClick={() => message.info('Đang mở bài viết...')}
-                                    >
-                                      <List.Item.Meta
-                                        avatar={
+                                    <Row gutter={[12, 12]}>
+                                      {currentMetrics.map((metric, idx) => (
+                                        <Col span={8} key={metric.id || idx}>
+                                          <KPICard {...metric} title={metric.name} />
+                                        </Col>
+                                      ))}
+                                    </Row>
+                                  )}
+                                </Card>
+                              )}
+
+                              {/* Báo cáo tiến độ - Customizable */}
+                              {(selectedWorkspace?.layout?.showDashboard !== false && selectedWorkspace) && (
+                                <Card
+                                  title={<Text strong style={{ fontSize: 16, color: '#2b2b2b' }}>Báo cáo tiến độ</Text>}
+                                  extra={(() => {
+                                    const linkData = selectedTemplate?.sectionLinks?.['bao-cao'];
+                                    const linkUrl = typeof linkData === 'object' ? linkData?.url : linkData;
+                                    const linkText = typeof linkData === 'object' ? (linkData?.text || 'Xem thêm') : 'Xem thêm';
+                                    return (
+                                      <Button
+                                        type="link"
+                                        size="small"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          if (linkUrl) {
+                                            window.open(linkUrl, '_blank', 'noopener,noreferrer');
+                                          }
+                                        }}
+                                        style={{ padding: 0 }}
+                                        className="xem-them-link"
+                                      >
+                                        {linkText}
+                                      </Button>
+                                    );
+                                  })()}
+                                  style={{
+                                    background: '#fff',
+                                    border: '1px solid #E1E3E5',
+                                    borderRadius: 16,
+                                    boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)'
+                                  }}
+                                >
+                                  <Row gutter={[16, 16]}>
+                                    {progressGoals.map((goal, idx) => (
+                                      <Col xs={24} md={8} key={idx}>
+                                        <div style={{
+                                          padding: '20px 16px',
+                                          background: '#F7F7F7',
+                                          borderRadius: 12,
+                                          border: 'none'
+                                        }}>
+                                          <div style={{ fontSize: 13, color: '#6D7175', marginBottom: 8, fontWeight: 500 }}>
+                                            {goal.title}
+                                          </div>
+                                          <div style={{ fontSize: 24, fontWeight: 700, marginBottom: 12, color: '#2b2b2b' }}>
+                                            {goal.current} / {goal.target}
+                                          </div>
+                                          <Progress
+                                            percent={goal.percent}
+                                            strokeColor="#1677FF"
+                                            size={10}
+                                            showInfo={false}
+                                          />
                                           <div style={{
-                                            width: 32,
-                                            height: 32,
-                                            borderRadius: 8,
-                                            background: `${item.color}15`,
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center'
+                                            fontSize: 14,
+                                            color: '#2b2b2b',
+                                            marginTop: 8,
+                                            fontWeight: 500
                                           }}>
-                                            {React.cloneElement(getIcon(item.icon), {
-                                              style: { fontSize: 16, color: item.color }
+                                            {goal.percent}% {goal.status}
+                                          </div>
+                                        </div>
+                                      </Col>
+                                    ))}
+                                  </Row>
+                                </Card>
+                              )}
+
+                              {/* Xu hướng Doanh thu */}
+                              {(selectedWorkspace?.layout?.showDashboard !== false && selectedWorkspace) && (
+                                <Card
+                                  title={<Text strong style={{ fontSize: 16, color: '#2b2b2b' }}>Xu hướng Doanh thu</Text>}
+                                  style={{
+                                    background: '#fff',
+                                    border: '1px solid #E1E3E5',
+                                    borderRadius: 16,
+                                    boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)'
+                                  }}
+                                  extra={
+                                    <Radio.Group defaultValue={30} size="small">
+                                      <Radio.Button value={7}>7 ngày</Radio.Button>
+                                      <Radio.Button value={30}>30 ngày</Radio.Button>
+                                      <Radio.Button value={60}>60 ngày</Radio.Button>
+                                    </Radio.Group>
+                                  }
+                                >
+                                  <ResponsiveContainer width="100%" height={300}>
+                                    <LineChart data={revenueTrendData}>
+                                      <CartesianGrid strokeDasharray="3 3" stroke="#E1E3E5" />
+                                      <XAxis
+                                        dataKey="date"
+                                        stroke="#6D7175"
+                                        tick={{ fill: '#6D7175', fontSize: 11 }}
+                                      />
+                                      <YAxis
+                                        stroke="#6D7175"
+                                        tickFormatter={(v) => `₫${v}M`}
+                                        tick={{ fill: '#6D7175', fontSize: 11 }}
+                                      />
+                                      <ChartTooltip
+                                        contentStyle={{
+                                          background: '#fff',
+                                          border: '1px solid #e5e7eb',
+                                          borderRadius: 8,
+                                          fontSize: 13
+                                        }}
+                                        formatter={(value) => [`₫${value}M`, 'Doanh thu']}
+                                      />
+                                      <RechartLine
+                                        type="monotone"
+                                        dataKey="revenue"
+                                        stroke="#2b2b2b"
+                                        strokeWidth={2}
+                                        dot={{ fill: '#2b2b2b', stroke: '#fff', strokeWidth: 2, r: 4 }}
+                                        activeDot={{ r: 6 }}
+                                      />
+                                    </LineChart>
+                                  </ResponsiveContainer>
+                                </Card>
+                              )}
+
+                            </Space>
+                          </Col>
+
+                          {/* Right Sidebar */}
+                          <Col xs={24} lg={7}>
+                            <Space orientation="vertical" size={16} style={{ width: '100%' }}>
+                              {/* Alert & Risks - Tabbed */}
+                              {(selectedWorkspace?.layout?.showAlerts !== false && selectedWorkspace) && (
+                                <Card
+                                  title={<Text strong style={{ fontSize: 14, color: '#2b2b2b' }}>Alert & Risks</Text>}
+                                  size="small"
+                                  style={{
+                                    background: '#fff',
+                                    border: '1px solid #E1E3E5',
+                                    borderRadius: 12,
+                                    boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)',
+                                    cursor: selectedTemplate?.sectionLinks?.['loi-canh-bao'] ? 'pointer' : 'default'
+                                  }}
+                                  onClick={() => {
+                                    const link = selectedTemplate?.sectionLinks?.['loi-canh-bao'];
+                                    if (link) {
+                                      window.open(link, '_blank', 'noopener,noreferrer');
+                                    }
+                                  }}
+                                >
+                                  <Tabs
+                                    defaultActiveKey="errors"
+                                    size="small"
+                                    items={[
+                                      {
+                                        key: 'errors',
+                                        label: (
+                                          <Space size={4}>
+                                            <ExclamationCircleOutlined style={{ color: '#D72C0D', fontSize: 14 }} />
+                                            <span>Lỗi</span>
+                                            <Tag
+                                              color="error"
+                                              style={{
+                                                fontSize: 11,
+                                                padding: '0 6px',
+                                                background: '#FEF3F2',
+                                                color: '#D72C0D',
+                                                border: '1px solid #FECDD6',
+                                                borderRadius: 10,
+                                                marginLeft: 4
+                                              }}
+                                            >
+                                              {alertsData.errors.length}
+                                            </Tag>
+                                          </Space>
+                                        ),
+                                        children: (
+                                          <div style={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 6
+                                          }}>
+                                            {alertsData.errors.map((alert) => {
+                                              const isExpanded = expandedAlerts.has(alert.id);
+                                              const guides = alertGuides[alert.id] || [];
+                                              return (
+                                                <div key={alert.id}>
+                                                  <div
+                                                    style={{
+                                                      display: 'flex',
+                                                      alignItems: 'center',
+                                                      padding: '10px 12px',
+                                                      borderRadius: 6,
+                                                      background: hoveredAlertId === alert.id ? '#FEE4E2' : '#FEF3F2',
+                                                      border: 'none',
+                                                      transition: 'all 0.2s',
+                                                      cursor: 'pointer',
+                                                      gap: 8
+                                                    }}
+                                                    onClick={() => {
+                                                      setExpandedAlerts(prev => {
+                                                        const newSet = new Set(prev);
+                                                        if (newSet.has(alert.id)) {
+                                                          newSet.delete(alert.id);
+                                                        } else {
+                                                          newSet.add(alert.id);
+                                                        }
+                                                        return newSet;
+                                                      });
+                                                    }}
+                                                    onMouseEnter={() => setHoveredAlertId(alert.id)}
+                                                    onMouseLeave={() => setHoveredAlertId(null)}
+                                                  >
+                                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, flexWrap: 'wrap' }}>
+                                                        <span style={{
+                                                          fontSize: 20,
+                                                          fontWeight: 700,
+                                                          color: '#2b2b2b',
+                                                          lineHeight: 1
+                                                        }}>
+                                                          {alert.value || alert.count}
+                                                        </span>
+                                                        <Text style={{
+                                                          fontSize: 13,
+                                                          fontWeight: 500,
+                                                          color: '#2b2b2b'
+                                                        }}>
+                                                          {alert.title}
+                                                        </Text>
+                                                      </div>
+                                                    </div>
+                                                    {hoveredAlertId === alert.id && (
+                                                      <Tooltip title="Xem thêm">
+                                                        <EyeOutlined
+                                                          style={{
+                                                            fontSize: 14,
+                                                            color: '#6D7175',
+                                                            transition: 'all 0.2s',
+                                                            marginRight: 8
+                                                          }}
+                                                          onClick={(e) => {
+                                                            e.stopPropagation();
+                                                          }}
+                                                          onMouseEnter={(e) => {
+                                                            e.currentTarget.style.color = '#1677FF';
+                                                            e.currentTarget.style.transform = 'scale(1.1)';
+                                                          }}
+                                                          onMouseLeave={(e) => {
+                                                            e.currentTarget.style.color = '#6D7175';
+                                                            e.currentTarget.style.transform = 'scale(1)';
+                                                          }}
+                                                        />
+                                                      </Tooltip>
+                                                    )}
+                                                    {guides.length > 0 && (
+                                                      (isExpanded || hoveredAlertId === alert.id) ? (
+                                                        isExpanded ? (
+                                                          <DownOutlined
+                                                            style={{
+                                                              fontSize: 12,
+                                                              color: '#6D7175',
+                                                              transition: 'all 0.2s'
+                                                            }}
+                                                            onMouseEnter={(e) => {
+                                                              e.currentTarget.style.color = '#2b2b2b';
+                                                              e.currentTarget.style.transform = 'scale(1.1)';
+                                                            }}
+                                                            onMouseLeave={(e) => {
+                                                              e.currentTarget.style.color = '#6D7175';
+                                                              e.currentTarget.style.transform = 'scale(1)';
+                                                            }}
+                                                          />
+                                                        ) : (
+                                                          <Tooltip title="Hướng dẫn">
+                                                            <BookOutlined
+                                                              style={{
+                                                                fontSize: 12,
+                                                                color: '#6D7175',
+                                                                transition: 'all 0.2s'
+                                                              }}
+                                                              onMouseEnter={(e) => {
+                                                                e.currentTarget.style.color = '#2b2b2b';
+                                                                e.currentTarget.style.transform = 'scale(1.1)';
+                                                              }}
+                                                              onMouseLeave={(e) => {
+                                                                e.currentTarget.style.color = '#6D7175';
+                                                                e.currentTarget.style.transform = 'scale(1)';
+                                                              }}
+                                                            />
+                                                          </Tooltip>
+                                                        )
+                                                      ) : (
+                                                        <div style={{ width: 12 }} />
+                                                      )
+                                                    )}
+                                                  </div>
+                                                  {isExpanded && guides.length > 0 && (
+                                                    <div style={{
+                                                      padding: '12px',
+                                                      background: '#FAFAFA',
+                                                      borderLeft: '3px solid #D72C0D',
+                                                      marginTop: 4,
+                                                      borderRadius: '0 0 6px 6px'
+                                                    }}>
+                                                      <List
+                                                        size="small"
+                                                        dataSource={guides}
+                                                        renderItem={(item) => {
+                                                          const getIcon = (type) => {
+                                                            return type === 'case-study' ? <LineChartOutlined /> : <BookOutlined />;
+                                                          };
+                                                          const getColor = (type) => {
+                                                            return type === 'case-study' ? '#52C41A' : '#1890FF';
+                                                          };
+                                                          return (
+                                                            <List.Item
+                                                              style={{ padding: '6px 0', cursor: 'pointer' }}
+                                                              onClick={() => message.info(`Đang mở: ${item.title}`)}
+                                                            >
+                                                              <List.Item.Meta
+                                                                avatar={
+                                                                  <div style={{
+                                                                    width: 24,
+                                                                    height: 24,
+                                                                    borderRadius: 6,
+                                                                    background: `${getColor(item.type)}15`,
+                                                                    display: 'flex',
+                                                                    alignItems: 'center',
+                                                                    justifyContent: 'center'
+                                                                  }}>
+                                                                    {React.cloneElement(getIcon(item.type), {
+                                                                      style: { fontSize: 12, color: getColor(item.type) }
+                                                                    })}
+                                                                  </div>
+                                                                }
+                                                                title={<Text style={{ fontSize: 12 }}>{item.title}</Text>}
+                                                                description={
+                                                                  <Tag style={{ fontSize: 9, padding: '0 4px' }}>{item.category}</Tag>
+                                                                }
+                                                              />
+                                                              <ExportOutlined
+                                                                style={{
+                                                                  fontSize: 10,
+                                                                  color: '#8c8c8c',
+                                                                  transition: 'all 0.2s'
+                                                                }}
+                                                                onMouseEnter={(e) => {
+                                                                  e.currentTarget.style.color = '#1677FF';
+                                                                  e.currentTarget.style.transform = 'scale(1.1)';
+                                                                }}
+                                                                onMouseLeave={(e) => {
+                                                                  e.currentTarget.style.color = '#8c8c8c';
+                                                                  e.currentTarget.style.transform = 'scale(1)';
+                                                                }}
+                                                              />
+                                                            </List.Item>
+                                                          );
+                                                        }}
+                                                      />
+                                                    </div>
+                                                  )}
+                                                </div>
+                                              );
                                             })}
                                           </div>
-                                        }
-                                        title={<Text style={{ fontSize: 13 }}>{item.title}</Text>}
-                                        description={
-                                          <Space>
-                                            <Tag style={{ fontSize: 10, padding: '0 4px' }}>{item.category}</Tag>
-                                            <Text style={{ fontSize: 11, color: '#8c8c8c' }}>{item.date}</Text>
+                                        )
+                                      },
+                                      {
+                                        key: 'warnings',
+                                        label: (
+                                          <Space size={4}>
+                                            <WarningOutlined style={{ color: '#F49342', fontSize: 14 }} />
+                                            <span>Cảnh báo</span>
+                                            <Tag
+                                              color="warning"
+                                              style={{
+                                                fontSize: 11,
+                                                padding: '0 6px',
+                                                background: '#FFF8F1',
+                                                color: '#F49342',
+                                                border: '1px solid #FFE8D7',
+                                                borderRadius: 10,
+                                                marginLeft: 4
+                                              }}
+                                            >
+                                              {alertsData.warnings.length}
+                                            </Tag>
                                           </Space>
+                                        ),
+                                        children: (
+                                          <div style={{
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            gap: 6
+                                          }}>
+                                            {alertsData.warnings.map((alert) => {
+                                              const isExpanded = expandedAlerts.has(alert.id);
+                                              const guides = alertGuides[alert.id] || [];
+                                              return (
+                                                <div key={alert.id}>
+                                                  <div
+                                                    style={{
+                                                      display: 'flex',
+                                                      alignItems: 'center',
+                                                      padding: '10px 12px',
+                                                      borderRadius: 6,
+                                                      background: hoveredAlertId === alert.id ? '#FFE8D7' : '#FFF8F1',
+                                                      border: 'none',
+                                                      transition: 'all 0.2s',
+                                                      cursor: 'pointer',
+                                                      gap: 8
+                                                    }}
+                                                    onClick={() => {
+                                                      setExpandedAlerts(prev => {
+                                                        const newSet = new Set(prev);
+                                                        if (newSet.has(alert.id)) {
+                                                          newSet.delete(alert.id);
+                                                        } else {
+                                                          newSet.add(alert.id);
+                                                        }
+                                                        return newSet;
+                                                      });
+                                                    }}
+                                                    onMouseEnter={() => setHoveredAlertId(alert.id)}
+                                                    onMouseLeave={() => setHoveredAlertId(null)}
+                                                  >
+                                                    <div style={{ flex: 1, minWidth: 0 }}>
+                                                      <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, flexWrap: 'wrap' }}>
+                                                        <span style={{
+                                                          fontSize: 20,
+                                                          fontWeight: 700,
+                                                          color: '#2b2b2b',
+                                                          lineHeight: 1
+                                                        }}>
+                                                          {alert.value || alert.count}
+                                                          {alert.unit === '%' ? '%' : alert.unit ? ` ${alert.unit}` : ''}
+                                                        </span>
+                                                        <Text style={{
+                                                          fontSize: 13,
+                                                          fontWeight: 500,
+                                                          color: '#2b2b2b'
+                                                        }}>
+                                                          {alert.title}
+                                                        </Text>
+                                                      </div>
+                                                    </div>
+                                                    {hoveredAlertId === alert.id && (
+                                                      <Tooltip title="Xem thêm">
+                                                        <EyeOutlined
+                                                          style={{
+                                                            fontSize: 14,
+                                                            color: '#6D7175',
+                                                            transition: 'all 0.2s',
+                                                            marginRight: 8
+                                                          }}
+                                                          onClick={(e) => {
+                                                            e.stopPropagation();
+                                                          }}
+                                                          onMouseEnter={(e) => {
+                                                            e.currentTarget.style.color = '#1677FF';
+                                                            e.currentTarget.style.transform = 'scale(1.1)';
+                                                          }}
+                                                          onMouseLeave={(e) => {
+                                                            e.currentTarget.style.color = '#6D7175';
+                                                            e.currentTarget.style.transform = 'scale(1)';
+                                                          }}
+                                                        />
+                                                      </Tooltip>
+                                                    )}
+                                                    {guides.length > 0 && (
+                                                      (isExpanded || hoveredAlertId === alert.id) ? (
+                                                        isExpanded ? (
+                                                          <DownOutlined
+                                                            style={{
+                                                              fontSize: 12,
+                                                              color: '#6D7175',
+                                                              transition: 'all 0.2s'
+                                                            }}
+                                                            onMouseEnter={(e) => {
+                                                              e.currentTarget.style.color = '#2b2b2b';
+                                                              e.currentTarget.style.transform = 'scale(1.1)';
+                                                            }}
+                                                            onMouseLeave={(e) => {
+                                                              e.currentTarget.style.color = '#6D7175';
+                                                              e.currentTarget.style.transform = 'scale(1)';
+                                                            }}
+                                                          />
+                                                        ) : (
+                                                          <Tooltip title="Hướng dẫn">
+                                                            <BookOutlined
+                                                              style={{
+                                                                fontSize: 12,
+                                                                color: '#6D7175',
+                                                                transition: 'all 0.2s'
+                                                              }}
+                                                              onMouseEnter={(e) => {
+                                                                e.currentTarget.style.color = '#2b2b2b';
+                                                                e.currentTarget.style.transform = 'scale(1.1)';
+                                                              }}
+                                                              onMouseLeave={(e) => {
+                                                                e.currentTarget.style.color = '#6D7175';
+                                                                e.currentTarget.style.transform = 'scale(1)';
+                                                              }}
+                                                            />
+                                                          </Tooltip>
+                                                        )
+                                                      ) : (
+                                                        <div style={{ width: 12 }} />
+                                                      )
+                                                    )}
+                                                  </div>
+                                                  {isExpanded && guides.length > 0 && (
+                                                    <div style={{
+                                                      padding: '12px',
+                                                      background: '#FAFAFA',
+                                                      borderLeft: '3px solid #F49342',
+                                                      marginTop: 4,
+                                                      borderRadius: '0 0 6px 6px'
+                                                    }}>
+                                                      <List
+                                                        size="small"
+                                                        dataSource={guides}
+                                                        renderItem={(item) => {
+                                                          const getIcon = (type) => {
+                                                            return type === 'case-study' ? <LineChartOutlined /> : <BookOutlined />;
+                                                          };
+                                                          const getColor = (type) => {
+                                                            return type === 'case-study' ? '#52C41A' : '#1890FF';
+                                                          };
+                                                          return (
+                                                            <List.Item
+                                                              style={{ padding: '6px 0', cursor: 'pointer' }}
+                                                              onClick={() => message.info(`Đang mở: ${item.title}`)}
+                                                            >
+                                                              <List.Item.Meta
+                                                                avatar={
+                                                                  <div style={{
+                                                                    width: 24,
+                                                                    height: 24,
+                                                                    borderRadius: 6,
+                                                                    background: `${getColor(item.type)}15`,
+                                                                    display: 'flex',
+                                                                    alignItems: 'center',
+                                                                    justifyContent: 'center'
+                                                                  }}>
+                                                                    {React.cloneElement(getIcon(item.type), {
+                                                                      style: { fontSize: 12, color: getColor(item.type) }
+                                                                    })}
+                                                                  </div>
+                                                                }
+                                                                title={<Text style={{ fontSize: 12 }}>{item.title}</Text>}
+                                                                description={
+                                                                  <Tag style={{ fontSize: 9, padding: '0 4px' }}>{item.category}</Tag>
+                                                                }
+                                                              />
+                                                              <ExportOutlined
+                                                                style={{
+                                                                  fontSize: 10,
+                                                                  color: '#8c8c8c',
+                                                                  transition: 'all 0.2s'
+                                                                }}
+                                                                onMouseEnter={(e) => {
+                                                                  e.currentTarget.style.color = '#1677FF';
+                                                                  e.currentTarget.style.transform = 'scale(1.1)';
+                                                                }}
+                                                                onMouseLeave={(e) => {
+                                                                  e.currentTarget.style.color = '#8c8c8c';
+                                                                  e.currentTarget.style.transform = 'scale(1)';
+                                                                }}
+                                                              />
+                                                            </List.Item>
+                                                          );
+                                                        }}
+                                                      />
+                                                    </div>
+                                                  )}
+                                                </div>
+                                              );
+                                            })}
+                                          </div>
+                                        )
+                                      }
+                                    ]}
+                                  />
+                                </Card>
+                              )}
+
+                              {/* Có thể bạn quan tâm - Case Study & Blog Only */}
+                              {(selectedWorkspace?.layout?.showGuides !== false && selectedWorkspace) && (
+                                <Card
+                                  title={<Text strong style={{ fontSize: 14, color: '#2b2b2b' }}>Có thể bạn quan tâm</Text>}
+                                  size="small"
+                                  extra={
+                                    (() => {
+                                      const linkData = selectedTemplate?.sectionLinks?.['tin-tuc'];
+                                      const linkUrl = typeof linkData === 'object' ? linkData?.url : linkData;
+                                      const linkText = typeof linkData === 'object' ? (linkData?.text || 'Xem thêm') : 'Xem thêm';
+                                      return linkUrl ? (
+                                        <Button
+                                          type="link"
+                                          size="small"
+                                          onClick={(e) => {
+                                            e.stopPropagation();
+                                            window.open(linkUrl, '_blank', 'noopener,noreferrer');
+                                          }}
+                                          style={{ padding: 0 }}
+                                          className="xem-them-link"
+                                        >
+                                          {linkText}
+                                        </Button>
+                                      ) : (
+                                        <Button
+                                          type="link"
+                                          size="small"
+                                          onClick={(e) => e.stopPropagation()}
+                                        >
+                                          Tất cả
+                                        </Button>
+                                      );
+                                    })()
+                                  }
+                                  style={{
+                                    background: '#fff',
+                                    border: '1px solid #E1E3E5',
+                                    borderRadius: 12,
+                                    boxShadow: '0 1px 2px rgba(43, 43, 43, 0.06)'
+                                  }}
+                                >
+                                  <List
+                                    size="small"
+                                    dataSource={contentItems.insights}
+                                    renderItem={(item) => {
+                                      const getIcon = (iconType) => {
+                                        switch (iconType) {
+                                          case 'chart': return <LineChartOutlined />;
+                                          case 'bulb': return <BulbOutlined />;
+                                          case 'book': return <BookOutlined />;
+                                          default: return <BookOutlined />;
                                         }
-                                      />
-                                      <ExportOutlined
-                                        style={{
-                                          fontSize: 12,
-                                          color: '#8c8c8c',
-                                          transition: 'all 0.2s'
-                                        }}
-                                        onMouseEnter={(e) => {
-                                          e.currentTarget.style.color = '#1677FF';
-                                          e.currentTarget.style.transform = 'scale(1.1)';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                          e.currentTarget.style.color = '#8c8c8c';
-                                          e.currentTarget.style.transform = 'scale(1)';
-                                        }}
-                                      />
-                                    </List.Item>
-                                  );
-                                }}
-                              />
-                            </Card>
-                          )}
-                        </Space>
-                      </Col>
-                    </Row>
-                  </>
-                ) : activeModule === 'orders' || activeModule === 'danh-sach-don-hang' ? (
-                  <OrderList />
-                ) : activeModule === 'xu-ly-hang-loat' ? (
-                  <OrderProcessing />
-                ) : activeModule === 'xu-ly-theo-danh-sach' ? (
-                  <ProcessByList />
-                ) : activeModule === 'xu-ly-tra-hang' ? (
-                  <ProcessReturnOrderView />
-                ) : activeModule === 'don-hoan' ? (
-                  <ReturnOrderOnlyView />
-                ) : activeModule === 'phien-ban-giao' ? (
-                  <DeliverySessionView />
-                ) : activeModule === 'quy-tac-tang-qua' ? (
-                  <GiftRuleView />
-                ) : activeModule === 'them-san-pham' ? (
-                  <AddProductView />
-                ) : activeModule === 'luu-nhap' ? (
-                  <DraftProductsView />
-                ) : activeModule === 'danh-sach-san-pham' ? (
-                  <ProductLinkingView />
-                ) : activeModule === 'lien-ket-san-pham' ? (
-                  <PlatformProductsView />
-                ) : activeModule === 'quan-ly-dong-bo' ? (
-                  <SyncManagementView />
-                ) : activeModule === 'lich-su-day-ton' ? (
-                  <StockPushHistoryView />
-                ) : activeModule === 'danh-sach-khach-hang' ? (
-                  <CustomerListView />
-                ) : activeModule === 'quan-ly-phan-hoi' ? (
-                  <ReviewManagementView />
-                ) : activeModule === 'danh-gia-tu-dong' ? (
-                  <AutoReviewView />
-                ) : activeModule === 'danh-sach-khung-anh' ? (
-                  <FrameTemplateList />
-                ) : activeModule === 'lap-lich-ap-khung' ? (
-                  <FrameScheduleManagement />
-                ) : activeModule === 'chuong-trinh-khuyen-mai-san' ? (
-                  <PlatformPromoView />
-                ) : activeModule === 'chuong-trinh-khuyen-mai-ups' ? (
-                  <UpsPromoView />
-                ) : activeModule === 'canh-bao-vi-pham-gia' ? (
-                  <PriceViolationView />
-                ) : activeModule === 'khach-hang-than-thiet' ? (
-                  <LoyalCustomerView />
-                ) : activeModule === 'danh-sach-chuong-trinh' ? (
-                  <ProgramListView />
-                ) : activeModule === 'danh-sach-hang-hanh-vien' ? (
-                  <MemberTierView />
-                ) : activeModule === 'tao-chien-dich' ? (
-                  <CreateCampaignView />
-                ) : activeModule === 'quan-ly-chien-dich' ? (
-                  <CampaignManagementView />
-                ) : activeModule === 'cau-hinh-thanh-toan' ? (
-                  <PaymentConfigView />
-                ) : activeModule === 'quan-ly-giao-dich-qua-cong' ? (
-                  <TransactionGatewayView />
-                ) : activeModule === 'san-pham-kho' ? (
-                  <WarehouseProductView />
-                ) : activeModule === 'danh-muc-san-pham' ? (
-                  <ProductCategoryView />
-                ) : activeModule === 'ton-kho' ? (
-                  <InventoryStockView />
-                ) : activeModule === 'kiem-kho' ? (
-                  <InventoryCheckView />
-                ) : activeModule === 'du-tru' ? (
-                  <ReserveView />
-                ) : activeModule === 'xuat-nhap-kho' ? (
-                  <ImportExportView />
-                ) : activeModule === 'dat-hang' ? (
-                  <OrderingView />
-                ) : activeModule === 'chuyen-kho' ? (
-                  <StockTransferView />
-                ) : activeModule === 'quan-ly-nha-cung-cap' ? (
-                  <SupplierManagementView />
-                ) : activeModule === 'doi-tac' ? (
-                  <SupplierManagementView />
-                ) : activeModule === 'danh-sach-kho' ? (
-                  <WarehouseListView />
-                ) : activeModule === 'bao-cao-thay-doi-ton' ? (
-                  <StockChangeReportView />
-                ) : activeModule === 'quan-ly-han-su-dung' ? (
-                  <ExpirationManagementView />
-                ) : activeModule === 'doi-soat' ? (
-                  <ReconciliationView />
-                ) : activeModule === 'ban-hang' ? (
-                  <SalesView />
-                ) : activeModule === 'chi-phi' ? (
-                  <CostView />
-                ) : activeModule === 'gia-von-vat' ? (
-                  <CostPriceVatView />
-                ) : activeModule === 'bao-cao-kinh-doanh' ? (
-                  <BusinessReportView />
-                ) : activeModule === 'giao-dich-ve-vi' ? (
-                  <WalletTransactionView />
-                ) : activeModule === 'quan-ly-xu' ? (
-                  <CoinManagementView />
-                ) : activeModule === 'bao-cao-van-hanh' ? (
-                  <OperationalReportView />
-                ) : activeModule === 'theo-doi-fullfilment' ? (
-                  <FulfillmentTrackingView />
-                ) : activeModule === 'bao-cao-dieu-hanh' ? (
-                  <ExecutiveReportView />
-                ) : activeModule === 'doi-soat-du-lieu-tu-dong' ? (
-                  <AutoReconciliationView />
-                ) : activeModule === 'dashboard' ? (
-                  <IncomeDashboard />
-                ) : activeModule === 'tai-khoan' ? (
-                  <SettingsAccountView />
-                ) : activeModule === 'quan-ly-gian-hang' ? (
-                  <SettingsStoreManagementView />
-                ) : activeModule === 'quan-ly-nhan-hang' ? (
-                  <SettingsBrandListView />
-                ) : activeModule === 'tai-khoan-quang-cao' ? (
-                  <SettingsAdAccountView />
-                ) : activeModule === 'xu-ly-ton-da-kenh' ? (
-                  <SettingsMultiChannelInventoryView />
-                ) : activeModule === 'cai-dat-tai-chinh' ? (
-                  <SettingsFinanceView />
-                ) : activeModule === 'cau-hinh-trang-thai-hang-hoa' ? (
-                  <SettingsProductStatusView />
-                ) : activeModule === 'cau-hinh-van-chuyen' ? (
-                  <SettingsShippingView />
-                ) : activeModule === 'workspace-settings' ? (
-                  renderWorkspaceSettings()
-                ) : activeModule === 'template-create' ? (
-                  renderTemplateBuilderScreen()
-                ) : (
-                  <div style={{ padding: 64 }}>
-                    <Empty description="Module đang được phát triển" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                                      };
+                                      return (
+                                        <List.Item
+                                          style={{ padding: '8px 0', cursor: 'pointer' }}
+                                          onClick={() => message.info('Đang mở bài viết...')}
+                                        >
+                                          <List.Item.Meta
+                                            avatar={
+                                              <div style={{
+                                                width: 32,
+                                                height: 32,
+                                                borderRadius: 8,
+                                                background: `${item.color}15`,
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center'
+                                              }}>
+                                                {React.cloneElement(getIcon(item.icon), {
+                                                  style: { fontSize: 16, color: item.color }
+                                                })}
+                                              </div>
+                                            }
+                                            title={<Text style={{ fontSize: 13 }}>{item.title}</Text>}
+                                            description={
+                                              <Space>
+                                                <Tag style={{ fontSize: 10, padding: '0 4px' }}>{item.category}</Tag>
+                                                <Text style={{ fontSize: 11, color: '#8c8c8c' }}>{item.date}</Text>
+                                              </Space>
+                                            }
+                                          />
+                                          <ExportOutlined
+                                            style={{
+                                              fontSize: 12,
+                                              color: '#8c8c8c',
+                                              transition: 'all 0.2s'
+                                            }}
+                                            onMouseEnter={(e) => {
+                                              e.currentTarget.style.color = '#1677FF';
+                                              e.currentTarget.style.transform = 'scale(1.1)';
+                                            }}
+                                            onMouseLeave={(e) => {
+                                              e.currentTarget.style.color = '#8c8c8c';
+                                              e.currentTarget.style.transform = 'scale(1)';
+                                            }}
+                                          />
+                                        </List.Item>
+                                      );
+                                    }}
+                                  />
+                                </Card>
+                              )}
+                            </Space>
+                          </Col>
+                        </Row>
+                      </>
+                    ) : activeModule === 'orders' || activeModule === 'danh-sach-don-hang' ? (
+                      <OrderList />
+                    ) : activeModule === 'xu-ly-hang-loat' ? (
+                      <OrderProcessing />
+                    ) : activeModule === 'xu-ly-theo-danh-sach' ? (
+                      <ProcessByList />
+                    ) : activeModule === 'xu-ly-tra-hang' ? (
+                      <ProcessReturnOrderView />
+                    ) : activeModule === 'don-hoan' ? (
+                      <ReturnOrderOnlyView />
+                    ) : activeModule === 'phien-ban-giao' ? (
+                      <DeliverySessionView />
+                    ) : activeModule === 'quy-tac-tang-qua' ? (
+                      <GiftRuleView />
+                    ) : activeModule === 'them-san-pham' ? (
+                      <AddProductView />
+                    ) : activeModule === 'luu-nhap' ? (
+                      <DraftProductsView />
+                    ) : activeModule === 'danh-sach-san-pham' ? (
+                      <ProductLinkingView />
+                    ) : activeModule === 'lien-ket-san-pham' ? (
+                      <PlatformProductsView />
+                    ) : activeModule === 'quan-ly-dong-bo' ? (
+                      <SyncManagementView />
+                    ) : activeModule === 'lich-su-day-ton' ? (
+                      <StockPushHistoryView />
+                    ) : activeModule === 'danh-sach-khach-hang' ? (
+                      <CustomerListView />
+                    ) : activeModule === 'quan-ly-phan-hoi' ? (
+                      <ReviewManagementView />
+                    ) : activeModule === 'danh-gia-tu-dong' ? (
+                      <AutoReviewView />
+                    ) : activeModule === 'danh-sach-khung-anh' ? (
+                      <FrameTemplateList />
+                    ) : activeModule === 'lap-lich-ap-khung' ? (
+                      <FrameScheduleManagement />
+                    ) : activeModule === 'chuong-trinh-khuyen-mai-san' ? (
+                      <PlatformPromoView />
+                    ) : activeModule === 'chuong-trinh-khuyen-mai-ups' ? (
+                      <UpsPromoView />
+                    ) : activeModule === 'canh-bao-vi-pham-gia' ? (
+                      <PriceViolationView />
+                    ) : activeModule === 'khach-hang-than-thiet' ? (
+                      <LoyalCustomerView />
+                    ) : activeModule === 'danh-sach-chuong-trinh' ? (
+                      <ProgramListView />
+                    ) : activeModule === 'danh-sach-hang-hanh-vien' ? (
+                      <MemberTierView />
+                    ) : activeModule === 'tao-chien-dich' ? (
+                      <CreateCampaignView />
+                    ) : activeModule === 'quan-ly-chien-dich' ? (
+                      <CampaignManagementView />
+                    ) : activeModule === 'cau-hinh-thanh-toan' ? (
+                      <PaymentConfigView />
+                    ) : activeModule === 'quan-ly-giao-dich-qua-cong' ? (
+                      <TransactionGatewayView />
+                    ) : activeModule === 'san-pham-kho' ? (
+                      <WarehouseProductView />
+                    ) : activeModule === 'danh-muc-san-pham' ? (
+                      <ProductCategoryView />
+                    ) : activeModule === 'ton-kho' ? (
+                      <InventoryStockView />
+                    ) : activeModule === 'kiem-kho' ? (
+                      <InventoryCheckView />
+                    ) : activeModule === 'du-tru' ? (
+                      <ReserveView />
+                    ) : activeModule === 'xuat-nhap-kho' ? (
+                      <ImportExportView />
+                    ) : activeModule === 'dat-hang' ? (
+                      <OrderingView />
+                    ) : activeModule === 'chuyen-kho' ? (
+                      <StockTransferView />
+                    ) : activeModule === 'quan-ly-nha-cung-cap' ? (
+                      <SupplierManagementView />
+                    ) : activeModule === 'doi-tac' ? (
+                      <SupplierManagementView />
+                    ) : activeModule === 'danh-sach-kho' ? (
+                      <WarehouseListView />
+                    ) : activeModule === 'bao-cao-thay-doi-ton' ? (
+                      <StockChangeReportView />
+                    ) : activeModule === 'quan-ly-han-su-dung' ? (
+                      <ExpirationManagementView />
+                    ) : activeModule === 'doi-soat' ? (
+                      <ReconciliationView />
+                    ) : activeModule === 'ban-hang' ? (
+                      <SalesView />
+                    ) : activeModule === 'chi-phi' ? (
+                      <CostView />
+                    ) : activeModule === 'gia-von-vat' ? (
+                      <CostPriceVatView />
+                    ) : activeModule === 'bao-cao-kinh-doanh' ? (
+                      <BusinessReportView />
+                    ) : activeModule === 'giao-dich-ve-vi' ? (
+                      <WalletTransactionView />
+                    ) : activeModule === 'quan-ly-xu' ? (
+                      <CoinManagementView />
+                    ) : activeModule === 'bao-cao-van-hanh' ? (
+                      <OperationalReportView />
+                    ) : activeModule === 'theo-doi-fullfilment' ? (
+                      <FulfillmentTrackingView />
+                    ) : activeModule === 'bao-cao-dieu-hanh' ? (
+                      <ExecutiveReportView />
+                    ) : activeModule === 'doi-soat-du-lieu-tu-dong' ? (
+                      <AutoReconciliationView />
+                    ) : activeModule === 'dashboard' ? (
+                      <IncomeDashboard />
+                    ) : activeModule === 'tai-khoan' ? (
+                      <SettingsAccountView />
+                    ) : activeModule === 'quan-ly-gian-hang' ? (
+                      <SettingsStoreManagementView />
+                    ) : activeModule === 'quan-ly-nhan-hang' ? (
+                      <SettingsBrandListView />
+                    ) : activeModule === 'tai-khoan-quang-cao' ? (
+                      <SettingsAdAccountView />
+                    ) : activeModule === 'xu-ly-ton-da-kenh' ? (
+                      <SettingsMultiChannelInventoryView />
+                    ) : activeModule === 'cai-dat-tai-chinh' ? (
+                      <SettingsFinanceView />
+                    ) : activeModule === 'cau-hinh-trang-thai-hang-hoa' ? (
+                      <SettingsProductStatusView />
+                    ) : activeModule === 'cau-hinh-van-chuyen' ? (
+                      <SettingsShippingView />
+                    ) : activeModule === 'workspace-settings' ? (
+                      renderWorkspaceSettings()
+                    ) : activeModule === 'template-create' ? (
+                      renderTemplateBuilderScreen()
+                    ) : (
+                      <div style={{ padding: 64 }}>
+                        <Empty description="Module đang được phát triển" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                      </div>
+                    )}
                   </div>
-                )}
+                  {/* Resize handle + Chat panel - width animates for smooth open/close */}
+                  <div
+                    role="separator"
+                    onMouseDown={handleResizeStart}
+                    style={{
+                      width: 6,
+                      cursor: 'col-resize',
+                      flexShrink: 0,
+                      background: '#E8E8E8',
+                      opacity: assistantChatOpen ? 1 : 0,
+                      pointerEvents: assistantChatOpen ? 'auto' : 'none',
+                      transition: 'opacity 0.2s ease'
+                    }}
+                  />
+                  <div style={{
+                    width: assistantChatOpen ? assistantChatWidth : 0,
+                    minWidth: assistantChatOpen ? ASSISTANT_CHAT_MIN_WIDTH : 0,
+                    flexShrink: 0,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    borderLeft: assistantChatOpen ? '1px solid #E1E3E5' : 'none',
+                    background: '#fff',
+                    borderRadius: '0 20px 20px 0',
+                    overflow: 'hidden',
+                    boxShadow: assistantChatOpen ? '-4px 0 16px rgba(0,0,0,0.06)' : 'none',
+                    transition: 'width 0.25s ease, min-width 0.25s ease, box-shadow 0.2s ease',
+                    height: '100%'
+                  }}>
+                    <div style={{ padding: '12px 16px', borderBottom: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: 12, flexShrink: 0, borderRadius: '0 20px 0 0' }}>
+                      <span style={{ fontWeight: 600, fontSize: 14 }}>Trợ lý ảo</span>
+                      <Select
+                        size="small"
+                        value={selectedAssistantId}
+                        onChange={setSelectedAssistantId}
+                        options={ASSISTANTS.map((a) => ({ label: `${a.name} - ${a.expertise}`, value: a.id }))}
+                        style={{ flex: 1, minWidth: 0 }}
+                      />
+                    </div>
+                    <div className="hide-scrollbar" style={{ flex: 1, overflow: 'auto', padding: 12, display: 'flex', flexDirection: 'column', gap: 8, minHeight: 0 }}>
+                      {chatMessages.length === 0 && (
+                        <div style={{ color: '#8c8c8c', fontSize: 13, textAlign: 'center', padding: 24 }}>
+                          Chọn trợ lý và hỏi theo nghiệp vụ. Màn Đơn hàng: tôi trả lời theo quy trình xử lý đơn đa sàn.
+                        </div>
+                      )}
+                      {chatMessages.map((m, i) => (
+                        <div
+                          key={i}
+                          style={{
+                            alignSelf: m.role === 'user' ? 'flex-end' : 'flex-start',
+                            maxWidth: '85%',
+                            padding: '8px 12px',
+                            borderRadius: 8,
+                            background: m.role === 'user' ? '#EF5941' : '#f5f5f5',
+                            color: m.role === 'user' ? '#fff' : '#262626',
+                            fontSize: 13
+                          }}
+                        >
+                          {m.text}
+                        </div>
+                      ))}
+                      <div ref={chatEndRef} />
+                    </div>
+                    <div style={{ padding: 12, borderTop: '1px solid #f0f0f0', display: 'flex', gap: 8, flexShrink: 0, borderRadius: '0 0 20px 0' }}>
+                      <Input
+                        value={chatInput}
+                        onChange={(e) => setChatInput(e.target.value)}
+                        onPressEnter={sendChatMessage}
+                        placeholder="Nhập câu hỏi..."
+                        style={{ flex: 1 }}
+                      />
+                      <Button type="primary" onClick={sendChatMessage}>Gửi</Button>
+                    </div>
+                  </div>
+                </div>
               </Content>
             </Layout>
           </Layout>
@@ -9449,6 +9680,87 @@ const HomepageLayout = () => {
               Hành động này không thể hoàn tác.
             </Text>
           </Modal>
+
+          {/* Welcome Modal */}
+          <Modal
+            title={null}
+            footer={null}
+            open={welcomeModalVisible}
+            onCancel={() => setWelcomeModalVisible(false)}
+            width={900}
+            centered
+            zIndex={1050}
+            bodyStyle={{ padding: 0, borderRadius: 12, overflow: 'hidden', display: 'flex' }}
+            closeIcon={<span style={{ color: 'rgba(0,0,0,0.45)', fontSize: 16 }}>Close ✕</span>}
+          >
+            {/* Sidebar Guide Section */}
+            <div style={{ width: 260, background: '#F5F5F5', padding: '32px 24px', display: 'flex', flexDirection: 'column' }}>
+              <div style={{ fontSize: 24, fontWeight: 600, color: '#111827', marginBottom: 32 }}>Chào mừng đến với UpS</div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24 }}>
+                <div style={{ width: 24, height: 24, borderRadius: '50%', background: '#EF5941', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12 }}>✓</div>
+                <div style={{ fontWeight: 500, color: '#EF5941' }}>Bắt đầu</div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24, color: 'rgba(0,0,0,0.45)' }}>
+                <div style={{ width: 24, height: 24, borderRadius: '50%', border: '1px solid currentColor', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12 }}>2</div>
+                <div style={{ fontWeight: 500 }}>Liên kết cửa hàng</div>
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, color: 'rgba(0,0,0,0.45)' }}>
+                <div style={{ width: 24, height: 24, borderRadius: '50%', border: '1px solid currentColor', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 12 }}>3</div>
+                <div style={{ fontWeight: 500 }}>Xác thực dữ liệu</div>
+              </div>
+
+              <div style={{ marginTop: 'auto', paddingTop: 32 }}>
+                <div style={{ fontSize: 12, color: 'rgba(0,0,0,0.45)', marginBottom: 8 }}>Cần hỗ trợ?</div>
+                <Button type="link" style={{ padding: 0, color: '#1677FF' }}>Tài liệu hướng dẫn ›</Button>
+              </div>
+            </div>
+
+            {/* Main Content Details */}
+            <div style={{ flex: 1, padding: '40px 32px', background: '#fff' }}>
+              <div style={{ marginBottom: 32 }}>
+                <div style={{ fontSize: 13, fontWeight: 600, color: '#1677FF', textTransform: 'uppercase', letterSpacing: 1, marginBottom: 8 }}>BƯỚC 1</div>
+                <div style={{ fontSize: 28, fontWeight: 600, color: '#111827' }}>Khám phá các tính năng chính</div>
+                <div style={{ marginTop: 8, fontSize: 15, color: '#4B5563' }}>UpS là nền tảng quản trị bán hàng đa kênh toàn diện. Hãy bắt đầu bằng cách làm quen với các công cụ cốt lõi.</div>
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+                {/* Feature 1 */}
+                <div style={{ border: '1px solid #E5E7EB', borderRadius: 12, padding: 16, cursor: 'pointer', transition: 'all 0.2s' }}>
+                  <img src="/welcome_order_management.png" alt="Quản lý đơn hàng" style={{ width: '100%', height: 160, objectFit: 'cover', borderRadius: 8, marginBottom: 16 }} />
+                  <div style={{ fontSize: 16, fontWeight: 600, color: '#111827', marginBottom: 8 }}>Quản lý đơn hàng</div>
+                  <div style={{ fontSize: 14, color: '#4B5563', lineHeight: 1.5, marginBottom: 16 }}>Xử lý hàng loạt, in vận đơn, và theo dõi trạng thái giao hàng từ tất cả các sàn TMĐT tại một nơi.</div>
+                  <Button type="primary" style={{ width: '100%', background: '#1677FF' }} onClick={() => { setActiveModule('danh-sach-don-hang'); setWelcomeModalVisible(false); }}>Trải nghiệm ngay</Button>
+                </div>
+
+                {/* Vertical Stack feature 2 & 3 */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                  {/* Feature 2 */}
+                  <div style={{ display: 'flex', gap: 16, border: '1px solid #E5E7EB', borderRadius: 12, padding: 12, cursor: 'pointer' }}>
+                    <img src="/welcome_chat_management.png" alt="Quản lý trò chuyện" style={{ width: 100, height: 100, objectFit: 'cover', borderRadius: 8 }} />
+                    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: '#111827', marginBottom: 4 }}>Quản lý trò chuyện</div>
+                      <div style={{ fontSize: 12, color: '#4B5563', lineHeight: 1.5 }}>Gom nhóm tin nhắn đa kênh, tự động chia Sale chăm sóc và phân tích hiệu suất.</div>
+                    </div>
+                  </div>
+
+                  {/* Feature 3 */}
+                  <div style={{ display: 'flex', gap: 16, border: '1px solid #E5E7EB', borderRadius: 12, padding: 12, cursor: 'pointer' }}>
+                    <img src="/welcome_product_management.png" alt="Quản lý sản phẩm" style={{ width: 100, height: 100, objectFit: 'cover', borderRadius: 8 }} />
+                    <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: '#111827', marginBottom: 4 }}>Quản lý sản phẩm</div>
+                      <div style={{ fontSize: 12, color: '#4B5563', lineHeight: 1.5 }}>Đồng bộ tồn kho, sao chép sản phẩm chéo sàn và đẩy tồn nhanh chóng.</div>
+                    </div>
+                  </div>
+
+                  <Button style={{ marginTop: 'auto' }} onClick={() => setWelcomeModalVisible(false)}>Để sau</Button>
+                </div>
+              </div>
+            </div>
+          </Modal>
+
         </Layout>
       )}
     </>

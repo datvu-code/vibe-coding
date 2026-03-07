@@ -38,12 +38,31 @@
   background: #555;
 }
 
+/* Hide scrollbar but keep scroll (main content + chat panel) */
+.hide-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+/* Content layout: rounded corners visible, no overflow scrollbar */
+.ups-content-layout {
+  overflow: hidden;
+}
+
+.ups-content-layout .ant-layout-content {
+  overflow-x: hidden;
+}
+
 /* Smooth transitions - but exclude transforms for drag and drop */
 * {
-  transition: background-color 0.2s ease-in-out, 
-              color 0.2s ease-in-out, 
-              border-color 0.2s ease-in-out,
-              box-shadow 0.2s ease-in-out;
+  transition: background-color 0.2s ease-in-out,
+    color 0.2s ease-in-out,
+    border-color 0.2s ease-in-out,
+    box-shadow 0.2s ease-in-out;
 }
 
 /* Disable transition on transform for drag and drop */
@@ -83,16 +102,16 @@
 }
 
 /* Table with neutral header */
-.neutral-header-table .ant-table-thead > tr > th {
+.neutral-header-table .ant-table-thead>tr>th {
   background: #F5F5F5 !important;
   border-radius: 0 !important;
 }
 
-.neutral-header-table .ant-table-thead > tr > th:first-child {
+.neutral-header-table .ant-table-thead>tr>th:first-child {
   border-start-start-radius: 0 !important;
 }
 
-.neutral-header-table .ant-table-thead > tr > th:last-child {
+.neutral-header-table .ant-table-thead>tr>th:last-child {
   border-start-end-radius: 0 !important;
 }
 
@@ -150,7 +169,7 @@
   border-color: var(--ups-primary-hover) !important;
 }
 
-.ant-checkbox-input:focus + .ant-checkbox-inner {
+.ant-checkbox-input:focus+.ant-checkbox-inner {
   border-color: var(--ups-primary) !important;
   box-shadow: 0 0 0 3px rgba(239, 89, 65, 0.12) !important;
 }
@@ -174,7 +193,7 @@
   border-color: var(--ups-primary-hover) !important;
 }
 
-.custom-primary-checkbox .ant-checkbox-input:focus + .ant-checkbox-inner {
+.custom-primary-checkbox .ant-checkbox-input:focus+.ant-checkbox-inner {
   border-color: var(--ups-primary) !important;
   box-shadow: 0 0 0 3px rgba(239, 89, 65, 0.12) !important;
 }
@@ -210,7 +229,7 @@
   border-color: var(--ups-primary) !important;
 }
 
-.ant-radio-input:focus + .ant-radio-inner {
+.ant-radio-input:focus+.ant-radio-inner {
   border-color: var(--ups-primary) !important;
   box-shadow: 0 0 0 3px rgba(239, 89, 65, 0.12) !important;
 }
@@ -490,7 +509,7 @@ body:has(.guide-drawer-split.ant-drawer-open) .ant-layout-content {
 .guide-drawer strong,
 .guide-drawer-split strong {
   font-weight: 600;
-  color: rgba(0,0,0,0.88);
+  color: rgba(0, 0, 0, 0.88);
 }
 
 /* Resize Steps icon to 24x24px */
@@ -546,20 +565,24 @@ body:has(.guide-drawer-split.ant-drawer-open) .ant-layout-content {
 .supplier-connection-tabs.ant-tabs .ant-tabs-nav {
   margin-bottom: 0;
 }
+
 .supplier-connection-tabs .ant-tabs-tab {
   padding: 0;
   margin-right: 4px;
 }
+
 .supplier-connection-tabs .ant-tabs-tab .ant-tabs-tab-btn {
   padding: 6px 14px;
   border-radius: 8px;
   font-size: 14px;
   color: #111827;
 }
+
 .supplier-connection-tabs .ant-tabs-tab.ant-tabs-tab-active .ant-tabs-tab-btn {
   background: #EF5941 !important;
   color: #fff !important;
 }
+
 .supplier-connection-tabs .ant-tabs-ink-bar {
   display: none;
 }
@@ -581,4 +604,3 @@ body:has(.guide-drawer-split.ant-drawer-open) .ant-layout-content {
   width: 100% !important;
   box-sizing: border-box !important;
 }
-
